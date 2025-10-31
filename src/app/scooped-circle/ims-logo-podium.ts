@@ -27,9 +27,7 @@ type GradStop = { offset: number; color: string; opacity?: number };
 
       <path
           [attr.d]="pathD()"
-          [attr.fill]="stopsSig().length ? 'url(#' + gradIdSig() + ')' : fillSig()"
-          [attr.stroke]="strokeSig() ?? 'none'"
-          [attr.stroke-width]="strokeWidthSig()" />
+          [attr.fill]="stopsSig().length ? 'url(#' + gradIdSig() + ')' : fillSig()" />
       
       <circle 
           [attr.cx]="rSig()" 
@@ -42,11 +40,11 @@ type GradStop = { offset: number; color: string; opacity?: number };
 export class ScoopedCircleComponent {
   // ---------- geometry (px) ----------
   /** Circle radius */
-  @Input() set radius(v: number) { this.rSig.set(Math.max(2, v)); }
+  @Input() set circleRadius(v: number) { this.rSig.set(Math.max(2, v)); }
   /** Distance from the top of the circle down to the flat seam (0..R) */
   @Input() set seamFromTop(v: number) { this.seamSig.set(Math.max(0, v)); }
   /** Fillet (scoop) radius */
-  @Input() set fillet(v: number) { this.rfSig.set(Math.max(0, v)); }
+  @Input() set filletRadius(v: number) { this.rfSig.set(Math.max(0, v)); }
 
   protected rSig = signal(180);
   protected seamSig = signal(42);  // visually similar to your image
@@ -54,12 +52,8 @@ export class ScoopedCircleComponent {
 
   // ---------- paint ----------
   @Input() set fill(v: string) { this._fill.set(v); }
-  @Input() set stroke(v: string | null) { this._stroke.set(v); }
-  @Input() set strokeWidth(v: number) { this._strokeWidth.set(v); }
 
   protected _fill = signal('#000');
-  protected _stroke = signal<string | null>(null);
-  protected _strokeWidth = signal(0);
 
   // gradient (optional)
   @Input() set gradientStops(v: GradStop[] | null) { this._stops.set(v ?? []); }
@@ -69,19 +63,17 @@ export class ScoopedCircleComponent {
   protected _gradId = signal('scoopGrad');
 
   // ---------- public read handles used in template ----------
-  w = computed(() => 3 * this.rSig());
-  h = computed(() => 2 * this.rSig());
-  seamY = computed(() => this.seamSig());
+  protected w = computed(() => 3 * this.rSig());
+  protected h = computed(() => 2 * this.rSig());
+  protected seamY = computed(() => this.seamSig());
 
-  fillSig = () => this._fill();
-  strokeSig = () => this._stroke();
-  strokeWidthSig = () => this._strokeWidth();
-  stopsSig = () => this._stops();
-  gradIdSig = () => this._gradId();
+  protected fillSig = () => this._fill();
+  protected stopsSig = () => this._stops();
+  protected gradIdSig = () => this._gradId();
 
   // ---------- path ----------
   /** One closed shape: flat seam -> left concave fillet -> lower circle arc -> right concave fillet -> close */
-  pathD = computed(() => {
+  protected pathD = computed(() => {
     const R = this.rSig();
     const cx = R, cy = R;
 
