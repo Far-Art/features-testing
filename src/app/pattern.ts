@@ -5,7 +5,7 @@ import {booleanAttribute, Directive, ElementRef, HostListener, input, OnInit} fr
     selector: 'input[imsPattern], textarea[imsPattern]'
 })
 export class Pattern implements OnInit {
-    imsPattern = input.required<'numeric' | RegExp | (string & {})>();
+    imsPattern = input.required<'integer' | 'decimal' | RegExp | (string & {})>();
     clearOnPatternMismatch = input(false, {transform: booleanAttribute});
     private previousValue = '';
 
@@ -28,6 +28,12 @@ export class Pattern implements OnInit {
         const input = event.target as HTMLInputElement | HTMLTextAreaElement;
         const regex = this.getRegex(pattern);
 
+        if (pattern === 'integer' || pattern === 'decimal') {
+            if (input.value.startsWith('0') && input.value.length > 1 && input.value[1] !== '.') {
+                input.value = input.value.substring(1);
+            }
+        }
+
         if (this.test(input.value, regex)) {
             this.previousValue = input.value;
         } else {
@@ -35,9 +41,11 @@ export class Pattern implements OnInit {
         }
     }
 
-    private getRegex(pattern: 'numeric' | RegExp | string): RegExp {
-        if (pattern === 'numeric') {
-            return /^[0-9]*$/;
+    private getRegex(pattern: 'integer' | 'decimal' | RegExp | string): RegExp {
+        if (pattern === 'integer') {
+            return /^(0|[1-9][0-9]*)$/;
+        } else if (pattern === 'decimal') {
+            return /^(0|[1-9][0-9]*)?(\.?[0-9]*)$/;
         } else if (pattern instanceof RegExp) {
             return pattern;
         } else {
