@@ -1,1 +1,94 @@
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+
+@import './styles/gradient-animate.scss';
+
+:root {
+    --ims-primary-50: #f0f5ff;
+    --ims-primary-100: #e8f0ff;
+    --ims-primary-150: #dce8ff;
+    --ims-primary-200: #cedeff;
+    --ims-primary-250: #bdd3ff;
+    --ims-primary-300: #acc7ff;
+    --ims-primary-350: #98baff;
+    --ims-primary-400: #84acff;
+    --ims-primary-450: #6f9cff;
+    --ims-primary-500: #6987ff;
+    --ims-primary-550: #447afa;
+    --ims-primary-600: #366ae9;
+    --ims-primary-650: #285ad7;
+    --ims-primary-700: #1a49c5;
+    --ims-primary-750: #133ca9;
+    --ims-primary-800: #0c2f8d;
+    --ims-primary-850: #052172;
+    --ims-primary-900: #021457;
+    --ims-primary-950: #00073e;
+
+}
+
+html {
+    //@include mat.theme((
+    //  color: (
+    //    primary: mat.$cyan-palette,
+    //    tertiary: mat.$orange-palette,
+    //  ),
+    //  typography: Roboto,
+    //  density: 0,
+    //));
+}
+
+body {
+    // Default the application to a light color theme. This can be changed to
+    // `dark` to enable the dark color theme, or to `light dark` to defer to the
+    // user's system settings.
+    color-scheme: light;
+
+    // Set a default background, font and text colors for the application using
+    // Angular Material's system-level CSS variables. Learn more about these
+    // variables at https://material.angular.dev/guide/system-variables
+    background-color: var(--mat-sys-surface);
+    color: var(--mat-sys-on-surface);
+    font: var(--mat-sys-body-medium);
+
+    // Reset the user agent margin.
+    margin: 0;
+}
+
 /* You can add global styles to this file, and also import other style files */
+
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* Floating label directive */
+.floating-placeholder-input {
+    padding: 1rem 1rem 0.6rem;
+}
+
+.floating-placeholder {
+    top: anchor(center);
+    left: anchor(left);
+    position: absolute;
+    translate: 0 -0.6em;
+    padding: 0 6px;
+    border-radius: 8px;
+    color: color-mix(in oklch, currentColor 72%, transparent);
+    pointer-events: none;
+    transition: top 140ms ease, scale 140ms ease, color 140ms ease, background 140ms ease;
+}
+
+.floating-placeholder.floated {
+    top: anchor(start);
+    scale: 0.84;
+    background: color-mix(in oklch, currentColor 24%, transparent);
+    color: color-mix(in oklch, var(--bright-blue, currentColor) 90%, white 10%);
+}
