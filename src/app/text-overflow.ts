@@ -1,17 +1,25 @@
+import {ConnectedPosition, Overlay, OverlayRef} from '@angular/cdk/overlay';
+import {DomPortal} from '@angular/cdk/portal';
 import {Directive, ElementRef, HostListener, Renderer2} from '@angular/core';
 
 
 @Directive({
-    selector: '[imsTextOverflow]',
+    selector: '[appTextOverflow], [imsTextOverflow]',
     standalone: true
 })
 export class TextOverflow {
     private tooltip: HTMLElement | null = null;
+    private overlayRef: OverlayRef | null = null;
+    private portalStagingParent: HTMLElement | null = null;
     private isSelecting = false;
     private selectionListener: (() => void) | null = null;
     private mouseDownListener: (() => void) | null = null;
 
-    constructor(private el: ElementRef, private renderer: Renderer2) {
+    constructor(
+        private el: ElementRef<HTMLElement>,
+        private renderer: Renderer2,
+        private overlay: Overlay
+    ) {
         this.renderer.setStyle(this.el.nativeElement, 'white-space', 'nowrap');
         this.renderer.setStyle(this.el.nativeElement, 'overflow', 'hidden');
         this.renderer.setStyle(this.el.nativeElement, 'text-overflow', 'ellipsis');
@@ -30,7 +38,6 @@ export class TextOverflow {
         const rect = host.getBoundingClientRect();
 
         this.tooltip = host.cloneNode(true) as HTMLElement;
-        this.renderer.setStyle(this.tooltip, 'position', 'fixed');
         this.renderer.setStyle(this.tooltip, 'display', computedStyle.display);
         this.renderer.setStyle(this.tooltip, 'box-sizing', 'border-box');
         this.renderer.setStyle(this.tooltip, 'background', computedStyle.background);
@@ -41,7 +48,6 @@ export class TextOverflow {
         this.renderer.setStyle(this.tooltip, 'height', `${rect.height}px`);
         this.renderer.setStyle(this.tooltip, 'min-height', `${rect.height}px`);
         this.renderer.setStyle(this.tooltip, 'max-height', `${rect.height}px`);
-        this.renderer.setStyle(this.tooltip, 'z-index', '1000');
         this.renderer.setStyle(this.tooltip, 'white-space', 'nowrap');
         this.renderer.setStyle(this.tooltip, 'overflow', 'visible');
         this.renderer.setStyle(this.tooltip, 'text-overflow', 'clip');
@@ -49,9 +55,14 @@ export class TextOverflow {
         this.renderer.setStyle(this.tooltip, 'margin', '0');
         this.renderer.setStyle(this.tooltip, 'direction', direction);
 
-        this.setTooltipPosition(rect, direction);
+        this.portalStagingParent = this.renderer.createElement('div');
+        this.renderer.setStyle(this.portalStagingParent, 'display', 'none');
+        this.renderer.appendChild(document.body, this.portalStagingParent);
+        this.renderer.appendChild(this.portalStagingParent, this.tooltip);
 
-        this.renderer.appendChild(document.body, this.tooltip);
+        this.overlayRef = this.createOverlay(direction, host);
+        this.overlayRef.attach(new DomPortal(this.tooltip));
+        this.overlayRef.updatePosition();
         this.renderer.setStyle(host, 'color', 'transparent');
 
         this.renderer.listen(this.tooltip, 'mouseenter', () => this.isSelecting = true);
@@ -99,7 +110,12 @@ export class TextOverflow {
 
             if (!this.isSelecting && !selectionInTooltip) {
                 this.renderer.removeStyle(this.el.nativeElement, 'color');
-                this.renderer.removeChild(document.body, this.tooltip);
+                this.overlayRef?.dispose();
+                this.overlayRef = null;
+                if (this.portalStagingParent) {
+                    this.renderer.removeChild(document.body, this.portalStagingParent);
+                    this.portalStagingParent = null;
+                }
                 this.tooltip = null;
                 if (this.selectionListener) {
                     this.selectionListener();
@@ -118,21 +134,35 @@ export class TextOverflow {
         return direction === 'rtl' ? 'rtl' : 'ltr';
     }
 
-    private setTooltipPosition(rect: DOMRect, direction: 'ltr' | 'rtl'): void {
-        if (!this.tooltip) {
-            return;
-        }
+    private createOverlay(direction: 'ltr' | 'rtl', origin: HTMLElement): OverlayRef {
+        this.overlayRef?.dispose();
+        const positionStrategy = this.overlay
+            .position()
+            .flexibleConnectedTo(origin)
+            .withFlexibleDimensions(false)
+            .withPush(false)
+            .withPositions(this.getOverlayPositions(direction));
 
-        this.renderer.removeStyle(this.tooltip, 'left');
-        this.renderer.removeStyle(this.tooltip, 'right');
-        this.renderer.setStyle(this.tooltip, 'top', `${rect.top}px`);
+        return this.overlay.create({
+            positionStrategy,
+            scrollStrategy: this.overlay.scrollStrategies.reposition(),
+            disposeOnNavigation: true,
+            hasBackdrop: false,
+            direction
+        });
+    }
 
+    private getOverlayPositions(direction: 'ltr' | 'rtl'): ConnectedPosition[] {
         if (direction === 'rtl') {
-            const inlineStartOffset = Math.max(0, window.innerWidth - rect.right);
-            this.renderer.setStyle(this.tooltip, 'right', `${inlineStartOffset}px`);
-            return;
+            return [
+                {originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'top'},
+                {originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'bottom'}
+            ];
         }
 
-        this.renderer.setStyle(this.tooltip, 'left', `${rect.left}px`);
+        return [
+            {originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'top'},
+            {originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'bottom'}
+        ];
     }
 }
