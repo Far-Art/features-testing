@@ -32,6 +32,7 @@ export class ImsSortHeaderDirective implements ImsSortHeaderContext {
     private readonly cell = inject(ImsGridCell, {optional: true, host: true});
     private readonly grid = inject(IMS_GRID_CONTEXT, {optional: true});
 
+    /** Sort field key used by the grid to identify the active sorted column. Required input, no default. */
     readonly field = input.required<string>({alias: 'imsSortHeader'});
     readonly isInteractive = this.grid !== null;
     readonly recentlyCleared = signal<RecentlyClearedDirection>(null);
@@ -62,6 +63,7 @@ export class ImsSortHeaderDirective implements ImsSortHeaderContext {
         });
     }
 
+    /** Delegates sort state transition to the grid and updates local hint/clear animation state. */
     toggleSort(): void {
         if (!this.grid) {
             return;
@@ -91,6 +93,7 @@ export class ImsSortHeaderDirective implements ImsSortHeaderContext {
         }
     }
 
+    /** Re-enables hover/focus sort hint after deactivate animation completes and pointer/focus exits. */
     clearRecentlyCleared(): void {
         this.recentlyCleared.set(null);
         this.hintSuppressed.set(false);

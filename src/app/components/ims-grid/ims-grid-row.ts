@@ -30,30 +30,51 @@ export class ImsGridRow implements ImsGridRowContext {
     private readonly grid = inject(IMS_GRID_CONTEXT, {optional: true});
     private readonly cells = contentChildren(ImsGridCell, {descendants: true});
     private readonly insideVirtualViewport = this.hostElement.closest('cdk-virtual-scroll-viewport') !== null;
+    private participatesInGrid = false;
+    private isDestroyed = false;
     private activeContainers = new Set<HTMLElement>();
     readonly isHeaderRow = this.hostElement.tagName === 'IMS-GRID-HEADER';
 
+    /** Optional left spacer for this row (aligns content with wrapped structures). Default: `undefined` (inherits grid default). */
     readonly offsetStart = input<string | number | undefined>(undefined);
+    /** Optional right spacer for this row. Default: `undefined` (inherits grid default). */
     readonly offsetEnd = input<string | number | undefined>(undefined);
+    /** When true, offsets are reduced by container insets (useful with padded wrappers). Default: `false`. */
     readonly compensateOffsets = input(false, {transform: booleanAttribute});
 
-    readonly cellCount: Signal<number> = computed(() => this.cells().length);
-    readonly headerCellCount: Signal<number> = computed(() => this.isHeaderRow ? this.cells().length : 0);
+    readonly cellCount: Signal<number> = computed(() => this.resolveMaxContainerCellCount(this.ownCells()));
+    readonly headerCellCount: Signal<number> = computed(() =>
+        this.isHeaderRow ? this.resolveMaxContainerCellCount(this.ownCells()) : 0
+    );
     readonly rowOffsetStartCss: Signal<string> = computed(() => toCssLength(this.offsetStart() ?? 0));
     readonly rowOffsetEndCss: Signal<string> = computed(() => toCssLength(this.offsetEnd() ?? 0));
 
     constructor() {
-        this.grid?.registerRow(this);
+        // Delay registration until parent relations are stable so nested rows can be excluded.
+        queueMicrotask(() => {
+            if (this.isDestroyed) {
+                return;
+            }
+
+            this.participatesInGrid = !hasAncestorGridRow(this.hostElement);
+            if (this.participatesInGrid) {
+                this.grid?.registerRow(this);
+            }
+        });
+
         this.destroyRef.onDestroy(() => {
-            this.grid?.unregisterRow(this);
+            this.isDestroyed = true;
+            if (this.participatesInGrid) {
+                this.grid?.unregisterRow(this);
+            }
             this.cleanupContainers();
         });
 
         effect(
             () => {
-                const cells = this.cells();
-                this.assignColumnIndexes(cells);
-                this.syncContainers(cells);
+                const ownCells = this.ownCells();
+                this.assignColumnIndexes(ownCells);
+                this.syncContainers(ownCells);
             },
             {allowSignalWrites: true}
         );
@@ -78,8 +99,21 @@ export class ImsGridRow implements ImsGridRowContext {
         });
     }
 
+    /** Returns only cells logically owned by this row (excluding nested row cells). */
+    private ownCells(): readonly ImsGridCell[] {
+        return this.cells().filter((cell) => this.belongsToThisRow(cell));
+    }
+
+    private belongsToThisRow(cell: ImsGridCell): boolean {
+        const nearestRow = cell.getHostElement().closest('ims-grid-row, ims-grid-header');
+        return nearestRow === this.hostElement;
+    }
+
     private assignColumnIndexes(cells: readonly ImsGridCell[]): void {
-        cells.forEach((cell, index) => cell.setColumnIndex(index));
+        const cellsByContainer = this.groupCellsByContainer(cells);
+        for (const containerCells of cellsByContainer.values()) {
+            containerCells.forEach((cell, index) => cell.setColumnIndex(index));
+        }
     }
 
     private syncContainers(cells: readonly ImsGridCell[]): void {
@@ -97,6 +131,51 @@ export class ImsGridRow implements ImsGridRowContext {
         this.activeContainers = nextContainers;
     }
 
+    private groupCellsByContainer(cells: readonly ImsGridCell[]): Map<HTMLElement, ImsGridCell[]> {
+        const map = new Map<HTMLElement, ImsGridCell[]>();
+        for (const cell of cells) {
+            const container = cell.parentElement ?? this.hostElement;
+            const group = map.get(container);
+            if (group) {
+                group.push(cell);
+            } else {
+                map.set(container, [cell]);
+            }
+        }
+
+        return map;
+    }
+
+    private resolveMaxContainerCellCount(cells: readonly ImsGridCell[]): number {
+        const grouped = this.groupCellsByContainer(cells);
+        let max = 0;
+        for (const group of grouped.values()) {
+            if (group.length > max) {
+                max = group.length;
+            }
+        }
+
+        return max;
+    }
+
+    private resolvePrimaryContainerCells(cells: readonly ImsGridCell[]): readonly ImsGridCell[] {
+        if (cells.length === 0) {
+            return [];
+        }
+
+        const primaryContainer = cells[0].parentElement ?? this.hostElement;
+        return cells.filter((cell) => (cell.parentElement ?? this.hostElement) === primaryContainer);
+    }
+
+    private resolveExpansionHeaderCells(): readonly HTMLElement[] {
+        const header = this.hostElement.querySelector('mat-expansion-panel-header');
+        if (!header) {
+            return [];
+        }
+
+        return Array.from(header.querySelectorAll('ims-grid-cell')) as HTMLElement[];
+    }
+
     private applyContainerStyles(
         columnTemplate: string,
         columnGap: string,
@@ -104,6 +183,7 @@ export class ImsGridRow implements ImsGridRowContext {
         baseOffsetEnd: string,
         viewportEndCompensationInPx: number
     ): void {
+        // Apply the same computed track template to every container that directly hosts row cells.
         const shouldCompensate = this.compensateOffsets();
         const hostRect = shouldCompensate ? this.hostElement.getBoundingClientRect() : null;
 
@@ -122,7 +202,7 @@ export class ImsGridRow implements ImsGridRowContext {
             offsetEnd = addOffset(offsetEnd, viewportEndCompensationInPx);
 
             this.renderer.setStyle(container, 'display', 'grid');
-            this.renderer.setStyle(container, 'align-items', 'start');
+            this.renderer.setStyle(container, 'align-items', 'center');
             this.setStyle(container, 'column-gap', 'var(--ims-grid-column-gap)');
             this.setStyle(
                 container,
@@ -178,16 +258,28 @@ export class ImsGridRow implements ImsGridRowContext {
         this.renderer.setStyle(this.hostElement, 'order', `${order}`);
     }
 
+    clearRenderOrder(): void {
+        this.renderer.removeStyle(this.hostElement, 'order');
+    }
+
     getHostElement(): HTMLElement {
         return this.hostElement;
     }
 
+    /** Sort source priority: expansion-panel header cells, otherwise row primary container cells. */
     resolveSortValue(columnIndex: number): unknown {
-        return this.cells()[columnIndex]?.textValue ?? '';
+        const headerCells = this.resolveExpansionHeaderCells();
+        if (headerCells.length > 0) {
+            return headerCells[columnIndex]?.textContent?.trim() ?? '';
+        }
+
+        const primaryContainerCells = this.resolvePrimaryContainerCells(this.ownCells());
+        return primaryContainerCells[columnIndex]?.textValue ?? '';
     }
 
     resolveColumnWidth(columnIndex: number): string | null {
-        return this.cells()[columnIndex]?.widthCss ?? null;
+        const cells = this.resolvePrimaryContainerCells(this.ownCells());
+        return cells[columnIndex]?.widthCss ?? null;
     }
 }
 
@@ -222,4 +314,13 @@ function addOffset(baseOffset: string, additionInPx: number): string {
     }
 
     return `calc(${baseOffset} + ${additionInPx.toFixed(3)}px)`;
+}
+
+function hasAncestorGridRow(element: HTMLElement): boolean {
+    const parent = element.parentElement;
+    if (!parent) {
+        return false;
+    }
+
+    return parent.closest('ims-grid-row, ims-grid-header') !== null;
 }

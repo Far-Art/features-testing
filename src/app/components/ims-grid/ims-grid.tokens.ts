@@ -7,6 +7,11 @@ export interface ImsSortState {
     readonly direction: ImsSortDirection;
 }
 
+export interface ImsSortChangeEvent<T = unknown> {
+    readonly state: ImsSortState;
+    readonly sortedData: readonly T[] | null;
+}
+
 export interface ImsSortHeaderContext {
     getField(): string;
     getColumnIndex(): number;
@@ -20,6 +25,7 @@ export interface ImsGridRowContext {
     readonly isHeaderRow: boolean;
     getHostElement(): HTMLElement;
     setRenderOrder(order: number): void;
+    clearRenderOrder(): void;
     resolveSortValue(columnIndex: number): unknown;
     resolveColumnWidth(columnIndex: number): string | null;
 }
@@ -30,6 +36,7 @@ export interface ImsGridContext {
     readonly columnGap: Signal<string>;
     readonly defaultOffsetStart: Signal<string>;
     readonly defaultOffsetEnd: Signal<string>;
+    readonly headerHighlightEnabled: Signal<boolean>;
     readonly viewportScrollbarWidth: Signal<number>;
     readonly sortState: Signal<ImsSortState>;
     readonly activeColumnIndex: Signal<number | null>;

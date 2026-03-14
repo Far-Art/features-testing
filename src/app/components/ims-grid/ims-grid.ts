@@ -14,6 +14,7 @@ import {
 } from '@angular/core';
 import {
     IMS_GRID_CONTEXT,
+    ImsSortChangeEvent,
     ImsGridContext,
     ImsGridRowContext,
     ImsSortDirection,
@@ -52,17 +53,27 @@ export class ImsGrid implements ImsGridContext {
     private scheduledRows: readonly ImsGridRowContext[] = [];
     private scheduledSortState: ImsSortState = {active: null, direction: ''};
     private scheduledSortHeaders: readonly ImsSortHeaderContext[] = [];
-    private scheduledSortStrategy: 'dom' | 'data' = 'dom';
+    private scheduledHasExternalSortData = false;
     private observedViewport: HTMLElement | null = null;
     private viewportResizeObserver: ResizeObserver | null = null;
 
-    readonly gap = input<string | number>(16, {alias: 'columnGap'});
+    /** Horizontal gap between logical data columns (not including offset columns). Default: `0`. */
+    readonly gap = input<string | number>(0, {alias: 'columnGap'});
+    /** Vertical spacing between top-level grid rows. Default: `0`. */
     readonly rowGapInput = input<string | number>(0, {alias: 'rowGap'});
-    readonly sortStrategy = input<'dom' | 'data'>('dom');
+    /** Optional full dataset to sort externally (required for virtual scroll correctness). Default: `null`. */
+    readonly toSortList = input<readonly unknown[] | null>(null);
+    /** Enables header highlight reaction to hovered/focused body cells. Default: `false` (disabled). */
+    readonly headerHighlightEnabled = signal(false);
+    /** Width delta between header and viewport body used to keep columns aligned. */
     readonly viewportScrollbarWidth = signal(0);
+    /** Current active sort state shared with sort header directives. */
     readonly sortState = signal<ImsSortState>({active: null, direction: ''});
-    readonly sortChange = output<ImsSortState>();
-    readonly activeColumnIndex = computed(() => this.focusedColumnIndex() ?? this.hoveredColumnIndex());
+    /** Emits sort state and optional externally sorted data (asc -> desc -> none cycle). */
+    readonly sortChange = output<ImsSortChangeEvent>();
+    readonly activeColumnIndex = computed(() =>
+        this.headerHighlightEnabled() ? (this.focusedColumnIndex() ?? this.hoveredColumnIndex()) : null
+    );
     readonly columnGap: Signal<string> = computed(() => toCssLength(this.gap()));
     readonly rowGap: Signal<string> = computed(() => toCssLength(this.rowGapInput()));
     readonly columnCount: Signal<number> = computed(() => {
@@ -106,7 +117,7 @@ export class ImsGrid implements ImsGridContext {
             this.scheduledRows = this.rows();
             this.scheduledSortState = this.sortState();
             this.scheduledSortHeaders = this.sortHeaders();
-            this.scheduledSortStrategy = this.sortStrategy();
+            this.scheduledHasExternalSortData = this.toSortList() !== null;
             this.attachViewportObserver();
             this.scheduleApplyRowOrder();
         });
@@ -139,28 +150,25 @@ export class ImsGrid implements ImsGridContext {
         this.sortHeaders.update((headers) => headers.filter((current) => current !== header));
     }
 
+    /** Cycles sort direction for a field and emits the updated state. */
     toggleSort(field: string): void {
         const state = this.sortState();
         if (state.active !== field) {
-            this.sortState.set({active: field, direction: 'asc'});
-            this.sortChange.emit(this.sortState());
+            this.applySortState({active: field, direction: 'asc'});
             return;
         }
 
         if (state.direction === 'asc') {
-            this.sortState.set({active: field, direction: 'desc'});
-            this.sortChange.emit(this.sortState());
+            this.applySortState({active: field, direction: 'desc'});
             return;
         }
 
         if (state.direction === 'desc') {
-            this.sortState.set({active: null, direction: ''});
-            this.sortChange.emit(this.sortState());
+            this.applySortState({active: null, direction: ''});
             return;
         }
 
-        this.sortState.set({active: field, direction: 'asc'});
-        this.sortChange.emit(this.sortState());
+        this.applySortState({active: field, direction: 'asc'});
     }
 
     getSortDirection(field: string): ImsSortDirection {
@@ -169,13 +177,20 @@ export class ImsGrid implements ImsGridContext {
     }
 
     setHoveredColumn(columnIndex: number | null): void {
+        if (!this.headerHighlightEnabled()) {
+            return;
+        }
         this.hoveredColumnIndex.set(columnIndex);
     }
 
     setFocusedColumn(columnIndex: number | null): void {
+        if (!this.headerHighlightEnabled()) {
+            return;
+        }
         this.focusedColumnIndex.set(columnIndex);
     }
 
+    /** Batches row ordering work into a single animation frame to avoid sync layout thrash. */
     private scheduleApplyRowOrder(): void {
         if (this.pendingApply) {
             return;
@@ -190,21 +205,21 @@ export class ImsGrid implements ImsGridContext {
                 this.scheduledRows,
                 this.scheduledSortState,
                 this.scheduledSortHeaders,
-                this.scheduledSortStrategy
+                this.scheduledHasExternalSortData
             );
         });
     }
 
+    /** Applies sorting and visual order to registered header/body rows. */
     private applyRowOrder(
         rows: readonly ImsGridRowContext[],
         sortState: ImsSortState,
         sortHeaders: readonly ImsSortHeaderContext[],
-        sortStrategy: 'dom' | 'data'
+        hasExternalSortData: boolean
     ): void {
-        if (sortStrategy !== 'dom') {
-            if (this.hasSortedOrderApplied) {
-                this.restoreNaturalOrder(rows);
-            }
+        if (hasExternalSortData) {
+            this.clearRowOrderStyles(rows);
+            this.hasSortedOrderApplied = false;
             return;
         }
 
@@ -216,12 +231,16 @@ export class ImsGrid implements ImsGridContext {
             const activeField = sortState.active;
             const columnIndex = resolveSortColumnIndex(activeField, sortHeaders);
             const directionMultiplier = sortState.direction === 'asc' ? 1 : -1;
+            const sortValueByRow = new Map<ImsGridRowContext, unknown>();
+            for (const row of bodyRows) {
+                sortValueByRow.set(row, row.resolveSortValue(columnIndex));
+            }
 
             orderedBodyRows = bodyRows
                 .map((row, index) => ({row, index}))
                 .sort((left, right) => {
-                    const leftValue = left.row.resolveSortValue(columnIndex);
-                    const rightValue = right.row.resolveSortValue(columnIndex);
+                    const leftValue = sortValueByRow.get(left.row) ?? '';
+                    const rightValue = sortValueByRow.get(right.row) ?? '';
                     const result = compareSortValues(leftValue, rightValue) * directionMultiplier;
                     return result !== 0 ? result : left.index - right.index;
                 })
@@ -246,29 +265,91 @@ export class ImsGrid implements ImsGridContext {
             row.setRenderOrder(visualOrder++);
         }
 
-        // Fallback for non-flex parents (e.g. cdk-virtual-scroll content wrapper):
-        // move row elements in DOM order so sorting is visible regardless of layout mode.
-        this.reorderRowsInDom([...headerRows, ...orderedBodyRows]);
+        const orderedRows = [...headerRows, ...orderedBodyRows];
+        this.ensureParentsSupportCssOrder(orderedRows);
+        if (this.requiresDomReorder(orderedRows)) {
+            this.reorderRowsInDom(orderedRows);
+        }
     }
 
-    private restoreNaturalOrder(rows: readonly ImsGridRowContext[]): void {
-        const headerRows = rows.filter((row) => row.isHeaderRow);
-        const bodyRows = rows
-            .filter((row) => !row.isHeaderRow)
-            .sort((left, right) => this.resolveRegistrationOrder(left) - this.resolveRegistrationOrder(right));
-
-        let visualOrder = 0;
-        for (const row of headerRows) {
-            row.setRenderOrder(visualOrder++);
-        }
-        for (const row of bodyRows) {
-            row.setRenderOrder(visualOrder++);
-        }
-
-        this.reorderRowsInDom([...headerRows, ...bodyRows]);
-        this.hasSortedOrderApplied = false;
+    private applySortState(state: ImsSortState): void {
+        this.sortState.set(state);
+        this.sortChange.emit({
+            state,
+            sortedData: this.computeExternalSortedData(state)
+        });
     }
 
+    private computeExternalSortedData(state: ImsSortState): readonly unknown[] | null {
+        const list = this.toSortList();
+        if (list === null) {
+            return null;
+        }
+
+        if (!state.active || !state.direction) {
+            return [...list];
+        }
+
+        const activeField = state.active;
+        const directionMultiplier = state.direction === 'asc' ? 1 : -1;
+
+        return list
+            .map((item, index) => ({item, index}))
+            .sort((left, right) => {
+                const leftValue = resolveListSortValue(left.item, activeField);
+                const rightValue = resolveListSortValue(right.item, activeField);
+                const result = compareSortValues(leftValue, rightValue) * directionMultiplier;
+                return result !== 0 ? result : left.index - right.index;
+            })
+            .map(({item}) => item);
+    }
+
+    /** Removes explicit CSS order when sorting is delegated to external data list handling. */
+    private clearRowOrderStyles(rows: readonly ImsGridRowContext[]): void {
+        for (const row of rows) {
+            row.clearRenderOrder();
+        }
+    }
+
+    /** Ensures parent containers support CSS `order` (flex/grid required). */
+    private ensureParentsSupportCssOrder(rows: readonly ImsGridRowContext[]): void {
+        const parents = new Set<HTMLElement>();
+        for (const row of rows) {
+            const parent = row.getHostElement().parentElement;
+            if (!parent) {
+                continue;
+            }
+            parents.add(parent);
+        }
+
+        for (const parent of parents) {
+            if (supportsCssOrder(parent)) {
+                continue;
+            }
+
+            parent.style.setProperty('display', 'flex', 'important');
+            parent.style.setProperty('flex-direction', 'column', 'important');
+            parent.style.setProperty('align-items', 'stretch', 'important');
+        }
+    }
+
+    /** DOM reordering is only needed in containers like virtual scroll where CSS order is insufficient. */
+    private requiresDomReorder(rows: readonly ImsGridRowContext[]): boolean {
+        for (const row of rows) {
+            const parent = row.getHostElement().parentElement;
+            if (!parent) {
+                continue;
+            }
+
+            if (isInsideViewport(parent)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /** Reorders row elements inside each parent container to match computed sorted order. */
     private reorderRowsInDom(rows: readonly ImsGridRowContext[]): void {
         const rowsByParent = new Map<HTMLElement, HTMLElement[]>();
 
@@ -310,6 +391,7 @@ export class ImsGrid implements ImsGridContext {
         return this.rowRegistrationOrder.get(row) ?? Number.MAX_SAFE_INTEGER;
     }
 
+    /** Tracks viewport size changes used for header/body width compensation. */
     private attachViewportObserver(): void {
         const viewport = this.hostElement.querySelector('cdk-virtual-scroll-viewport') as HTMLElement | null;
         if (viewport === this.observedViewport) {
@@ -333,6 +415,7 @@ export class ImsGrid implements ImsGridContext {
         this.updateViewportCompensation(this.rows());
     }
 
+    /** Calculates end-offset compensation to keep header columns aligned with viewport rows. */
     private updateViewportCompensation(rows: readonly ImsGridRowContext[]): void {
         let compensation = 0;
 
@@ -426,6 +509,23 @@ function normalizeSortValue(value: unknown): number | string {
     return stringValue.toLocaleLowerCase();
 }
 
+function resolveListSortValue(item: unknown, field: string): unknown {
+    if (item === null || item === undefined) {
+        return '';
+    }
+
+    if (typeof item !== 'object') {
+        return item;
+    }
+
+    return (item as Record<string, unknown>)[field];
+}
+
 function isInsideViewport(element: HTMLElement): boolean {
     return element.closest('cdk-virtual-scroll-viewport') !== null;
+}
+
+function supportsCssOrder(parent: HTMLElement): boolean {
+    const display = getComputedStyle(parent).display;
+    return display.includes('flex') || display.includes('grid');
 }

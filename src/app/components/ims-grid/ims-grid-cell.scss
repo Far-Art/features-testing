@@ -1,7 +1,15 @@
 :host {
-    display: block;
+    display: flex;
+    align-items: center;
     min-width: 0;
     grid-column-end: span 1;
+}
+
+.ims-sort-header-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
 }
 
 :host-context(ims-grid-header) {
@@ -14,8 +22,10 @@
 }
 
 .ims-sort-header-content {
-    display: block;
+    display: flex;
+    align-items: center;
     min-width: 0;
+    flex: 1 1 auto;
 }
 
 .ims-sort-header-arrow {
@@ -27,17 +37,12 @@
 }
 
 :host(.ims-sort-header) .ims-sort-header-container {
-    display: flex;
-    align-items: center;
     letter-spacing: normal;
     outline: 0;
 }
 
 :host(.ims-sort-header) .ims-sort-header-content {
-    display: flex;
-    align-items: center;
     min-width: 0;
-    flex: 1 1 auto;
 }
 
 @keyframes _ims-sort-header-recently-cleared-ascending {
@@ -82,18 +87,18 @@
     margin: 0 0 0 6px;
 }
 
-:host(.ims-sort-header:not(.ims-sort-header-hint-suppressed):hover) .ims-sort-header-arrow,
-:host(.ims-sort-header:not(.ims-sort-header-hint-suppressed):focus-visible) .ims-sort-header-arrow,
-:host(.ims-sort-header.cdk-keyboard-focused:not(.ims-sort-header-hint-suppressed)) .ims-sort-header-arrow,
-:host(.ims-sort-header.cdk-program-focused:not(.ims-sort-header-hint-suppressed)) .ims-sort-header-arrow {
+:host(.ims-sort-header:not(.ims-sort-header-hint-suppressed):not(.ims-sort-header-sorted):hover) .ims-sort-header-arrow,
+:host(.ims-sort-header:not(.ims-sort-header-hint-suppressed):not(.ims-sort-header-sorted):focus-visible) .ims-sort-header-arrow,
+:host(.ims-sort-header.cdk-keyboard-focused:not(.ims-sort-header-hint-suppressed):not(.ims-sort-header-sorted)) .ims-sort-header-arrow,
+:host(.ims-sort-header.cdk-program-focused:not(.ims-sort-header-hint-suppressed):not(.ims-sort-header-sorted)) .ims-sort-header-arrow {
     opacity: 0.54;
     transform: translateY(0);
 }
 
-:host(.ims-sort-header.ims-sort-header-descending:not(.ims-sort-header-hint-suppressed):hover) .ims-sort-header-arrow,
-:host(.ims-sort-header.ims-sort-header-descending:not(.ims-sort-header-hint-suppressed):focus-visible) .ims-sort-header-arrow,
-:host(.ims-sort-header.ims-sort-header-descending.cdk-keyboard-focused:not(.ims-sort-header-hint-suppressed)) .ims-sort-header-arrow,
-:host(.ims-sort-header.ims-sort-header-descending.cdk-program-focused:not(.ims-sort-header-hint-suppressed)) .ims-sort-header-arrow {
+:host(.ims-sort-header.ims-sort-header-descending:not(.ims-sort-header-hint-suppressed):not(.ims-sort-header-sorted):hover) .ims-sort-header-arrow,
+:host(.ims-sort-header.ims-sort-header-descending:not(.ims-sort-header-hint-suppressed):not(.ims-sort-header-sorted):focus-visible) .ims-sort-header-arrow,
+:host(.ims-sort-header.ims-sort-header-descending.cdk-keyboard-focused:not(.ims-sort-header-hint-suppressed):not(.ims-sort-header-sorted)) .ims-sort-header-arrow,
+:host(.ims-sort-header.ims-sort-header-descending.cdk-program-focused:not(.ims-sort-header-hint-suppressed):not(.ims-sort-header-sorted)) .ims-sort-header-arrow {
     transform: translateY(0) rotateZ(180deg);
 }
 

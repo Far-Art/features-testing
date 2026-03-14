@@ -32,9 +32,11 @@ export class ImsGridCell {
     private readonly elementRef = inject(ElementRef<HTMLElement>);
     private readonly grid = inject(IMS_GRID_CONTEXT, {optional: true});
     private readonly columnIndex = signal(0);
+    /** Optional fixed track width consumed by header row when building grid-template-columns. Default: `undefined`. */
     readonly width = input<string | number | undefined>(undefined);
     readonly gridColumnStart = computed(() => `${this.columnIndex() + 2}`);
     readonly isHeaderHighlighted = computed(() =>
+        (this.grid?.headerHighlightEnabled() ?? false) &&
         (this.grid?.activeColumnIndex() ?? -1) === this.getColumnIndex()
     );
 
@@ -42,6 +44,11 @@ export class ImsGridCell {
         return this.elementRef.nativeElement.parentElement;
     }
 
+    getHostElement(): HTMLElement {
+        return this.elementRef.nativeElement;
+    }
+
+    /** Assigned by parent row so this cell maps to a logical data column. */
     setColumnIndex(index: number): void {
         this.columnIndex.set(index);
     }
@@ -67,6 +74,7 @@ export class ImsGridCell {
         this.grid?.setHoveredColumn(this.getColumnIndex());
     }
 
+    /** Keep highlight active when moving focus/hover between cells. */
     onPointerLeave(event: PointerEvent): void {
         const next = event.relatedTarget as Element | null;
         if (next?.closest('ims-grid-cell')) {
@@ -80,6 +88,7 @@ export class ImsGridCell {
         this.grid?.setFocusedColumn(this.getColumnIndex());
     }
 
+    /** Clear focus highlight only when focus exits the grid-cell scope. */
     onFocusOut(event: FocusEvent): void {
         const next = event.relatedTarget as Element | null;
         if (next?.closest('ims-grid-cell')) {
