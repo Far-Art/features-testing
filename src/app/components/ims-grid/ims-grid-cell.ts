@@ -1,4 +1,5 @@
 import {ChangeDetectionStrategy, Component, ElementRef, computed, inject, signal} from '@angular/core';
+import {IMS_GRID_CONTEXT} from './ims-grid.tokens';
 
 @Component({
     selector: 'ims-grid-cell',
@@ -18,14 +19,23 @@ import {ChangeDetectionStrategy, Component, ElementRef, computed, inject, signal
     `,
     styleUrl: './ims-grid-cell.scss',
     host: {
-        '[style.grid-column-start]': 'gridColumnStart()'
+        '[style.grid-column-start]': 'gridColumnStart()',
+        '[class.ims-grid-header-highlighted]': 'isHeaderHighlighted()',
+        '(pointerenter)': 'onPointerEnter()',
+        '(pointerleave)': 'onPointerLeave($event)',
+        '(focusin)': 'onFocusIn()',
+        '(focusout)': 'onFocusOut($event)'
     },
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ImsGridCell {
     private readonly elementRef = inject(ElementRef<HTMLElement>);
+    private readonly grid = inject(IMS_GRID_CONTEXT, {optional: true});
     private readonly columnIndex = signal(0);
     readonly gridColumnStart = computed(() => `${this.columnIndex() + 2}`);
+    readonly isHeaderHighlighted = computed(() =>
+        (this.grid?.activeColumnIndex() ?? -1) === this.getColumnIndex()
+    );
 
     get parentElement(): HTMLElement | null {
         return this.elementRef.nativeElement.parentElement;
@@ -41,5 +51,31 @@ export class ImsGridCell {
 
     get textValue(): string {
         return this.elementRef.nativeElement.textContent?.trim() ?? '';
+    }
+
+    onPointerEnter(): void {
+        this.grid?.setHoveredColumn(this.getColumnIndex());
+    }
+
+    onPointerLeave(event: PointerEvent): void {
+        const next = event.relatedTarget as Element | null;
+        if (next?.closest('ims-grid-cell')) {
+            return;
+        }
+
+        this.grid?.setHoveredColumn(null);
+    }
+
+    onFocusIn(): void {
+        this.grid?.setFocusedColumn(this.getColumnIndex());
+    }
+
+    onFocusOut(event: FocusEvent): void {
+        const next = event.relatedTarget as Element | null;
+        if (next?.closest('ims-grid-cell')) {
+            return;
+        }
+
+        this.grid?.setFocusedColumn(null);
     }
 }

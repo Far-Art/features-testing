@@ -29,12 +29,15 @@ export interface ImsGridContext {
     readonly defaultOffsetStart: Signal<string>;
     readonly defaultOffsetEnd: Signal<string>;
     readonly sortState: Signal<ImsSortState>;
+    readonly activeColumnIndex: Signal<number | null>;
     registerRow(row: ImsGridRowContext): void;
     unregisterRow(row: ImsGridRowContext): void;
     registerSortHeader(header: ImsSortHeaderContext): void;
     unregisterSortHeader(header: ImsSortHeaderContext): void;
     toggleSort(field: string): void;
     getSortDirection(field: string): ImsSortDirection;
+    setHoveredColumn(columnIndex: number | null): void;
+    setFocusedColumn(columnIndex: number | null): void;
 }
 
 export const IMS_GRID_CONTEXT = new InjectionToken<ImsGridContext>('IMS_GRID_CONTEXT');

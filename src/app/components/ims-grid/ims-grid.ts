@@ -36,10 +36,13 @@ import {
 export class ImsGrid implements ImsGridContext {
     private readonly rows = signal<readonly ImsGridRowContext[]>([]);
     private readonly sortHeaders = signal<readonly ImsSortHeaderContext[]>([]);
+    private readonly hoveredColumnIndex = signal<number | null>(null);
+    private readonly focusedColumnIndex = signal<number | null>(null);
 
     readonly gap = input<string | number>(16, {alias: 'columnGap'});
     readonly rowGapInput = input<string | number>(0, {alias: 'rowGap'});
     readonly sortState = signal<ImsSortState>({active: null, direction: ''});
+    readonly activeColumnIndex = computed(() => this.focusedColumnIndex() ?? this.hoveredColumnIndex());
     readonly columnGap: Signal<string> = computed(() => toCssLength(this.gap()));
     readonly rowGap: Signal<string> = computed(() => toCssLength(this.rowGapInput()));
     readonly columnCount: Signal<number> = computed(() => {
@@ -109,6 +112,14 @@ export class ImsGrid implements ImsGridContext {
     getSortDirection(field: string): ImsSortDirection {
         const state = this.sortState();
         return state.active === field ? state.direction : '';
+    }
+
+    setHoveredColumn(columnIndex: number | null): void {
+        this.hoveredColumnIndex.set(columnIndex);
+    }
+
+    setFocusedColumn(columnIndex: number | null): void {
+        this.focusedColumnIndex.set(columnIndex);
     }
 
     private applyRowOrder(
