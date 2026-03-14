@@ -4,7 +4,7 @@ import {Directive, ElementRef, HostListener, Renderer2} from '@angular/core';
 
 
 @Directive({
-    selector: '[imsTextOverflow]',
+    selector: '[appTextOverflow], [imsTextOverflow]',
     standalone: true
 })
 export class TextOverflow {
@@ -20,9 +20,11 @@ export class TextOverflow {
         private renderer: Renderer2,
         private overlay: Overlay
     ) {
-        this.renderer.setStyle(this.el.nativeElement, 'white-space', 'nowrap');
-        this.renderer.setStyle(this.el.nativeElement, 'overflow', 'hidden');
-        this.renderer.setStyle(this.el.nativeElement, 'text-overflow', 'ellipsis');
+        this.applyEllipsis(this.el.nativeElement);
+        const hostTextContainer = this.getTextContainer(this.el.nativeElement);
+        if (hostTextContainer !== this.el.nativeElement) {
+            this.applyEllipsis(hostTextContainer);
+        }
         this.renderer.setStyle(this.el.nativeElement, 'user-select', 'none');
     }
 
@@ -54,6 +56,11 @@ export class TextOverflow {
         this.renderer.setStyle(this.tooltip, 'user-select', 'text');
         this.renderer.setStyle(this.tooltip, 'margin', '0');
         this.renderer.setStyle(this.tooltip, 'direction', direction);
+        const tooltipTextContainer = this.getTextContainer(this.tooltip);
+        if (tooltipTextContainer !== this.tooltip) {
+            this.renderer.setStyle(tooltipTextContainer, 'overflow', 'visible');
+            this.renderer.setStyle(tooltipTextContainer, 'text-overflow', 'clip');
+        }
 
         this.portalStagingParent = this.renderer.createElement('div');
         this.renderer.setStyle(this.portalStagingParent, 'display', 'none');
@@ -172,5 +179,15 @@ export class TextOverflow {
             {originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'top'},
             {originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'bottom'}
         ];
+    }
+
+    private getTextContainer(element: HTMLElement): HTMLElement {
+        return element.querySelector('.ims-sort-header-content') as HTMLElement ?? element;
+    }
+
+    private applyEllipsis(element: HTMLElement): void {
+        this.renderer.setStyle(element, 'white-space', 'nowrap');
+        this.renderer.setStyle(element, 'overflow', 'hidden');
+        this.renderer.setStyle(element, 'text-overflow', 'ellipsis');
     }
 }
