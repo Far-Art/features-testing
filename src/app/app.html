@@ -1,27 +1,4 @@
 <main class="main">
-    <ims-grid [columnGap]="0" [rowGap]="12">
-        <ims-grid-header [offsetStart]="30" [offsetEnd]="30">
-            <ims-grid-cell imsSortHeader="policy">Policy</ims-grid-cell>
-            <ims-grid-cell imsSortHeader="status">Status</ims-grid-cell>
-            <ims-grid-cell imsSortHeader="premium">Premium</ims-grid-cell>
-        </ims-grid-header>
-
-        <ims-grid-row [imsSortData]="{policy: 'Auto', status: 'Active', premium: 560}">
-            <ims-grid-cell>Auto</ims-grid-cell>
-            <ims-grid-cell>Active</ims-grid-cell>
-            <ims-grid-cell>$560</ims-grid-cell>
-        </ims-grid-row>
-
-        <ims-grid-row [imsSortData]="{policy: 'Home', status: 'Pending', premium: 340}">
-            <ims-grid-cell>Home</ims-grid-cell>
-            <ims-grid-cell>Pending</ims-grid-cell>
-            <ims-grid-cell>$340</ims-grid-cell>
-        </ims-grid-row>
-    </ims-grid>
-
-    <br>
-    <br>
-
     <ims-grid [columnGap]="5" [rowGap]="12">
         <ims-grid-header [offsetStart]="30" [offsetEnd]="30">
             <ims-grid-cell imsSortHeader="policy">Policy</ims-grid-cell>
@@ -29,7 +6,7 @@
             <ims-grid-cell imsSortHeader="premium">Premium</ims-grid-cell>
         </ims-grid-header>
 
-        <ims-grid-row [imsSortData]="{policy: 'Auto', status: 'Active', premium: 560}">
+        <ims-grid-row>
             <mat-expansion-panel>
                 <mat-expansion-panel-header>
                     <mat-panel-title>Policy #1245</mat-panel-title>
@@ -43,7 +20,7 @@
             </mat-expansion-panel>
         </ims-grid-row>
 
-        <ims-grid-row [imsSortData]="{policy: 'Home', status: 'Pending', premium: 340}">
+        <ims-grid-row>
             <mat-expansion-panel>
                 <mat-expansion-panel-header>
                     <mat-panel-title>Policy #9911</mat-panel-title>
