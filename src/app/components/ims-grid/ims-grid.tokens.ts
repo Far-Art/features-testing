@@ -28,6 +28,7 @@ export interface ImsGridContext {
     readonly columnGap: Signal<string>;
     readonly defaultOffsetStart: Signal<string>;
     readonly defaultOffsetEnd: Signal<string>;
+    readonly viewportScrollbarWidth: Signal<number>;
     readonly sortState: Signal<ImsSortState>;
     readonly activeColumnIndex: Signal<number | null>;
     registerRow(row: ImsGridRowContext): void;

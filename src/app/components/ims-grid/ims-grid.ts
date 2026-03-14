@@ -1,11 +1,15 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    DestroyRef,
+    ElementRef,
     Signal,
     computed,
     effect,
     forwardRef,
+    inject,
     input,
+    output,
     signal
 } from '@angular/core';
 import {
@@ -34,14 +38,30 @@ import {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ImsGrid implements ImsGridContext {
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly hostElement = inject(ElementRef<HTMLElement>).nativeElement;
     private readonly rows = signal<readonly ImsGridRowContext[]>([]);
     private readonly sortHeaders = signal<readonly ImsSortHeaderContext[]>([]);
     private readonly hoveredColumnIndex = signal<number | null>(null);
     private readonly focusedColumnIndex = signal<number | null>(null);
+    private readonly rowRegistrationOrder = new Map<ImsGridRowContext, number>();
+    private nextRegistrationOrder = 0;
+    private hasSortedOrderApplied = false;
+    private pendingApply = false;
+    private pendingAnimationFrame: number | null = null;
+    private scheduledRows: readonly ImsGridRowContext[] = [];
+    private scheduledSortState: ImsSortState = {active: null, direction: ''};
+    private scheduledSortHeaders: readonly ImsSortHeaderContext[] = [];
+    private scheduledSortStrategy: 'dom' | 'data' = 'dom';
+    private observedViewport: HTMLElement | null = null;
+    private viewportResizeObserver: ResizeObserver | null = null;
 
     readonly gap = input<string | number>(16, {alias: 'columnGap'});
     readonly rowGapInput = input<string | number>(0, {alias: 'rowGap'});
+    readonly sortStrategy = input<'dom' | 'data'>('dom');
+    readonly viewportScrollbarWidth = signal(0);
     readonly sortState = signal<ImsSortState>({active: null, direction: ''});
+    readonly sortChange = output<ImsSortState>();
     readonly activeColumnIndex = computed(() => this.focusedColumnIndex() ?? this.hoveredColumnIndex());
     readonly columnGap: Signal<string> = computed(() => toCssLength(this.gap()));
     readonly rowGap: Signal<string> = computed(() => toCssLength(this.rowGapInput()));
@@ -69,15 +89,31 @@ export class ImsGrid implements ImsGridContext {
 
     constructor() {
         effect(() => {
-            this.applyRowOrder(this.rows(), this.sortState(), this.sortHeaders());
+            this.scheduledRows = this.rows();
+            this.scheduledSortState = this.sortState();
+            this.scheduledSortHeaders = this.sortHeaders();
+            this.scheduledSortStrategy = this.sortStrategy();
+            this.attachViewportObserver();
+            this.scheduleApplyRowOrder();
+        });
+
+        this.destroyRef.onDestroy(() => {
+            if (this.pendingAnimationFrame !== null) {
+                cancelAnimationFrame(this.pendingAnimationFrame);
+            }
+            this.viewportResizeObserver?.disconnect();
         });
     }
 
     registerRow(row: ImsGridRowContext): void {
+        if (!this.rowRegistrationOrder.has(row)) {
+            this.rowRegistrationOrder.set(row, this.nextRegistrationOrder++);
+        }
         this.rows.update((rows) => rows.includes(row) ? rows : [...rows, row]);
     }
 
     unregisterRow(row: ImsGridRowContext): void {
+        this.rowRegistrationOrder.delete(row);
         this.rows.update((rows) => rows.filter((current) => current !== row));
     }
 
@@ -93,20 +129,24 @@ export class ImsGrid implements ImsGridContext {
         const state = this.sortState();
         if (state.active !== field) {
             this.sortState.set({active: field, direction: 'asc'});
+            this.sortChange.emit(this.sortState());
             return;
         }
 
         if (state.direction === 'asc') {
             this.sortState.set({active: field, direction: 'desc'});
+            this.sortChange.emit(this.sortState());
             return;
         }
 
         if (state.direction === 'desc') {
             this.sortState.set({active: null, direction: ''});
+            this.sortChange.emit(this.sortState());
             return;
         }
 
         this.sortState.set({active: field, direction: 'asc'});
+        this.sortChange.emit(this.sortState());
     }
 
     getSortDirection(field: string): ImsSortDirection {
@@ -122,11 +162,38 @@ export class ImsGrid implements ImsGridContext {
         this.focusedColumnIndex.set(columnIndex);
     }
 
+    private scheduleApplyRowOrder(): void {
+        if (this.pendingApply) {
+            return;
+        }
+
+        this.pendingApply = true;
+        this.pendingAnimationFrame = requestAnimationFrame(() => {
+            this.pendingApply = false;
+            this.pendingAnimationFrame = null;
+            this.updateViewportCompensation(this.scheduledRows);
+            this.applyRowOrder(
+                this.scheduledRows,
+                this.scheduledSortState,
+                this.scheduledSortHeaders,
+                this.scheduledSortStrategy
+            );
+        });
+    }
+
     private applyRowOrder(
         rows: readonly ImsGridRowContext[],
         sortState: ImsSortState,
-        sortHeaders: readonly ImsSortHeaderContext[]
+        sortHeaders: readonly ImsSortHeaderContext[],
+        sortStrategy: 'dom' | 'data'
     ): void {
+        if (sortStrategy !== 'dom') {
+            if (this.hasSortedOrderApplied) {
+                this.restoreNaturalOrder(rows);
+            }
+            return;
+        }
+
         const headerRows = rows.filter((row) => row.isHeaderRow);
         const bodyRows = rows.filter((row) => !row.isHeaderRow);
         let orderedBodyRows = bodyRows;
@@ -145,6 +212,16 @@ export class ImsGrid implements ImsGridContext {
                     return result !== 0 ? result : left.index - right.index;
                 })
                 .map(({row}) => row);
+            this.hasSortedOrderApplied = true;
+        } else {
+            if (!this.hasSortedOrderApplied) {
+                return;
+            }
+            orderedBodyRows = bodyRows.sort(
+                (left, right) =>
+                    this.resolveRegistrationOrder(left) - this.resolveRegistrationOrder(right)
+            );
+            this.hasSortedOrderApplied = false;
         }
 
         let visualOrder = 0;
@@ -158,6 +235,24 @@ export class ImsGrid implements ImsGridContext {
         // Fallback for non-flex parents (e.g. cdk-virtual-scroll content wrapper):
         // move row elements in DOM order so sorting is visible regardless of layout mode.
         this.reorderRowsInDom([...headerRows, ...orderedBodyRows]);
+    }
+
+    private restoreNaturalOrder(rows: readonly ImsGridRowContext[]): void {
+        const headerRows = rows.filter((row) => row.isHeaderRow);
+        const bodyRows = rows
+            .filter((row) => !row.isHeaderRow)
+            .sort((left, right) => this.resolveRegistrationOrder(left) - this.resolveRegistrationOrder(right));
+
+        let visualOrder = 0;
+        for (const row of headerRows) {
+            row.setRenderOrder(visualOrder++);
+        }
+        for (const row of bodyRows) {
+            row.setRenderOrder(visualOrder++);
+        }
+
+        this.reorderRowsInDom([...headerRows, ...bodyRows]);
+        this.hasSortedOrderApplied = false;
     }
 
     private reorderRowsInDom(rows: readonly ImsGridRowContext[]): void {
@@ -195,6 +290,52 @@ export class ImsGrid implements ImsGridContext {
             }
             parent.removeChild(marker);
         }
+    }
+
+    private resolveRegistrationOrder(row: ImsGridRowContext): number {
+        return this.rowRegistrationOrder.get(row) ?? Number.MAX_SAFE_INTEGER;
+    }
+
+    private attachViewportObserver(): void {
+        const viewport = this.hostElement.querySelector('cdk-virtual-scroll-viewport') as HTMLElement | null;
+        if (viewport === this.observedViewport) {
+            return;
+        }
+
+        this.viewportResizeObserver?.disconnect();
+        this.viewportResizeObserver = null;
+        this.observedViewport = viewport;
+
+        if (!viewport) {
+            this.viewportScrollbarWidth.set(0);
+            return;
+        }
+
+        if (typeof ResizeObserver !== 'undefined') {
+            this.viewportResizeObserver = new ResizeObserver(() => this.updateViewportCompensation(this.rows()));
+            this.viewportResizeObserver.observe(viewport);
+        }
+
+        this.updateViewportCompensation(this.rows());
+    }
+
+    private updateViewportCompensation(rows: readonly ImsGridRowContext[]): void {
+        let compensation = 0;
+
+        const headerRow = rows.find((row) => row.isHeaderRow && !isInsideViewport(row.getHostElement()));
+        const viewportBodyRow = rows.find((row) => !row.isHeaderRow && isInsideViewport(row.getHostElement()));
+
+        if (headerRow && viewportBodyRow) {
+            const headerWidth = headerRow.getHostElement().getBoundingClientRect().width;
+            const bodyWidth = viewportBodyRow.getHostElement().getBoundingClientRect().width;
+            compensation = Math.max(0, headerWidth - bodyWidth);
+        }
+
+        if (compensation <= 0 && this.observedViewport) {
+            compensation = Math.max(0, this.hostElement.clientWidth - this.observedViewport.clientWidth);
+        }
+
+        this.viewportScrollbarWidth.set(Number(compensation.toFixed(3)));
     }
 }
 
@@ -269,4 +410,8 @@ function normalizeSortValue(value: unknown): number | string {
     }
 
     return stringValue.toLocaleLowerCase();
+}
+
+function isInsideViewport(element: HTMLElement): boolean {
+    return element.closest('cdk-virtual-scroll-viewport') !== null;
 }

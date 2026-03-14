@@ -1,4 +1,5 @@
 import {
+    booleanAttribute,
     ChangeDetectionStrategy,
     Component,
     DestroyRef,
@@ -28,11 +29,13 @@ export class ImsGridRow implements ImsGridRowContext {
     private readonly hostElement = inject(ElementRef<HTMLElement>).nativeElement;
     private readonly grid = inject(IMS_GRID_CONTEXT, {optional: true});
     private readonly cells = contentChildren(ImsGridCell, {descendants: true});
+    private readonly insideVirtualViewport = this.hostElement.closest('cdk-virtual-scroll-viewport') !== null;
     private activeContainers = new Set<HTMLElement>();
     readonly isHeaderRow = this.hostElement.tagName === 'IMS-GRID-HEADER';
 
     readonly offsetStart = input<string | number | undefined>(undefined);
     readonly offsetEnd = input<string | number | undefined>(undefined);
+    readonly compensateOffsets = input(false, {transform: booleanAttribute});
 
     readonly cellCount: Signal<number> = computed(() => this.cells().length);
     readonly headerCellCount: Signal<number> = computed(() => this.isHeaderRow ? this.cells().length : 0);
@@ -56,11 +59,21 @@ export class ImsGridRow implements ImsGridRowContext {
         );
 
         effect(() => {
+            this.cells();
             const columnCount = Math.max(this.grid?.columnCount() ?? this.cellCount(), 1);
             const columnGap = this.grid?.columnGap() ?? '0px';
             const offsetStart = this.resolveOffsetStart();
             const offsetEnd = this.resolveOffsetEnd();
-            this.applyContainerStyles(columnCount, columnGap, offsetStart, offsetEnd);
+            const viewportEndCompensation = this.isHeaderRow && !this.insideVirtualViewport
+                ? (this.grid?.viewportScrollbarWidth() ?? 0)
+                : 0;
+            this.applyContainerStyles(
+                columnCount,
+                columnGap,
+                offsetStart,
+                offsetEnd,
+                viewportEndCompensation
+            );
         });
     }
 
@@ -81,28 +94,31 @@ export class ImsGridRow implements ImsGridRowContext {
         }
 
         this.activeContainers = nextContainers;
-        this.applyContainerStyles(
-            Math.max(this.grid?.columnCount() ?? this.cellCount(), 1),
-            this.grid?.columnGap() ?? '0px',
-            this.resolveOffsetStart(),
-            this.resolveOffsetEnd()
-        );
     }
 
     private applyContainerStyles(
         columnCount: number,
         columnGap: string,
         baseOffsetStart: string,
-        baseOffsetEnd: string
+        baseOffsetEnd: string,
+        viewportEndCompensationInPx: number
     ): void {
-        const hostRect = this.hostElement.getBoundingClientRect();
+        const shouldCompensate = this.compensateOffsets();
+        const hostRect = shouldCompensate ? this.hostElement.getBoundingClientRect() : null;
 
         for (const container of this.activeContainers) {
-            const containerRect = container.getBoundingClientRect();
-            const insetStart = Math.max(0, containerRect.left - hostRect.left);
-            const insetEnd = Math.max(0, hostRect.right - containerRect.right);
-            const offsetStart = compensateOffset(baseOffsetStart, insetStart);
-            const offsetEnd = compensateOffset(baseOffsetEnd, insetEnd);
+            let offsetStart = baseOffsetStart;
+            let offsetEnd = baseOffsetEnd;
+
+            if (shouldCompensate && hostRect) {
+                const containerRect = container.getBoundingClientRect();
+                const insetStart = Math.max(0, containerRect.left - hostRect.left);
+                const insetEnd = Math.max(0, hostRect.right - containerRect.right);
+                offsetStart = compensateOffset(baseOffsetStart, insetStart);
+                offsetEnd = compensateOffset(baseOffsetEnd, insetEnd);
+            }
+
+            offsetEnd = addOffset(offsetEnd, viewportEndCompensationInPx);
 
             this.renderer.setStyle(container, 'display', 'grid');
             this.renderer.setStyle(container, 'align-items', 'start');
@@ -193,4 +209,12 @@ function compensateOffset(baseOffset: string, insetInPx: number): string {
     }
 
     return `max(0px, calc(${baseOffset} - ${insetInPx.toFixed(3)}px))`;
+}
+
+function addOffset(baseOffset: string, additionInPx: number): string {
+    if (additionInPx <= 0) {
+        return baseOffset;
+    }
+
+    return `calc(${baseOffset} + ${additionInPx.toFixed(3)}px)`;
 }
