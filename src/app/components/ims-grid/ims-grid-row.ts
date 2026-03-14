@@ -61,6 +61,7 @@ export class ImsGridRow implements ImsGridRowContext {
         effect(() => {
             this.cells();
             const columnCount = Math.max(this.grid?.columnCount() ?? this.cellCount(), 1);
+            const columnTemplate = this.grid?.columnTemplate() ?? `repeat(${columnCount}, minmax(0, 1fr))`;
             const columnGap = this.grid?.columnGap() ?? '0px';
             const offsetStart = this.resolveOffsetStart();
             const offsetEnd = this.resolveOffsetEnd();
@@ -68,7 +69,7 @@ export class ImsGridRow implements ImsGridRowContext {
                 ? (this.grid?.viewportScrollbarWidth() ?? 0)
                 : 0;
             this.applyContainerStyles(
-                columnCount,
+                columnTemplate,
                 columnGap,
                 offsetStart,
                 offsetEnd,
@@ -97,7 +98,7 @@ export class ImsGridRow implements ImsGridRowContext {
     }
 
     private applyContainerStyles(
-        columnCount: number,
+        columnTemplate: string,
         columnGap: string,
         baseOffsetStart: string,
         baseOffsetEnd: string,
@@ -126,9 +127,9 @@ export class ImsGridRow implements ImsGridRowContext {
             this.setStyle(
                 container,
                 'grid-template-columns',
-                'var(--ims-grid-offset-start) repeat(var(--ims-grid-column-count), minmax(0, 1fr)) var(--ims-grid-offset-end)'
+                'var(--ims-grid-offset-start) var(--ims-grid-column-template) var(--ims-grid-offset-end)'
             );
-            this.setStyle(container, '--ims-grid-column-count', `${columnCount}`);
+            this.setStyle(container, '--ims-grid-column-template', columnTemplate);
             this.setStyle(container, '--ims-grid-column-gap', columnGap);
             this.setStyle(container, '--ims-grid-offset-start', offsetStart);
             this.setStyle(container, '--ims-grid-offset-end', offsetEnd);
@@ -147,7 +148,7 @@ export class ImsGridRow implements ImsGridRowContext {
         this.renderer.removeStyle(container, 'align-items');
         this.removeStyle(container, 'column-gap');
         this.removeStyle(container, 'grid-template-columns');
-        this.removeStyle(container, '--ims-grid-column-count');
+        this.removeStyle(container, '--ims-grid-column-template');
         this.removeStyle(container, '--ims-grid-column-gap');
         this.removeStyle(container, '--ims-grid-offset-start');
         this.removeStyle(container, '--ims-grid-offset-end');
@@ -183,6 +184,10 @@ export class ImsGridRow implements ImsGridRowContext {
 
     resolveSortValue(columnIndex: number): unknown {
         return this.cells()[columnIndex]?.textValue ?? '';
+    }
+
+    resolveColumnWidth(columnIndex: number): string | null {
+        return this.cells()[columnIndex]?.widthCss ?? null;
     }
 }
 

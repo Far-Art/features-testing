@@ -21,10 +21,12 @@ export interface ImsGridRowContext {
     getHostElement(): HTMLElement;
     setRenderOrder(order: number): void;
     resolveSortValue(columnIndex: number): unknown;
+    resolveColumnWidth(columnIndex: number): string | null;
 }
 
 export interface ImsGridContext {
     readonly columnCount: Signal<number>;
+    readonly columnTemplate: Signal<string>;
     readonly columnGap: Signal<string>;
     readonly defaultOffsetStart: Signal<string>;
     readonly defaultOffsetEnd: Signal<string>;

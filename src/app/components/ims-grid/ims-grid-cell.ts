@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, ElementRef, computed, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, ElementRef, computed, inject, input, signal} from '@angular/core';
 import {IMS_GRID_CONTEXT} from './ims-grid.tokens';
 
 @Component({
@@ -32,6 +32,7 @@ export class ImsGridCell {
     private readonly elementRef = inject(ElementRef<HTMLElement>);
     private readonly grid = inject(IMS_GRID_CONTEXT, {optional: true});
     private readonly columnIndex = signal(0);
+    readonly width = input<string | number | undefined>(undefined);
     readonly gridColumnStart = computed(() => `${this.columnIndex() + 2}`);
     readonly isHeaderHighlighted = computed(() =>
         (this.grid?.activeColumnIndex() ?? -1) === this.getColumnIndex()
@@ -51,6 +52,15 @@ export class ImsGridCell {
 
     get textValue(): string {
         return this.elementRef.nativeElement.textContent?.trim() ?? '';
+    }
+
+    get widthCss(): string | null {
+        const width = this.width();
+        if (width === undefined || width === null) {
+            return null;
+        }
+
+        return toCssLength(width);
     }
 
     onPointerEnter(): void {
@@ -78,4 +88,21 @@ export class ImsGridCell {
 
         this.grid?.setFocusedColumn(null);
     }
+}
+
+function toCssLength(value: string | number): string {
+    if (typeof value === 'number') {
+        return `${value}px`;
+    }
+
+    const normalized = value.trim();
+    if (!normalized) {
+        return '0px';
+    }
+
+    if (/^-?\d+(\.\d+)?$/.test(normalized)) {
+        return `${normalized}px`;
+    }
+
+    return normalized;
 }

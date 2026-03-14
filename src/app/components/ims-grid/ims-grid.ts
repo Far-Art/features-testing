@@ -78,6 +78,20 @@ export class ImsGrid implements ImsGridContext {
 
         return Math.max(...rows.map((row) => row.cellCount()));
     });
+    readonly columnTemplate: Signal<string> = computed(() => {
+        const columnCount = this.columnCount();
+        if (columnCount <= 0) {
+            return '';
+        }
+
+        const headerRow = this.rows().find((row) => row.headerCellCount() > 0);
+        const tracks: string[] = [];
+        for (let index = 0; index < columnCount; index += 1) {
+            tracks.push(headerRow?.resolveColumnWidth(index) ?? 'minmax(0, 1fr)');
+        }
+
+        return tracks.join(' ');
+    });
     readonly defaultOffsetStart: Signal<string> = computed(() => {
         const anchorRow = resolveAnchorRow(this.rows());
         return anchorRow?.rowOffsetStartCss() ?? '0px';
