@@ -1,25 +1,24 @@
 <main class="main">
-    <ims-grid [columnGap]="5" [rowGap]="12">
-        <ims-grid-header [offsetStart]="30" [offsetEnd]="30">
+    <ims-grid [columnGap]="8" [rowGap]="12" sortStrategy="data" (sortChange)="onSortChange($event)">
+        <ims-grid-header [offsetStart]="50" [offsetEnd]="50">
             <ims-grid-cell imsSortHeader="policy">Policy</ims-grid-cell>
-            <ims-grid-cell>Status</ims-grid-cell>
+            <ims-grid-cell imsSortHeader="status">Status</ims-grid-cell>
+            <ims-grid-cell imsSortHeader="premium">Premium</ims-grid-cell>
         </ims-grid-header>
 
-        <cdk-virtual-scroll-viewport class="grid-viewport" itemSize="100">
-            @for (row of stubData; track row.id) {
-                <ims-grid-row>
-                    <mat-expansion-panel>
-                        <mat-expansion-panel-header>
-                            <mat-panel-title>{{ row.policy }}</mat-panel-title>
-                        </mat-expansion-panel-header>
-
-                        <div class="row-details">
-                            <ims-grid-cell>{{ row.policy }}</ims-grid-cell>
-                            <ims-grid-cell>{{ row.status }}</ims-grid-cell>
-                        </div>
-                    </mat-expansion-panel>
-                </ims-grid-row>
-            }
+        <cdk-virtual-scroll-viewport class="grid-viewport" [itemSize]="50">
+            <ims-grid-row *cdkVirtualFor="let row of rows(); trackBy: trackById" compensateOffsets>
+                <mat-expansion-panel>
+                    <mat-expansion-panel-header>
+                        {{ row.policy }}
+                    </mat-expansion-panel-header>
+                    <div class="row-details">
+                        <ims-grid-cell>{{ row.policy }}</ims-grid-cell>
+                        <ims-grid-cell>{{ row.status }}</ims-grid-cell>
+                        <ims-grid-cell>{{ row.premium }}</ims-grid-cell>
+                    </div>
+                </mat-expansion-panel>
+            </ims-grid-row>
         </cdk-virtual-scroll-viewport>
     </ims-grid>
 </main>
