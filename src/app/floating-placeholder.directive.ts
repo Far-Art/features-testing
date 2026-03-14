@@ -1,40 +1,37 @@
-import {Directive, ElementRef, HostListener, inject, Input, OnDestroy, OnInit, Renderer2} from '@angular/core';
+import {AfterContentInit, Directive, ElementRef, HostListener, inject, OnDestroy, Renderer2} from '@angular/core';
 
 
 @Directive({
     selector: 'input[imsFloatingPlaceholder], textarea[imsFloatingPlaceholder]',
     standalone: true
 })
-export class FloatingPlaceholderDirective implements OnInit, OnDestroy {
+export class FloatingPlaceholderDirective implements AfterContentInit, OnDestroy {
     private static counter = 0;
-
-    @Input('imsFloatingPlaceholder') labelText?: string;
 
     private labelEl?: HTMLSpanElement;
     private anchorName = `--float-${++FloatingPlaceholderDirective.counter}`;
     private focused = false;
 
-    private host = inject<ElementRef<HTMLInputElement | HTMLTextAreaElement>>(ElementRef);
+    private host = inject<ElementRef<HTMLInputElement | HTMLTextAreaElement>>(ElementRef).nativeElement;
     private renderer = inject(Renderer2);
 
-    ngOnInit(): void {
-        const input = this.host.nativeElement;
-        const text = (this.labelText ?? input.getAttribute('placeholder') ?? '').trim() || 'Placeholder';
+    ngAfterContentInit(): void {
+        const text = (this.host.placeholder ?? '').trim();
 
         // Prepare host
-        this.renderer.addClass(input, 'floating-placeholder-input');
-        this.renderer.setStyle(input, 'anchor-name', this.anchorName);
-        // keep native placeholder empty so the floated label is the only visible text
-        this.renderer.setAttribute(input, 'placeholder', ' ');
+        this.renderer.addClass(this.host, 'floating-placeholder-input');
+        this.renderer.setStyle(this.host, 'anchor-name', this.anchorName);
 
         // Create label element
-        const label = this.renderer.createElement('span') as HTMLSpanElement;
+        const label = this.renderer.createElement('floating-placeholder') as HTMLElement;
         this.renderer.addClass(label, 'floating-placeholder');
         this.renderer.setStyle(label, 'position-anchor', this.anchorName);
         this.renderer.setProperty(label, 'textContent', text);
+        label.setAttribute('aria-hidden', 'true');
 
         this.labelEl = label;
-        this.renderer.insertBefore( input.parentNode, label, input.nextSibling);
+
+        this.renderer.insertBefore(this.host.parentNode, label, this.host.nextSibling);
 
         this.updateFloated();
     }
@@ -66,7 +63,7 @@ export class FloatingPlaceholderDirective implements OnInit, OnDestroy {
         if (!this.labelEl) {
             return;
         }
-        const value = this.host.nativeElement.value;
+        const value = this.host.value;
         const floated = this.focused || value.length > 0;
         this.labelEl.classList.toggle('floated', floated);
     }
