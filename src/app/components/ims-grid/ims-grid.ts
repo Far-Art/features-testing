@@ -143,6 +143,47 @@ export class ImsGrid implements ImsGridContext {
         for (const row of orderedBodyRows) {
             row.setRenderOrder(visualOrder++);
         }
+
+        // Fallback for non-flex parents (e.g. cdk-virtual-scroll content wrapper):
+        // move row elements in DOM order so sorting is visible regardless of layout mode.
+        this.reorderRowsInDom([...headerRows, ...orderedBodyRows]);
+    }
+
+    private reorderRowsInDom(rows: readonly ImsGridRowContext[]): void {
+        const rowsByParent = new Map<HTMLElement, HTMLElement[]>();
+
+        for (const row of rows) {
+            const element = row.getHostElement();
+            const parent = element.parentElement;
+            if (!parent) {
+                continue;
+            }
+
+            const group = rowsByParent.get(parent);
+            if (group) {
+                group.push(element);
+            } else {
+                rowsByParent.set(parent, [element]);
+            }
+        }
+
+        for (const [parent, orderedElements] of rowsByParent) {
+            if (orderedElements.length < 2) {
+                continue;
+            }
+
+            const firstElement = orderedElements.find((element) => element.parentElement === parent);
+            if (!firstElement) {
+                continue;
+            }
+
+            const marker = document.createComment('ims-grid-sort-marker');
+            parent.insertBefore(marker, firstElement);
+            for (const element of orderedElements) {
+                parent.insertBefore(element, marker);
+            }
+            parent.removeChild(marker);
+        }
     }
 }
 

@@ -161,6 +161,10 @@ export class ImsGridRow implements ImsGridRowContext {
         this.renderer.setStyle(this.hostElement, 'order', `${order}`);
     }
 
+    getHostElement(): HTMLElement {
+        return this.hostElement;
+    }
+
     resolveSortValue(columnIndex: number): unknown {
         return this.cells()[columnIndex]?.textValue ?? '';
     }

@@ -18,6 +18,7 @@ export interface ImsGridRowContext {
     readonly rowOffsetStartCss: Signal<string>;
     readonly rowOffsetEndCss: Signal<string>;
     readonly isHeaderRow: boolean;
+    getHostElement(): HTMLElement;
     setRenderOrder(order: number): void;
     resolveSortValue(columnIndex: number): unknown;
 }
