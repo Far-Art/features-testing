@@ -16,6 +16,11 @@ ims-grid-cell {
     padding: 8px 0;
 }
 
+.grid-viewport {
+    height: 420px;
+    width: 100%;
+}
+
 p:focus {
     outline: 2px solid red;
 }
