@@ -4,7 +4,7 @@ import {Directive, ElementRef, HostListener, Renderer2} from '@angular/core';
 
 
 @Directive({
-    selector: '[appTextOverflow], [imsTextOverflow]',
+    selector: '[imsTextOverflow]',
     standalone: true
 })
 export class TextOverflow {
@@ -34,7 +34,7 @@ export class TextOverflow {
         const host = this.el.nativeElement as HTMLElement;
         const computedStyle = window.getComputedStyle(host);
         const originalColor = computedStyle.color;
-        const direction = this.resolveDirection(computedStyle.direction);
+        const direction = this.resolveDirection(host, computedStyle.direction);
         const rect = host.getBoundingClientRect();
 
         this.tooltip = host.cloneNode(true) as HTMLElement;
@@ -130,8 +130,23 @@ export class TextOverflow {
         }, 10);
     }
 
-    private resolveDirection(direction: string): 'ltr' | 'rtl' {
-        return direction === 'rtl' ? 'rtl' : 'ltr';
+    private resolveDirection(host: HTMLElement, computedDirection: string): 'ltr' | 'rtl' {
+        const hostDir = host.getAttribute('dir');
+        if (hostDir === 'rtl' || hostDir === 'ltr') {
+            return hostDir;
+        }
+
+        const closestDir = host.closest('[dir]')?.getAttribute('dir');
+        if (closestDir === 'rtl' || closestDir === 'ltr') {
+            return closestDir;
+        }
+
+        if (computedDirection === 'rtl' || computedDirection === 'ltr') {
+            return computedDirection;
+        }
+
+        const documentDir = document.documentElement.getAttribute('dir');
+        return documentDir === 'rtl' ? 'rtl' : 'ltr';
     }
 
     private createOverlay(direction: 'ltr' | 'rtl', origin: HTMLElement): OverlayRef {
@@ -152,14 +167,7 @@ export class TextOverflow {
         });
     }
 
-    private getOverlayPositions(direction: 'ltr' | 'rtl'): ConnectedPosition[] {
-        if (direction === 'rtl') {
-            return [
-                {originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'top'},
-                {originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'bottom'}
-            ];
-        }
-
+    private getOverlayPositions(_direction: 'ltr' | 'rtl'): ConnectedPosition[] {
         return [
             {originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'top'},
             {originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'bottom'}
