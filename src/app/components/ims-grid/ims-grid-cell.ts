@@ -3,20 +3,20 @@ import {ChangeDetectionStrategy, Component, ElementRef, computed, inject, signal
 @Component({
     selector: 'ims-grid-cell',
     standalone: true,
-    template: '<ng-content/>',
-    styles: [
-        `
-            :host {
-                display: block;
-                min-width: 0;
-                grid-column-end: span 1;
-            }
+    template: `
+        <div class="ims-sort-header-container">
+            <div class="ims-sort-header-content">
+                <ng-content/>
+            </div>
 
-            :host-context(ims-grid-header) {
-                font-weight: 600;
-            }
-        `
-    ],
+            <div class="ims-sort-header-arrow" aria-hidden="true">
+                <svg viewBox="0 -960 960 960" focusable="false" aria-hidden="true">
+                    <path d="M440-240v-368L296-464l-56-56 240-240 240 240-56 56-144-144v368h-80Z"/>
+                </svg>
+            </div>
+        </div>
+    `,
+    styleUrl: './ims-grid-cell.scss',
     host: {
         '[style.grid-column-start]': 'gridColumnStart()'
     },
@@ -33,5 +33,13 @@ export class ImsGridCell {
 
     setColumnIndex(index: number): void {
         this.columnIndex.set(index);
+    }
+
+    getColumnIndex(): number {
+        return this.columnIndex();
+    }
+
+    get textValue(): string {
+        return this.elementRef.nativeElement.textContent?.trim() ?? '';
     }
 }

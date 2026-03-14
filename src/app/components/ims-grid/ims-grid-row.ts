@@ -19,14 +19,7 @@ import {IMS_GRID_CONTEXT, ImsGridRowContext} from './ims-grid.tokens';
     selector: 'ims-grid-row, ims-grid-header',
     standalone: true,
     template: '<ng-content/>',
-    styles: [
-        `
-            :host {
-                display: block;
-                width: 100%;
-            }
-        `
-    ],
+    styleUrl: './ims-grid-row.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ImsGridRow implements ImsGridRowContext {
@@ -36,10 +29,11 @@ export class ImsGridRow implements ImsGridRowContext {
     private readonly grid = inject(IMS_GRID_CONTEXT, {optional: true});
     private readonly cells = contentChildren(ImsGridCell, {descendants: true});
     private activeContainers = new Set<HTMLElement>();
-    private readonly isHeaderRow = this.hostElement.tagName === 'IMS-GRID-HEADER';
+    readonly isHeaderRow = this.hostElement.tagName === 'IMS-GRID-HEADER';
 
     readonly offsetStart = input<string | number | undefined>(undefined);
     readonly offsetEnd = input<string | number | undefined>(undefined);
+    readonly sortData = input<Record<string, unknown> | null>(null, {alias: 'imsSortData'});
 
     readonly cellCount: Signal<number> = computed(() => this.cells().length);
     readonly headerCellCount: Signal<number> = computed(() => this.isHeaderRow ? this.cells().length : 0);
@@ -162,6 +156,19 @@ export class ImsGridRow implements ImsGridRowContext {
         return this.offsetEnd() !== undefined
             ? this.rowOffsetEndCss()
             : (this.grid?.defaultOffsetEnd() ?? '0px');
+    }
+
+    setRenderOrder(order: number): void {
+        this.renderer.setStyle(this.hostElement, 'order', `${order}`);
+    }
+
+    resolveSortValue(field: string, columnIndex: number): unknown {
+        const sortData = this.sortData();
+        if (sortData && field in sortData) {
+            return sortData[field];
+        }
+
+        return this.cells()[columnIndex]?.textValue ?? '';
     }
 }
 
