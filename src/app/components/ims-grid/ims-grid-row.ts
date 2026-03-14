@@ -16,7 +16,7 @@ import {ImsGridCell} from './ims-grid-cell';
 import {IMS_GRID_CONTEXT, ImsGridRowContext} from './ims-grid.tokens';
 
 @Component({
-    selector: 'ims-grid-row',
+    selector: 'ims-grid-row, ims-grid-header',
     standalone: true,
     template: '<ng-content/>',
     styles: [
@@ -36,14 +36,13 @@ export class ImsGridRow implements ImsGridRowContext {
     private readonly grid = inject(IMS_GRID_CONTEXT, {optional: true});
     private readonly cells = contentChildren(ImsGridCell, {descendants: true});
     private activeContainers = new Set<HTMLElement>();
+    private readonly isHeaderRow = this.hostElement.tagName === 'IMS-GRID-HEADER';
 
     readonly offsetStart = input<string | number | undefined>(undefined);
     readonly offsetEnd = input<string | number | undefined>(undefined);
 
     readonly cellCount: Signal<number> = computed(() => this.cells().length);
-    readonly headerCellCount: Signal<number> = computed(() =>
-        this.cells().filter((cell) => cell.isHeader).length
-    );
+    readonly headerCellCount: Signal<number> = computed(() => this.isHeaderRow ? this.cells().length : 0);
     readonly rowOffsetStartCss: Signal<string> = computed(() => toCssLength(this.offsetStart() ?? 0));
     readonly rowOffsetEndCss: Signal<string> = computed(() => toCssLength(this.offsetEnd() ?? 0));
 

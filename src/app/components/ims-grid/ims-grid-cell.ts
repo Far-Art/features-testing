@@ -1,5 +1,4 @@
 import {ChangeDetectionStrategy, Component, ElementRef, computed, inject, signal} from '@angular/core';
-import {ImsGridHeaderDirective} from './ims-grid-header.directive';
 
 @Component({
     selector: 'ims-grid-cell',
@@ -13,23 +12,19 @@ import {ImsGridHeaderDirective} from './ims-grid-header.directive';
                 grid-column-end: span 1;
             }
 
-            :host(.ims-grid-header-cell) {
+            :host-context(ims-grid-header) {
                 font-weight: 600;
             }
         `
     ],
     host: {
-        '[style.grid-column-start]': 'gridColumnStart()',
-        '[class.ims-grid-header-cell]': 'isHeader'
+        '[style.grid-column-start]': 'gridColumnStart()'
     },
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ImsGridCell {
     private readonly elementRef = inject(ElementRef<HTMLElement>);
     private readonly columnIndex = signal(0);
-    private readonly headerDirective = inject(ImsGridHeaderDirective, {self: true, optional: true});
-
-    readonly isHeader = this.headerDirective !== null;
     readonly gridColumnStart = computed(() => `${this.columnIndex() + 2}`);
 
     get parentElement(): HTMLElement | null {
@@ -40,4 +35,3 @@ export class ImsGridCell {
         this.columnIndex.set(index);
     }
 }
-
