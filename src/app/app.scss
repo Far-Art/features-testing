@@ -1,0 +1,124 @@
+p {
+    background: rgba(243, 143, 143, 0.32);
+}
+
+.main {
+    width: min(920px, 100%);
+    margin-inline: auto;
+    padding: 24px 16px;
+}
+
+ims-grid-row + ims-grid-row {
+    margin-top: 12px;
+}
+
+ims-grid-cell {
+    padding: 8px 10px;
+}
+
+.row-details {
+    padding: 8px 0;
+}
+
+p:focus {
+    outline: 2px solid red;
+}
+
+// Semi-realistic shadow utility
+.shadow-semi-realistic {
+    box-shadow:
+        0 1px 1px rgba(0, 0, 0, 0.06),
+        0 3px 6px rgba(0, 0, 0, 0.1),
+        0 8px 16px rgba(0, 0, 0, 0.12);
+    transition: box-shadow 180ms ease, transform 180ms ease;
+    will-change: box-shadow, transform;
+}
+
+.shadow-semi-realistic:hover,
+.shadow-semi-realistic:focus-visible {
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.08),
+        0 5px 10px rgba(0, 0, 0, 0.14),
+        0 12px 24px rgba(0, 0, 0, 0.16);
+    transform: translateY(-1px);
+}
+
+.shadow-semi-realistic:active {
+    box-shadow:
+        0 1px 1px rgba(0, 0, 0, 0.1),
+        0 2px 4px rgba(0, 0, 0, 0.12),
+        0 6px 12px rgba(0, 0, 0, 0.14);
+    transform: translateY(-0.5px);
+}
+
+// Softer, blurrier shadow
+.shadow-soft {
+    box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.08),
+        0 8px 20px rgba(0, 0, 0, 0.12);
+    transition: box-shadow 180ms ease, transform 180ms ease;
+    will-change: box-shadow, transform;
+}
+
+.shadow-soft:hover,
+.shadow-soft:focus-visible {
+    box-shadow:
+        0 3px 8px rgba(0, 0, 0, 0.1),
+        0 12px 28px rgba(0, 0, 0, 0.14);
+    transform: translateY(-1px);
+}
+
+.shadow-soft:active {
+    box-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.1),
+        0 6px 14px rgba(0, 0, 0, 0.12);
+    transform: translateY(-0.5px);
+}
+
+// Sharper, higher-contrast shadow
+.shadow-sharp {
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.14),
+        0 4px 8px rgba(0, 0, 0, 0.18);
+    transition: box-shadow 180ms ease, transform 180ms ease;
+    will-change: box-shadow, transform;
+}
+
+.shadow-sharp:hover,
+.shadow-sharp:focus-visible {
+    box-shadow:
+        0 2px 3px rgba(0, 0, 0, 0.16),
+        0 6px 12px rgba(0, 0, 0, 0.22);
+    transform: translateY(-1px);
+}
+
+.shadow-sharp:active {
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.16),
+        0 3px 6px rgba(0, 0, 0, 0.2);
+    transform: translateY(-0.5px);
+}
+
+// Colored ambient shadow (cool tint)
+.shadow-ambient {
+    box-shadow:
+        0 1px 2px rgba(15, 64, 120, 0.12),
+        0 8px 20px rgba(15, 64, 120, 0.18);
+    transition: box-shadow 180ms ease, transform 180ms ease;
+    will-change: box-shadow, transform;
+}
+
+.shadow-ambient:hover,
+.shadow-ambient:focus-visible {
+    box-shadow:
+        0 2px 4px rgba(15, 64, 120, 0.16),
+        0 12px 28px rgba(15, 64, 120, 0.22);
+    transform: translateY(-1px);
+}
+
+.shadow-ambient:active {
+    box-shadow:
+        0 1px 2px rgba(15, 64, 120, 0.16),
+        0 6px 14px rgba(15, 64, 120, 0.2);
+    transform: translateY(-0.5px);
+}

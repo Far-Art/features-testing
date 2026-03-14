@@ -71,12 +71,14 @@ body {
 
 /* Floating label directive */
 .floating-placeholder-input {
-    padding: 1rem 1rem 0.6rem;
+    &::placeholder {
+        color: transparent;
+    }
 }
 
 .floating-placeholder {
     top: anchor(center);
-    left: anchor(left);
+    right: calc(anchor(right) + 2px);
     position: absolute;
     translate: 0 -0.6em;
     padding: 0 6px;
@@ -88,7 +90,12 @@ body {
 
 .floating-placeholder.floated {
     top: anchor(start);
-    scale: 0.84;
-    background: color-mix(in oklch, currentColor 24%, transparent);
+    scale: 0.8;
+    background: white;
     color: color-mix(in oklch, var(--bright-blue, currentColor) 90%, white 10%);
+}
+
+ims-grid-cell {
+    background: #84acff;
+    border-left: 1px solid #7393d2;
 }
