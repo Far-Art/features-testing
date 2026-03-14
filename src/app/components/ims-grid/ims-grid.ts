@@ -22,6 +22,9 @@ import {
     standalone: true,
     template: '<ng-content/>',
     styleUrl: './ims-grid.scss',
+    host: {
+        '[style.row-gap]': 'rowGap()'
+    },
     providers: [
         {
             provide: IMS_GRID_CONTEXT,
@@ -35,8 +38,10 @@ export class ImsGrid implements ImsGridContext {
     private readonly sortHeaders = signal<readonly ImsSortHeaderContext[]>([]);
 
     readonly gap = input<string | number>(16, {alias: 'columnGap'});
+    readonly rowGapInput = input<string | number>(0, {alias: 'rowGap'});
     readonly sortState = signal<ImsSortState>({active: null, direction: ''});
     readonly columnGap: Signal<string> = computed(() => toCssLength(this.gap()));
+    readonly rowGap: Signal<string> = computed(() => toCssLength(this.rowGapInput()));
     readonly columnCount: Signal<number> = computed(() => {
         const rows = this.rows();
         if (rows.length === 0) {
