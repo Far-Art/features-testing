@@ -418,7 +418,7 @@ function normalizeSortValue(value: unknown): number | string {
     }
 
     const stringValue = String(value).trim();
-    const compactNumber = stringValue.replace(/[$,%\s,]/g, '');
+    const compactNumber = stringValue.replace(/[$,%\s]/g, '');
     if (/^-?\d+(\.\d+)?$/.test(compactNumber)) {
         return Number(compactNumber);
     }
