@@ -1,7 +1,7 @@
 <main class="main">
     <ims-grid [columnGap]="8" [rowGap]="12" sortStrategy="data" (sortChange)="onSortChange($event)">
         <ims-grid-header [offsetStart]="50" [offsetEnd]="50">
-            <ims-grid-cell imsSortHeader="policy">Policy</ims-grid-cell>
+            <ims-grid-cell width="150px" imsSortHeader="policy">Policy</ims-grid-cell>
             <ims-grid-cell imsSortHeader="status">Status</ims-grid-cell>
             <ims-grid-cell imsSortHeader="premium">Premium</ims-grid-cell>
         </ims-grid-header>
@@ -13,7 +13,7 @@
                         {{ row.policy }}
                     </mat-expansion-panel-header>
                     <div class="row-details">
-                        <ims-grid-cell>{{ row.policy }}</ims-grid-cell>
+                        <ims-grid-cell imsTextOverflow>{{ row.policy + ' very long text' }}</ims-grid-cell>
                         <ims-grid-cell>{{ row.status }}</ims-grid-cell>
                         <ims-grid-cell>{{ row.premium }}</ims-grid-cell>
                     </div>

@@ -10,6 +10,7 @@ import {ImsGridCell} from './components/ims-grid/ims-grid-cell';
 import {ImsSortHeaderDirective} from './components/ims-grid/ims-sort-header.directive';
 import {ImsSortState} from './components/ims-grid/ims-grid.tokens';
 import {MatExpansionPanel, MatExpansionPanelHeader} from '@angular/material/expansion';
+import {TextOverflow} from './text-overflow';
 
 interface PolicyRow {
     id: number;
@@ -29,7 +30,8 @@ interface PolicyRow {
         CdkVirtualForOf,
         CdkFixedSizeVirtualScroll,
         MatExpansionPanel,
-        MatExpansionPanelHeader
+        MatExpansionPanelHeader,
+        TextOverflow
     ],
     templateUrl: './app.html',
     styleUrl: './app.scss'
