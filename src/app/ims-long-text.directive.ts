@@ -1,13 +1,13 @@
 import {ConnectedPosition, Overlay, OverlayRef} from '@angular/cdk/overlay';
 import {DomPortal} from '@angular/cdk/portal';
-import {Directive, ElementRef, HostListener, Renderer2} from '@angular/core';
+import {Directive, ElementRef, HostListener, inject, Renderer2} from '@angular/core';
 
 
 @Directive({
-    selector: '[appTextOverflow], [imsTextOverflow]',
+    selector: '[imsLongText]',
     standalone: true
 })
-export class TextOverflow {
+export class ImsLongTextDirective {
     private tooltip: HTMLElement | null = null;
     private overlayRef: OverlayRef | null = null;
     private portalStagingParent: HTMLElement | null = null;
@@ -15,11 +15,11 @@ export class TextOverflow {
     private selectionListener: (() => void) | null = null;
     private mouseDownListener: (() => void) | null = null;
 
-    constructor(
-        private el: ElementRef<HTMLElement>,
-        private renderer: Renderer2,
-        private overlay: Overlay
-    ) {
+    private el = inject<ElementRef<HTMLElement>>(ElementRef);
+    private renderer = inject(Renderer2);
+    private overlay = inject(Overlay);
+
+    constructor() {
         this.applyEllipsis(this.el.nativeElement);
         const hostTextContainer = this.getTextContainer(this.el.nativeElement);
         if (hostTextContainer !== this.el.nativeElement) {
