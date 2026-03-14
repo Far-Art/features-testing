@@ -33,7 +33,6 @@ export class ImsGridRow implements ImsGridRowContext {
 
     readonly offsetStart = input<string | number | undefined>(undefined);
     readonly offsetEnd = input<string | number | undefined>(undefined);
-    readonly sortData = input<Record<string, unknown> | null>(null, {alias: 'imsSortData'});
 
     readonly cellCount: Signal<number> = computed(() => this.cells().length);
     readonly headerCellCount: Signal<number> = computed(() => this.isHeaderRow ? this.cells().length : 0);
@@ -162,12 +161,7 @@ export class ImsGridRow implements ImsGridRowContext {
         this.renderer.setStyle(this.hostElement, 'order', `${order}`);
     }
 
-    resolveSortValue(field: string, columnIndex: number): unknown {
-        const sortData = this.sortData();
-        if (sortData && field in sortData) {
-            return sortData[field];
-        }
-
+    resolveSortValue(columnIndex: number): unknown {
         return this.cells()[columnIndex]?.textValue ?? '';
     }
 }

@@ -128,8 +128,8 @@ export class ImsGrid implements ImsGridContext {
             orderedBodyRows = bodyRows
                 .map((row, index) => ({row, index}))
                 .sort((left, right) => {
-                    const leftValue = left.row.resolveSortValue(activeField, columnIndex);
-                    const rightValue = right.row.resolveSortValue(activeField, columnIndex);
+                    const leftValue = left.row.resolveSortValue(columnIndex);
+                    const rightValue = right.row.resolveSortValue(columnIndex);
                     const result = compareSortValues(leftValue, rightValue) * directionMultiplier;
                     return result !== 0 ? result : left.index - right.index;
                 })

@@ -19,7 +19,7 @@ export interface ImsGridRowContext {
     readonly rowOffsetEndCss: Signal<string>;
     readonly isHeaderRow: boolean;
     setRenderOrder(order: number): void;
-    resolveSortValue(field: string, columnIndex: number): unknown;
+    resolveSortValue(columnIndex: number): unknown;
 }
 
 export interface ImsGridContext {
