@@ -1,0 +1,11 @@
+:host {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .podium-content {
+        position: absolute;
+        width: 30%;
+    }
+}

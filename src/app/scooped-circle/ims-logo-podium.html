@@ -1,1 +1,37 @@
-<p>scooped-circle works!</p>
+<div class="podium-content">
+    <ng-content/>
+</div>
+<svg
+    [attr.viewBox]="'-' + w() / 6 + ' 0 ' + w() + ' ' + h()"
+    [style.width.%]="100" [style.height.%]="100"
+    xmlns="http://www.w3.org/2000/svg">
+
+    @if (_stops().length) {
+        <defs>
+            <linearGradient [attr.id]="_gradId()" gradientUnits="userSpaceOnUse"
+                            [attr.x1]="0" [attr.y1]="seamY()" [attr.x2]="0" [attr.y2]="h()">
+                @for (s of _stops(); track $index) {
+                    <stop [attr.offset]="s.offset + '%'"
+                          [attr.stop-color]="s.color"
+                          [attr.stop-opacity]="s.opacity ?? 1" />
+                }
+            </linearGradient>
+        </defs>
+    }
+
+    <path
+        [attr.d]="pathD()"
+        [attr.fill]="_stops().length ? 'url(#' + _gradId() + ')' : _fill()" />
+
+    <circle
+        [attr.cx]="rSig()"
+        [attr.cy]="rSig()"
+        [attr.r]="rSig()"
+        [attr.fill]="_stops().length ? 'url(#' + _gradId() + ')' : _fill()" />
+
+    <circle
+        [attr.cx]="rSig()"
+        [attr.cy]="rSig()"
+        [attr.r]="rSig() * 0.9"
+        fill="white"/>
+</svg>
