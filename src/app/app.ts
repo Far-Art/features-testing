@@ -3,6 +3,7 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import {ImsGrid} from './components/ims-grid/ims-grid';
 import {ImsGridRow} from './components/ims-grid/ims-grid-row';
 import {ImsGridCell} from './components/ims-grid/ims-grid-cell';
+import {ImsSortHeaderDirective} from './components/ims-grid/ims-sort-header.directive';
 
 
 @Component({
@@ -11,7 +12,8 @@ import {ImsGridCell} from './components/ims-grid/ims-grid-cell';
         MatExpansionModule,
         ImsGrid,
         ImsGridRow,
-        ImsGridCell
+        ImsGridCell,
+        ImsSortHeaderDirective
     ],
     templateUrl: './app.html',
     styleUrl: './app.scss'
