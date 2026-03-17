@@ -34,7 +34,11 @@ export class ImsGridCell {
     private readonly columnIndex = signal(0);
     /** Optional fixed track width consumed by header row when building grid-template-columns. Default: `undefined`. */
     readonly width = input<string | number | undefined>(undefined);
-    readonly gridColumnStart = computed(() => `${this.columnIndex() + 2}`);
+    /** Optional minimum track width consumed by header row when building grid-template-columns. Default: `undefined`. */
+    readonly minWidth = input<string | number | undefined>(undefined);
+    /** Optional maximum track width consumed by header row when building grid-template-columns. Default: `undefined`. */
+    readonly maxWidth = input<string | number | undefined>(undefined);
+    readonly gridColumnStart = computed(() => `${this.columnIndex() + 1}`);
     readonly isHeaderHighlighted = computed(() =>
         (this.grid?.headerHighlightEnabled() ?? false) &&
         (this.grid?.activeColumnIndex() ?? -1) === this.getColumnIndex()
@@ -68,6 +72,47 @@ export class ImsGridCell {
         }
 
         return toCssLength(width);
+    }
+
+    get minWidthCss(): string | null {
+        const minWidth = this.minWidth();
+        if (minWidth === undefined || minWidth === null) {
+            return null;
+        }
+
+        return toCssLength(minWidth);
+    }
+
+    get maxWidthCss(): string | null {
+        const maxWidth = this.maxWidth();
+        if (maxWidth === undefined || maxWidth === null) {
+            return null;
+        }
+
+        return toCssLength(maxWidth);
+    }
+
+    get columnTrackCss(): string | null {
+        const width = this.widthCss;
+        if (width) {
+            return width;
+        }
+
+        const minWidth = this.minWidthCss;
+        const maxWidth = this.maxWidthCss;
+        if (minWidth && maxWidth) {
+            return `minmax(${minWidth}, ${maxWidth})`;
+        }
+
+        if (minWidth) {
+            return `minmax(${minWidth}, 1fr)`;
+        }
+
+        if (maxWidth) {
+            return `minmax(0px, ${maxWidth})`;
+        }
+
+        return null;
     }
 
     onPointerEnter(): void {

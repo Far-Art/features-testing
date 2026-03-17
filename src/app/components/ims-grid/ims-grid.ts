@@ -28,7 +28,8 @@ import {
     template: '<ng-content/>',
     styleUrl: './ims-grid.scss',
     host: {
-        '[style.row-gap]': 'rowGap()'
+        '[style.row-gap]': 'rowGap()',
+        '[attr.appearance]': 'appearance()'
     },
     providers: [
         {
@@ -38,7 +39,7 @@ import {
     ],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ImsGrid implements ImsGridContext {
+export class ImsGrid<T> implements ImsGridContext {
     private readonly destroyRef = inject(DestroyRef);
     private readonly hostElement = inject(ElementRef<HTMLElement>).nativeElement;
     private readonly rows = signal<readonly ImsGridRowContext[]>([]);
@@ -61,8 +62,10 @@ export class ImsGrid implements ImsGridContext {
     readonly gap = input<string | number>(0, {alias: 'columnGap'});
     /** Vertical spacing between top-level grid rows. Default: `0`. */
     readonly rowGapInput = input<string | number>(0, {alias: 'rowGap'});
+    /** Appearance marker mirrored to `appearance` attribute on host. Default: `default`. */
+    readonly appearance = input<string>('default');
     /** Optional full dataset to sort externally (required for virtual scroll correctness). Default: `null`. */
-    readonly toSortList = input<readonly unknown[] | null>(null);
+    readonly toSortList = input<readonly T[] | null>(null);
     /** Enables header highlight reaction to hovered/focused body cells. Default: `false` (disabled). */
     readonly headerHighlightEnabled = signal(false);
     /** Width delta between header and viewport body used to keep columns aligned. */
@@ -70,7 +73,7 @@ export class ImsGrid implements ImsGridContext {
     /** Current active sort state shared with sort header directives. */
     readonly sortState = signal<ImsSortState>({active: null, direction: ''});
     /** Emits sort state and optional externally sorted data (asc -> desc -> none cycle). */
-    readonly sortChange = output<ImsSortChangeEvent>();
+    readonly sortChange = output<ImsSortChangeEvent<T>>();
     readonly activeColumnIndex = computed(() =>
         this.headerHighlightEnabled() ? (this.focusedColumnIndex() ?? this.hoveredColumnIndex()) : null
     );
@@ -104,12 +107,12 @@ export class ImsGrid implements ImsGridContext {
         return tracks.join(' ');
     });
     readonly defaultOffsetStart: Signal<string> = computed(() => {
-        const anchorRow = resolveAnchorRow(this.rows());
-        return anchorRow?.rowOffsetStartCss() ?? '0px';
+        const anchorRow = resolveBodyAnchorRow(this.rows());
+        return anchorRow ? anchorRow.rowOffsetStartCss() : '0px';
     });
     readonly defaultOffsetEnd: Signal<string> = computed(() => {
-        const anchorRow = resolveAnchorRow(this.rows());
-        return anchorRow?.rowOffsetEndCss() ?? '0px';
+        const anchorRow = resolveBodyAnchorRow(this.rows());
+        return anchorRow ? anchorRow.rowOffsetEndCss() : '0px';
     });
 
     constructor() {
@@ -280,7 +283,7 @@ export class ImsGrid implements ImsGridContext {
         });
     }
 
-    private computeExternalSortedData(state: ImsSortState): readonly unknown[] | null {
+    private computeExternalSortedData(state: ImsSortState): readonly T[] | null {
         const list = this.toSortList();
         if (list === null) {
             return null;
@@ -453,12 +456,8 @@ function toCssLength(value: string | number): string {
     return normalized;
 }
 
-function resolveAnchorRow(rows: readonly ImsGridRowContext[]): ImsGridRowContext | undefined {
-    if (rows.length === 0) {
-        return undefined;
-    }
-
-    return rows.find((row) => row.headerCellCount() > 0) ?? rows[0];
+function resolveBodyAnchorRow(rows: readonly ImsGridRowContext[]): ImsGridRowContext | undefined {
+    return rows.find((row) => !row.isHeaderRow);
 }
 
 function resolveSortColumnIndex(
@@ -509,16 +508,39 @@ function normalizeSortValue(value: unknown): number | string {
     return stringValue.toLocaleLowerCase();
 }
 
-function resolveListSortValue(item: unknown, field: string): unknown {
+function resolveListSortValue<T>(item: T, field: string): unknown {
     if (item === null || item === undefined) {
         return '';
     }
 
-    if (typeof item !== 'object') {
+    const path = field
+        .split('.')
+        .map((segment) => segment.trim())
+        .filter((segment) => segment.length > 0);
+
+    if (path.length === 0) {
         return item;
     }
 
-    return (item as Record<string, unknown>)[field];
+    // Allow sort keys like "item.code" where "item" is an explicit root alias.
+    if (path[0] === 'item') {
+        path.shift();
+    }
+
+    if (path.length === 0) {
+        return item;
+    }
+
+    let current: unknown = item;
+    for (const segment of path) {
+        if (current === null || current === undefined || typeof current !== 'object') {
+            return '';
+        }
+
+        current = (current as Record<string, unknown>)[segment];
+    }
+
+    return current ?? '';
 }
 
 function isInsideViewport(element: HTMLElement): boolean {

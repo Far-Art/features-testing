@@ -32,7 +32,7 @@ export class ImsSortHeaderDirective implements ImsSortHeaderContext {
     private readonly cell = inject(ImsGridCell, {optional: true, host: true});
     private readonly grid = inject(IMS_GRID_CONTEXT, {optional: true});
 
-    /** Sort field key used by the grid to identify the active sorted column. Required input, no default. */
+    /** Sort field key used by the grid to identify the active sorted column. Supports dot-paths (e.g. `item.code`). Required input, no default. */
     readonly field = input.required<string>({alias: 'imsSortHeader'});
     readonly isInteractive = this.grid !== null;
     readonly recentlyCleared = signal<RecentlyClearedDirection>(null);

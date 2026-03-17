@@ -34,15 +34,18 @@
 
 :host(.ims-sort-header) {
     cursor: pointer;
+    position: relative;
 }
 
 :host(.ims-sort-header) .ims-sort-header-container {
     letter-spacing: normal;
     outline: 0;
+    justify-content: flex-start;
 }
 
 :host(.ims-sort-header) .ims-sort-header-content {
     min-width: 0;
+    flex: 0 1 auto;
 }
 
 @keyframes _ims-sort-header-recently-cleared-ascending {
@@ -84,7 +87,8 @@
     opacity: 0;
     overflow: visible;
     color: var(--mat-sort-arrow-color, currentColor);
-    margin: 0 0 0 6px;
+    margin: 0 0 0 4px;
+    flex: 0 0 auto;
 }
 
 :host(.ims-sort-header:not(.ims-sort-header-hint-suppressed):not(.ims-sort-header-sorted):hover) .ims-sort-header-arrow,
@@ -105,6 +109,16 @@
 :host(.ims-sort-header.ims-sort-header-sorted) .ims-sort-header-arrow {
     opacity: 1;
     transform: translateY(0);
+}
+
+:host(.ims-sort-header.ims-sort-header-sorted)::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: currentColor;
 }
 
 :host(.ims-sort-header.ims-sort-header-descending) .ims-sort-header-arrow {

@@ -203,12 +203,11 @@ export class ImsGridRow implements ImsGridRowContext {
 
             this.renderer.setStyle(container, 'display', 'grid');
             this.renderer.setStyle(container, 'align-items', 'center');
+            this.renderer.setStyle(container, 'box-sizing', 'border-box');
             this.setStyle(container, 'column-gap', 'var(--ims-grid-column-gap)');
-            this.setStyle(
-                container,
-                'grid-template-columns',
-                'var(--ims-grid-offset-start) var(--ims-grid-column-template) var(--ims-grid-offset-end)'
-            );
+            this.setStyle(container, 'grid-template-columns', 'var(--ims-grid-column-template)');
+            this.setStyle(container, 'padding-inline-start', 'var(--ims-grid-offset-start)');
+            this.setStyle(container, 'padding-inline-end', 'var(--ims-grid-offset-end)');
             this.setStyle(container, '--ims-grid-column-template', columnTemplate);
             this.setStyle(container, '--ims-grid-column-gap', columnGap);
             this.setStyle(container, '--ims-grid-offset-start', offsetStart);
@@ -226,8 +225,11 @@ export class ImsGridRow implements ImsGridRowContext {
     private clearContainerStyles(container: HTMLElement): void {
         this.renderer.removeStyle(container, 'display');
         this.renderer.removeStyle(container, 'align-items');
+        this.renderer.removeStyle(container, 'box-sizing');
         this.removeStyle(container, 'column-gap');
         this.removeStyle(container, 'grid-template-columns');
+        this.removeStyle(container, 'padding-inline-start');
+        this.removeStyle(container, 'padding-inline-end');
         this.removeStyle(container, '--ims-grid-column-template');
         this.removeStyle(container, '--ims-grid-column-gap');
         this.removeStyle(container, '--ims-grid-offset-start');
@@ -279,7 +281,7 @@ export class ImsGridRow implements ImsGridRowContext {
 
     resolveColumnWidth(columnIndex: number): string | null {
         const cells = this.resolvePrimaryContainerCells(this.ownCells());
-        return cells[columnIndex]?.widthCss ?? null;
+        return cells[columnIndex]?.columnTrackCss ?? null;
     }
 }
 
