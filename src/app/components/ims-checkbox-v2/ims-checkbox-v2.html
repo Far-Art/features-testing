@@ -1,0 +1,46 @@
+<label
+    class="ims-cb2"
+    [class.ims-cb2--checked]="checked() && !intermediate()"
+    [class.ims-cb2--intermediate]="intermediate()"
+    [class.ims-cb2--disabled]="disabled()"
+    [class.ims-cb2--ripple]="rippleActive()"
+>
+    <input
+        class="ims-cb2__native"
+        type="checkbox"
+        [checked]="checked() && !intermediate()"
+        [indeterminate]="intermediate()"
+        [disabled]="disabled()"
+        [attr.aria-checked]="ariaChecked()"
+        (change)="toggle()"
+        (blur)="markAsTouched()"
+    />
+
+    <span class="ims-cb2__track" aria-hidden="true">
+        <span class="ims-cb2__ripple"></span>
+
+        <svg class="ims-cb2__icon" viewBox="0 0 18 18" fill="none" focusable="false">
+            <!-- Checkmark -->
+            <polyline
+                class="ims-cb2__check"
+                points="3.5,9.5 7,13 14.5,5.5"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            />
+            <!-- Intermediate dash -->
+            <line
+                class="ims-cb2__dash"
+                x1="4.5" y1="9" x2="13.5" y2="9"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+            />
+        </svg>
+    </span>
+
+    <span class="ims-cb2__label">
+        <ng-content />
+    </span>
+</label>

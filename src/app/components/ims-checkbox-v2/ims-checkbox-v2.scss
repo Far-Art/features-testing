@@ -1,0 +1,175 @@
+// ─── Custom properties ────────────────────────────────────────────────────────
+.ims-cb2 {
+    --ims-cb2-size: 1.25rem;
+    --ims-cb2-radius: 0.3rem;
+    --ims-cb2-border: #9ca3af;
+    --ims-cb2-fill: #4f46e5;
+    --ims-cb2-fill-hover: #4338ca;
+    --ims-cb2-mark: #ffffff;
+    --ims-cb2-label: #111827;
+    --ims-cb2-ripple-color: rgb(79 70 229 / 18%);
+    --ims-cb2-focus-ring: rgb(79 70 229 / 25%);
+    --ims-cb2-duration: 200ms;
+    --ims-cb2-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    cursor: pointer;
+    color: var(--ims-cb2-label);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+// ─── Disabled ─────────────────────────────────────────────────────────────────
+.ims-cb2--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+// ─── Native input (invisible, covers the whole label for a11y) ────────────────
+.ims-cb2__native {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: inherit;
+    width: 100%;
+    height: 100%;
+}
+
+// ─── Track (visible box) ──────────────────────────────────────────────────────
+.ims-cb2__track {
+    position: relative;
+    flex: 0 0 var(--ims-cb2-size);
+    width: var(--ims-cb2-size);
+    height: var(--ims-cb2-size);
+    border: 2px solid var(--ims-cb2-border);
+    border-radius: var(--ims-cb2-radius);
+    background: transparent;
+    color: transparent;         // icon color inherits from here
+    overflow: hidden;
+    transition:
+        background-color var(--ims-cb2-duration) var(--ims-cb2-ease),
+        border-color     var(--ims-cb2-duration) var(--ims-cb2-ease),
+        color            var(--ims-cb2-duration) var(--ims-cb2-ease),
+        transform        120ms var(--ims-cb2-ease);
+}
+
+// ─── Ripple ───────────────────────────────────────────────────────────────────
+.ims-cb2__ripple {
+    position: absolute;
+    inset: 50%;
+    border-radius: 50%;
+    background: var(--ims-cb2-ripple-color);
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.ims-cb2--ripple .ims-cb2__ripple {
+    animation: ims-cb2-ripple var(--ims-cb2-duration) ease-out forwards;
+}
+
+// ─── SVG icon ─────────────────────────────────────────────────────────────────
+.ims-cb2__icon {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+// ─── Check mark ───────────────────────────────────────────────────────────────
+.ims-cb2__check {
+    stroke-dasharray: 22;
+    stroke-dashoffset: 22;
+    opacity: 0;
+    transition:
+        stroke-dashoffset var(--ims-cb2-duration) var(--ims-cb2-ease),
+        opacity           80ms ease;
+}
+
+// ─── Intermediate dash ────────────────────────────────────────────────────────
+.ims-cb2__dash {
+    stroke-dasharray: 10;
+    stroke-dashoffset: 10;
+    opacity: 0;
+    transition:
+        stroke-dashoffset var(--ims-cb2-duration) var(--ims-cb2-ease),
+        opacity           80ms ease;
+}
+
+// ─── Label ────────────────────────────────────────────────────────────────────
+.ims-cb2__label {
+    line-height: 1.4;
+    font-size: 0.9375rem;
+}
+
+// ─── Hover / active ───────────────────────────────────────────────────────────
+.ims-cb2__native:hover + .ims-cb2__track {
+    border-color: var(--ims-cb2-fill);
+    transform: scale(1.06);
+}
+
+.ims-cb2__native:active + .ims-cb2__track {
+    transform: scale(0.94);
+}
+
+// ─── Focus ring ───────────────────────────────────────────────────────────────
+.ims-cb2__native:focus-visible + .ims-cb2__track {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--ims-cb2-focus-ring);
+}
+
+// ─── Checked state ────────────────────────────────────────────────────────────
+.ims-cb2--checked .ims-cb2__track {
+    background: var(--ims-cb2-fill);
+    border-color: var(--ims-cb2-fill);
+    color: var(--ims-cb2-mark);
+}
+
+.ims-cb2--checked .ims-cb2__native:hover + .ims-cb2__track {
+    background: var(--ims-cb2-fill-hover);
+    border-color: var(--ims-cb2-fill-hover);
+}
+
+.ims-cb2--checked .ims-cb2__check {
+    stroke-dashoffset: 0;
+    opacity: 1;
+}
+
+// ─── Intermediate state ───────────────────────────────────────────────────────
+.ims-cb2--intermediate .ims-cb2__track {
+    background: var(--ims-cb2-fill);
+    border-color: var(--ims-cb2-fill);
+    color: var(--ims-cb2-mark);
+}
+
+.ims-cb2--intermediate .ims-cb2__native:hover + .ims-cb2__track {
+    background: var(--ims-cb2-fill-hover);
+    border-color: var(--ims-cb2-fill-hover);
+}
+
+.ims-cb2--intermediate .ims-cb2__dash {
+    stroke-dashoffset: 0;
+    opacity: 1;
+}
+
+// ─── Keyframes ────────────────────────────────────────────────────────────────
+@keyframes ims-cb2-ripple {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+    }
+
+    60% {
+        transform: translate(-50%, -50%) scale(3.5);
+        opacity: 0.6;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(4.5);
+        opacity: 0;
+    }
+}
