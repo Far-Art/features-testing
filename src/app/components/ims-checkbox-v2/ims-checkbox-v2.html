@@ -1,6 +1,6 @@
 <label
     class="ims-cb2"
-    [class.ims-cb2--checked]="checked() && !intermediate()"
+    [class.ims-cb2--checked]="isChecked() && !intermediate()"
     [class.ims-cb2--intermediate]="intermediate()"
     [class.ims-cb2--disabled]="disabled()"
     [class.ims-cb2--ripple]="rippleActive()"
@@ -8,7 +8,7 @@
     <input
         class="ims-cb2__native"
         type="checkbox"
-        [checked]="checked() && !intermediate()"
+        [checked]="isChecked() && !intermediate()"
         [indeterminate]="intermediate()"
         [disabled]="disabled()"
         [attr.aria-checked]="ariaChecked()"

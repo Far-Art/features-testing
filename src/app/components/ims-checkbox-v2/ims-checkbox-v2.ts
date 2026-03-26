@@ -44,16 +44,22 @@ export class ImsCheckboxV2 implements ControlValueAccessor {
     readonly intermediate = model(false);
     readonly trueValue = input<unknown>(true);
     readonly falseValue = input<unknown>(false);
+    // When bound, takes precedence over value/trueValue comparison.
+    // undefined means "not provided — defer to value-based logic".
+    readonly checked = input<boolean | undefined>(undefined);
     readonly disabledInput = input(false, {alias: 'disabled', transform: booleanAttribute});
 
     readonly currentValue = computed(() =>
         this.value() === IMS_CHECKBOX_V2_UNSET ? this.falseValue() : this.value()
     );
-    readonly checked = computed(() => Object.is(this.currentValue(), this.trueValue()));
+    readonly isChecked = computed(() => {
+        const explicit = this.checked();
+        return explicit !== undefined ? explicit : Object.is(this.currentValue(), this.trueValue());
+    });
     readonly disabled = computed(() => this.disabledInput() || this.formDisabled());
     readonly visualState = computed<CheckboxV2VisualState>(() => {
         if (this.intermediate()) return 'intermediate';
-        return this.checked() ? 'checked' : 'unchecked';
+        return this.isChecked() ? 'checked' : 'unchecked';
     });
     readonly rippleActive = signal(false);
 
@@ -69,7 +75,7 @@ export class ImsCheckboxV2 implements ControlValueAccessor {
 
     readonly ariaChecked = computed<'true' | 'false' | 'mixed'>(() => {
         if (this.intermediate()) return 'mixed';
-        return this.checked() ? 'true' : 'false';
+        return this.isChecked() ? 'true' : 'false';
     });
 
     constructor() {
@@ -89,7 +95,7 @@ export class ImsCheckboxV2 implements ControlValueAccessor {
     toggle(): void {
         if (this.disabled()) return;
 
-        const nextValue = this.intermediate() || !this.checked()
+        const nextValue = this.intermediate() || !this.isChecked()
             ? this.trueValue()
             : this.falseValue();
 
