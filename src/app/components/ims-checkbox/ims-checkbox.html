@@ -1,12 +1,12 @@
 <label
-    class="ims-cb2"
-    [class.ims-cb2--checked]="isChecked() && !intermediate()"
-    [class.ims-cb2--intermediate]="intermediate()"
-    [class.ims-cb2--disabled]="disabled()"
-    [class.ims-cb2--ripple]="rippleActive()"
+    class="ims-cb"
+    [class.ims-cb--checked]="isChecked() && !intermediate()"
+    [class.ims-cb--intermediate]="intermediate()"
+    [class.ims-cb--disabled]="disabled()"
+    [class.ims-cb--ripple]="rippleActive()"
 >
     <input
-        class="ims-cb2__native"
+        class="ims-cb__native"
         type="checkbox"
         [checked]="isChecked() && !intermediate()"
         [indeterminate]="intermediate()"
@@ -16,17 +16,17 @@
         (blur)="markAsTouched()"
     />
 
-    <span class="ims-cb2__track" aria-hidden="true">
-        <span class="ims-cb2__ripple"></span>
+    <span class="ims-cb__track" aria-hidden="true">
+        <span class="ims-cb__ripple"></span>
 
-        <svg class="ims-cb2__icon" viewBox="0 0 18 18" fill="none" focusable="false">
+        <svg class="ims-cb__icon" viewBox="0 0 18 18" fill="none" focusable="false">
             <!--
                 Single path shared by both the checkmark and the dash.
                 CSS `d` transition morphs the shape between states.
                 stroke-dashoffset drives the pen-draw / erase effect.
             -->
             <path
-                class="ims-cb2__mark"
+                class="ims-cb__mark"
                 [attr.d]="svgPath()"
                 fill="none"
                 stroke="currentColor"
@@ -37,7 +37,7 @@
         </svg>
     </span>
 
-    <span class="ims-cb2__label">
+    <span class="ims-cb__label">
         <ng-content />
     </span>
 </label>

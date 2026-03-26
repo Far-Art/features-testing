@@ -1,45 +1,14 @@
 <main class="main">
-    <ims-grid
-        [columnGap]="8"
-        [rowGap]="12"
-        [toSortList]="rows()"
-        (sortChange)="onGridSortChange($event)"
-    >
-        <ims-grid-header [offsetStart]="50" [offsetEnd]="50">
-            <ims-grid-cell width="100px" imsSortHeader="policy">Policy</ims-grid-cell>
-            <ims-grid-cell imsSortHeader="version">Version</ims-grid-cell>
-            <ims-grid-cell imsSortHeader="id">id</ims-grid-cell>
-        </ims-grid-header>
+  <header class="hero">
+    <h1>{{ title }}</h1>
+      <ims-checkbox trueValue="1" falseValue="2">s2df</ims-checkbox>
+    <p>
+      Shared dialog + shared query contracts, with concrete model implementations.
+    </p>
+  </header>
 
-        <cdk-virtual-scroll-viewport class="grid-viewport" itemSize="48" [minBufferPx]="120" [maxBufferPx]="400">
-            <mat-accordion>
-                <ims-grid-row *cdkVirtualFor="let row of rows(); trackBy: trackById" compensateOffsets>
-                    <mat-expansion-panel>
-                        <mat-expansion-panel-header>
-                            <ims-grid-cell>{{ row.policy + ' very long text' }}</ims-grid-cell>
-                            <ims-grid-cell>{{ row.version }}</ims-grid-cell>
-                            <ims-grid-cell>{{ row.id }}</ims-grid-cell>
-                        </mat-expansion-panel-header>
-                        <div class="row-details">
-                            <ims-grid-cell>{{ row.policy + ' very long text' }}</ims-grid-cell>
-                            <ims-grid-cell>{{ row.version }}</ims-grid-cell>
-                        </div>
-
-                        @if (row.olderVersions.length > 0) {
-                            <div class="older-versions">
-                                @for (older of row.olderVersions; track older.id) {
-                                    <div class="row-details">
-                                        <ims-grid-cell>
-                                            {{ older.policy }} (v{{ older.version }})
-                                        </ims-grid-cell>
-                                        <ims-grid-cell>{{ older.version }}</ims-grid-cell>
-                                    </div>
-                                }
-                            </div>
-                        }
-                    </mat-expansion-panel>
-                </ims-grid-row>
-            </mat-accordion>
-        </cdk-virtual-scroll-viewport>
-    </ims-grid>
+  <section class="examples-grid">
+    <ims-insured-query />
+    <ims-policy-query />
+  </section>
 </main>

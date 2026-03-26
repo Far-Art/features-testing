@@ -1,36 +1,36 @@
 // ─── Custom properties ────────────────────────────────────────────────────────
-.ims-cb2 {
-    --ims-cb2-size: 1.25rem;
-    --ims-cb2-radius: 0.3rem;
-    --ims-cb2-border: #9ca3af;
-    --ims-cb2-fill: #4f46e5;
-    --ims-cb2-fill-hover: #4338ca;
-    --ims-cb2-mark: #ffffff;
-    --ims-cb2-label: #111827;
-    --ims-cb2-ripple-color: rgb(79 70 229 / 18%);
-    --ims-cb2-ripple-duration: 400ms;
-    --ims-cb2-focus-ring: rgb(79 70 229 / 25%);
-    --ims-cb2-duration: 200ms;
-    --ims-cb2-ease: cubic-bezier(0.4, 0, 0.2, 1);
+.ims-cb {
+    --ims-cb-size: 1.25rem;
+    --ims-cb-radius: 0.3rem;
+    --ims-cb-border: #9ca3af;
+    --ims-cb-fill: #4f46e5;
+    --ims-cb-fill-hover: #4338ca;
+    --ims-cb-mark: #ffffff;
+    --ims-cb-label: #111827;
+    --ims-cb-ripple-color: rgb(79 70 229 / 18%);
+    --ims-cb-ripple-duration: 400ms;
+    --ims-cb-focus-ring: rgb(79 70 229 / 25%);
+    --ims-cb-duration: 200ms;
+    --ims-cb-ease: cubic-bezier(0.4, 0, 0.2, 1);
 
     position: relative;
     display: inline-flex;
     align-items: center;
     gap: 0.625rem;
     cursor: pointer;
-    color: var(--ims-cb2-label);
+    color: var(--ims-cb-label);
     user-select: none;
     -webkit-tap-highlight-color: transparent;
 }
 
 // ─── Disabled ─────────────────────────────────────────────────────────────────
-.ims-cb2--disabled {
+.ims-cb--disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
 // ─── Native input (invisible, covers the whole label for a11y) ────────────────
-.ims-cb2__native {
+.ims-cb__native {
     position: absolute;
     inset: 0;
     margin: 0;
@@ -41,45 +41,45 @@
 }
 
 // ─── Track (visible box) ──────────────────────────────────────────────────────
-.ims-cb2__track {
+.ims-cb__track {
     position: relative;
-    flex: 0 0 var(--ims-cb2-size);
-    width: var(--ims-cb2-size);
-    height: var(--ims-cb2-size);
-    border: 2px solid var(--ims-cb2-border);
-    border-radius: var(--ims-cb2-radius);
+    flex: 0 0 var(--ims-cb-size);
+    width: var(--ims-cb-size);
+    height: var(--ims-cb-size);
+    border: 2px solid var(--ims-cb-border);
+    border-radius: var(--ims-cb-radius);
     background: transparent;
     color: transparent;         // icon color inherits from here
     transition:
-        background-color var(--ims-cb2-duration) var(--ims-cb2-ease),
-        border-color     var(--ims-cb2-duration) var(--ims-cb2-ease),
-        color            var(--ims-cb2-duration) var(--ims-cb2-ease),
-        transform        120ms var(--ims-cb2-ease);
+        background-color var(--ims-cb-duration) var(--ims-cb-ease),
+        border-color     var(--ims-cb-duration) var(--ims-cb-ease),
+        color            var(--ims-cb-duration) var(--ims-cb-ease),
+        transform        120ms var(--ims-cb-ease);
 }
 
 // ─── Ripple ───────────────────────────────────────────────────────────────────
 // The ripple is positioned relative to the track and sized larger than it so
 // it expands visibly beyond the checkbox box. `overflow: hidden` is NOT set on
 // the track so the ripple can bleed outward.
-.ims-cb2__ripple {
+.ims-cb__ripple {
     position: absolute;
-    width: calc(var(--ims-cb2-size) * 2.5);
-    height: calc(var(--ims-cb2-size) * 2.5);
+    width: calc(var(--ims-cb-size) * 2.5);
+    height: calc(var(--ims-cb-size) * 2.5);
     top: 50%;
     left: 50%;
     border-radius: 50%;
-    background: var(--ims-cb2-ripple-color);
+    background: var(--ims-cb-ripple-color);
     transform: translate(-50%, -50%) scale(0);
     opacity: 0;
     pointer-events: none;
 }
 
-.ims-cb2--ripple .ims-cb2__ripple {
-    animation: ims-cb2-ripple var(--ims-cb2-ripple-duration) ease-out forwards;
+.ims-cb--ripple .ims-cb__ripple {
+    animation: ims-cb-ripple var(--ims-cb-ripple-duration) ease-out forwards;
 }
 
 // ─── SVG icon ─────────────────────────────────────────────────────────────────
-.ims-cb2__icon {
+.ims-cb__icon {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -97,74 +97,74 @@
 // and 9), so stroke-dashoffset alone drives the pen-draw and erase effects:
 //   unchecked → checked      : dashoffset 22 → 0  (pen draws the checkmark)
 //   checked   → unchecked    : dashoffset 0  → 22 (stroke erases in reverse)
-.ims-cb2__mark {
+.ims-cb__mark {
     stroke-dasharray: 22;
     stroke-dashoffset: 22;
     opacity: 0;
     transition:
-        d                 var(--ims-cb2-duration) var(--ims-cb2-ease),
-        stroke-dashoffset calc(var(--ims-cb2-duration) * 1.6) var(--ims-cb2-ease),
+        d                 var(--ims-cb-duration) var(--ims-cb-ease),
+        stroke-dashoffset calc(var(--ims-cb-duration) * 1.6) var(--ims-cb-ease),
         opacity           80ms ease;
 }
 
 // ─── Label ────────────────────────────────────────────────────────────────────
-.ims-cb2__label {
+.ims-cb__label {
     line-height: 1.4;
     font-size: 0.9375rem;
 }
 
 // ─── Hover / active ───────────────────────────────────────────────────────────
-.ims-cb2__native:hover + .ims-cb2__track {
-    border-color: var(--ims-cb2-fill);
+.ims-cb__native:hover + .ims-cb__track {
+    border-color: var(--ims-cb-fill);
     transform: scale(1.06);
 }
 
-.ims-cb2__native:active + .ims-cb2__track {
+.ims-cb__native:active + .ims-cb__track {
     transform: scale(0.94);
 }
 
 // ─── Focus ring ───────────────────────────────────────────────────────────────
-.ims-cb2__native:focus-visible + .ims-cb2__track {
+.ims-cb__native:focus-visible + .ims-cb__track {
     outline: none;
-    box-shadow: 0 0 0 3px var(--ims-cb2-focus-ring);
+    box-shadow: 0 0 0 3px var(--ims-cb-focus-ring);
 }
 
 // ─── Checked state ────────────────────────────────────────────────────────────
-.ims-cb2--checked .ims-cb2__track {
-    background: var(--ims-cb2-fill);
-    border-color: var(--ims-cb2-fill);
-    color: var(--ims-cb2-mark);
+.ims-cb--checked .ims-cb__track {
+    background: var(--ims-cb-fill);
+    border-color: var(--ims-cb-fill);
+    color: var(--ims-cb-mark);
 }
 
-.ims-cb2--checked .ims-cb2__native:hover + .ims-cb2__track {
-    background: var(--ims-cb2-fill-hover);
-    border-color: var(--ims-cb2-fill-hover);
+.ims-cb--checked .ims-cb__native:hover + .ims-cb__track {
+    background: var(--ims-cb-fill-hover);
+    border-color: var(--ims-cb-fill-hover);
 }
 
-.ims-cb2--checked .ims-cb2__mark {
+.ims-cb--checked .ims-cb__mark {
     stroke-dashoffset: 0;
     opacity: 1;
 }
 
 // ─── Intermediate state ───────────────────────────────────────────────────────
-.ims-cb2--intermediate .ims-cb2__track {
-    background: var(--ims-cb2-fill);
-    border-color: var(--ims-cb2-fill);
-    color: var(--ims-cb2-mark);
+.ims-cb--intermediate .ims-cb__track {
+    background: var(--ims-cb-fill);
+    border-color: var(--ims-cb-fill);
+    color: var(--ims-cb-mark);
 }
 
-.ims-cb2--intermediate .ims-cb2__native:hover + .ims-cb2__track {
-    background: var(--ims-cb2-fill-hover);
-    border-color: var(--ims-cb2-fill-hover);
+.ims-cb--intermediate .ims-cb__native:hover + .ims-cb__track {
+    background: var(--ims-cb-fill-hover);
+    border-color: var(--ims-cb-fill-hover);
 }
 
-.ims-cb2--intermediate .ims-cb2__mark {
+.ims-cb--intermediate .ims-cb__mark {
     stroke-dashoffset: 0;
     opacity: 1;
 }
 
 // ─── Keyframes ────────────────────────────────────────────────────────────────
-@keyframes ims-cb2-ripple {
+@keyframes ims-cb-ripple {
     0% {
         transform: translate(-50%, -50%) scale(0);
         opacity: 1;

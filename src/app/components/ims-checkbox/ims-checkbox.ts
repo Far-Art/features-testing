@@ -19,20 +19,20 @@ const IMS_CHECKBOX_V2_RIPPLE_MS = 400;
 type CheckboxV2VisualState = 'unchecked' | 'checked' | 'intermediate';
 
 @Component({
-    selector: 'ims-checkbox-v2',
+    selector: 'ims-checkbox',
     standalone: true,
-    templateUrl: './ims-checkbox-v2.html',
-    styleUrl: './ims-checkbox-v2.scss',
+    templateUrl: './ims-checkbox.html',
+    styleUrl: './ims-checkbox.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => ImsCheckboxV2),
+            useExisting: forwardRef(() => ImsCheckbox),
             multi: true
         }
     ]
 })
-export class ImsCheckboxV2 implements ControlValueAccessor {
+export class ImsCheckbox implements ControlValueAccessor {
     private readonly destroyRef = inject(DestroyRef);
     private readonly formDisabled = signal(false);
     private previousVisualState: CheckboxV2VisualState = 'unchecked';
