@@ -8,6 +8,7 @@
     --ims-cb2-mark: #ffffff;
     --ims-cb2-label: #111827;
     --ims-cb2-ripple-color: rgb(79 70 229 / 18%);
+    --ims-cb2-ripple-duration: 400ms;
     --ims-cb2-focus-ring: rgb(79 70 229 / 25%);
     --ims-cb2-duration: 200ms;
     --ims-cb2-ease: cubic-bezier(0.4, 0, 0.2, 1);
@@ -49,7 +50,6 @@
     border-radius: var(--ims-cb2-radius);
     background: transparent;
     color: transparent;         // icon color inherits from here
-    overflow: hidden;
     transition:
         background-color var(--ims-cb2-duration) var(--ims-cb2-ease),
         border-color     var(--ims-cb2-duration) var(--ims-cb2-ease),
@@ -58,9 +58,15 @@
 }
 
 // ─── Ripple ───────────────────────────────────────────────────────────────────
+// The ripple is positioned relative to the track and sized larger than it so
+// it expands visibly beyond the checkbox box. `overflow: hidden` is NOT set on
+// the track so the ripple can bleed outward.
 .ims-cb2__ripple {
     position: absolute;
-    inset: 50%;
+    width: calc(var(--ims-cb2-size) * 2.5);
+    height: calc(var(--ims-cb2-size) * 2.5);
+    top: 50%;
+    left: 50%;
     border-radius: 50%;
     background: var(--ims-cb2-ripple-color);
     transform: translate(-50%, -50%) scale(0);
@@ -69,7 +75,7 @@
 }
 
 .ims-cb2--ripple .ims-cb2__ripple {
-    animation: ims-cb2-ripple var(--ims-cb2-duration) ease-out forwards;
+    animation: ims-cb2-ripple var(--ims-cb2-ripple-duration) ease-out forwards;
 }
 
 // ─── SVG icon ─────────────────────────────────────────────────────────────────
@@ -165,12 +171,11 @@
     }
 
     60% {
-        transform: translate(-50%, -50%) scale(3.5);
-        opacity: 0.6;
+        opacity: 0.5;
     }
 
     100% {
-        transform: translate(-50%, -50%) scale(4.5);
+        transform: translate(-50%, -50%) scale(1);
         opacity: 0;
     }
 }
