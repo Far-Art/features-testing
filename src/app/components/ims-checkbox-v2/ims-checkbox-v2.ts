@@ -56,6 +56,17 @@ export class ImsCheckboxV2 implements ControlValueAccessor {
         return this.checked() ? 'checked' : 'unchecked';
     });
     readonly rippleActive = signal(false);
+
+    // Checkmark path and dash path share the same number of SVG commands (M L L),
+    // which allows the browser to interpolate between them via CSS `d` transition.
+    // stroke-dasharray stays constant at 22 (larger than both path lengths),
+    // so stroke-dashoffset alone controls the pen-draw / erase effect.
+    readonly svgPath = computed(() =>
+        this.visualState() === 'intermediate'
+            ? 'M 4.5 9 L 9 9 L 13.5 9'
+            : 'M 3.5 9.5 L 7 13 L 14.5 5.5'
+    );
+
     readonly ariaChecked = computed<'true' | 'false' | 'mixed'>(() => {
         if (this.intermediate()) return 'mixed';
         return this.checked() ? 'true' : 'false';

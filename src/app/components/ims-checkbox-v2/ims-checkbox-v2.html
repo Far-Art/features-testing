@@ -20,22 +20,19 @@
         <span class="ims-cb2__ripple"></span>
 
         <svg class="ims-cb2__icon" viewBox="0 0 18 18" fill="none" focusable="false">
-            <!-- Checkmark -->
-            <polyline
-                class="ims-cb2__check"
-                points="3.5,9.5 7,13 14.5,5.5"
+            <!--
+                Single path shared by both the checkmark and the dash.
+                CSS `d` transition morphs the shape between states.
+                stroke-dashoffset drives the pen-draw / erase effect.
+            -->
+            <path
+                class="ims-cb2__mark"
+                [attr.d]="svgPath()"
+                fill="none"
                 stroke="currentColor"
                 stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
-            />
-            <!-- Intermediate dash -->
-            <line
-                class="ims-cb2__dash"
-                x1="4.5" y1="9" x2="13.5" y2="9"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
             />
         </svg>
     </span>

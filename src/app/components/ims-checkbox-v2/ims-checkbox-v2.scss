@@ -80,23 +80,24 @@
     height: 100%;
 }
 
-// ─── Check mark ───────────────────────────────────────────────────────────────
-.ims-cb2__check {
+// ─── Mark (checkmark ↔ dash) ──────────────────────────────────────────────────
+// A single <path> element is used for both the checkmark and the intermediate
+// dash. The two paths share the same SVG command structure (M L L), so the
+// browser can interpolate between them via the CSS `d` property transition:
+//   checked  → intermediate : checkmark morphs to straight line
+//   intermediate → checked  : straight line morphs back to checkmark
+//
+// stroke-dasharray is constant at 22 (larger than both path lengths of ~15.6
+// and 9), so stroke-dashoffset alone drives the pen-draw and erase effects:
+//   unchecked → checked      : dashoffset 22 → 0  (pen draws the checkmark)
+//   checked   → unchecked    : dashoffset 0  → 22 (stroke erases in reverse)
+.ims-cb2__mark {
     stroke-dasharray: 22;
     stroke-dashoffset: 22;
     opacity: 0;
     transition:
-        stroke-dashoffset var(--ims-cb2-duration) var(--ims-cb2-ease),
-        opacity           80ms ease;
-}
-
-// ─── Intermediate dash ────────────────────────────────────────────────────────
-.ims-cb2__dash {
-    stroke-dasharray: 10;
-    stroke-dashoffset: 10;
-    opacity: 0;
-    transition:
-        stroke-dashoffset var(--ims-cb2-duration) var(--ims-cb2-ease),
+        d                 var(--ims-cb2-duration) var(--ims-cb2-ease),
+        stroke-dashoffset calc(var(--ims-cb2-duration) * 1.6) var(--ims-cb2-ease),
         opacity           80ms ease;
 }
 
@@ -134,7 +135,7 @@
     border-color: var(--ims-cb2-fill-hover);
 }
 
-.ims-cb2--checked .ims-cb2__check {
+.ims-cb2--checked .ims-cb2__mark {
     stroke-dashoffset: 0;
     opacity: 1;
 }
@@ -151,7 +152,7 @@
     border-color: var(--ims-cb2-fill-hover);
 }
 
-.ims-cb2--intermediate .ims-cb2__dash {
+.ims-cb2--intermediate .ims-cb2__mark {
     stroke-dashoffset: 0;
     opacity: 1;
 }
