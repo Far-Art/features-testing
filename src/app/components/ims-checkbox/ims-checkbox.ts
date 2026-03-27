@@ -1,4 +1,5 @@
 import {
+    booleanAttribute,
     ChangeDetectionStrategy,
     Component,
     computed,
@@ -30,7 +31,9 @@ export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T>
     readonly falseValue = input<F>(false as F);
     // When bound, takes precedence over value/trueValue comparison.
     // undefined means "not provided — defer to value-based logic".
-    readonly checked = input<boolean | undefined>(undefined);
+    readonly checked = input<boolean | undefined, unknown>(undefined, {
+        transform: (v): boolean | undefined => v == null ? undefined : booleanAttribute(v as boolean | string)
+    });
 
     // value is undefined until a form binding calls writeValue; fall back to
     // falseValue so the checkbox renders unchecked on first paint.
