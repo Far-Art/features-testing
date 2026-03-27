@@ -8,7 +8,7 @@
     --ims-cb-mark: #ffffff;
     --ims-cb-label: #111827;
     --ims-cb-ripple-color: rgb(79 70 229 / 18%);
-    --ims-cb-ripple-duration: 400ms;
+    --ims-cb-ripple-duration: 350ms;
     --ims-cb-focus-ring: rgb(79 70 229 / 25%);
     --ims-cb-duration: 200ms;
     --ims-cb-ease: cubic-bezier(0.4, 0, 0.2, 1);
@@ -166,12 +166,12 @@
 // ─── Keyframes ────────────────────────────────────────────────────────────────
 @keyframes ims-cb-ripple {
     0% {
-        transform: translate(-50%, -50%) scale(0);
+        transform: translate(-50%, -50%) scale(0.5);
         opacity: 1;
     }
 
     60% {
-        opacity: 0.5;
+        opacity: 0.6;
     }
 
     100% {

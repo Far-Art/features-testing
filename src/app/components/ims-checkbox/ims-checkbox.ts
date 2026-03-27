@@ -1,22 +1,17 @@
 import {
-    booleanAttribute,
     ChangeDetectionStrategy,
     Component,
     computed,
-    DestroyRef,
     effect,
-    forwardRef,
-    inject,
     input,
     model,
     signal
 } from '@angular/core';
-import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
+import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 
-const IMS_CHECKBOX_V2_UNSET = Symbol('ims-checkbox-v2-unset');
-const IMS_CHECKBOX_V2_RIPPLE_MS = 400;
+const IMS_CHECKBOX_RIPPLE_MS = 350;
 
-type CheckboxV2VisualState = 'unchecked' | 'checked' | 'intermediate';
+type CheckboxVisualState = 'unchecked' | 'checked' | 'intermediate';
 
 @Component({
     selector: 'ims-checkbox',
@@ -24,40 +19,30 @@ type CheckboxV2VisualState = 'unchecked' | 'checked' | 'intermediate';
     templateUrl: './ims-checkbox.html',
     styleUrl: './ims-checkbox.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => ImsCheckbox),
-            multi: true
-        }
-    ]
+    providers: [provideValueAccessor(ImsCheckbox)]
 })
-export class ImsCheckbox implements ControlValueAccessor {
-    private readonly destroyRef = inject(DestroyRef);
-    private readonly formDisabled = signal(false);
-    private previousVisualState: CheckboxV2VisualState = 'unchecked';
+export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T> {
+    private previousVisualState: CheckboxVisualState = 'unchecked';
     private rippleResetHandle: ReturnType<typeof setTimeout> | null = null;
-    private onChange: (value: unknown) => void = () => undefined;
-    private onTouched: () => void = () => undefined;
 
-    readonly value = model<unknown | typeof IMS_CHECKBOX_V2_UNSET>(IMS_CHECKBOX_V2_UNSET);
     readonly intermediate = model(false);
-    readonly trueValue = input<unknown>(true);
-    readonly falseValue = input<unknown>(false);
+    readonly trueValue = input<T>(true as T);
+    readonly falseValue = input<F>(false as F);
     // When bound, takes precedence over value/trueValue comparison.
     // undefined means "not provided — defer to value-based logic".
     readonly checked = input<boolean | undefined>(undefined);
-    readonly disabledInput = input(false, {alias: 'disabled', transform: booleanAttribute});
 
-    readonly currentValue = computed(() =>
-        this.value() === IMS_CHECKBOX_V2_UNSET ? this.falseValue() : this.value()
-    );
+    // value is undefined until a form binding calls writeValue; fall back to
+    // falseValue so the checkbox renders unchecked on first paint.
+    readonly currentValue = computed(() => {
+        const v = this.value();
+        return v !== undefined ? v : this.falseValue();
+    });
     readonly isChecked = computed(() => {
         const explicit = this.checked();
         return explicit !== undefined ? explicit : Object.is(this.currentValue(), this.trueValue());
     });
-    readonly disabled = computed(() => this.disabledInput() || this.formDisabled());
-    readonly visualState = computed<CheckboxV2VisualState>(() => {
+    readonly visualState = computed<CheckboxVisualState>(() => {
         if (this.intermediate()) return 'intermediate';
         return this.isChecked() ? 'checked' : 'unchecked';
     });
@@ -79,12 +64,13 @@ export class ImsCheckbox implements ControlValueAccessor {
     });
 
     constructor() {
+        super();
         effect(() => {
             const currentState = this.visualState();
             const previousState = this.previousVisualState;
             this.previousVisualState = currentState;
 
-            if (currentState !== previousState) {
+            if (previousState === 'unchecked' && currentState === 'checked') {
                 this.triggerRipple();
             }
         });
@@ -99,33 +85,13 @@ export class ImsCheckbox implements ControlValueAccessor {
             ? this.trueValue()
             : this.falseValue();
 
-        this.value.set(nextValue);
+        this.value.set(nextValue as never);
 
         if (this.intermediate()) {
             this.intermediate.set(false);
         }
 
-        this.onChange(nextValue);
-    }
-
-    markAsTouched(): void {
-        this.onTouched();
-    }
-
-    writeValue(value: unknown): void {
-        this.value.set(value);
-    }
-
-    registerOnChange(fn: (value: unknown) => void): void {
-        this.onChange = fn;
-    }
-
-    registerOnTouched(fn: () => void): void {
-        this.onTouched = fn;
-    }
-
-    setDisabledState(isDisabled: boolean): void {
-        this.formDisabled.set(isDisabled);
+        this.onChange(nextValue as never);
     }
 
     private triggerRipple(): void {
@@ -134,7 +100,7 @@ export class ImsCheckbox implements ControlValueAccessor {
         this.rippleResetHandle = setTimeout(() => {
             this.rippleActive.set(false);
             this.rippleResetHandle = null;
-        }, IMS_CHECKBOX_V2_RIPPLE_MS);
+        }, IMS_CHECKBOX_RIPPLE_MS);
     }
 
     private clearRipple(): void {

@@ -8,6 +8,7 @@
     <input
         class="ims-cb__native"
         type="checkbox"
+        [attr.id]="id()"
         [checked]="isChecked() && !intermediate()"
         [indeterminate]="intermediate()"
         [disabled]="disabled()"

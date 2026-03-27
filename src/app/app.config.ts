@@ -2,6 +2,7 @@ import { ApplicationConfig, LOCALE_ID, provideBrowserGlobalErrorListeners, provi
 import { provideRouter } from '@angular/router';
 import { registerLocaleData } from '@angular/common';
 import {provideHttpClient} from '@angular/common/http';
+import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
 import localeHe from '@angular/common/locales/he';
 
 import { routes } from './app.routes';
@@ -13,6 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideHttpClient(),
+    provideAnimationsAsync(),
     provideRouter(routes),
     { provide: LOCALE_ID, useValue: 'he-IL' }
   ]
