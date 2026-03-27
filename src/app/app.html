@@ -1,7 +1,7 @@
 <main class="main">
   <header class="hero">
     <h1>{{ title }}</h1>
-      <ims-checkbox [value]="true">s2df</ims-checkbox>
+      <ims-checkbox [value]="isIntermediate()" (valueChange)="onChange($event)">s2df</ims-checkbox>
     <p>
       Shared dialog + shared query contracts, with concrete model implementations.
     </p>

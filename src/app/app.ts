@@ -23,4 +23,8 @@ export class App implements OnInit {
             this.isIntermediate.update(v => !v);
         }, 2000)
     }
+
+    onChange(event: any) {
+        console.log(event)
+    }
 }
