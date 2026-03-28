@@ -283,6 +283,11 @@ export class ImsGridRow implements ImsGridRowContext {
         const cells = this.resolvePrimaryContainerCells(this.ownCells());
         return cells[columnIndex]?.columnTrackCss ?? null;
     }
+
+    getCellWidths(): readonly number[] {
+        return this.resolvePrimaryContainerCells(this.ownCells())
+            .map((cell) => cell.getRenderedWidth());
+    }
 }
 
 function toCssLength(value: string | number): string {

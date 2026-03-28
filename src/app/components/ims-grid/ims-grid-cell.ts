@@ -65,6 +65,10 @@ export class ImsGridCell {
         return this.elementRef.nativeElement.textContent?.trim() ?? '';
     }
 
+    getRenderedWidth(): number {
+        return this.elementRef.nativeElement.getBoundingClientRect().width;
+    }
+
     get widthCss(): string | null {
         const width = this.width();
         if (width === undefined || width === null) {

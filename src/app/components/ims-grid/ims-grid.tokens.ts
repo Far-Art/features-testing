@@ -28,6 +28,7 @@ export interface ImsGridRowContext {
     clearRenderOrder(): void;
     resolveSortValue(columnIndex: number): unknown;
     resolveColumnWidth(columnIndex: number): string | null;
+    getCellWidths(): readonly number[];
 }
 
 export interface ImsGridContext {

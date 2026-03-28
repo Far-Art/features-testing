@@ -1,14 +1,56 @@
 <main class="main">
-  <header class="hero">
-    <h1>{{ title }}</h1>
-      <ims-checkbox [value]="isIntermediate()" (valueChange)="onChange($event)">s2df</ims-checkbox>
-    <p>
-      Shared dialog + shared query contracts, with concrete model implementations.
-    </p>
-  </header>
+    <header class="hero">
+        <h1>{{ title }}</h1>
+        <p>
+            Shared dialog + shared query contracts, with concrete model implementations.
+        </p>
+    </header>
 
-  <section class="examples-grid">
-    <ims-insured-query />
-    <ims-policy-query />
-  </section>
+    <section class="examples-grid">
+        <ims-grid>
+            <ims-grid-header offsetEnd="3rem">
+                <ims-grid-cell>first name</ims-grid-cell>
+                <ims-grid-cell>last name</ims-grid-cell>
+                <ims-grid-cell>identity</ims-grid-cell>
+                <ims-grid-cell>policy number</ims-grid-cell>
+                <ims-grid-cell>product</ims-grid-cell>
+                <ims-grid-cell>premium</ims-grid-cell>
+                <ims-grid-cell>status</ims-grid-cell>
+                <ims-grid-cell>actions</ims-grid-cell>
+            </ims-grid-header>
+
+            <ims-grid-row offsetEnd="3rem">
+                <ims-grid-cell>artur</ims-grid-cell>
+                <ims-grid-cell>farmanov</ims-grid-cell>
+                <ims-grid-cell>123456</ims-grid-cell>
+                <ims-grid-cell>1234</ims-grid-cell>
+                <ims-grid-cell>policy</ims-grid-cell>
+                <ims-grid-cell>true</ims-grid-cell>
+                <ims-grid-cell>active</ims-grid-cell>
+                <ims-grid-cell>
+                    <button>generate</button>
+                    <button>fix</button>
+                </ims-grid-cell>
+            </ims-grid-row>
+            <div style="padding-right: 3rem">
+                <ims-grid-row>
+                    <ims-grid-cell></ims-grid-cell>
+                    <ims-grid-cell></ims-grid-cell>
+                    <ims-grid-cell>123456</ims-grid-cell>
+                    <ims-grid-cell>1234</ims-grid-cell>
+                    <ims-grid-cell>policy</ims-grid-cell>
+                    <ims-grid-cell></ims-grid-cell>
+                    <ims-grid-cell></ims-grid-cell>
+                    <ims-grid-cell>
+                        <button>generate</button>
+                        <button>fix</button>
+                    </ims-grid-cell>
+                </ims-grid-row>
+            </div>
+        </ims-grid>
+<!--        <div style="background: var(&#45;&#45;ims-primary-50);">12341234</div>-->
+<!--        <div style="background: var(&#45;&#45;ims-primary-100);">12341234</div>-->
+        <!--    <ims-insured-query />-->
+        <!--    <ims-policy-query />-->
+    </section>
 </main>

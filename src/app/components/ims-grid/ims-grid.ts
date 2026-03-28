@@ -51,12 +51,15 @@ export class ImsGrid<T> implements ImsGridContext {
     private hasSortedOrderApplied = false;
     private pendingApply = false;
     private pendingAnimationFrame: number | null = null;
+    private pendingMeasureFrame: number | null = null;
+    private lastMeasuredRows: readonly ImsGridRowContext[] = [];
     private scheduledRows: readonly ImsGridRowContext[] = [];
     private scheduledSortState: ImsSortState = {active: null, direction: ''};
     private scheduledSortHeaders: readonly ImsSortHeaderContext[] = [];
     private scheduledHasExternalSortData = false;
     private observedViewport: HTMLElement | null = null;
     private viewportResizeObserver: ResizeObserver | null = null;
+    private readonly autoColumnWidths = signal<readonly number[]>([]);
 
     /** Horizontal gap between logical data columns (not including offset columns). Default: `0`. */
     readonly gap = input<string | number>(0, {alias: 'columnGap'});
@@ -99,21 +102,22 @@ export class ImsGrid<T> implements ImsGridContext {
         }
 
         const headerRow = this.rows().find((row) => row.headerCellCount() > 0);
+        const measuredWidths = this.autoColumnWidths();
         const tracks: string[] = [];
         for (let index = 0; index < columnCount; index += 1) {
-            tracks.push(headerRow?.resolveColumnWidth(index) ?? 'minmax(0, 1fr)');
+            const explicit = headerRow?.resolveColumnWidth(index) ?? null;
+            if (explicit) {
+                tracks.push(explicit);
+            } else {
+                const measured = measuredWidths[index];
+                tracks.push(measured ? `minmax(${Math.ceil(measured)}px, 1fr)` : 'max-content');
+            }
         }
 
         return tracks.join(' ');
     });
-    readonly defaultOffsetStart: Signal<string> = computed(() => {
-        const anchorRow = resolveBodyAnchorRow(this.rows());
-        return anchorRow ? anchorRow.rowOffsetStartCss() : '0px';
-    });
-    readonly defaultOffsetEnd: Signal<string> = computed(() => {
-        const anchorRow = resolveBodyAnchorRow(this.rows());
-        return anchorRow ? anchorRow.rowOffsetEndCss() : '0px';
-    });
+    readonly defaultOffsetStart: Signal<string> = signal('0px');
+    readonly defaultOffsetEnd: Signal<string> = signal('0px');
 
     constructor() {
         effect(() => {
@@ -128,6 +132,9 @@ export class ImsGrid<T> implements ImsGridContext {
         this.destroyRef.onDestroy(() => {
             if (this.pendingAnimationFrame !== null) {
                 cancelAnimationFrame(this.pendingAnimationFrame);
+            }
+            if (this.pendingMeasureFrame !== null) {
+                cancelAnimationFrame(this.pendingMeasureFrame);
             }
             this.viewportResizeObserver?.disconnect();
         });
@@ -210,6 +217,19 @@ export class ImsGrid<T> implements ImsGridContext {
                 this.scheduledSortHeaders,
                 this.scheduledHasExternalSortData
             );
+
+            if (this.scheduledRows !== this.lastMeasuredRows) {
+                this.autoColumnWidths.set([]);
+                const rowsSnapshot = this.scheduledRows;
+                if (this.pendingMeasureFrame !== null) {
+                    cancelAnimationFrame(this.pendingMeasureFrame);
+                }
+                this.pendingMeasureFrame = requestAnimationFrame(() => {
+                    this.pendingMeasureFrame = null;
+                    this.lastMeasuredRows = rowsSnapshot;
+                    this.measureAutoColumnWidths(rowsSnapshot);
+                });
+            }
         });
     }
 
@@ -418,6 +438,33 @@ export class ImsGrid<T> implements ImsGridContext {
         this.updateViewportCompensation(this.rows());
     }
 
+    /** Measures rendered cell widths across all rows and sets uniform auto column widths. */
+    private measureAutoColumnWidths(rows: readonly ImsGridRowContext[]): void {
+        const columnCount = this.columnCount();
+        if (columnCount <= 0) {
+            return;
+        }
+
+        const headerRow = rows.find((row) => row.isHeaderRow);
+        const maxWidths: number[] = new Array(columnCount).fill(0);
+
+        for (const row of rows) {
+            const widths = row.getCellWidths();
+            for (let i = 0; i < Math.min(widths.length, columnCount); i += 1) {
+                if (widths[i] > maxWidths[i]) {
+                    maxWidths[i] = widths[i];
+                }
+            }
+        }
+
+        // Zero out columns that have explicit widths so columnTemplate ignores them.
+        const finalWidths = maxWidths.map((w, i) =>
+            headerRow?.resolveColumnWidth(i) ? 0 : w
+        );
+
+        this.autoColumnWidths.set(finalWidths);
+    }
+
     /** Calculates end-offset compensation to keep header columns aligned with viewport rows. */
     private updateViewportCompensation(rows: readonly ImsGridRowContext[]): void {
         let compensation = 0;
@@ -454,10 +501,6 @@ function toCssLength(value: string | number): string {
     }
 
     return normalized;
-}
-
-function resolveBodyAnchorRow(rows: readonly ImsGridRowContext[]): ImsGridRowContext | undefined {
-    return rows.find((row) => !row.isHeaderRow);
 }
 
 function resolveSortColumnIndex(
