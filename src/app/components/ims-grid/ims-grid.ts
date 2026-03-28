@@ -110,7 +110,7 @@ export class ImsGrid<T> implements ImsGridContext {
                 tracks.push(explicit);
             } else {
                 const measured = measuredWidths[index];
-                tracks.push(measured ? `minmax(${Math.ceil(measured)}px, 1fr)` : 'max-content');
+                tracks.push(measured ? `minmax(0, ${Math.ceil(measured)}fr)` : 'max-content');
             }
         }
 

@@ -17,6 +17,12 @@
     transition: background-color 160ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+:host-context(ims-grid-header) .ims-sort-header-content {
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
 :host-context(ims-grid-header).ims-grid-header-highlighted {
     background-color: rgba(25, 118, 210, 0.14);
 }
