@@ -47,6 +47,12 @@ export abstract class BasicValueAccessor<T = unknown> implements ControlValueAcc
         this.value.set(value);
     }
 
+    /** Sets the value and notifies the form, as if the user had changed it. */
+    setValue(value: T): void {
+        this.value.set(value);
+        this.onChange(value);
+    }
+
     registerOnChange(fn: (value: T) => void): void {
         this.onChange = fn;
     }
