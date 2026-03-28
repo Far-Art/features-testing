@@ -1,0 +1,83 @@
+<h2 class="dialog-title">{{ definition.title }}</h2>
+
+<div class="dialog-content">
+  <form [formGroup]="form" class="filter-form" (ngSubmit)="executeSearch(true)">
+    @for (field of definition.filterFields; track field.key) {
+      <label class="filter-field">
+        <span>{{ field.label }}</span>
+        <input
+          [type]="field.type ?? 'text'"
+          [attr.placeholder]="field.placeholder ?? ''"
+          [formControlName]="field.key"
+        >
+      </label>
+    }
+
+    <button type="submit" [disabled]="loading()">Search</button>
+  </form>
+
+  <p class="status-line">
+    @if (loading()) {
+      Searching...
+    } @else {
+      {{ total() }} result(s)
+    }
+  </p>
+
+  <div class="results-wrapper" [style.height]="wrapperHeight()">
+    <table class="results-table">
+      <thead>
+      <tr>
+        @for (column of definition.columns; track column.key) {
+          <th [class.sortable]="isSortable(column)">
+            <button
+              type="button"
+              class="column-sort-button"
+              [class.active]="sortDirection(column)"
+              [disabled]="!isSortable(column) || loading()"
+              (click)="toggleSort(column)"
+            >
+              <span>{{ column.header }}</span>
+              <span class="sort-indicator">
+                @switch (sortDirection(column)) {
+                  @case ('ASC') {
+                    ▲
+                  }
+                  @case ('DESC') {
+                    ▼
+                  }
+                  @default {
+                    ↕
+                  }
+                }
+              </span>
+            </button>
+          </th>
+        }
+      </tr>
+      </thead>
+      <tbody>
+        @for (row of items(); track trackByIndex($index)) {
+          <tr
+            (click)="selectItem(row)"
+            [class.selected]="isSelected(row)"
+          >
+            @for (column of definition.columns; track column.key) {
+              <td>{{ column.value(row) }}</td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="dialog-actions">
+  <button type="button" (click)="goFirst()" [disabled]="!canGoPrev()">First</button>
+  <button type="button" (click)="goBack()" [disabled]="!canGoPrev()">Back</button>
+  <button type="button" (click)="goNext()" [disabled]="!canGoNext()">Next</button>
+  <button type="button" (click)="goLast()" [disabled]="!canGoNext()">Last</button>
+  <button type="button" (click)="clear()" [disabled]="loading()">Clear</button>
+  <button type="button" (click)="cancel()">Cancel</button>
+  <button type="button" (click)="confirmSelection()" [disabled]="!selectedItem()">Select</button>
+</div>
