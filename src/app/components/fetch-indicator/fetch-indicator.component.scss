@@ -1,0 +1,136 @@
+:host {
+    --indicator-idle: color-mix(in srgb, currentColor 28%, transparent);
+    --indicator-active: currentColor;
+    --indicator-success: #1f9d57;
+    --indicator-error: #d83c3c;
+
+    display: inline-flex;
+    inline-size: fit-content;
+    block-size: fit-content;
+    color: inherit;
+}
+
+.indicator {
+    display: block;
+    overflow: visible;
+
+    &__track,
+    &__spinner,
+    &__handoff,
+    &__glyph {
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    &__track,
+    &__spinner {
+        vector-effect: non-scaling-stroke;
+    }
+
+    &__track {
+        stroke: var(--indicator-idle);
+        transition: stroke calc(240ms / var(--indicator-speed, 1)) ease,
+                    opacity calc(200ms / var(--indicator-speed, 1)) ease;
+    }
+
+    &__spinner {
+        transform-origin: 50% 50%;
+        stroke: var(--indicator-active);
+        stroke-dasharray: 42 58;
+        stroke-dashoffset: 6;
+        animation: indicator-spin calc(850ms / var(--indicator-speed, 1)) linear infinite;
+        transition: opacity calc(220ms / var(--indicator-speed, 1)) ease,
+                    transform calc(220ms / var(--indicator-speed, 1)) ease,
+                    stroke calc(220ms / var(--indicator-speed, 1)) ease;
+    }
+
+    &__handoff,
+    &__glyph {
+        opacity: 0;
+        fill: none;
+        stroke: transparent;
+        stroke-dasharray: 100;
+        stroke-dashoffset: 100;
+    }
+
+    &--success &__track,
+    &--settling-success &__track {
+        stroke: color-mix(in srgb, var(--indicator-success) 30%, transparent);
+    }
+
+    &--error &__track {
+        stroke: color-mix(in srgb, var(--indicator-error) 30%, transparent);
+    }
+
+    &--settling-success &__spinner {
+        opacity: 0;
+        stroke: var(--indicator-success);
+    }
+
+    &--settling-success &__handoff {
+        opacity: 1;
+        stroke: var(--indicator-success);
+        animation: indicator-draw-handoff calc(230ms / var(--indicator-speed, 1)) cubic-bezier(0.33, 1, 0.68, 1) forwards;
+    }
+
+    &--success &__spinner,
+    &--success &__handoff,
+    &--settling-error &__spinner,
+    &--error &__spinner {
+        opacity: 0;
+        transform: scale(0.92);
+        animation: none;
+    }
+
+    &--success &__glyph--check {
+        opacity: 1;
+        stroke: var(--indicator-success);
+        animation: indicator-draw-check calc(360ms / var(--indicator-speed, 1)) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    &--error &__glyph--cross-a {
+        opacity: 1;
+        stroke: var(--indicator-error);
+        animation: indicator-draw-cross calc(240ms / var(--indicator-speed, 1)) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    &--error &__glyph--cross-b {
+        opacity: 1;
+        stroke: var(--indicator-error);
+        animation: indicator-draw-cross calc(240ms / var(--indicator-speed, 1)) calc(110ms / var(--indicator-speed, 1)) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+}
+
+@keyframes indicator-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+@keyframes indicator-draw-handoff {
+    from { stroke-dashoffset: 100; opacity: 0.2; }
+    to   { stroke-dashoffset: 0; opacity: 1; }
+}
+
+@keyframes indicator-draw-check {
+    from { stroke-dashoffset: 100; opacity: 0; }
+    15%  { opacity: 1; }
+    to   { stroke-dashoffset: 0; opacity: 1; }
+}
+
+@keyframes indicator-draw-cross {
+    from { stroke-dashoffset: 100; opacity: 0.2; }
+    to   { stroke-dashoffset: 0;   opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .indicator {
+        &__spinner,
+        &--settling-success .indicator__handoff,
+        &--success .indicator__glyph--check,
+        &--error .indicator__glyph--cross-a,
+        &--error .indicator__glyph--cross-b {
+            animation-duration: 1ms;
+            animation-iteration-count: 1;
+        }
+    }
+}
