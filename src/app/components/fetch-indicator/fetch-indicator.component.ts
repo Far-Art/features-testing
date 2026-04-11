@@ -1,6 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { concat, map, of, switchMap, timer } from 'rxjs';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, signal } from '@angular/core';
 
 export type FetchIndicatorState = 'loading' | 'success' | 'error';
 type FetchIndicatorPhase =
@@ -18,35 +16,21 @@ type FetchIndicatorPhase =
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   host: {
-    class: 'snackbar-fetch-indicator-host',
     '[attr.aria-label]': 'ariaLabel()',
     '[style.--indicator-speed]': 'animationSpeed()',
     'role': 'img',
   },
 })
 export class FetchIndicator {
+  private readonly destroyRef = inject(DestroyRef);
+  private phaseTimer: ReturnType<typeof setTimeout> | null = null;
+
   readonly state = input<FetchIndicatorState>('loading');
   readonly size = input(20);
   readonly strokeWidth = input(2.35);
   readonly animationSpeed = input(1);
 
-  protected readonly phase = toSignal(
-    toObservable(this.state).pipe(
-      switchMap(state => {
-        const speed = this.animationSpeed();
-        if (state === 'success') return concat(
-          of<FetchIndicatorPhase>('settling-success'),
-          timer(Math.round(230 / speed)).pipe(map((): FetchIndicatorPhase => 'success')),
-        );
-        if (state === 'error') return concat(
-          of<FetchIndicatorPhase>('settling-error'),
-          timer(Math.round(150 / speed)).pipe(map((): FetchIndicatorPhase => 'error')),
-        );
-        return of<FetchIndicatorPhase>('loading');
-      }),
-    ),
-    { initialValue: 'loading' as FetchIndicatorPhase },
-  );
+  protected readonly phase = signal<FetchIndicatorPhase>('loading');
 
   protected readonly isLoading = computed(() => this.phase() === 'loading');
   protected readonly isSettlingSuccess = computed(() => this.phase() === 'settling-success');
@@ -60,4 +44,42 @@ export class FetchIndicator {
       default: return 'Request in progress';
     }
   });
+
+  constructor() {
+    effect(() => {
+      const state = this.state();
+      const speed = this.animationSpeed();
+
+      this.clearPhaseTimer();
+
+      if (state === 'success') {
+        this.phase.set('settling-success');
+        this.phaseTimer = setTimeout(() => {
+          this.phase.set('success');
+          this.phaseTimer = null;
+        }, Math.round(230 / speed));
+        return;
+      }
+
+      if (state === 'error') {
+        this.phase.set('settling-error');
+        this.phaseTimer = setTimeout(() => {
+          this.phase.set('error');
+          this.phaseTimer = null;
+        }, Math.round(150 / speed));
+        return;
+      }
+
+      this.phase.set('loading');
+    });
+
+    this.destroyRef.onDestroy(() => this.clearPhaseTimer());
+  }
+
+  private clearPhaseTimer(): void {
+    if (this.phaseTimer !== null) {
+      clearTimeout(this.phaseTimer);
+      this.phaseTimer = null;
+    }
+  }
 }
