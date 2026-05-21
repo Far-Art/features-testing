@@ -161,64 +161,72 @@
             </ims-grid-row>
         </ims-grid>
 
-        <ims-grid2 columnGap="3rem" offsetStart="1.5rem" offsetEnd="5rem" rowGap="0.75rem">
+        <ims-grid2
+            [imsGrid2Sort]="grid2Rows"
+            #grid2Sort="imsGrid2Sort"
+            columnGap="3rem"
+            offsetStart="1.5rem"
+            offsetEnd="5rem"
+            rowGap="0.75rem"
+        >
             <ims-grid2-header>
-                <ims-grid2-cell>first name</ims-grid2-cell>
-                <ims-grid2-cell>last name</ims-grid2-cell>
-                <ims-grid2-cell>identity</ims-grid2-cell>
-                <ims-grid2-cell>policy number</ims-grid2-cell>
-                <ims-grid2-cell>product</ims-grid2-cell>
-                <ims-grid2-cell>premium</ims-grid2-cell>
-                <ims-grid2-cell>status</ims-grid2-cell>
+                <ims-grid2-cell>
+                    <ims-grid2-sort-header field="firstName">first name</ims-grid2-sort-header>
+                </ims-grid2-cell>
+                <ims-grid2-cell>
+                    <ims-grid2-sort-header field="lastName">last name</ims-grid2-sort-header>
+                </ims-grid2-cell>
+                <ims-grid2-cell>
+                    <ims-grid2-sort-header field="identity">identity</ims-grid2-sort-header>
+                </ims-grid2-cell>
+                <ims-grid2-cell>
+                    <ims-grid2-sort-header field="policyNumber">policy number</ims-grid2-sort-header>
+                </ims-grid2-cell>
+                <ims-grid2-cell>
+                    <ims-grid2-sort-header field="product">product</ims-grid2-sort-header>
+                </ims-grid2-cell>
+                <ims-grid2-cell>
+                    <ims-grid2-sort-header field="premium">premium</ims-grid2-sort-header>
+                </ims-grid2-cell>
+                <ims-grid2-cell>
+                    <ims-grid2-sort-header field="status">status</ims-grid2-sort-header>
+                </ims-grid2-cell>
                 <ims-grid2-cell maxWidth="70px">actions</ims-grid2-cell>
             </ims-grid2-header>
 
-            <ims-grid2-row>
-                <mat-expansion-panel imsGrid2Clip>
-                    <mat-expansion-panel-header>
-                        <ims-grid2-cell>artur</ims-grid2-cell>
-                        <ims-grid2-cell>cohen</ims-grid2-cell>
-                        <ims-grid2-cell>123456</ims-grid2-cell>
-                        <ims-grid2-cell>1234</ims-grid2-cell>
-                        <ims-grid2-cell>policy</ims-grid2-cell>
-                        <ims-grid2-cell>true</ims-grid2-cell>
-                        <ims-grid2-cell>active</ims-grid2-cell>
-                        <ims-grid2-cell>
-                            <button>fix</button>
-                        </ims-grid2-cell>
-                    </mat-expansion-panel-header>
+            @for (row of grid2Sort.sortedData(); track row.id) {
+                <ims-grid2-row>
+                    <mat-expansion-panel imsGrid2Clip>
+                        <mat-expansion-panel-header>
+                            <ims-grid2-cell>{{ row.firstName }}</ims-grid2-cell>
+                            <ims-grid2-cell>{{ row.lastName }}</ims-grid2-cell>
+                            <ims-grid2-cell>{{ row.identity }}</ims-grid2-cell>
+                            <ims-grid2-cell>{{ row.policyNumber }}</ims-grid2-cell>
+                            <ims-grid2-cell>{{ row.product }}</ims-grid2-cell>
+                            <ims-grid2-cell>{{ row.premium }}</ims-grid2-cell>
+                            <ims-grid2-cell>{{ row.status }}</ims-grid2-cell>
+                            <ims-grid2-cell>
+                                <button>fix</button>
+                            </ims-grid2-cell>
+                        </mat-expansion-panel-header>
 
-                    <ims-grid2-row>
-                        <ims-grid2-cell></ims-grid2-cell>
-                        <ims-grid2-cell></ims-grid2-cell>
-                        <ims-grid2-cell>123456</ims-grid2-cell>
-                        <ims-grid2-cell>1234</ims-grid2-cell>
-                        <ims-grid2-cell>policy</ims-grid2-cell>
-                        <ims-grid2-cell></ims-grid2-cell>
-                        <ims-grid2-cell></ims-grid2-cell>
-                        <ims-grid2-cell>
-                            <button>fix</button>
-                        </ims-grid2-cell>
-                    </ims-grid2-row>
-                </mat-expansion-panel>
-            </ims-grid2-row>
-
-            <ims-grid2-row>
-                <mat-expansion-panel>
-                    <mat-expansion-panel-header>
-                        <ims-grid2-cell>mira</ims-grid2-cell>
-                        <ims-grid2-cell>levi</ims-grid2-cell>
-                        <ims-grid2-cell>789012</ims-grid2-cell>
-                        <ims-grid2-cell>9876</ims-grid2-cell>
-                        <ims-grid2-cell>claim</ims-grid2-cell>
-                        <ims-grid2-cell>false</ims-grid2-cell>
-                        <ims-grid2-cell>pending</ims-grid2-cell>
-                        <ims-grid2-cell>
-                            <button>fix</button>
-                        </ims-grid2-cell>
-                    </mat-expansion-panel-header>
-                </mat-expansion-panel>
-            </ims-grid2-row>
+                        @for (detail of row.details ?? []; track $index) {
+                            <ims-grid2-row>
+                                <ims-grid2-cell></ims-grid2-cell>
+                                <ims-grid2-cell></ims-grid2-cell>
+                                <ims-grid2-cell>{{ detail.identity }}</ims-grid2-cell>
+                                <ims-grid2-cell>{{ detail.policyNumber }}</ims-grid2-cell>
+                                <ims-grid2-cell>{{ detail.product }}</ims-grid2-cell>
+                                <ims-grid2-cell></ims-grid2-cell>
+                                <ims-grid2-cell></ims-grid2-cell>
+                                <ims-grid2-cell>
+                                    <button>fix</button>
+                                </ims-grid2-cell>
+                            </ims-grid2-row>
+                        }
+                    </mat-expansion-panel>
+                </ims-grid2-row>
+            }
         </ims-grid2>
         <!--        <div style="background: var(&#45;&#45;ims-primary-50);">12341234</div>-->
         <!--        <div style="background: var(&#45;&#45;ims-primary-100);">12341234</div>-->

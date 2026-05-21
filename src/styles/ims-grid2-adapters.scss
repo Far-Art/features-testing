@@ -1,4 +1,27 @@
 ims-grid2 {
+    ims-grid2-sort-header {
+        display: block;
+        width: 100%;
+        min-width: 0;
+
+        .ims-grid2-sort-header-trigger {
+            display: block;
+            width: 100%;
+            min-width: 0;
+        }
+
+        .mat-sort-header-container {
+            width: 100%;
+        }
+
+        .mat-sort-header-content {
+            min-width: 0;
+            white-space: normal;
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+    }
+
     mat-expansion-panel-header:has(ims-grid2-cell) {
         position: relative;
         padding-inline: 0 !important;

@@ -28,6 +28,14 @@ import {IMS_GRID2_CONTEXT, ImsGrid2Context, ImsGrid2RowContext} from './ims-grid
     ],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
+/**
+ * Root grid container that owns the shared column template for `ims-grid2-row`,
+ * `ims-grid2-header`, and nested subgrid wrappers.
+ *
+ * The component intentionally keeps layout state at the root and exposes it
+ * through CSS custom properties so projected rows can align with the header
+ * using CSS `subgrid`.
+ */
 export class ImsGrid2 implements ImsGrid2Context {
     private readonly rows = signal<readonly ImsGrid2RowContext[]>([]);
 
@@ -44,10 +52,15 @@ export class ImsGrid2 implements ImsGrid2Context {
     /** Optional complete CSS grid-template-columns override. */
     readonly columnTemplate = input<string | undefined>(undefined);
 
+    /** Normalized CSS length for the column gap custom property. */
     readonly columnGap: Signal<string> = computed(() => toCssLength(this.gap()));
+    /** Normalized CSS length for the host row gap style. */
     readonly rowGap: Signal<string> = computed(() => toCssLength(this.rowGapInput()));
+    /** Normalized CSS length for the root start rail. */
     readonly offsetStartCss: Signal<string> = computed(() => toCssLength(this.offsetStart()));
+    /** Normalized CSS length for the root end rail. */
     readonly offsetEndCss: Signal<string> = computed(() => toCssLength(this.offsetEnd()));
+    /** Maximum logical column count across header rows, falling back to body rows. */
     readonly columnCount: Signal<number> = computed(() => {
         const rows = this.rows();
         if (rows.length === 0) {
@@ -61,6 +74,12 @@ export class ImsGrid2 implements ImsGrid2Context {
 
         return Math.max(...rows.map((row) => row.cellCount()));
     });
+    /**
+     * CSS `grid-template-columns` value applied to the root grid.
+     *
+     * Header cell `width`, `minWidth`, and `maxWidth` inputs win per column.
+     * Columns without explicit header sizing use `defaultColumnTrack`.
+     */
     readonly resolvedColumnTemplate: Signal<string> = computed(() => {
         const explicitTemplate = this.columnTemplate()?.trim();
         if (explicitTemplate) {
@@ -82,15 +101,18 @@ export class ImsGrid2 implements ImsGrid2Context {
         return tracks.join(' ');
     });
 
+    /** Adds a row/header to the root grid's column calculations. */
     registerRow(row: ImsGrid2RowContext): void {
         this.rows.update((rows) => rows.includes(row) ? rows : [...rows, row]);
     }
 
+    /** Removes a row/header from the root grid's column calculations. */
     unregisterRow(row: ImsGrid2RowContext): void {
         this.rows.update((rows) => rows.filter((current) => current !== row));
     }
 }
 
+/** Converts numeric or unitless length inputs into valid CSS length strings. */
 function toCssLength(value: string | number): string {
     if (typeof value === 'number') {
         return `${value}px`;

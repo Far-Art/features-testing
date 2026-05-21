@@ -18,14 +18,24 @@ import {IMS_GRID2_CONTEXT, ImsGrid2RowContext} from './ims-grid2.tokens';
     template: '<ng-content/>',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
+/**
+ * Logical grid row/header that participates in an owning `ims-grid2` subgrid.
+ *
+ * `ims-grid2-header` contributes column sizing metadata. `ims-grid2-row`
+ * contributes body cells and can contain nested wrappers; CSS `:has()` turns
+ * those wrappers into subgrid bridges.
+ */
 export class ImsGrid2Row implements ImsGrid2RowContext {
     private readonly destroyRef = inject(DestroyRef);
     private readonly hostElement = inject(ElementRef<HTMLElement>).nativeElement;
     private readonly grid = inject(IMS_GRID2_CONTEXT, {optional: true});
     private readonly cells = contentChildren(ImsGrid2Cell, {descendants: true});
+    /** Whether this instance was created from the `ims-grid2-header` selector. */
     readonly isHeaderRow = this.hostElement.tagName === 'IMS-GRID2-HEADER';
 
+    /** Number of cells in this row's largest direct cell container. */
     readonly cellCount: Signal<number> = computed(() => this.resolveMaxContainerCellCount(this.ownCells()));
+    /** Header column count reported to the root grid, or `0` for body rows. */
     readonly headerCellCount: Signal<number> = computed(() =>
         this.isHeaderRow ? this.resolveMaxContainerCellCount(this.ownCells()) : 0
     );
@@ -45,24 +55,29 @@ export class ImsGrid2Row implements ImsGrid2RowContext {
         );
     }
 
+    /** Returns the row/header host element. */
     getHostElement(): HTMLElement {
         return this.hostElement;
     }
 
+    /** Returns the CSS track declared by the header cell at `columnIndex`, when set. */
     resolveColumnTrack(columnIndex: number): string | null {
         const cells = this.resolvePrimaryContainerCells(this.ownCells());
         return cells[columnIndex]?.columnTrackCss ?? null;
     }
 
+    /** Returns cells whose nearest grid2 row/header is this row. */
     private ownCells(): readonly ImsGrid2Cell[] {
         return this.cells().filter((cell) => this.belongsToThisRow(cell));
     }
 
+    /** Excludes cells projected into nested rows from this row's calculations. */
     private belongsToThisRow(cell: ImsGrid2Cell): boolean {
         const nearestRow = cell.getHostElement().closest('ims-grid2-row, ims-grid2-header');
         return nearestRow === this.hostElement;
     }
 
+    /** Assigns logical column indexes independently for each direct cell container. */
     private assignColumnIndexes(cells: readonly ImsGrid2Cell[]): void {
         const cellsByContainer = this.groupCellsByContainer(cells);
         for (const containerCells of cellsByContainer.values()) {
@@ -70,6 +85,7 @@ export class ImsGrid2Row implements ImsGrid2RowContext {
         }
     }
 
+    /** Groups cells by their direct parent so wrapped header/body content can index independently. */
     private groupCellsByContainer(cells: readonly ImsGrid2Cell[]): Map<HTMLElement, ImsGrid2Cell[]> {
         const map = new Map<HTMLElement, ImsGrid2Cell[]>();
         for (const cell of cells) {
@@ -85,6 +101,7 @@ export class ImsGrid2Row implements ImsGrid2RowContext {
         return map;
     }
 
+    /** Finds the largest direct cell container, used as this row's logical column count. */
     private resolveMaxContainerCellCount(cells: readonly ImsGrid2Cell[]): number {
         const grouped = this.groupCellsByContainer(cells);
         let max = 0;
@@ -97,6 +114,7 @@ export class ImsGrid2Row implements ImsGrid2RowContext {
         return max;
     }
 
+    /** Uses the first direct cell container as the source for header column track metadata. */
     private resolvePrimaryContainerCells(cells: readonly ImsGrid2Cell[]): readonly ImsGrid2Cell[] {
         if (cells.length === 0) {
             return [];
