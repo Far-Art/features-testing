@@ -40,7 +40,7 @@ export class ImsGrid2 implements ImsGrid2Context {
     private readonly rows = signal<readonly ImsGrid2RowContext[]>([]);
 
     /** Horizontal gap between logical columns. */
-    readonly gap = input<string | number>(0, {alias: 'columnGap'});
+    readonly gap = input<string | number>(3, {alias: 'columnGap'});
     /** Vertical gap between top-level grid rows. */
     readonly rowGapInput = input<string | number>(0, {alias: 'rowGap'});
     /** Start rail applied once on the root grid. */

@@ -1,26 +1,16 @@
+/*
+ * Known component adapters for ims-grid2.
+ *
+ * Generic grid rules live in ims-grid2.scss. This file contains targeted
+ * compatibility rules for specific components whose internal DOM needs help to
+ * participate in subgrid layout, clipping, or header alignment.
+ *
+ * To add a new known component, scope the selector under `ims-grid2`, target the
+ * component host with `:has(ims-grid2-cell)` when possible, and keep the rule
+ * limited to the component internals needed for grid2 integration. Unknown or
+ * app-specific wrappers should use `imsGrid2Clip` instead of adding broad rules.
+ */
 ims-grid2 {
-    ims-grid2-sort-header {
-        display: block;
-        width: 100%;
-        min-width: 0;
-
-        .ims-grid2-sort-header-trigger {
-            display: block;
-            width: 100%;
-            min-width: 0;
-        }
-
-        .mat-sort-header-container {
-            width: 100%;
-        }
-
-        .mat-sort-header-content {
-            min-width: 0;
-            white-space: normal;
-            overflow-wrap: break-word;
-            word-break: break-word;
-        }
-    }
 
     mat-expansion-panel-header:has(ims-grid2-cell) {
         position: relative;
@@ -36,7 +26,10 @@ ims-grid2 {
         }
     }
 
-    .ims-grid2-clip {
+    mat-expansion-panel:has(ims-grid2-cell) {
+        overflow: hidden;
+        min-height: 0;
+
         :is(.mat-expansion-panel-content-wrapper, .mat-expansion-panel-content):has(ims-grid2-cell) {
             overflow: hidden;
             min-height: 0;
