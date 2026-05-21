@@ -10,7 +10,12 @@ import {
     input,
     signal
 } from '@angular/core';
-import {IMS_GRID2_CONTEXT, ImsGrid2Context, ImsGrid2RowContext} from './ims-grid2.tokens';
+import {
+    IMS_GRID2_CONTEXT,
+    ImsGrid2Appearance,
+    ImsGrid2Context,
+    ImsGrid2RowContext
+} from './ims-grid2.tokens';
 
 @Component({
     selector: 'ims-grid2',
@@ -21,7 +26,8 @@ import {IMS_GRID2_CONTEXT, ImsGrid2Context, ImsGrid2RowContext} from './ims-grid
         '[style.--ims-grid2-offset-start]': 'offsetStartCss()',
         '[style.--ims-grid2-offset-end]': 'offsetEndCss()',
         '[style.--ims-grid2-template]': 'resolvedColumnTemplate()',
-        '[style.row-gap]': 'rowGap()'
+        '[style.row-gap]': 'rowGap()',
+        '[attr.appearance]': 'appearance()'
     },
     providers: [
         {
@@ -56,6 +62,8 @@ export class ImsGrid2 implements ImsGrid2Context {
     readonly defaultColumnTrack = input<string>('minmax(0, 1fr)');
     /** Optional complete CSS grid-template-columns override. */
     readonly columnTemplate = input<string | undefined>(undefined);
+    /** Appearance marker mirrored to `appearance` attribute on host. */
+    readonly appearance = input<ImsGrid2Appearance>('default');
 
     /** Normalized CSS length for the column gap custom property. */
     readonly columnGap: Signal<string> = computed(() => toCssLength(this.gap()));

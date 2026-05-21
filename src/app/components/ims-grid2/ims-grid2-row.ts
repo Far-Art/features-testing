@@ -7,15 +7,19 @@ import {
     computed,
     contentChildren,
     effect,
-    inject
+    inject,
+    input
 } from '@angular/core';
 import {ImsGrid2Cell} from './ims-grid2-cell';
-import {IMS_GRID2_CONTEXT, ImsGrid2RowContext} from './ims-grid2.tokens';
+import {IMS_GRID2_CONTEXT, ImsGrid2Appearance, ImsGrid2RowContext} from './ims-grid2.tokens';
 
 @Component({
     selector: 'ims-grid2-row, ims-grid2-header',
     standalone: true,
     template: '<ng-content/>',
+    host: {
+        '[attr.appearance]': 'effectiveAppearance()'
+    },
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 /**
@@ -33,12 +37,22 @@ export class ImsGrid2Row implements ImsGrid2RowContext {
     /** Whether this instance was created from the `ims-grid2-header` selector. */
     readonly isHeaderRow = this.hostElement.tagName === 'IMS-GRID2-HEADER';
 
+    /** Optional header appearance override. Ignored for body rows. */
+    readonly appearance = input<ImsGrid2Appearance | undefined>(undefined);
     /** Number of cells in this row's largest direct cell container. */
     readonly cellCount: Signal<number> = computed(() => this.resolveMaxContainerCellCount(this.ownCells()));
     /** Header column count reported to the root grid, or `0` for body rows. */
     readonly headerCellCount: Signal<number> = computed(() =>
         this.isHeaderRow ? this.resolveMaxContainerCellCount(this.ownCells()) : 0
     );
+    /** Header appearance after applying the optional row override over the root grid value. */
+    readonly effectiveAppearance: Signal<ImsGrid2Appearance | null> = computed(() => {
+        if (!this.isHeaderRow) {
+            return null;
+        }
+
+        return this.appearance() ?? this.grid?.appearance() ?? 'default';
+    });
 
     constructor() {
         this.grid?.registerRow(this);

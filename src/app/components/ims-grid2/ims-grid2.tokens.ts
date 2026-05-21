@@ -1,5 +1,7 @@
 import {InjectionToken, Signal} from '@angular/core';
 
+export type ImsGrid2Appearance = 'default' | 'styled';
+
 /** Internal row contract consumed by the root grid to derive column count and track sizing. */
 export interface ImsGrid2RowContext {
     /** Number of logical cells in the row's largest direct cell container. */
@@ -16,6 +18,8 @@ export interface ImsGrid2RowContext {
 
 /** Internal root grid contract injected by rows and related directives. */
 export interface ImsGrid2Context {
+    /** Appearance selected on the root grid. */
+    readonly appearance: Signal<ImsGrid2Appearance>;
     /** Number of logical data columns shared by all subgrid rows. */
     readonly columnCount: Signal<number>;
     /** Registers a row/header so the root grid can derive the shared column template. */
