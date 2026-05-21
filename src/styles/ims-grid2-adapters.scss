@@ -1,0 +1,27 @@
+ims-grid2 {
+    mat-expansion-panel-header:has(ims-grid2-cell) {
+        position: relative;
+        padding-inline: 0 !important;
+
+        .mat-content {
+            overflow: visible;
+        }
+
+        .mat-expansion-indicator {
+            position: absolute;
+            inset-inline-end: calc(0px - var(--ims-grid2-offset-end));
+        }
+    }
+
+    .ims-grid2-clip {
+        :is(.mat-expansion-panel-content-wrapper, .mat-expansion-panel-content):has(ims-grid2-cell) {
+            overflow: hidden;
+            min-height: 0;
+        }
+    }
+
+    .mat-expansion-panel-body:has(ims-grid2-cell) {
+        padding-inline: 0 !important;
+        min-height: 0;
+    }
+}
