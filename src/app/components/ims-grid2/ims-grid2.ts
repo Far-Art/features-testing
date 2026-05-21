@@ -1,21 +1,6 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    DestroyRef,
-    ElementRef,
-    Signal,
-    computed,
-    forwardRef,
-    inject,
-    input,
-    signal
-} from '@angular/core';
-import {
-    IMS_GRID2_CONTEXT,
-    ImsGrid2Appearance,
-    ImsGrid2Context,
-    ImsGrid2RowContext
-} from './ims-grid2.tokens';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, ElementRef, forwardRef, inject, input, Signal, signal} from '@angular/core';
+import {IMS_GRID2_CONTEXT, ImsGrid2Appearance, ImsGrid2Context, ImsGrid2RowContext} from './ims-grid2.tokens';
+
 
 @Component({
     selector: 'ims-grid2',
@@ -46,10 +31,6 @@ import {
  * using CSS `subgrid`.
  */
 export class ImsGrid2 implements ImsGrid2Context {
-    private readonly destroyRef = inject(DestroyRef);
-    private readonly hostElement = inject(ElementRef<HTMLElement>).nativeElement;
-    private readonly rows = signal<readonly ImsGrid2RowContext[]>([]);
-
     /** Horizontal gap between logical columns. */
     readonly gap = input<string | number>(3, {alias: 'columnGap'});
     /** Vertical gap between top-level grid rows. */
@@ -64,7 +45,6 @@ export class ImsGrid2 implements ImsGrid2Context {
     readonly columnTemplate = input<string | undefined>(undefined);
     /** Appearance marker mirrored to `appearance` attribute on host. */
     readonly appearance = input<ImsGrid2Appearance>('default');
-
     /** Normalized CSS length for the column gap custom property. */
     readonly columnGap: Signal<string> = computed(() => toCssLength(this.gap()));
     /** Normalized CSS length for the host row gap style. */
@@ -73,6 +53,9 @@ export class ImsGrid2 implements ImsGrid2Context {
     readonly offsetStartCss: Signal<string> = computed(() => toCssLength(this.offsetStart()));
     /** Normalized CSS length for the root end rail. */
     readonly offsetEndCss: Signal<string> = computed(() => toCssLength(this.offsetEnd()));
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly hostElement = inject(ElementRef<HTMLElement>).nativeElement;
+    private readonly rows = signal<readonly ImsGrid2RowContext[]>([]);
     /** Maximum logical column count across header rows, falling back to body rows. */
     readonly columnCount: Signal<number> = computed(() => {
         const rows = this.rows();
@@ -87,6 +70,17 @@ export class ImsGrid2 implements ImsGrid2Context {
 
         return Math.max(...rows.map((row) => row.cellCount()));
     });
+
+    /** Adds a row/header to the root grid's column calculations. */
+    registerRow(row: ImsGrid2RowContext): void {
+        this.rows.update((rows) => rows.includes(row) ? rows : [...rows, row]);
+    }
+
+    /** Removes a row/header from the root grid's column calculations. */
+    unregisterRow(row: ImsGrid2RowContext): void {
+        this.rows.update((rows) => rows.filter((current) => current !== row));
+    }
+
     /**
      * CSS `grid-template-columns` value applied to the root grid.
      *
@@ -119,16 +113,6 @@ export class ImsGrid2 implements ImsGrid2Context {
         const onCopy = (event: ClipboardEvent) => this.onCopy(event);
         document.addEventListener('copy', onCopy);
         this.destroyRef.onDestroy(() => document.removeEventListener('copy', onCopy));
-    }
-
-    /** Adds a row/header to the root grid's column calculations. */
-    registerRow(row: ImsGrid2RowContext): void {
-        this.rows.update((rows) => rows.includes(row) ? rows : [...rows, row]);
-    }
-
-    /** Removes a row/header from the root grid's column calculations. */
-    unregisterRow(row: ImsGrid2RowContext): void {
-        this.rows.update((rows) => rows.filter((current) => current !== row));
     }
 
     /** Copies a selected grid range as tab/newline-delimited cell text. */
@@ -189,7 +173,7 @@ function resolveSelectedGridText(hostElement: HTMLElement, selection: Selection 
 
 function resolveOwnGridCells(row: HTMLElement): readonly HTMLElement[] {
     return Array.from(row.querySelectorAll<HTMLElement>('ims-grid2-cell'))
-        .filter((cell) => cell.closest('ims-grid2-row, ims-grid2-header') === row);
+                .filter((cell) => cell.closest('ims-grid2-row, ims-grid2-header') === row);
 }
 
 function resolveSelectedNodeText(selection: Selection, node: HTMLElement): string | null {

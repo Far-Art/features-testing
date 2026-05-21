@@ -1,17 +1,7 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    DestroyRef,
-    ElementRef,
-    Signal,
-    computed,
-    contentChildren,
-    effect,
-    inject,
-    input
-} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, contentChildren, DestroyRef, effect, ElementRef, inject, input, Signal} from '@angular/core';
 import {ImsGrid2Cell} from './ims-grid2-cell';
 import {IMS_GRID2_CONTEXT, ImsGrid2Appearance, ImsGrid2RowContext} from './ims-grid2.tokens';
+
 
 @Component({
     selector: 'ims-grid2-row, ims-grid2-header',
@@ -30,21 +20,13 @@ import {IMS_GRID2_CONTEXT, ImsGrid2Appearance, ImsGrid2RowContext} from './ims-g
  * those wrappers into subgrid bridges.
  */
 export class ImsGrid2Row implements ImsGrid2RowContext {
-    private readonly destroyRef = inject(DestroyRef);
-    private readonly hostElement = inject(ElementRef<HTMLElement>).nativeElement;
-    private readonly grid = inject(IMS_GRID2_CONTEXT, {optional: true});
-    private readonly cells = contentChildren(ImsGrid2Cell, {descendants: true});
-    /** Whether this instance was created from the `ims-grid2-header` selector. */
-    readonly isHeaderRow = this.hostElement.tagName === 'IMS-GRID2-HEADER';
-
     /** Optional header appearance override. Ignored for body rows. */
     readonly appearance = input<ImsGrid2Appearance | undefined>(undefined);
     /** Number of cells in this row's largest direct cell container. */
     readonly cellCount: Signal<number> = computed(() => this.resolveMaxContainerCellCount(this.ownCells()));
-    /** Header column count reported to the root grid, or `0` for body rows. */
-    readonly headerCellCount: Signal<number> = computed(() =>
-        this.isHeaderRow ? this.resolveMaxContainerCellCount(this.ownCells()) : 0
-    );
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly hostElement = inject(ElementRef<HTMLElement>).nativeElement;
+    private readonly grid = inject(IMS_GRID2_CONTEXT, {optional: true});
     /** Header appearance after applying the optional row override over the root grid value. */
     readonly effectiveAppearance: Signal<ImsGrid2Appearance | null> = computed(() => {
         if (!this.isHeaderRow) {
@@ -53,6 +35,7 @@ export class ImsGrid2Row implements ImsGrid2RowContext {
 
         return this.appearance() ?? this.grid?.appearance() ?? 'default';
     });
+    private readonly cells = contentChildren(ImsGrid2Cell, {descendants: true});
 
     constructor() {
         this.grid?.registerRow(this);
@@ -67,17 +50,6 @@ export class ImsGrid2Row implements ImsGrid2RowContext {
             },
             {allowSignalWrites: true}
         );
-    }
-
-    /** Returns the row/header host element. */
-    getHostElement(): HTMLElement {
-        return this.hostElement;
-    }
-
-    /** Returns the CSS track declared by the header cell at `columnIndex`, when set. */
-    resolveColumnTrack(columnIndex: number): string | null {
-        const cells = this.resolvePrimaryContainerCells(this.ownCells());
-        return cells[columnIndex]?.columnTrackCss ?? null;
     }
 
     /** Returns cells whose nearest grid2 row/header is this row. */
@@ -137,4 +109,24 @@ export class ImsGrid2Row implements ImsGrid2RowContext {
         const primaryContainer = cells[0].parentElement ?? this.hostElement;
         return cells.filter((cell) => (cell.parentElement ?? this.hostElement) === primaryContainer);
     }
+
+    /** Whether this instance was created from the `ims-grid2-header` selector. */
+    readonly isHeaderRow = this.hostElement.tagName === 'IMS-GRID2-HEADER';
+
+    /** Header column count reported to the root grid, or `0` for body rows. */
+    readonly headerCellCount: Signal<number> = computed(() =>
+        this.isHeaderRow ? this.resolveMaxContainerCellCount(this.ownCells()) : 0
+    );
+
+    /** Returns the row/header host element. */
+    getHostElement(): HTMLElement {
+        return this.hostElement;
+    }
+
+    /** Returns the CSS track declared by the header cell at `columnIndex`, when set. */
+    resolveColumnTrack(columnIndex: number): string | null {
+        const cells = this.resolvePrimaryContainerCells(this.ownCells());
+        return cells[columnIndex]?.columnTrackCss ?? null;
+    }
+
 }

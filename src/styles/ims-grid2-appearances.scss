@@ -7,23 +7,23 @@
  */
 
 ims-grid2[appearance='styled'] {
-  /*
-   * Grid-level styled appearance rules go here.
-   * Header rows inherit this appearance unless they provide their own input.
-   */
+    /*
+     * Grid-level styled appearance rules go here.
+     * Header rows inherit this appearance unless they provide their own input.
+     */
 
-  ims-grid2-row {
+    ims-grid2-row {
 
-    &:hover:not(:has(ims-grid2-row:hover)) {
-      //background-color: #9e4f4f;
+        &:hover:not(:has(ims-grid2-row:hover)) {
+            //background-color: #9e4f4f;
+        }
     }
-  }
 }
 
 ims-grid2-header[appearance='styled'] {
-  /*
-   * Header-specific styled appearance rules go here.
-   * This selector also covers the inherited effective appearance from the grid.
-   */
+    /*
+     * Header-specific styled appearance rules go here.
+     * This selector also covers the inherited effective appearance from the grid.
+     */
 
 }

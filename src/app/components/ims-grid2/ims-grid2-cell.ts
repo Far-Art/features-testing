@@ -1,4 +1,5 @@
-import {ChangeDetectionStrategy, Component, ElementRef, computed, inject, input, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal} from '@angular/core';
+
 
 @Component({
     selector: 'ims-grid2-cell',
@@ -17,31 +18,20 @@ import {ChangeDetectionStrategy, Component, ElementRef, computed, inject, input,
  * `maxWidth`.
  */
 export class ImsGrid2Cell {
-    private readonly elementRef = inject(ElementRef<HTMLElement>);
-    private readonly columnIndex = signal(0);
-
     /** Fixed column track width consumed from the header row. */
     readonly width = input<string | number | undefined>(undefined);
     /** Minimum column track width consumed from the header row. */
     readonly minWidth = input<string | number | undefined>(undefined);
     /** Maximum column track width consumed from the header row. */
     readonly maxWidth = input<string | number | undefined>(undefined);
+    private readonly elementRef = inject(ElementRef<HTMLElement>);
+    private readonly columnIndex = signal(0);
     /** One-based CSS grid column start assigned by the owning row/header. */
     readonly gridColumnStart = computed(() => `${this.columnIndex() + 1}`);
 
     /** Direct parent element used by the row to group wrapped cell containers. */
     get parentElement(): HTMLElement | null {
         return this.elementRef.nativeElement.parentElement;
-    }
-
-    /** Returns the cell host element. */
-    getHostElement(): HTMLElement {
-        return this.elementRef.nativeElement;
-    }
-
-    /** Sets the zero-based logical column index for this cell. */
-    setColumnIndex(index: number): void {
-        this.columnIndex.set(index);
     }
 
     /** Normalized fixed width input, when supplied. */
@@ -96,6 +86,16 @@ export class ImsGrid2Cell {
         }
 
         return null;
+    }
+
+    /** Returns the cell host element. */
+    getHostElement(): HTMLElement {
+        return this.elementRef.nativeElement;
+    }
+
+    /** Sets the zero-based logical column index for this cell. */
+    setColumnIndex(index: number): void {
+        this.columnIndex.set(index);
     }
 }
 

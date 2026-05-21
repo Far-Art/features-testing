@@ -1,6 +1,7 @@
 import {booleanAttribute, ChangeDetectionStrategy, Component, input} from '@angular/core';
 import {MatSortHeader, SortDirection, SortHeaderArrowPosition} from '@angular/material/sort';
 
+
 @Component({
     selector: 'ims-grid2-sort-header',
     standalone: true,
@@ -15,7 +16,7 @@ import {MatSortHeader, SortDirection, SortHeaderArrowPosition} from '@angular/ma
             [disableClear]="disableClear()"
             [sortActionDescription]="sortActionDescription()"
         >
-            <ng-content/>
+            <ng-content />
         </div>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush

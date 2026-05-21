@@ -1,6 +1,7 @@
-import {DestroyRef, Directive, computed, effect, inject, input, output, signal} from '@angular/core';
+import {computed, DestroyRef, Directive, effect, inject, input, output, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatSort, Sort} from '@angular/material/sort';
+
 
 /** Resolves the value used to sort an item for a given field id. */
 export type ImsGrid2SortAccessor<T> = (item: T, field: string) => unknown;
@@ -34,10 +35,6 @@ export type ImsGrid2SortCompare = (left: unknown, right: unknown, field: string)
  * source data array; sorted output is stable and recomputed from current inputs.
  */
 export class ImsGrid2SortDirective<T> {
-    private readonly destroyRef = inject(DestroyRef);
-    private readonly matSort = inject(MatSort, {host: true});
-    private readonly sortState = signal<Sort>({active: '', direction: ''});
-
     /** Source data to sort. Returned as-is when no sort direction is active. */
     readonly data = input<readonly T[]>([], {alias: 'imsGrid2Sort'});
     /** Optional custom accessor for resolving values from each data item. */
@@ -46,6 +43,12 @@ export class ImsGrid2SortDirective<T> {
     readonly compare = input<ImsGrid2SortCompare | null>(null, {alias: 'imsGrid2SortCompare'});
     /** Emits whenever the computed sorted data changes. */
     readonly sortedDataChange = output<readonly T[]>({alias: 'imsGrid2SortedDataChange'});
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly matSort = inject(MatSort, {host: true});
+    private readonly sortState = signal<Sort>({
+        active: '',
+        direction: ''
+    });
     /** Current sorted view of `data`, suitable for Angular `@for` rendering. */
     readonly sortedData = computed<readonly T[]>(() => {
         const data = this.data();
@@ -60,7 +63,10 @@ export class ImsGrid2SortDirective<T> {
         const directionMultiplier = sort.direction === 'asc' ? 1 : -1;
 
         return data
-            .map((item, index) => ({item, index}))
+            .map((item, index) => ({
+                item,
+                index
+            }))
             .sort((left, right) => {
                 const leftValue = accessor
                     ? accessor(left.item, activeField)

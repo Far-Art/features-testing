@@ -1,5 +1,6 @@
 import {Directive} from '@angular/core';
 
+
 @Directive({
     selector: '[imsGrid2Clip]',
     standalone: true,

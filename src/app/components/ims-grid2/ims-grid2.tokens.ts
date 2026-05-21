@@ -1,5 +1,6 @@
 import {InjectionToken, Signal} from '@angular/core';
 
+
 export type ImsGrid2Appearance = 'default' | 'styled';
 
 /** Internal row contract consumed by the root grid to derive column count and track sizing. */
@@ -10,8 +11,10 @@ export interface ImsGrid2RowContext {
     readonly headerCellCount: Signal<number>;
     /** Whether the row host is an `ims-grid2-header`. */
     readonly isHeaderRow: boolean;
+
     /** Returns the row/header host element used for ownership and DOM relation checks. */
     getHostElement(): HTMLElement;
+
     /** Returns a header-declared CSS track for the requested column, when one exists. */
     resolveColumnTrack(columnIndex: number): string | null;
 }
@@ -22,8 +25,10 @@ export interface ImsGrid2Context {
     readonly appearance: Signal<ImsGrid2Appearance>;
     /** Number of logical data columns shared by all subgrid rows. */
     readonly columnCount: Signal<number>;
+
     /** Registers a row/header so the root grid can derive the shared column template. */
     registerRow(row: ImsGrid2RowContext): void;
+
     /** Removes a row/header from root grid calculations. */
     unregisterRow(row: ImsGrid2RowContext): void;
 }
