@@ -33,10 +33,6 @@ export class ImsGrid2Cell {
         this.columnIndex.set(index);
     }
 
-    getColumnIndex(): number {
-        return this.columnIndex();
-    }
-
     get widthCss(): string | null {
         const width = this.width();
         if (width === undefined || width === null) {
