@@ -11,13 +11,6 @@
             <h2>Action-required button</h2>
             <p>Use the pulsing wave variant to draw attention to a button that needs review or confirmation.</p>
         </div>
-
-
-<!--        <app-glass-button-->
-<!--            [attentionRequired]="true"-->
-<!--            label="Review Required"-->
-<!--            icon="&#9888;"-->
-<!--        />-->
     </section>
 
     <section class="button-demo">
@@ -61,113 +54,12 @@
         ></button>
     </section>
 
-    <!--    <section class="examples-grid">-->
     <section>
-    <app-fetch-indicator [request$]="fetchResult$" [resolveState]="resolveFetchState" [size]="50" [strokeWidth]="2"></app-fetch-indicator>
-        <ims-grid columnGap="3rem">
-            <ims-grid-header offsetStart="1.5rem" offsetEnd="5rem">
-                <ims-grid-cell>first name</ims-grid-cell>
-                <ims-grid-cell>שם משפחה</ims-grid-cell>
-                <ims-grid-cell>identity</ims-grid-cell>
-                <ims-grid-cell>policy number</ims-grid-cell>
-                <ims-grid-cell>product</ims-grid-cell>
-                <ims-grid-cell>premium</ims-grid-cell>
-                <ims-grid-cell>status</ims-grid-cell>
-                <ims-grid-cell maxWidth="70px">actions</ims-grid-cell>
-            </ims-grid-header>
-
-            <ims-grid-row offsetEnd="3rem">
-                <mat-expansion-panel>
-                    <mat-expansion-panel-header>
-                        <ims-grid-cell>artur</ims-grid-cell>
-                        <ims-grid-cell>ארתור</ims-grid-cell>
-                        <ims-grid-cell>123456</ims-grid-cell>
-                        <ims-grid-cell>1234</ims-grid-cell>
-                        <ims-grid-cell>policy</ims-grid-cell>
-                        <ims-grid-cell>true</ims-grid-cell>
-                        <ims-grid-cell>active</ims-grid-cell>
-                        <ims-grid-cell>
-                            <button>generate</button>
-                            <button>fix</button>
-                        </ims-grid-cell>
-                    </mat-expansion-panel-header>
-                    <ims-grid-row offsetEnd="3.5rem">
-                        <ims-grid-cell></ims-grid-cell>
-                        <ims-grid-cell></ims-grid-cell>
-                        <ims-grid-cell>123456</ims-grid-cell>
-                        <ims-grid-cell>1234</ims-grid-cell>
-                        <ims-grid-cell>policy</ims-grid-cell>
-                        <ims-grid-cell></ims-grid-cell>
-                        <ims-grid-cell></ims-grid-cell>
-                        <ims-grid-cell>
-                            <button>generate</button>
-                            <button>fix</button>
-                        </ims-grid-cell>
-                    </ims-grid-row>
-                </mat-expansion-panel>
-            </ims-grid-row>
-
-
-            <ims-grid-row offsetEnd="3rem">
-                <mat-expansion-panel>
-                    <mat-expansion-panel-header>
-                        <ims-grid-cell>לוסיאנה</ims-grid-cell>
-                        <ims-grid-cell>פרמנוב</ims-grid-cell>
-                        <ims-grid-cell>1234561</ims-grid-cell>
-                        <ims-grid-cell>124דגכ34</ims-grid-cell>
-                        <ims-grid-cell>policy</ims-grid-cell>
-                        <ims-grid-cell>true</ims-grid-cell>
-                        <ims-grid-cell>active</ims-grid-cell>
-                        <ims-grid-cell>
-                            <button>generate</button>
-                            <button>fix</button>
-                        </ims-grid-cell>
-                    </mat-expansion-panel-header>
-                </mat-expansion-panel>
-            </ims-grid-row>
-            <ims-grid-row offsetEnd="3rem">
-                <mat-expansion-panel>
-                    <mat-expansion-panel-header>
-                        <ims-grid-cell>לוסיאדגכנה</ims-grid-cell>
-                        <ims-grid-cell>פרמדגכנוב</ims-grid-cell>
-                        <ims-grid-cell>123234561</ims-grid-cell>
-                        <ims-grid-cell>124דגכ34</ims-grid-cell>
-                        <ims-grid-cell>polגדicy</ims-grid-cell>
-                        <ims-grid-cell>trגue</ims-grid-cell>
-                        <ims-grid-cell>actiגve</ims-grid-cell>
-                        <ims-grid-cell>
-                            <button>generate</button>
-                            <button>fix</button>
-                        </ims-grid-cell>
-                    </mat-expansion-panel-header>
-                </mat-expansion-panel>
-            </ims-grid-row>
-            <ims-grid-row offsetEnd="3rem">
-                <mat-expansion-panel>
-                    <mat-expansion-panel-header>
-                        <ims-grid-cell></ims-grid-cell>
-                        <ims-grid-cell></ims-grid-cell>
-                        <ims-grid-cell>123234561</ims-grid-cell>
-                        <ims-grid-cell>124דגכ34</ims-grid-cell>
-                        <ims-grid-cell>polגדicy</ims-grid-cell>
-                        <ims-grid-cell>trגue</ims-grid-cell>
-                        <ims-grid-cell>actiגve</ims-grid-cell>
-                        <ims-grid-cell>
-                            <button>generate</button>
-                            <button>fix</button>
-                        </ims-grid-cell>
-                    </mat-expansion-panel-header>
-                </mat-expansion-panel>
-            </ims-grid-row>
-        </ims-grid>
+        <app-fetch-indicator [request$]="fetchResult$" [resolveState]="resolveFetchState" [size]="50" [strokeWidth]="2"></app-fetch-indicator>
 
         <ims-grid2
             [imsGrid2Sort]="grid2Rows"
             #grid2Sort="imsGrid2Sort"
-            columnGap="3rem"
-            offsetStart="1.5rem"
-            offsetEnd="5rem"
-            rowGap="0.75rem"
         >
             <ims-grid2-header>
                 <ims-grid2-cell>
@@ -196,7 +88,7 @@
 
             @for (row of grid2Sort.sortedData(); track row.id) {
                 <ims-grid2-row>
-                    <mat-expansion-panel imsGrid2Clip>
+                    <mat-expansion-panel>
                         <mat-expansion-panel-header>
                             <ims-grid2-cell>{{ row.firstName }}</ims-grid2-cell>
                             <ims-grid2-cell>{{ row.lastName }}</ims-grid2-cell>
@@ -228,9 +120,5 @@
                 </ims-grid2-row>
             }
         </ims-grid2>
-        <!--        <div style="background: var(&#45;&#45;ims-primary-50);">12341234</div>-->
-        <!--        <div style="background: var(&#45;&#45;ims-primary-100);">12341234</div>-->
-        <!--            <ims-insured-query />-->
-        <!--    <ims-policy-query />-->
     </section>
 </main>

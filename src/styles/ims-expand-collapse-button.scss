@@ -1,0 +1,91 @@
+.ims-expand-collapse-button {
+    --ims-expand-collapse-button-size: 2.75rem;
+    --ims-expand-collapse-button-icon-size: calc(var(--ims-expand-collapse-button-size) * 0.33);
+    --ims-expand-collapse-button-radius: calc(var(--ims-expand-collapse-button-size) * 0.18);
+
+    position: relative;
+    inline-size: var(--ims-expand-collapse-button-size);
+    block-size: var(--ims-expand-collapse-button-size);
+    padding: 0;
+    border: 1px solid color-mix(in oklch, currentColor 28%, transparent);
+    border-radius: var(--ims-expand-collapse-button-radius);
+    background: transparent;
+    color: #243246;
+    cursor: pointer;
+    outline: none;
+    transform-origin: center;
+    transition:
+        color 180ms ease,
+        border-color 180ms ease,
+        transform 180ms ease;
+}
+
+.ims-expand-collapse-button::before,
+.ims-expand-collapse-button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    inline-size: var(--ims-expand-collapse-button-icon-size);
+    block-size: 2px;
+    border-radius: 999px;
+    background: currentColor;
+    transform: translate(-50%, -50%);
+    transform-origin: center;
+    transition:
+        transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 220ms ease,
+        inline-size 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ims-expand-collapse-button::after {
+    transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.ims-expand-collapse-button:hover:not(:disabled) {
+    border-color: color-mix(in oklch, currentColor 56%, transparent);
+}
+
+.ims-expand-collapse-button--expanded {
+    color: #0d5c52;
+    border-color: color-mix(in oklch, currentColor 40%, transparent);
+}
+
+.ims-expand-collapse-button--expanded::before {
+    inline-size: calc(var(--ims-expand-collapse-button-icon-size) * 1.1);
+    transform: translate(-50%, -50%) rotate(180deg) scaleX(1.08);
+}
+
+.ims-expand-collapse-button--expanded::after {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(270deg) scaleX(0.15);
+}
+
+.ims-expand-collapse-button--expanded:hover:not(:disabled)::before {
+    transform: translate(-50%, -50%) rotate(180deg) scaleX(1.08);
+}
+
+.ims-expand-collapse-button--disabled,
+.ims-expand-collapse-button:disabled {
+    color: #97a3b6;
+    border-color: rgba(151, 163, 182, 0.45);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.ims-expand-collapse-button:disabled::before,
+.ims-expand-collapse-button:disabled::after {
+    opacity: 0.72;
+}
+
+.ims-expand-collapse-button:disabled:hover {
+    transform: none;
+}
+
+.ims-expand-collapse-button:disabled:hover::before {
+    transform: translate(-50%, -50%);
+}
+
+.ims-expand-collapse-button:disabled:hover::after {
+    transform: translate(-50%, -50%) rotate(90deg);
+}
