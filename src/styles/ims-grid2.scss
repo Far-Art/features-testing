@@ -28,10 +28,20 @@ ims-grid2 {
         }
     }
 
+    ims-grid2-header {
+        font-weight: 600;
+        user-select: none;
+
+        ims-grid2-cell {
+            user-select: none;
+        }
+    }
+
     ims-grid2-cell {
         display: flex;
         align-items: center;
         min-width: 0;
+        overflow: hidden;
         grid-column-end: span 1;
     }
 
