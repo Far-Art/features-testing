@@ -6,51 +6,223 @@
         </p>
     </header>
 
-    <section class="examples-grid">
-        <ims-grid>
-            <ims-grid-header offsetEnd="3rem">
+    <section class="button-demo">
+        <div>
+            <h2>Action-required button</h2>
+            <p>Use the pulsing wave variant to draw attention to a button that needs review or confirmation.</p>
+        </div>
+
+
+<!--        <app-glass-button-->
+<!--            [attentionRequired]="true"-->
+<!--            label="Review Required"-->
+<!--            icon="&#9888;"-->
+<!--        />-->
+    </section>
+
+    <section class="button-demo">
+        <div>
+            <h2>Collapsible container</h2>
+            <p>Regular projected content stays mounted. Template-wrapped content is only created while expanded.</p>
+        </div>
+
+        <ims-collapsible-container title="Always-mounted projected content">
+            <p>This paragraph is projected directly and remains in the DOM when the section is collapsed.</p>
+        </ims-collapsible-container>
+
+        <ims-collapsible-container title="Lazy projected template">
+            <ng-template>
+                <div>
+                    <strong>Template content</strong>
+                    <p>This block is instantiated on expand and destroyed again on collapse.</p>
+                </div>
+            </ng-template>
+        </ims-collapsible-container>
+    </section>
+
+    <section class="button-demo">
+        <div>
+            <h2>Expand collapse button</h2>
+            <p>A standalone directive on a native button with icon-only visuals and disabled support.</p>
+        </div>
+
+        <button imsExpandCollapseButton expandAriaLabel="Show filters" collapseAriaLabel="Hide filters"></button>
+        <button
+            imsExpandCollapseButton
+            [expanded]="true"
+            expandAriaLabel="Open details"
+            collapseAriaLabel="Close details"
+        ></button>
+        <button
+            imsExpandCollapseButton
+            [disabled]="true"
+            expandAriaLabel="Expand disabled"
+            collapseAriaLabel="Collapse disabled"
+        ></button>
+    </section>
+
+    <!--    <section class="examples-grid">-->
+    <section>
+    <app-fetch-indicator [request$]="fetchResult$" [resolveState]="resolveFetchState" [size]="50" [strokeWidth]="2"></app-fetch-indicator>
+        <ims-grid columnGap="3rem">
+            <ims-grid-header offsetStart="1.5rem" offsetEnd="5rem">
                 <ims-grid-cell>first name</ims-grid-cell>
-                <ims-grid-cell>last name</ims-grid-cell>
+                <ims-grid-cell>שם משפחה</ims-grid-cell>
                 <ims-grid-cell>identity</ims-grid-cell>
                 <ims-grid-cell>policy number</ims-grid-cell>
                 <ims-grid-cell>product</ims-grid-cell>
                 <ims-grid-cell>premium</ims-grid-cell>
                 <ims-grid-cell>status</ims-grid-cell>
-                <ims-grid-cell>actions</ims-grid-cell>
+                <ims-grid-cell maxWidth="70px">actions</ims-grid-cell>
             </ims-grid-header>
 
             <ims-grid-row offsetEnd="3rem">
-                <ims-grid-cell>artur</ims-grid-cell>
-                <ims-grid-cell>farmanov</ims-grid-cell>
-                <ims-grid-cell>123456</ims-grid-cell>
-                <ims-grid-cell>1234</ims-grid-cell>
-                <ims-grid-cell>policy</ims-grid-cell>
-                <ims-grid-cell>true</ims-grid-cell>
-                <ims-grid-cell>active</ims-grid-cell>
-                <ims-grid-cell>
-                    <button>generate</button>
-                    <button>fix</button>
-                </ims-grid-cell>
+                <mat-expansion-panel>
+                    <mat-expansion-panel-header>
+                        <ims-grid-cell>artur</ims-grid-cell>
+                        <ims-grid-cell>ארתור</ims-grid-cell>
+                        <ims-grid-cell>123456</ims-grid-cell>
+                        <ims-grid-cell>1234</ims-grid-cell>
+                        <ims-grid-cell>policy</ims-grid-cell>
+                        <ims-grid-cell>true</ims-grid-cell>
+                        <ims-grid-cell>active</ims-grid-cell>
+                        <ims-grid-cell>
+                            <button>generate</button>
+                            <button>fix</button>
+                        </ims-grid-cell>
+                    </mat-expansion-panel-header>
+                    <ims-grid-row offsetEnd="3.5rem">
+                        <ims-grid-cell></ims-grid-cell>
+                        <ims-grid-cell></ims-grid-cell>
+                        <ims-grid-cell>123456</ims-grid-cell>
+                        <ims-grid-cell>1234</ims-grid-cell>
+                        <ims-grid-cell>policy</ims-grid-cell>
+                        <ims-grid-cell></ims-grid-cell>
+                        <ims-grid-cell></ims-grid-cell>
+                        <ims-grid-cell>
+                            <button>generate</button>
+                            <button>fix</button>
+                        </ims-grid-cell>
+                    </ims-grid-row>
+                </mat-expansion-panel>
             </ims-grid-row>
-            <div style="padding-right: 3rem">
-                <ims-grid-row>
-                    <ims-grid-cell></ims-grid-cell>
-                    <ims-grid-cell></ims-grid-cell>
-                    <ims-grid-cell>123456</ims-grid-cell>
-                    <ims-grid-cell>1234</ims-grid-cell>
-                    <ims-grid-cell>policy</ims-grid-cell>
-                    <ims-grid-cell></ims-grid-cell>
-                    <ims-grid-cell></ims-grid-cell>
-                    <ims-grid-cell>
-                        <button>generate</button>
-                        <button>fix</button>
-                    </ims-grid-cell>
-                </ims-grid-row>
-            </div>
+
+
+            <ims-grid-row offsetEnd="3rem">
+                <mat-expansion-panel>
+                    <mat-expansion-panel-header>
+                        <ims-grid-cell>לוסיאנה</ims-grid-cell>
+                        <ims-grid-cell>פרמנוב</ims-grid-cell>
+                        <ims-grid-cell>1234561</ims-grid-cell>
+                        <ims-grid-cell>124דגכ34</ims-grid-cell>
+                        <ims-grid-cell>policy</ims-grid-cell>
+                        <ims-grid-cell>true</ims-grid-cell>
+                        <ims-grid-cell>active</ims-grid-cell>
+                        <ims-grid-cell>
+                            <button>generate</button>
+                            <button>fix</button>
+                        </ims-grid-cell>
+                    </mat-expansion-panel-header>
+                </mat-expansion-panel>
+            </ims-grid-row>
+            <ims-grid-row offsetEnd="3rem">
+                <mat-expansion-panel>
+                    <mat-expansion-panel-header>
+                        <ims-grid-cell>לוסיאדגכנה</ims-grid-cell>
+                        <ims-grid-cell>פרמדגכנוב</ims-grid-cell>
+                        <ims-grid-cell>123234561</ims-grid-cell>
+                        <ims-grid-cell>124דגכ34</ims-grid-cell>
+                        <ims-grid-cell>polגדicy</ims-grid-cell>
+                        <ims-grid-cell>trגue</ims-grid-cell>
+                        <ims-grid-cell>actiגve</ims-grid-cell>
+                        <ims-grid-cell>
+                            <button>generate</button>
+                            <button>fix</button>
+                        </ims-grid-cell>
+                    </mat-expansion-panel-header>
+                </mat-expansion-panel>
+            </ims-grid-row>
+            <ims-grid-row offsetEnd="3rem">
+                <mat-expansion-panel>
+                    <mat-expansion-panel-header>
+                        <ims-grid-cell></ims-grid-cell>
+                        <ims-grid-cell></ims-grid-cell>
+                        <ims-grid-cell>123234561</ims-grid-cell>
+                        <ims-grid-cell>124דגכ34</ims-grid-cell>
+                        <ims-grid-cell>polגדicy</ims-grid-cell>
+                        <ims-grid-cell>trגue</ims-grid-cell>
+                        <ims-grid-cell>actiגve</ims-grid-cell>
+                        <ims-grid-cell>
+                            <button>generate</button>
+                            <button>fix</button>
+                        </ims-grid-cell>
+                    </mat-expansion-panel-header>
+                </mat-expansion-panel>
+            </ims-grid-row>
         </ims-grid>
-<!--        <div style="background: var(&#45;&#45;ims-primary-50);">12341234</div>-->
-<!--        <div style="background: var(&#45;&#45;ims-primary-100);">12341234</div>-->
-        <!--    <ims-insured-query />-->
+
+        <ims-grid2 columnGap="3rem" offsetStart="1.5rem" offsetEnd="5rem" rowGap="0.75rem">
+            <ims-grid2-header>
+                <ims-grid2-cell>first name</ims-grid2-cell>
+                <ims-grid2-cell>last name</ims-grid2-cell>
+                <ims-grid2-cell>identity</ims-grid2-cell>
+                <ims-grid2-cell>policy number</ims-grid2-cell>
+                <ims-grid2-cell>product</ims-grid2-cell>
+                <ims-grid2-cell>premium</ims-grid2-cell>
+                <ims-grid2-cell>status</ims-grid2-cell>
+                <ims-grid2-cell maxWidth="70px">actions</ims-grid2-cell>
+            </ims-grid2-header>
+
+            <ims-grid2-row>
+                <mat-expansion-panel imsGrid2Clip>
+                    <mat-expansion-panel-header>
+                        <ims-grid2-cell>artur</ims-grid2-cell>
+                        <ims-grid2-cell>cohen</ims-grid2-cell>
+                        <ims-grid2-cell>123456</ims-grid2-cell>
+                        <ims-grid2-cell>1234</ims-grid2-cell>
+                        <ims-grid2-cell>policy</ims-grid2-cell>
+                        <ims-grid2-cell>true</ims-grid2-cell>
+                        <ims-grid2-cell>active</ims-grid2-cell>
+                        <ims-grid2-cell>
+                            <button>fix</button>
+                        </ims-grid2-cell>
+                    </mat-expansion-panel-header>
+
+                    <ims-grid2-row>
+                        <ims-grid2-cell></ims-grid2-cell>
+                        <ims-grid2-cell></ims-grid2-cell>
+                        <ims-grid2-cell>123456</ims-grid2-cell>
+                        <ims-grid2-cell>1234</ims-grid2-cell>
+                        <ims-grid2-cell>policy</ims-grid2-cell>
+                        <ims-grid2-cell></ims-grid2-cell>
+                        <ims-grid2-cell></ims-grid2-cell>
+                        <ims-grid2-cell>
+                            <button>fix</button>
+                        </ims-grid2-cell>
+                    </ims-grid2-row>
+                </mat-expansion-panel>
+            </ims-grid2-row>
+
+            <ims-grid2-row>
+                <mat-expansion-panel>
+                    <mat-expansion-panel-header>
+                        <ims-grid2-cell>mira</ims-grid2-cell>
+                        <ims-grid2-cell>levi</ims-grid2-cell>
+                        <ims-grid2-cell>789012</ims-grid2-cell>
+                        <ims-grid2-cell>9876</ims-grid2-cell>
+                        <ims-grid2-cell>claim</ims-grid2-cell>
+                        <ims-grid2-cell>false</ims-grid2-cell>
+                        <ims-grid2-cell>pending</ims-grid2-cell>
+                        <ims-grid2-cell>
+                            <button>fix</button>
+                        </ims-grid2-cell>
+                    </mat-expansion-panel-header>
+                </mat-expansion-panel>
+            </ims-grid2-row>
+        </ims-grid2>
+        <!--        <div style="background: var(&#45;&#45;ims-primary-50);">12341234</div>-->
+        <!--        <div style="background: var(&#45;&#45;ims-primary-100);">12341234</div>-->
+        <!--            <ims-insured-query />-->
         <!--    <ims-policy-query />-->
     </section>
 </main>

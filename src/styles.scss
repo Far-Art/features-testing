@@ -4,41 +4,93 @@
 // Learn more about theming and how to use it for your application's
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
+@use './styles/ims-grid2';
+@use './styles/ims-grid2-adapters';
 
 @import './styles/gradient-animate.scss';
+@import './styles/action-required.scss';
+@import './styles/ims-expand-collapse-button.scss';
 
 :root {
-    --ims-primary-50: #f0f5ff;
-    --ims-primary-100: #e8f0ff;
-    --ims-primary-150: #dce8ff;
-    --ims-primary-200: #cedeff;
-    --ims-primary-250: #bdd3ff;
-    --ims-primary-300: #acc7ff;
-    --ims-primary-350: #98baff;
-    --ims-primary-400: #84acff;
-    --ims-primary-450: #6f9cff;
-    --ims-primary-500: #6987ff;
-    --ims-primary-550: #447afa;
-    --ims-primary-600: #366ae9;
-    --ims-primary-650: #285ad7;
-    --ims-primary-700: #1a49c5;
-    --ims-primary-750: #133ca9;
-    --ims-primary-800: #0c2f8d;
-    --ims-primary-850: #052172;
-    --ims-primary-900: #021457;
-    --ims-primary-950: #00073e;
+    //--ims-color-primary-50: #f0f5ff;
+    //--ims-color-primary-100: #dae6ff;
+    //--ims-color-primary-150: #c4d6ff;
+    //--ims-color-primary-200: #aec6ff;
+    //--ims-color-primary-250: #9ab5ff;
+    //--ims-color-primary-300: #87a4ff;
+    //--ims-color-primary-350: #7591ff;
+    //--ims-color-primary-400: #6880f6;
+    //--ims-color-primary-450: #5d70e8;
+    //--ims-color-primary-500: #5360d8;
+    //--ims-color-primary-550: #4a50c7;
+    //--ims-color-primary-600: #4142b4;
+    //--ims-color-primary-650: #3834a0;
+    //--ims-color-primary-700: #302100b;
+    //--ims-color-primary-750: #271b76;
+    //--ims-color-primary-800: #1f115f;
+    //--ims-color-primary-850: #160849;
+    //--ims-color-primary-1000: #0d0332;
+    //--ims-color-primary-950: #05011c;
 
 }
 
+//:root {
+//    --ims-color-primary: #00005F;
+//    --ims-color-primary-hue-offset: calc(h - 18);
+//    --ims-color-primary-50: hsl(from var(--ims-color-primary) var(--ims-color-primary-hue-offset) 90% 95%);
+//    --ims-color-primary-100: hsl(from var(--ims-color-primary) var(--ims-color-primary-hue-offset) 88% 90%);
+//    --ims-color-primary-150: hsl(from var(--ims-color-primary) var(--ims-color-primary-hue-offset) 86% 85%);
+//    --ims-color-primary-200: hsl(from var(--ims-color-primary) var(--ims-color-primary-hue-offset) 84% 80%);
+//    --ims-color-primary-250: hsl(from var(--ims-color-primary) var(--ims-color-primary-hue-offset) 82% 75%);
+//    --ims-color-primary-300: hsl(from var(--ims-color-primary) var(--ims-color-primary-hue-offset) 80% 70%);
+//    --ims-color-primary-350: hsl(from var(--ims-color-primary) var(--ims-color-primary-hue-offset) 78% 65%);
+//    --ims-color-primary-400: hsl(from var(--ims-color-primary) var(--ims-color-primary-hue-offset) 76% 60%);
+//    --ims-color-primary-450: hsl(from var(--ims-color-primary) var(--ims-color-primary-hue-offset) 74% 55%);
+//    --ims-color-primary-500: hsl(from var(--ims-color-primary) var(--ims-color-primary-hue-offset) 72% 50%);
+//    --ims-color-primary-550: hsl(from var(--ims-color-primary) var(--ims-color-primary-hue-offset) 70% 45%);
+//    --ims-color-primary-600: hsl(from var(--ims-color-primary) var(--ims-color-primary-hue-offset) 68% 40%);
+//    --ims-color-primary-650: hsl(from var(--ims-color-primary) var(--ims-color-primary-hue-offset) 66% 35%);
+//    --ims-color-primary-700: hsl(from var(--ims-color-primary) var(--ims-color-primary-hue-offset) 64% 30%);
+//    --ims-color-primary-750: hsl(from var(--ims-color-primary) var(--ims-color-primary-hue-offset) 62% 25%);
+//    --ims-color-primary-800: hsl(from var(--ims-color-primary) var(--ims-color-primary-hue-offset) 60% 20%);
+//    --ims-color-primary-850: hsl(from var(--ims-color-primary) var(--ims-color-primary-hue-offset) 58% 15%);
+//    --ims-color-primary-900: hsl(from var(--ims-color-primary) var(--ims-color-primary-hue-offset) 56% 10%);
+//    --ims-color-primary-950: hsl(from var(--ims-color-primary) var(--ims-color-primary-hue-offset) 54% 5%);
+//}
+
+:root {
+    --ims-color-neutral-50: hsl(from var(--ims-color-primary) h 8% 95%);
+    --ims-color-neutral-100: hsl(from var(--ims-color-primary) h 6% 90%);
+    --ims-color-neutral-150: hsl(from var(--ims-color-primary) h 6% 85%);
+    --ims-color-neutral-200: hsl(from var(--ims-color-primary) h 6% 80%);
+    --ims-color-neutral-250: hsl(from var(--ims-color-primary) h 6% 75%);
+    --ims-color-neutral-300: hsl(from var(--ims-color-primary) h 6% 70%);
+    --ims-color-neutral-350: hsl(from var(--ims-color-primary) h 6% 65%);
+    --ims-color-neutral-400: hsl(from var(--ims-color-primary) h 4% 60%);
+    --ims-color-neutral-450: hsl(from var(--ims-color-primary) h 4% 55%);
+    --ims-color-neutral-500: hsl(from var(--ims-color-primary) h 4% 50%);
+    --ims-color-neutral-550: hsl(from var(--ims-color-primary) h 4% 45%);
+    --ims-color-neutral-600: hsl(from var(--ims-color-primary) h 4% 40%);
+    --ims-color-neutral-650: hsl(from var(--ims-color-primary) h 4% 35%);
+    --ims-color-neutral-700: hsl(from var(--ims-color-primary) h 2% 30%);
+    --ims-color-neutral-750: hsl(from var(--ims-color-primary) h 2% 25%);
+    --ims-color-neutral-800: hsl(from var(--ims-color-primary) h 2% 20%);
+    --ims-color-neutral-850: hsl(from var(--ims-color-primary) h 2% 15%);
+    --ims-color-neutral-900: hsl(from var(--ims-color-primary) h 2% 10%);
+    --ims-color-neutral-950: hsl(from var(--ims-color-primary) h 2% 5%);
+}
+
+
 html {
-    //@include mat.theme((
-    //  color: (
-    //    primary: mat.$cyan-palette,
-    //    tertiary: mat.$orange-palette,
-    //  ),
-    //  typography: Roboto,
-    //  density: 0,
-    //));
+    @include mat.theme((
+      color: (
+        theme-type: light,
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    ));
 }
 
 body {
@@ -92,10 +144,28 @@ body {
     top: anchor(start);
     scale: 0.8;
     background: white;
-    color: color-mix(in oklch, var(--bright-blue, currentColor) 90%, white 10%);
+    color: color-mix(in oklch, var(--bright-blue, currentColor) 100%, white 10%);
 }
 
-ims-grid-cell {
-    background: #84acff;
-    border-left: 1px solid #7393d2;
-}
+//ims-grid-cell {
+//    background: #84acff;
+//    border-left: 1px solid #7393d2;
+//}
+
+
+//.outline {
+//    outline: 5px solid transparent;
+//    outline-offset: 0.4rem;
+//    border-radius: 4px;
+//
+//    --speed: 450ms;
+//    --anim:  cubic-bezier(0.22, 1, 0.36, 1);
+//
+//    transition: outline-widtcalc(h + 1)var(--speed) var(--anim), outline-offset var(--speed) var(--anim), outline-color calc(var(--speed) - 100ms) var(--anim);
+//
+//    &:focus {
+//        outline-offset: 0;
+//        outline-color: rgb(0 72 255 / 0.3);
+//        outline-width: 0.3rem;
+//    }
+//}
