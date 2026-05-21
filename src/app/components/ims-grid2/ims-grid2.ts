@@ -1,9 +1,12 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    DestroyRef,
+    ElementRef,
     Signal,
     computed,
     forwardRef,
+    inject,
     input,
     signal
 } from '@angular/core';
@@ -37,6 +40,8 @@ import {IMS_GRID2_CONTEXT, ImsGrid2Context, ImsGrid2RowContext} from './ims-grid
  * using CSS `subgrid`.
  */
 export class ImsGrid2 implements ImsGrid2Context {
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly hostElement = inject(ElementRef<HTMLElement>).nativeElement;
     private readonly rows = signal<readonly ImsGrid2RowContext[]>([]);
 
     /** Horizontal gap between logical columns. */
@@ -101,6 +106,13 @@ export class ImsGrid2 implements ImsGrid2Context {
         return tracks.join(' ');
     });
 
+    constructor() {
+        const document = this.hostElement.ownerDocument;
+        const onCopy = (event: ClipboardEvent) => this.onCopy(event);
+        document.addEventListener('copy', onCopy);
+        this.destroyRef.onDestroy(() => document.removeEventListener('copy', onCopy));
+    }
+
     /** Adds a row/header to the root grid's column calculations. */
     registerRow(row: ImsGrid2RowContext): void {
         this.rows.update((rows) => rows.includes(row) ? rows : [...rows, row]);
@@ -109,6 +121,20 @@ export class ImsGrid2 implements ImsGrid2Context {
     /** Removes a row/header from the root grid's column calculations. */
     unregisterRow(row: ImsGrid2RowContext): void {
         this.rows.update((rows) => rows.filter((current) => current !== row));
+    }
+
+    /** Copies a selected grid range as tab/newline-delimited cell text. */
+    onCopy(event: ClipboardEvent): void {
+        const selectedText = resolveSelectedGridText(
+            this.hostElement,
+            this.hostElement.ownerDocument.getSelection()
+        );
+        if (selectedText === null || !event.clipboardData) {
+            return;
+        }
+
+        event.clipboardData.setData('text/plain', selectedText);
+        event.preventDefault();
     }
 }
 
@@ -128,4 +154,66 @@ function toCssLength(value: string | number): string {
     }
 
     return normalized;
+}
+
+function resolveSelectedGridText(hostElement: HTMLElement, selection: Selection | null): string | null {
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+        return null;
+    }
+
+    const rows = Array.from(
+        hostElement.querySelectorAll<HTMLElement>('ims-grid2-header, ims-grid2-row')
+    ).filter((row) => row.closest('ims-grid2') === hostElement);
+
+    const lines: string[] = [];
+    for (const row of rows) {
+        const selectedCells = resolveOwnGridCells(row)
+            .map((cell) => resolveSelectedNodeText(selection, cell))
+            .filter((text): text is string => text !== null);
+
+        if (selectedCells.length > 0) {
+            lines.push(selectedCells.map(normalizeCopiedCellText).join('\t'));
+        }
+    }
+
+    return lines.length > 0 ? lines.join('\n') : null;
+}
+
+function resolveOwnGridCells(row: HTMLElement): readonly HTMLElement[] {
+    return Array.from(row.querySelectorAll<HTMLElement>('ims-grid2-cell'))
+        .filter((cell) => cell.closest('ims-grid2-row, ims-grid2-header') === row);
+}
+
+function resolveSelectedNodeText(selection: Selection, node: HTMLElement): string | null {
+    const selectedParts: string[] = [];
+    for (let index = 0; index < selection.rangeCount; index += 1) {
+        const range = selection.getRangeAt(index);
+        if (!rangeIntersectsNode(range, node)) {
+            continue;
+        }
+
+        const clippedRange = range.cloneRange();
+        if (!node.contains(range.startContainer)) {
+            clippedRange.setStart(node, 0);
+        }
+        if (!node.contains(range.endContainer)) {
+            clippedRange.setEnd(node, node.childNodes.length);
+        }
+
+        selectedParts.push(clippedRange.toString());
+    }
+
+    return selectedParts.length > 0 ? selectedParts.join('') : null;
+}
+
+function rangeIntersectsNode(range: Range, node: Node): boolean {
+    try {
+        return range.intersectsNode(node);
+    } catch {
+        return false;
+    }
+}
+
+function normalizeCopiedCellText(text: string): string {
+    return text.replace(/\s+/g, ' ').trim();
 }
