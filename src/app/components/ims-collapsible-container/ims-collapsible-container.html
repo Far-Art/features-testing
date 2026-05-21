@@ -1,0 +1,29 @@
+<section class="container" [class.container--expanded]="expanded()">
+    <button
+        type="button"
+        class="toggle"
+        (click)="toggle()"
+        [attr.aria-expanded]="expanded()"
+        [attr.aria-controls]="bodyId"
+    >
+        <span class="title">{{ title() }}</span>
+        <span class="chevron" aria-hidden="true"></span>
+    </button>
+
+    <div
+        class="body"
+        [id]="bodyId"
+        [class.body--expanded]="expanded()"
+        (transitionend)="onBodyTransitionEnd($event)"
+    >
+        <div class="body-inner">
+            <div class="content">
+                <ng-content />
+
+                @if (renderContent() && lazyContent(); as template) {
+                    <ng-container [ngTemplateOutlet]="template" />
+                }
+            </div>
+        </div>
+    </div>
+</section>

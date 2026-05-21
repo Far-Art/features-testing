@@ -1,0 +1,77 @@
+.container {
+    border: 1px solid #d4d8de;
+    border-radius: 12px;
+    background: #fff;
+    overflow: clip;
+}
+
+.toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    border: 0;
+    background: #f6f8fb;
+    color: #1d2838;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+}
+
+.title {
+    font-weight: 600;
+}
+
+.chevron {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform 180ms ease;
+    flex: 0 0 auto;
+    margin-right: 0.3rem;
+}
+
+.container--expanded .chevron {
+    transform: rotate(-135deg);
+}
+
+.body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 220ms ease;
+}
+
+.body--expanded {
+    grid-template-rows: 1fr;
+}
+
+.body-inner {
+    min-height: 0;
+    overflow: hidden;
+    padding-inline: 1rem;
+}
+
+.body--expanded .body-inner {
+    border-top: 1px solid #e4e7ec;
+}
+
+.content {
+    display: grid;
+    gap: 0.75rem;
+    padding-block: 1rem;
+}
+
+.body:not(.body--expanded) .content {
+    visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .body,
+    .chevron {
+        transition: none;
+    }
+}

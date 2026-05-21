@@ -1,0 +1,72 @@
+:host {
+    display: inline-block;
+}
+
+.dropdown {
+    position: relative;
+    font: 600 14px/1.4 'Space Grotesk', 'Segoe UI', sans-serif;
+}
+
+.trigger {
+    anchor-name: --dropdown-trigger;
+    padding: 0.6rem 0.9rem;
+    border-radius: 10px;
+    border: 1px solid color-mix(in oklch, currentColor 12%, transparent);
+    background: var(--red-to-pink-to-purple-horizontal-gradient, linear-gradient(90deg, #ff5f6d, #ffc371));
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 6px 18px color-mix(in oklch, black 12%, transparent);
+    transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.trigger:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px color-mix(in oklch, black 16%, transparent);
+}
+
+.panel {
+    position: absolute;
+    position-anchor: --dropdown-trigger;
+    top: anchor(bottom);
+    left: anchor(start);
+    min-width: max(180px, anchor-size(width));
+    margin-top: 8px;
+    padding: 6px;
+    border-radius: 14px;
+    background: oklch(19.37% 0.006 300.98 / 0.94);
+    color: white;
+    border: 1px solid color-mix(in oklch, white 12%, transparent);
+    box-shadow:
+        0 20px 44px color-mix(in oklch, black 28%, transparent),
+        0 1px 0 color-mix(in oklch, white 10%, transparent);
+    display: grid;
+    gap: 4px;
+    z-index: 10;
+}
+
+@supports not (position-anchor: --dropdown-trigger) {
+    .panel {
+        /* Fallback to classic positioning if anchors are unsupported */
+        left: 0;
+        top: 100%;
+    }
+}
+
+.item {
+    width: 100%;
+    text-align: left;
+    padding: 0.7rem 0.8rem;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    transition: background 120ms ease, transform 120ms ease;
+}
+
+.item:hover,
+.item:focus-visible {
+    outline: none;
+    background: color-mix(in oklch, white 16%, transparent);
+    transform: translateX(2px);
+}
