@@ -11,6 +11,21 @@
  * app-specific wrappers should use `imsGrid2Clip` instead of adding broad rules.
  */
 ims-grid2 {
+    cdk-virtual-scroll-viewport:has(ims-grid2-row) {
+        grid-column: 1 / -1;
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+
+        .cdk-virtual-scroll-content-wrapper {
+            display: grid;
+            grid-template-columns: var(--ims-grid2-template);
+            column-gap: 0;
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+        }
+    }
 
     mat-expansion-panel-header:has(ims-grid2-cell) {
         position: relative;
