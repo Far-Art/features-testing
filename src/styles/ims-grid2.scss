@@ -6,6 +6,17 @@ ims-grid2 {
     min-width: 0;
     box-sizing: border-box;
 
+    :where(*:not(.cdk-virtual-scroll-content-wrapper):has(> :is(ims-grid2-row, ims-grid2-header))) {
+        display: grid;
+        grid-column: 1 / -1;
+        grid-template-columns: subgrid;
+        column-gap: 0;
+        row-gap: inherit;
+        min-width: 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
     :is(ims-grid2-row, ims-grid2-header) {
         display: grid;
         grid-column: 1 / -1;
