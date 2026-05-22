@@ -22,7 +22,7 @@ ims-grid2 {
 
         .mat-expansion-indicator {
             position: absolute;
-            inset-inline-end: calc(0px - var(--ims-grid2-offset-end));
+            inset-inline-end: 0;
         }
     }
 

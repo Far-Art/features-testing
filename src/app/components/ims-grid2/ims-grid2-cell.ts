@@ -26,8 +26,14 @@ export class ImsGrid2Cell {
     readonly maxWidth = input<string | number | undefined>(undefined);
     private readonly elementRef = inject(ElementRef<HTMLElement>);
     private readonly columnIndex = signal(0);
-    /** One-based CSS grid column start assigned by the owning row/header. */
-    readonly gridColumnStart = computed(() => `${this.columnIndex() + 1}`);
+    /**
+     * One-based CSS grid column start assigned by the owning row/header.
+     *
+     * The root grid template uses one start offset rail, then alternates data
+     * columns and gutter tracks. Logical column `0` therefore starts on grid
+     * line `2`, logical column `1` on line `4`, and so on.
+     */
+    readonly gridColumnStart = computed(() => `${this.columnIndex() * 2 + 2}`);
 
     /** Direct parent element used by the row to group wrapped cell containers. */
     get parentElement(): HTMLElement | null {

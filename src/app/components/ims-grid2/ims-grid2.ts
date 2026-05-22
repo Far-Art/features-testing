@@ -31,21 +31,27 @@ import {IMS_GRID2_CONTEXT, ImsGrid2Appearance, ImsGrid2Context, ImsGrid2RowConte
  * using CSS `subgrid`.
  */
 export class ImsGrid2 implements ImsGrid2Context {
-    /** Horizontal gap between logical columns. */
+    /** Horizontal gutter track between logical columns. */
     readonly gap = input<string | number>(3, {alias: 'columnGap'});
     /** Vertical gap between top-level grid rows. */
     readonly rowGapInput = input<string | number>(0, {alias: 'rowGap'});
-    /** Start rail applied once on the root grid. */
+    /** Start rail track applied once on the root grid without shrinking full-width children. */
     readonly offsetStart = input<string | number>(0);
-    /** End rail applied once on the root grid. */
+    /** End rail track applied once on the root grid without shrinking full-width children. */
     readonly offsetEnd = input<string | number>(0);
     /** Track used for header columns that do not declare width/minWidth/maxWidth. */
     readonly defaultColumnTrack = input<string>('minmax(0, 1fr)');
-    /** Optional complete CSS grid-template-columns override. */
+    /**
+     * Optional complete CSS grid-template-columns override.
+     *
+     * This is an advanced escape hatch. The default template includes offset
+     * rails and explicit gutter tracks, which is what `ims-grid2-cell` indexes
+     * against. Custom templates should preserve that track structure.
+     */
     readonly columnTemplate = input<string | undefined>(undefined);
     /** Appearance marker mirrored to `appearance` attribute on host. */
     readonly appearance = input<ImsGrid2Appearance>('default');
-    /** Normalized CSS length for the column gap custom property. */
+    /** Normalized CSS length for the column gutter track custom property. */
     readonly columnGap: Signal<string> = computed(() => toCssLength(this.gap()));
     /** Normalized CSS length for the host row gap style. */
     readonly rowGap: Signal<string> = computed(() => toCssLength(this.rowGapInput()));
@@ -85,7 +91,9 @@ export class ImsGrid2 implements ImsGrid2Context {
      * CSS `grid-template-columns` value applied to the root grid.
      *
      * Header cell `width`, `minWidth`, and `maxWidth` inputs win per column.
-     * Columns without explicit header sizing use `defaultColumnTrack`.
+     * Columns without explicit header sizing use `defaultColumnTrack`. Offset
+     * inputs are modeled as real grid tracks so components spanning the whole
+     * grid keep their natural width while cells align inside the offset rails.
      */
     readonly resolvedColumnTemplate: Signal<string> = computed(() => {
         const explicitTemplate = this.columnTemplate()?.trim();
@@ -100,12 +108,12 @@ export class ImsGrid2 implements ImsGrid2Context {
 
         const headerRow = this.rows().find((row) => row.headerCellCount() > 0);
         const defaultTrack = this.defaultColumnTrack().trim() || 'minmax(0, 1fr)';
-        const tracks: string[] = [];
+        const columnTracks: string[] = [];
         for (let index = 0; index < columnCount; index += 1) {
-            tracks.push(headerRow?.resolveColumnTrack(index) ?? defaultTrack);
+            columnTracks.push(headerRow?.resolveColumnTrack(index) ?? defaultTrack);
         }
 
-        return tracks.join(' ');
+        return buildTemplateWithOffsetRails(columnTracks);
     });
 
     constructor() {
@@ -128,6 +136,22 @@ export class ImsGrid2 implements ImsGrid2Context {
         event.clipboardData.setData('text/plain', selectedText);
         event.preventDefault();
     }
+}
+
+function buildTemplateWithOffsetRails(columnTracks: readonly string[]): string {
+    const tracks = ['var(--ims-grid2-offset-start)'];
+
+    columnTracks.forEach((track, index) => {
+        if (index > 0) {
+            tracks.push('var(--ims-grid2-column-gap)');
+        }
+
+        tracks.push(track);
+    });
+
+    tracks.push('var(--ims-grid2-offset-end)');
+
+    return tracks.join(' ');
 }
 
 /** Converts numeric or unitless length inputs into valid CSS length strings. */

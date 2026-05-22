@@ -1,9 +1,7 @@
 ims-grid2 {
     display: grid;
     grid-template-columns: var(--ims-grid2-template);
-    column-gap: var(--ims-grid2-column-gap);
-    padding-inline-start: var(--ims-grid2-offset-start);
-    padding-inline-end: var(--ims-grid2-offset-end);
+    column-gap: 0;
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
@@ -12,6 +10,7 @@ ims-grid2 {
         display: grid;
         grid-column: 1 / -1;
         grid-template-columns: subgrid;
+        column-gap: 0;
         align-items: center;
         min-width: 0;
         width: 100%;
@@ -21,7 +20,7 @@ ims-grid2 {
             display: grid !important;
             grid-column: 1 / -1 !important;
             grid-template-columns: subgrid !important;
-            column-gap: inherit;
+            column-gap: 0;
             align-items: center;
             min-width: 0;
             box-sizing: border-box;
