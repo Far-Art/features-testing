@@ -86,8 +86,8 @@
                 <ims-grid2-cell maxWidth="70px">actions</ims-grid2-cell>
             </ims-grid2-header>
 
-            @for (row of grid2Sort.sortedData(); track row.id) {
-                <ims-grid2-row>
+            <cdk-virtual-scroll-viewport itemSize="50" imsVirtualScrollAutoHeight>
+                <ims-grid2-row *cdkVirtualFor="let row of grid2Sort.sortedData(); trackBy: trackByFunction">
                     <mat-expansion-panel>
                         <mat-expansion-panel-header>
                             <ims-grid2-cell>{{ row.firstName }}</ims-grid2-cell>
@@ -118,7 +118,41 @@
                         }
                     </mat-expansion-panel>
                 </ims-grid2-row>
-            }
+            </cdk-virtual-scroll-viewport>
+
+<!--            @for (row of grid2Sort.sortedData(); track row.id) {-->
+<!--                <ims-grid2-row>-->
+<!--                    <mat-expansion-panel>-->
+<!--                        <mat-expansion-panel-header>-->
+<!--                            <ims-grid2-cell>{{ row.firstName }}</ims-grid2-cell>-->
+<!--                            <ims-grid2-cell>{{ row.lastName }}</ims-grid2-cell>-->
+<!--                            <ims-grid2-cell>{{ row.identity }}</ims-grid2-cell>-->
+<!--                            <ims-grid2-cell>{{ row.policyNumber }}</ims-grid2-cell>-->
+<!--                            <ims-grid2-cell>{{ row.product }}</ims-grid2-cell>-->
+<!--                            <ims-grid2-cell>{{ row.premium }}</ims-grid2-cell>-->
+<!--                            <ims-grid2-cell>{{ row.status }}</ims-grid2-cell>-->
+<!--                            <ims-grid2-cell>-->
+<!--                                <button>fix</button>-->
+<!--                            </ims-grid2-cell>-->
+<!--                        </mat-expansion-panel-header>-->
+
+<!--                        @for (detail of row.details ?? []; track $index) {-->
+<!--                            <ims-grid2-row>-->
+<!--                                <ims-grid2-cell></ims-grid2-cell>-->
+<!--                                <ims-grid2-cell></ims-grid2-cell>-->
+<!--                                <ims-grid2-cell>{{ detail.identity }}</ims-grid2-cell>-->
+<!--                                <ims-grid2-cell>{{ detail.policyNumber }}</ims-grid2-cell>-->
+<!--                                <ims-grid2-cell>{{ detail.product }}</ims-grid2-cell>-->
+<!--                                <ims-grid2-cell></ims-grid2-cell>-->
+<!--                                <ims-grid2-cell></ims-grid2-cell>-->
+<!--                                <ims-grid2-cell>-->
+<!--                                    <button>fix</button>-->
+<!--                                </ims-grid2-cell>-->
+<!--                            </ims-grid2-row>-->
+<!--                        }-->
+<!--                    </mat-expansion-panel>-->
+<!--                </ims-grid2-row>-->
+<!--            }-->
         </ims-grid2>
     </section>
 </main>

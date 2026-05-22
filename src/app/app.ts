@@ -15,6 +15,8 @@ import {
 import {MatExpansionPanel, MatExpansionPanelHeader} from '@angular/material/expansion';
 import {FetchIndicator} from './components/fetch-indicator/fetch-indicator.component';
 import {map, timer} from 'rxjs';
+import {CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
+import {ImsVirtualScrollAutoHeightDirective} from './shared/ims-virtual-scroll-auto-height.directive';
 
 interface Grid2DemoRow {
     readonly id: number;
@@ -34,11 +36,12 @@ interface Grid2DemoRow {
 
 @Component({
     selector: 'app-root',
-    imports: [GlassButton, ImsCollapsibleContainer, ImsExpandCollapseButtonDirective, InsuredQuery, ImsGridCell, ImsGrid, ImsGridRow, ImsGrid2Cell, ImsGrid2, ImsGrid2Row, ImsGrid2ClipDirective, ImsGrid2SortDirective, ImsGrid2SortHeader, MatExpansionPanel, MatExpansionPanelHeader, FetchIndicator],
+    imports: [GlassButton, ImsCollapsibleContainer, ImsExpandCollapseButtonDirective, InsuredQuery, ImsGridCell, ImsGrid, ImsGridRow, ImsGrid2Cell, ImsGrid2, ImsGrid2Row, ImsGrid2ClipDirective, ImsGrid2SortDirective, ImsGrid2SortHeader, ImsVirtualScrollAutoHeightDirective, MatExpansionPanel, MatExpansionPanelHeader, FetchIndicator, CdkVirtualScrollViewport, CdkVirtualForOf, CdkFixedSizeVirtualScroll],
     templateUrl: './app.html',
     styleUrl: './app.scss'
 })
 export class App {
+    readonly trackByFunction = (index: number, row: Grid2DemoRow) => row.id;
     readonly title = 'Generic Query Infrastructure Demo';
     readonly fetchResult$ = timer(2000).pipe(map(() => ({ ok: false })));
     readonly resolveFetchState = (result: unknown) => (result as { ok: boolean }).ok ? 'success' as const : 'error' as const;
