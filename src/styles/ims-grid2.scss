@@ -6,7 +6,7 @@ ims-grid2 {
     min-width: 0;
     box-sizing: border-box;
 
-    :where(*:not(.cdk-virtual-scroll-content-wrapper):has(> :is(ims-grid2-row, ims-grid2-header))) {
+    :where(*:not(ims-grid2):not(.cdk-virtual-scroll-content-wrapper):has(> :is(ims-grid2-row, ims-grid2-header))) {
         display: grid;
         grid-column: 1 / -1;
         grid-template-columns: subgrid;
@@ -27,7 +27,7 @@ ims-grid2 {
         width: 100%;
         box-sizing: border-box;
 
-        :where(*:has(ims-grid2-cell)) {
+        :where(*:not(ims-grid2):not(ims-grid2-cell):not(:has(> ims-grid2)):has(ims-grid2-cell)) {
             display: grid !important;
             grid-column: 1 / -1 !important;
             grid-template-columns: subgrid !important;
@@ -73,6 +73,10 @@ ims-grid2 {
         min-width: 0;
         overflow: hidden;
         grid-column-end: span 1;
+
+        &.ims-grid2-cell-row-span {
+            align-items: stretch;
+        }
     }
 
     .ims-grid2-clip {

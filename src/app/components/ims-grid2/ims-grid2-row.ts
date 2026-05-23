@@ -92,8 +92,16 @@ export class ImsGrid2Row implements ImsGrid2RowContext {
         const grouped = this.groupCellsByContainer(cells);
         let max = 0;
         for (const group of grouped.values()) {
-            if (group.length > max) {
-                max = group.length;
+            let groupColumnCount = group.length;
+            for (const cell of group) {
+                const explicitColumnCount = cell.minimumExplicitColumnCount;
+                if (explicitColumnCount !== null && explicitColumnCount > groupColumnCount) {
+                    groupColumnCount = explicitColumnCount;
+                }
+            }
+
+            if (groupColumnCount > max) {
+                max = groupColumnCount;
             }
         }
 
