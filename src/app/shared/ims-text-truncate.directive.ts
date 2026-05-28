@@ -14,6 +14,8 @@ import {
     input
 } from '@angular/core';
 
+type ImsTextTruncatePosition = 'center' | 'top' | 'bottom';
+
 @Directive({
     selector: '[imsTextTruncate]',
     standalone: true,
@@ -28,9 +30,9 @@ import {
         '[attr.tabindex]': 'focusable() ? "0" : null',
         '(mouseenter)': 'showPopover()',
         '(focusin)': 'showPopover()',
-        '(mouseleave)': 'hidePopover()',
-        '(focusout)': 'hidePopover()',
-        '(keydown.escape)': 'hidePopover()'
+        '(mouseleave)': 'hidePopover($event)',
+        '(focusout)': 'hidePopoverImmediately()',
+        '(keydown.escape)': 'hidePopoverImmediately()'
     }
 })
 export class ImsTextTruncateDirective implements OnDestroy {
@@ -48,6 +50,9 @@ export class ImsTextTruncateDirective implements OnDestroy {
     readonly popoverMaxWidth = input<string | number>('min(36rem, calc(100vw - 24px))', {
         alias: 'imsTruncatePopoverMaxWidth'
     });
+    readonly position = input<ImsTextTruncatePosition>('center', {
+        alias: 'imsTextTruncatePosition'
+    });
 
     readonly maxWidthCss = computed(() => toCssLength(this.maxWidth()));
 
@@ -58,7 +63,9 @@ export class ImsTextTruncateDirective implements OnDestroy {
     private readonly overlay = inject(Overlay);
     private readonly viewContainerRef = inject(ViewContainerRef);
     private overlayRef: OverlayRef | null = null;
+    private overlayPosition: ImsTextTruncatePosition | null = null;
     private popoverRef: ComponentRef<ImsTextTruncatePopover> | null = null;
+    private documentMouseMoveListener: ((event: MouseEvent) => void) | null = null;
 
     showPopover(): void {
         if (this.popoverDisabled()) {
@@ -67,13 +74,13 @@ export class ImsTextTruncateDirective implements OnDestroy {
 
         const hostElement = this.elementRef.nativeElement;
         if (!isOverflowing(hostElement)) {
-            this.hidePopover();
+            this.hidePopoverImmediately();
             return;
         }
 
         const text = this.resolveText(hostElement);
         if (!text) {
-            this.hidePopover();
+            this.hidePopoverImmediately();
             return;
         }
 
@@ -99,17 +106,29 @@ export class ImsTextTruncateDirective implements OnDestroy {
 
         overlayRef.updatePosition();
         this.popoverVisible = true;
+        this.listenForDocumentMouseMove();
     }
 
-    hidePopover(): void {
+    hidePopover(event?: MouseEvent): void {
+        if (event && this.isPointerInsideVisibleRegion(event)) {
+            return;
+        }
+
+        this.hidePopoverImmediately();
+    }
+
+    hidePopoverImmediately(): void {
         this.overlayRef?.detach();
         this.popoverRef = null;
+        this.stopListeningForDocumentMouseMove();
         this.popoverVisible = false;
     }
 
     ngOnDestroy(): void {
+        this.stopListeningForDocumentMouseMove();
         this.overlayRef?.dispose();
         this.overlayRef = null;
+        this.overlayPosition = null;
         this.popoverRef = null;
     }
 
@@ -123,24 +142,71 @@ export class ImsTextTruncateDirective implements OnDestroy {
 
     private ensureOverlayRef(hostElement: HTMLElement): OverlayRef {
         if (this.overlayRef) {
+            const position = this.position();
+            if (this.overlayPosition !== position) {
+                this.overlayPosition = position;
+                this.overlayRef.updatePositionStrategy(this.createPositionStrategy(hostElement, position));
+            }
+
             return this.overlayRef;
         }
 
-        const positionStrategy = this.overlay
-            .position()
-            .flexibleConnectedTo(hostElement)
-            .withFlexibleDimensions(false)
-            .withPush(true)
-            .withViewportMargin(6)
-            .withPositions(getOverlayPositions());
+        const position = this.position();
+        const positionStrategy = this.createPositionStrategy(hostElement, position);
 
         this.overlayRef = this.overlay.create({
             positionStrategy,
             scrollStrategy: this.overlay.scrollStrategies.reposition(),
             hasBackdrop: false
         });
+        this.overlayRef.hostElement.style.pointerEvents = 'none';
+        this.overlayRef.overlayElement.style.pointerEvents = 'none';
+        this.overlayPosition = position;
 
         return this.overlayRef;
+    }
+
+    private createPositionStrategy(hostElement: HTMLElement, position: ImsTextTruncatePosition) {
+        return this.overlay
+            .position()
+            .flexibleConnectedTo(hostElement)
+            .withFlexibleDimensions(false)
+            .withPush(true)
+            .withViewportMargin(6)
+            .withPositions(getOverlayPositions(position));
+    }
+
+    private listenForDocumentMouseMove(): void {
+        if (this.documentMouseMoveListener) {
+            return;
+        }
+
+        const document = this.elementRef.nativeElement.ownerDocument;
+        const listener = (event: MouseEvent) => {
+            if (!this.isPointerInsideVisibleRegion(event)) {
+                this.hidePopoverImmediately();
+            }
+        };
+
+        document.addEventListener('mousemove', listener, {passive: true});
+        this.documentMouseMoveListener = listener;
+    }
+
+    private stopListeningForDocumentMouseMove(): void {
+        if (!this.documentMouseMoveListener) {
+            return;
+        }
+
+        this.elementRef.nativeElement.ownerDocument.removeEventListener(
+            'mousemove',
+            this.documentMouseMoveListener
+        );
+        this.documentMouseMoveListener = null;
+    }
+
+    private isPointerInsideVisibleRegion(event: MouseEvent): boolean {
+        return isPointInsideRect(event, this.elementRef.nativeElement.getBoundingClientRect())
+            || isPointInsideRect(event, this.overlayRef?.overlayElement.getBoundingClientRect());
     }
 }
 
@@ -191,11 +257,46 @@ function toCssLength(value: string | number | null | undefined): string | null {
     return typeof value === 'number' ? `${value}px` : value;
 }
 
-function getOverlayPositions(): ConnectedPosition[] {
-    return [
-        {originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 6},
-        {originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -6},
-        {originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top', offsetY: 6},
-        {originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'bottom', offsetY: -6}
-    ];
+function isPointInsideRect(event: MouseEvent, rect: DOMRect | undefined): boolean {
+    if (!rect) {
+        return false;
+    }
+
+    return event.clientX >= rect.left
+        && event.clientX <= rect.right
+        && event.clientY >= rect.top
+        && event.clientY <= rect.bottom;
+}
+
+function getOverlayPositions(position: ImsTextTruncatePosition): ConnectedPosition[] {
+    const centeredPosition: ConnectedPosition = {
+        originX: 'center',
+        originY: 'center',
+        overlayX: 'center',
+        overlayY: 'center'
+    };
+    const topPosition: ConnectedPosition = {
+        originX: 'center',
+        originY: 'top',
+        overlayX: 'center',
+        overlayY: 'bottom',
+        offsetY: -6
+    };
+    const bottomPosition: ConnectedPosition = {
+        originX: 'center',
+        originY: 'bottom',
+        overlayX: 'center',
+        overlayY: 'top',
+        offsetY: 6
+    };
+
+    if (position === 'top') {
+        return [topPosition, centeredPosition, bottomPosition];
+    }
+
+    if (position === 'bottom') {
+        return [bottomPosition, centeredPosition, topPosition];
+    }
+
+    return [centeredPosition, topPosition, bottomPosition];
 }
