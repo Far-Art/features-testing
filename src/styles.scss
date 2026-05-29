@@ -8,9 +8,9 @@
 @use './styles/ims-grid2';
 @use './styles/ims-grid2-adapters';
 
-@import './styles/gradient-animate.scss';
-@import './styles/action-required.scss';
-@import './styles/ims-expand-collapse-button.scss';
+@use './styles/gradient-animate';
+@use './styles/action-required';
+@use './styles/ims-expand-collapse-button';
 
 :root {
     //--ims-color-primary-50: #f0f5ff;
