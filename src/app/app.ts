@@ -1,13 +1,9 @@
 import {Component} from '@angular/core';
-import {GlassButton} from './glass-button/glass-button';
-import {InsuredQuery} from './components/query/insured-query/insured-query';
 import {ImsCollapsibleContainer} from './components/ims-collapsible-container/ims-collapsible-container';
 import {ImsExpandCollapseButtonDirective} from './components/ims-expand-collapse-button/ims-expand-collapse-button.directive';
-import {ImsGrid, ImsGridCell, ImsGridRow} from './components/ims-grid';
 import {
     ImsGrid2,
     ImsGrid2Cell,
-    ImsGrid2ClipDirective,
     ImsGrid2Row,
     ImsGrid2SortDirective,
     ImsGrid2SortHeader
@@ -17,6 +13,7 @@ import {FetchIndicator} from './components/fetch-indicator/fetch-indicator.compo
 import {map, timer} from 'rxjs';
 import {CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 import {ImsVirtualScrollAutoHeightDirective} from './shared/ims-virtual-scroll-auto-height.directive';
+import {CdkAccordion} from '@angular/cdk/accordion';
 
 interface Grid2DemoRow {
     readonly id: number;
@@ -36,7 +33,7 @@ interface Grid2DemoRow {
 
 @Component({
     selector: 'app-root',
-    imports: [GlassButton, ImsCollapsibleContainer, ImsExpandCollapseButtonDirective, InsuredQuery, ImsGridCell, ImsGrid, ImsGridRow, ImsGrid2Cell, ImsGrid2, ImsGrid2Row, ImsGrid2ClipDirective, ImsGrid2SortDirective, ImsGrid2SortHeader, ImsVirtualScrollAutoHeightDirective, MatExpansionPanel, MatExpansionPanelHeader, FetchIndicator, CdkVirtualScrollViewport, CdkVirtualForOf, CdkFixedSizeVirtualScroll],
+    imports: [ImsCollapsibleContainer, ImsExpandCollapseButtonDirective, ImsGrid2Cell, ImsGrid2, ImsGrid2Row, ImsGrid2SortDirective, ImsGrid2SortHeader, ImsVirtualScrollAutoHeightDirective, MatExpansionPanel, MatExpansionPanelHeader, FetchIndicator, CdkVirtualScrollViewport, CdkVirtualForOf, CdkFixedSizeVirtualScroll, CdkAccordion],
     templateUrl: './app.html',
     styleUrl: './app.scss'
 })

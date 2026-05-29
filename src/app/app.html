@@ -57,6 +57,37 @@
     <section>
         <app-fetch-indicator [request$]="fetchResult$" [resolveState]="resolveFetchState" [size]="50" [strokeWidth]="2"></app-fetch-indicator>
 
+        <ims-grid2>
+            <ims-grid2-header>
+                <ims-grid2-cell>header 1</ims-grid2-cell>
+                <ims-grid2-cell>header 2</ims-grid2-cell>
+            </ims-grid2-header>
+
+            <ims-grid2-row>
+                <ims-grid2-cell>cell 1</ims-grid2-cell>
+                <ims-grid2-cell>cell 2</ims-grid2-cell>
+            </ims-grid2-row>
+
+            <ims-grid2-row>
+                <ims-grid2-cell span="row">
+                    <ims-grid2>
+                        <ims-grid2-header>
+                            <ims-grid2-cell>nested header 1</ims-grid2-cell>
+                            <ims-grid2-cell>nested header 2</ims-grid2-cell>
+                            <ims-grid2-cell>nested header 3</ims-grid2-cell>
+                            <ims-grid2-cell>nested header 4</ims-grid2-cell>
+                        </ims-grid2-header>
+                        <ims-grid2-row>
+                            <ims-grid2-cell>nested cell 1</ims-grid2-cell>
+                            <ims-grid2-cell>nested cell 2</ims-grid2-cell>
+                            <ims-grid2-cell>nested cell 3</ims-grid2-cell>
+                            <ims-grid2-cell>nested cell 4</ims-grid2-cell>
+                        </ims-grid2-row>
+                    </ims-grid2>
+                </ims-grid2-cell>
+            </ims-grid2-row>
+        </ims-grid2>
+
         <ims-grid2
             [imsGrid2Sort]="grid2Rows"
             #grid2Sort="imsGrid2Sort"
@@ -86,73 +117,92 @@
                 <ims-grid2-cell maxWidth="70px">actions</ims-grid2-cell>
             </ims-grid2-header>
 
-            <cdk-virtual-scroll-viewport itemSize="50" imsVirtualScrollAutoHeight>
-                <ims-grid2-row *cdkVirtualFor="let row of grid2Sort.sortedData(); trackBy: trackByFunction">
-                    <mat-expansion-panel>
-                        <mat-expansion-panel-header>
-                            <ims-grid2-cell>{{ row.firstName }}</ims-grid2-cell>
-                            <ims-grid2-cell>{{ row.lastName }}</ims-grid2-cell>
-                            <ims-grid2-cell>{{ row.identity }}</ims-grid2-cell>
-                            <ims-grid2-cell>{{ row.policyNumber }}</ims-grid2-cell>
-                            <ims-grid2-cell>{{ row.product }}</ims-grid2-cell>
-                            <ims-grid2-cell>{{ row.premium }}</ims-grid2-cell>
-                            <ims-grid2-cell>{{ row.status }}</ims-grid2-cell>
-                            <ims-grid2-cell>
-                                <button>fix</button>
-                            </ims-grid2-cell>
-                        </mat-expansion-panel-header>
-
-                        @for (detail of row.details ?? []; track $index) {
-                            <ims-grid2-row>
-                                <ims-grid2-cell></ims-grid2-cell>
-                                <ims-grid2-cell></ims-grid2-cell>
-                                <ims-grid2-cell>{{ detail.identity }}</ims-grid2-cell>
-                                <ims-grid2-cell>{{ detail.policyNumber }}</ims-grid2-cell>
-                                <ims-grid2-cell>{{ detail.product }}</ims-grid2-cell>
-                                <ims-grid2-cell></ims-grid2-cell>
-                                <ims-grid2-cell></ims-grid2-cell>
+            <cdk-accordion>
+                <cdk-virtual-scroll-viewport itemSize="50" imsVirtualScrollAutoHeight>
+                    <ims-grid2-row *cdkVirtualFor="let row of grid2Sort.sortedData(); trackBy: trackByFunction">
+                        <mat-expansion-panel>
+                            <mat-expansion-panel-header>
+                                <ims-grid2-cell>{{ row.firstName }}</ims-grid2-cell>
+                                <ims-grid2-cell>{{ row.lastName }}</ims-grid2-cell>
+                                <ims-grid2-cell>{{ row.identity }}</ims-grid2-cell>
+                                <ims-grid2-cell>{{ row.policyNumber }}</ims-grid2-cell>
+                                <ims-grid2-cell>{{ row.product }}</ims-grid2-cell>
+                                <ims-grid2-cell>{{ row.premium }}</ims-grid2-cell>
+                                <ims-grid2-cell>{{ row.status }}</ims-grid2-cell>
                                 <ims-grid2-cell>
                                     <button>fix</button>
                                 </ims-grid2-cell>
-                            </ims-grid2-row>
-                        }
-                    </mat-expansion-panel>
-                </ims-grid2-row>
-            </cdk-virtual-scroll-viewport>
+                            </mat-expansion-panel-header>
 
-<!--            @for (row of grid2Sort.sortedData(); track row.id) {-->
-<!--                <ims-grid2-row>-->
-<!--                    <mat-expansion-panel>-->
-<!--                        <mat-expansion-panel-header>-->
-<!--                            <ims-grid2-cell>{{ row.firstName }}</ims-grid2-cell>-->
-<!--                            <ims-grid2-cell>{{ row.lastName }}</ims-grid2-cell>-->
-<!--                            <ims-grid2-cell>{{ row.identity }}</ims-grid2-cell>-->
-<!--                            <ims-grid2-cell>{{ row.policyNumber }}</ims-grid2-cell>-->
-<!--                            <ims-grid2-cell>{{ row.product }}</ims-grid2-cell>-->
-<!--                            <ims-grid2-cell>{{ row.premium }}</ims-grid2-cell>-->
-<!--                            <ims-grid2-cell>{{ row.status }}</ims-grid2-cell>-->
-<!--                            <ims-grid2-cell>-->
-<!--                                <button>fix</button>-->
-<!--                            </ims-grid2-cell>-->
-<!--                        </mat-expansion-panel-header>-->
+                            @for (detail of row.details ?? []; track $index) {
+                                <ims-grid2-row>
+                                    <ims-grid2-cell></ims-grid2-cell>
+                                    <ims-grid2-cell></ims-grid2-cell>
+                                    <ims-grid2-cell>{{ detail.identity }}</ims-grid2-cell>
+                                    <ims-grid2-cell>{{ detail.policyNumber }}</ims-grid2-cell>
+                                    <ims-grid2-cell>{{ detail.product }}</ims-grid2-cell>
+                                    <ims-grid2-cell></ims-grid2-cell>
+                                    <ims-grid2-cell></ims-grid2-cell>
+                                    <ims-grid2-cell>
+                                        <button>fix</button>
+                                    </ims-grid2-cell>
+                                </ims-grid2-row>
+                            }
+                        </mat-expansion-panel>
+                    </ims-grid2-row>
+                </cdk-virtual-scroll-viewport>
 
-<!--                        @for (detail of row.details ?? []; track $index) {-->
-<!--                            <ims-grid2-row>-->
-<!--                                <ims-grid2-cell></ims-grid2-cell>-->
-<!--                                <ims-grid2-cell></ims-grid2-cell>-->
-<!--                                <ims-grid2-cell>{{ detail.identity }}</ims-grid2-cell>-->
-<!--                                <ims-grid2-cell>{{ detail.policyNumber }}</ims-grid2-cell>-->
-<!--                                <ims-grid2-cell>{{ detail.product }}</ims-grid2-cell>-->
-<!--                                <ims-grid2-cell></ims-grid2-cell>-->
-<!--                                <ims-grid2-cell></ims-grid2-cell>-->
-<!--                                <ims-grid2-cell>-->
-<!--                                    <button>fix</button>-->
-<!--                                </ims-grid2-cell>-->
-<!--                            </ims-grid2-row>-->
-<!--                        }-->
-<!--                    </mat-expansion-panel>-->
-<!--                </ims-grid2-row>-->
-<!--            }-->
+                @for (row of grid2Sort.sortedData(); track row.id) {
+                    <ims-grid2-row>
+                        <mat-expansion-panel>
+                            <mat-expansion-panel-header>
+                                <ims-grid2-cell>{{ row.firstName }}</ims-grid2-cell>
+                                <ims-grid2-cell>{{ row.lastName }}</ims-grid2-cell>
+                                <ims-grid2-cell>{{ row.identity }}</ims-grid2-cell>
+                                <ims-grid2-cell>{{ row.policyNumber }}</ims-grid2-cell>
+                                <ims-grid2-cell>{{ row.product }}</ims-grid2-cell>
+                                <ims-grid2-cell>{{ row.premium }}</ims-grid2-cell>
+                                <ims-grid2-cell>{{ row.status }}</ims-grid2-cell>
+                                <ims-grid2-cell>
+                                    <button>fix</button>
+                                </ims-grid2-cell>
+                            </mat-expansion-panel-header>
+
+                            <div>
+                            <cdk-virtual-scroll-viewport itemSize="50" imsVirtualScrollAutoHeight>
+                                <ims-grid2-row *cdkVirtualFor="let detail of row.details ?? [];">
+                                    <ims-grid2-cell></ims-grid2-cell>
+                                    <ims-grid2-cell></ims-grid2-cell>
+                                    <ims-grid2-cell>{{ detail.identity }}</ims-grid2-cell>
+                                    <ims-grid2-cell>{{ detail.policyNumber }}</ims-grid2-cell>
+                                    <ims-grid2-cell>{{ detail.product }}</ims-grid2-cell>
+                                    <ims-grid2-cell></ims-grid2-cell>
+                                    <ims-grid2-cell></ims-grid2-cell>
+                                    <ims-grid2-cell>
+                                        <button>fix</button>
+                                    </ims-grid2-cell>
+                                </ims-grid2-row>
+                            </cdk-virtual-scroll-viewport>
+
+                            </div>
+<!--                            @for (detail of row.details ?? []; track $index) {-->
+<!--                                <ims-grid2-row>-->
+<!--                                    <ims-grid2-cell></ims-grid2-cell>-->
+<!--                                    <ims-grid2-cell></ims-grid2-cell>-->
+<!--                                    <ims-grid2-cell>{{ detail.identity }}</ims-grid2-cell>-->
+<!--                                    <ims-grid2-cell>{{ detail.policyNumber }}</ims-grid2-cell>-->
+<!--                                    <ims-grid2-cell>{{ detail.product }}</ims-grid2-cell>-->
+<!--                                    <ims-grid2-cell></ims-grid2-cell>-->
+<!--                                    <ims-grid2-cell></ims-grid2-cell>-->
+<!--                                    <ims-grid2-cell>-->
+<!--                                        <button>fix</button>-->
+<!--                                    </ims-grid2-cell>-->
+<!--                                </ims-grid2-row>-->
+<!--                            }-->
+                        </mat-expansion-panel>
+                    </ims-grid2-row>
+                }
+            </cdk-accordion>
         </ims-grid2>
     </section>
 </main>
