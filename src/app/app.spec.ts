@@ -24,10 +24,10 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render title', () => {
+  it('should render translated demo heading', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Generic Query Infrastructure Demo');
+    expect(compiled.querySelector('h2')?.textContent).toContain('רכיב בחירה');
   });
 });

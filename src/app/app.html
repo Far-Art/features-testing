@@ -1,4 +1,4 @@
-<main class="main">
+<main class="main" dir="rtl">
     <!--    <header class="hero">-->
     <!--        <h1>{{ title }}</h1>-->
     <!--        <p>-->
@@ -56,42 +56,42 @@
 
     <section class="select-demo">
         <div>
-            <h2>Select component</h2>
-            <p>Projected options with object values, custom option text, filtering, multi toolbar, and form bindings.</p>
+            <h2>רכיב בחירה</h2>
+            <p>אפשרויות מוקרנות עם ערכי אובייקט, טקסט מותאם לאפשרות, סינון, סרגל מרובה בחירה וחיבור לטפסים.</p>
         </div>
 
         <div class="select-demo__grid">
             <label class="select-demo__field">
-                <span>Reactive multi select</span>
+                <span>בחירה מרובה ריאקטיבית</span>
                 <ims-select
                     multiple
                     filter="auto"
                     toolbar="auto"
-                    placeholder="Choose bags"
-                    ariaLabel="Reactive multi select"
+                    placeholder="בחר תיקים"
+                    ariaLabel="בחירה מרובה ריאקטיבית"
                     [formControl]="selectedBagsControl"
                     [compareWith]="compareBagById"
                 >
                     @for (bag of bagOptions; track bag.id) {
                         <ims-option [value]="bag" [selectionText]="bag.label">
-                            +{{ bag.count }} {{ bag.label }}
+                            {{ bag.label }} (+{{ bag.count }})
                         </ims-option>
                     }
                 </ims-select>
             </label>
 
             <label class="select-demo__field">
-                <span>Template single select</span>
+                <span>בחירה יחידה עם ngModel</span>
                 <ims-select
                     filter="auto"
-                    placeholder="Choose a bag"
-                    ariaLabel="Template single select"
+                    placeholder="בחר תיק"
+                    ariaLabel="בחירה יחידה עם ngModel"
                     [(ngModel)]="selectedBagModel"
                     [compareWith]="compareBagById"
                 >
                     @for (bag of bagOptions; track bag.id) {
                         <ims-option [value]="bag" [selectionText]="bag.label">
-                            +{{ bag.count }} {{ bag.label }}
+                            {{ bag.label }} (+{{ bag.count }})
                         </ims-option>
                     }
                 </ims-select>
@@ -101,16 +101,16 @@
 
     <section class="select-demo">
         <div>
-            <h2>Autocomplete component</h2>
-            <p>List-backed options with highlighting, virtual scrolling, async loading, sorting, and strict multi-selection.</p>
+            <h2>רכיב השלמה אוטומטית</h2>
+            <p>אפשרויות מתוך רשימה עם הדגשת התאמות, גלילה וירטואלית, טעינה אסינכרונית, מיון ובחירה מרובה מחייבת.</p>
         </div>
 
         <div class="select-demo__grid">
             <label class="select-demo__field">
-                <span>Single autocomplete</span>
+                <span>השלמה אוטומטית יחידה</span>
                 <ims-autocomplete
-                    placeholder="Type or choose"
-                    ariaLabel="Single autocomplete"
+                    placeholder="הקלד או בחר"
+                    ariaLabel="השלמה אוטומטית יחידה"
                     sort="asc"
                     [options]="bagAutocompleteOptions"
                     [formControl]="autocompleteSingleControl"
@@ -119,11 +119,11 @@
             </label>
 
             <label class="select-demo__field">
-                <span>Async multi autocomplete</span>
+                <span>השלמה אוטומטית מרובה אסינכרונית</span>
                 <ims-autocomplete
                     multiple
-                    placeholder="Choose bags"
-                    ariaLabel="Async multi autocomplete"
+                    placeholder="בחר תיקים"
+                    ariaLabel="השלמה אוטומטית מרובה אסינכרונית"
                     sort="asc"
                     toolbar="auto"
                     [loadOptions]="loadBagAutocompleteOptions"
@@ -136,16 +136,16 @@
 
     <section class="select-demo">
         <div>
-            <h2>Large autocomplete list</h2>
-            <p>Static list with {{ largeAutocompleteOptions.length }} generated options for virtual-scroll and filtering checks.</p>
+            <h2>רשימת השלמה אוטומטית גדולה</h2>
+            <p>רשימה סטטית עם {{ largeAutocompleteOptions.length }} אפשרויות שנוצרו לבדיקת גלילה וירטואלית וסינון.</p>
         </div>
 
         <div class="select-demo__grid">
             <label class="select-demo__field">
-                <span>100,000 option autocomplete</span>
+                <span>השלמה אוטומטית עם 100,000 אפשרויות</span>
                 <ims-autocomplete
-                    placeholder="Search customer, policy, or region"
-                    ariaLabel="Large autocomplete list"
+                    placeholder="חפש לקוח, פוליסה או אזור"
+                    ariaLabel="רשימת השלמה אוטומטית גדולה"
                     [options]="largeAutocompleteOptions"
                     [formControl]="largeAutocompleteControl"
                     [compareWith]="compareBagById"
@@ -156,16 +156,16 @@
 
     <section class="select-demo">
         <div>
-            <h2>Server-backed autocomplete</h2>
-            <p>Simulated remote option loading with a 2 second response delay and a capped result set.</p>
+            <h2>השלמה אוטומטית מול שרת</h2>
+            <p>טעינה מרוחקת מדומה של אפשרויות עם השהיית תגובה של 2 שניות והגבלת כמות תוצאות.</p>
         </div>
 
         <div class="select-demo__grid">
             <label class="select-demo__field">
-                <span>2 second server fetch</span>
+                <span>שליפה מהשרת במשך 2 שניות</span>
                 <ims-autocomplete
-                    placeholder="Search remote customers"
-                    ariaLabel="Server-backed autocomplete"
+                    placeholder="חפש לקוחות מרוחקים"
+                    ariaLabel="השלמה אוטומטית מול שרת"
                     [loadDebounceMs]="350"
                     [loadOptions]="loadServerAutocompleteOptions"
                     [formControl]="serverAutocompleteControl"

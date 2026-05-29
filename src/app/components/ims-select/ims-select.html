@@ -62,17 +62,22 @@
 >
     <div
         class="ims-select__overlay"
+        tabindex="-1"
+        [attr.dir]="directionality.value"
         [class.ims-select__overlay--toolbar-left]="toolbarSide() === 'left'"
         [class.ims-select__overlay--toolbar-right]="toolbarSide() === 'right'"
         (keydown)="onPanelKeydown($event)"
     >
         @if (showToolbar()) {
-            <aside #toolbarPanel class="ims-select__toolbar" aria-label="Selection toolbar">
-                <label class="ims-select__bulk">
+            <aside #toolbarPanel class="ims-select__toolbar" aria-label="סרגל בחירה">
+                <label
+                    class="ims-select__bulk"
+                    matTooltip="בחר את כל האפשרויות המוצגות"
+                    matTooltipPosition="above"
+                >
                     <input
                         type="checkbox"
-                        aria-label="Select all visible options"
-                        title="Select all visible options"
+                        aria-label="בחר את כל האפשרויות המוצגות"
                         [checked]="bulkChecked()"
                         [indeterminate]="bulkMixed()"
                         [disabled]="disabled() || selectableVisibleOptions().length === 0"
@@ -80,12 +85,13 @@
                     />
                 </label>
 
-                <div class="ims-select__segments" role="group" aria-label="Visible options">
+                <div class="ims-select__segments" role="group" aria-label="אפשרויות מוצגות">
                     <button
                         type="button"
                         class="ims-select__segment"
-                        aria-label="Show all options"
-                        title="Show all options"
+                        aria-label="הצג את כל האפשרויות"
+                        matTooltip="הצג את כל האפשרויות"
+                        matTooltipPosition="above"
                         [class.ims-select__segment--active]="viewMode() === 'all'"
                         [attr.aria-pressed]="viewMode() === 'all'"
                         (click)="setViewMode('all')"
@@ -97,8 +103,9 @@
                     <button
                         type="button"
                         class="ims-select__segment"
-                        aria-label="Show selected options"
-                        title="Show selected options"
+                        aria-label="הצג אפשרויות שנבחרו"
+                        matTooltip="הצג אפשרויות שנבחרו"
+                        matTooltipPosition="above"
                         [class.ims-select__segment--active]="viewMode() === 'selected'"
                         [attr.aria-pressed]="viewMode() === 'selected'"
                         (click)="setViewMode('selected')"
@@ -110,8 +117,9 @@
                     <button
                         type="button"
                         class="ims-select__segment"
-                        aria-label="Show unselected options"
-                        title="Show unselected options"
+                        aria-label="הצג אפשרויות שלא נבחרו"
+                        matTooltip="הצג אפשרויות שלא נבחרו"
+                        matTooltipPosition="above"
                         [class.ims-select__segment--active]="viewMode() === 'unselected'"
                         [attr.aria-pressed]="viewMode() === 'unselected'"
                         (click)="setViewMode('unselected')"
@@ -127,7 +135,7 @@
         <div #menu class="ims-select__menu" [style.width.px]="panelMinWidth()">
             @if (showFilter()) {
                 <label #filterField class="ims-select__filter">
-                    <span class="ims-select__filter-label">Filter</span>
+                    <span class="ims-select__filter-label">סינון</span>
                     <input
                         #filterInput
                         type="text"
@@ -155,7 +163,7 @@
                 <ng-content select="ims-option" />
 
                 @if (visibleOptions().length === 0) {
-                    <div class="ims-select__empty" role="note">No options</div>
+                    <div class="ims-select__empty" role="note">אין אפשרויות</div>
                 }
             </div>
         </div>

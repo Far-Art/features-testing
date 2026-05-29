@@ -84,17 +84,22 @@
 >
     <div
         class="ims-autocomplete__overlay"
+        tabindex="-1"
+        [attr.dir]="directionality.value"
         [class.ims-autocomplete__overlay--toolbar-left]="toolbarSide() === 'left'"
         [class.ims-autocomplete__overlay--toolbar-right]="toolbarSide() === 'right'"
         (keydown)="onKeydown($event)"
     >
         @if (showToolbar()) {
-            <aside #toolbarPanel class="ims-autocomplete__toolbar" aria-label="Selection toolbar">
-                <label class="ims-autocomplete__bulk">
+            <aside #toolbarPanel class="ims-autocomplete__toolbar" aria-label="סרגל בחירה">
+                <label
+                    class="ims-autocomplete__bulk"
+                    matTooltip="בחר את כל האפשרויות המוצגות"
+                    matTooltipPosition="above"
+                >
                     <input
                         type="checkbox"
-                        aria-label="Select all visible options"
-                        title="Select all visible options"
+                        aria-label="בחר את כל האפשרויות המוצגות"
                         [checked]="bulkChecked()"
                         [indeterminate]="bulkMixed()"
                         [disabled]="disabled() || selectableVisibleOptions().length === 0"
@@ -102,12 +107,13 @@
                     />
                 </label>
 
-                <div class="ims-autocomplete__segments" role="group" aria-label="Visible options">
+                <div class="ims-autocomplete__segments" role="group" aria-label="אפשרויות מוצגות">
                     <button
                         type="button"
                         class="ims-autocomplete__segment"
-                        aria-label="Show all options"
-                        title="Show all options"
+                        aria-label="הצג את כל האפשרויות"
+                        matTooltip="הצג את כל האפשרויות"
+                        matTooltipPosition="above"
                         [class.ims-autocomplete__segment--active]="viewMode() === 'all'"
                         [attr.aria-pressed]="viewMode() === 'all'"
                         (click)="setViewMode('all')"
@@ -119,8 +125,9 @@
                     <button
                         type="button"
                         class="ims-autocomplete__segment"
-                        aria-label="Show selected options"
-                        title="Show selected options"
+                        aria-label="הצג אפשרויות שנבחרו"
+                        matTooltip="הצג אפשרויות שנבחרו"
+                        matTooltipPosition="above"
                         [class.ims-autocomplete__segment--active]="viewMode() === 'selected'"
                         [attr.aria-pressed]="viewMode() === 'selected'"
                         (click)="setViewMode('selected')"
@@ -132,8 +139,9 @@
                     <button
                         type="button"
                         class="ims-autocomplete__segment"
-                        aria-label="Show unselected options"
-                        title="Show unselected options"
+                        aria-label="הצג אפשרויות שלא נבחרו"
+                        matTooltip="הצג אפשרויות שלא נבחרו"
+                        matTooltipPosition="above"
                         [class.ims-autocomplete__segment--active]="viewMode() === 'unselected'"
                         [attr.aria-pressed]="viewMode() === 'unselected'"
                         (click)="setViewMode('unselected')"
@@ -149,7 +157,7 @@
         <div #menu class="ims-autocomplete__menu" [style.width.px]="panelWidth()">
             @if (multiple()) {
                 <label class="ims-autocomplete__filter">
-                    <span>Search</span>
+                    <span>חיפוש</span>
                     <input
                         #filterInput
                         type="text"
@@ -164,7 +172,7 @@
 
             <div class="ims-autocomplete__panel">
                 @if (loading()) {
-                    <div class="ims-autocomplete__state" role="status">Loading...</div>
+                    <div class="ims-autocomplete__state" role="status">טוען...</div>
                 }
 
                 @if (visibleOptions().length > 0) {
@@ -183,6 +191,7 @@
                             *cdkVirtualFor="let option of visibleOptions(); let index = index; trackBy: trackByOption"
                             class="ims-autocomplete__option"
                             role="option"
+                            tabindex="-1"
                             [attr.id]="optionId(index)"
                             [attr.aria-selected]="isSelected(option)"
                             [attr.aria-disabled]="option.disabled ? 'true' : null"
@@ -205,7 +214,7 @@
                         </div>
                     </cdk-virtual-scroll-viewport>
                 } @else if (!loading()) {
-                    <div class="ims-autocomplete__state" role="note">No options</div>
+                    <div class="ims-autocomplete__state" role="note">אין אפשרויות</div>
                 }
             </div>
         </div>

@@ -26,96 +26,96 @@ interface LargeAutocompleteRow {
     styleUrl: './app.scss'
 })
 export class App {
-    readonly title = 'Generic Query Infrastructure Demo';
+    readonly title = 'הדגמת תשתית שאילתות גנרית';
     readonly bagOptions: readonly SelectDemoBag[] = [
         {
             id: 1,
-            label: 'Documents',
+            label: 'מסמכים',
             count: 35
         },
         {
             id: 2,
-            label: 'Receipts',
+            label: 'קבלות',
             count: 12
         },
         {
             id: 3,
-            label: 'Policies',
+            label: 'פוליסות',
             count: 8
         },
         {
             id: 4,
-            label: 'Claims',
+            label: 'תביעות',
             count: 19
         },
         {
             id: 5,
-            label: 'Invoices',
+            label: 'חשבוניות',
             count: 22
         },
         {
             id: 6,
-            label: 'Photos',
+            label: 'תמונות',
             count: 4
         },
         {
             id: 7,
-            label: 'Medical files',
+            label: 'תיקים רפואיים',
             count: 16
         },
         {
             id: 8,
-            label: 'Vehicle reports',
+            label: 'דוחות רכב',
             count: 9
         },
         {
             id: 9,
-            label: 'Legal notices',
+            label: 'הודעות משפטיות',
             count: 11
         },
         {
             id: 10,
-            label: 'Travel forms',
+            label: 'טפסי נסיעה',
             count: 6
         },
         {
             id: 11,
-            label: 'Approvals',
+            label: 'אישורים',
             count: 18
         },
         {
             id: 12,
-            label: 'Renewals',
+            label: 'חידושים',
             count: 21
         },
         {
             id: 13,
-            label: 'Audits',
+            label: 'ביקורות',
             count: 7
         },
         {
             id: 14,
-            label: 'Statements',
+            label: 'דוחות',
             count: 13
         },
         {
             id: 15,
-            label: 'Schedules',
+            label: 'לוחות זמנים',
             count: 15
         },
         {
             id: 16,
-            label: 'Archived bags',
+            label: 'תיקים בארכיון',
             count: 3
         },
         {
             id: 17,
-            label: 'Pending review',
+            label: 'ממתין לבדיקה',
             count: 10
         },
         {
             id: 18,
-            label: 'Long retention category',
+            label: 'קטגוריית שמירה ארוכה',
             count: 5
         }
     ];
@@ -136,9 +136,9 @@ export class App {
         {length: 100_000},
         (_, index) => {
             const id = index + 1;
-            const region = `Region ${String((index % 24) + 1).padStart(2, '0')}`;
-            const policy = `Policy ${String((index % 997) + 1).padStart(4, '0')}`;
-            const customer = `Customer ${String(id).padStart(6, '0')}`;
+            const region = `אזור ${String((index % 24) + 1).padStart(2, '0')}`;
+            const policy = `פוליסה ${String((index % 997) + 1).padStart(4, '0')}`;
+            const customer = `לקוח ${String(id).padStart(6, '0')}`;
 
             return {
                 value: {

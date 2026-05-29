@@ -18,11 +18,14 @@ import {
     booleanAttribute,
     computed,
     effect,
+    inject,
     input,
     numberAttribute,
     signal,
     viewChild
 } from '@angular/core';
+import {Directionality} from '@angular/cdk/bidi';
+import {MatTooltip} from '@angular/material/tooltip';
 import {isObservable, Subscription} from 'rxjs';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {
@@ -92,7 +95,7 @@ let nextAutocompleteId = 0;
 @Component({
     selector: 'ims-autocomplete',
     standalone: true,
-    imports: [CdkOverlayOrigin, CdkConnectedOverlay, CdkVirtualScrollViewport, CdkVirtualForOf, CdkFixedSizeVirtualScroll],
+    imports: [CdkOverlayOrigin, CdkConnectedOverlay, CdkVirtualScrollViewport, CdkVirtualForOf, CdkFixedSizeVirtualScroll, MatTooltip],
     templateUrl: './ims-autocomplete.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [provideValueAccessor(ImsAutocomplete)],
@@ -107,6 +110,7 @@ export class ImsAutocomplete<T = unknown>
     private measureFrame: ReturnType<typeof requestAnimationFrame> | null = null;
     private optionsSubscription: Subscription | null = null;
     private asyncRequestId = 0;
+    readonly directionality = inject(Directionality);
 
     private readonly origin = viewChild<ElementRef<HTMLElement>>('origin');
     private readonly singleInput = viewChild<ElementRef<HTMLInputElement>>('singleInput');
@@ -125,7 +129,7 @@ export class ImsAutocomplete<T = unknown>
     readonly multiple = input(false, {transform: booleanAttribute});
 
     /** Placeholder displayed in the input or trigger when empty. */
-    readonly placeholder = input('Search');
+    readonly placeholder = input('חיפוש');
 
     /** Requires single-selection text to resolve to an option. Multi-select is always strict. */
     readonly strict = input(false, {transform: booleanAttribute});

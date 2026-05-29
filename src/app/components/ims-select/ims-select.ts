@@ -15,11 +15,14 @@ import {
     contentChildren,
     effect,
     forwardRef,
+    inject,
     input,
     numberAttribute,
     signal,
     viewChild
 } from '@angular/core';
+import {Directionality} from '@angular/cdk/bidi';
+import {MatTooltip} from '@angular/material/tooltip';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {ImsOption} from './ims-option';
 import {
@@ -78,13 +81,14 @@ const LISTBOX_MAX_HEIGHT = 350;
 const VIEWPORT_MARGIN = 12;
 const TOOLBAR_FALLBACK_WIDTH = 40;
 const TOOLBAR_GAP = 8;
+const TYPEAHEAD_RESET_MS = 700;
 
 let nextSelectId = 0;
 
 @Component({
     selector: 'ims-select',
     standalone: true,
-    imports: [CdkOverlayOrigin, CdkConnectedOverlay],
+    imports: [CdkOverlayOrigin, CdkConnectedOverlay, MatTooltip],
     templateUrl: './ims-select.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
@@ -103,6 +107,9 @@ export class ImsSelect<T = unknown>
     implements AfterViewInit, OnDestroy, ImsSelectParent<T> {
     private resizeObserver: ResizeObserver | null = null;
     private measureFrame: ReturnType<typeof requestAnimationFrame> | null = null;
+    private typeaheadQuery = '';
+    private typeaheadResetTimer: ReturnType<typeof setTimeout> | null = null;
+    readonly directionality = inject(Directionality);
 
     private readonly triggerButton = viewChild<ElementRef<HTMLButtonElement>>('triggerButton');
     private readonly filterField = viewChild<ElementRef<HTMLElement>>('filterField');
@@ -120,7 +127,7 @@ export class ImsSelect<T = unknown>
     readonly multiple = input(false, {transform: booleanAttribute});
 
     /** Text displayed in the trigger when no value is selected. */
-    readonly placeholder = input('Select');
+    readonly placeholder = input('בחר');
 
     /** Controls whether the filter input is shown: always, never, or above the auto threshold. */
     readonly filter = input<ImsSelectFilterMode>('off');
@@ -306,6 +313,7 @@ export class ImsSelect<T = unknown>
         if (this.measureFrame !== null) {
             cancelAnimationFrame(this.measureFrame);
         }
+        this.clearTypeaheadTimer();
     }
 
     togglePanel(): void {
@@ -440,6 +448,10 @@ export class ImsSelect<T = unknown>
     onTriggerKeydown(event: KeyboardEvent): void {
         if (this.disabled()) return;
 
+        if (!this.open() && !this.multiple() && this.handleClosedSingleKeydown(event)) {
+            return;
+        }
+
         switch (event.key) {
             case 'ArrowDown':
                 event.preventDefault();
@@ -522,6 +534,102 @@ export class ImsSelect<T = unknown>
         return target instanceof HTMLElement && target.closest('.ims-select__toolbar') !== null;
     }
 
+    private handleClosedSingleKeydown(event: KeyboardEvent): boolean {
+        switch (event.key) {
+            case 'ArrowDown':
+                event.preventDefault();
+                this.selectClosedAdjacentOption(1);
+                return true;
+            case 'ArrowUp':
+                event.preventDefault();
+                this.selectClosedAdjacentOption(-1);
+                return true;
+            case 'Home':
+                event.preventDefault();
+                this.selectClosedBoundaryOption('first');
+                return true;
+            case 'End':
+                event.preventDefault();
+                this.selectClosedBoundaryOption('last');
+                return true;
+            case ' ':
+                if (!this.typeaheadQuery) return false;
+                event.preventDefault();
+                this.selectClosedTypeaheadOption(event.key);
+                return true;
+            default:
+                if (!this.isTypeaheadKey(event)) return false;
+                event.preventDefault();
+                this.selectClosedTypeaheadOption(event.key);
+                return true;
+        }
+    }
+
+    private isTypeaheadKey(event: KeyboardEvent): boolean {
+        return event.key.length === 1 && !event.altKey && !event.ctrlKey && !event.metaKey;
+    }
+
+    private selectClosedAdjacentOption(delta: 1 | -1): void {
+        const options = this.selectableOptions();
+        if (options.length === 0) return;
+
+        const selectedIndex = this.selectedOptionIndex(options);
+        let index = selectedIndex < 0
+            ? delta > 0 ? 0 : options.length - 1
+            : selectedIndex;
+
+        for (let step = 0; step < options.length; step++) {
+            if (selectedIndex >= 0) {
+                index = (index + delta + options.length) % options.length;
+            }
+
+            if (this.emitClosedOptionValue(options[index])) return;
+        }
+    }
+
+    private selectClosedBoundaryOption(boundary: 'first' | 'last'): void {
+        const options = this.selectableOptions();
+        const option = boundary === 'first' ? options[0] : options.at(-1);
+        if (option) {
+            this.emitClosedOptionValue(option);
+        }
+    }
+
+    private selectClosedTypeaheadOption(key: string): void {
+        this.typeaheadQuery += key;
+        this.scheduleTypeaheadReset();
+
+        const options = this.selectableOptions();
+        if (options.length === 0) return;
+
+        const repeatedSingleKey = this.typeaheadQuery.length > 1 &&
+            [...this.typeaheadQuery].every((character) => character === this.typeaheadQuery[0]);
+        const query = repeatedSingleKey
+            ? this.normalizeSearchText(this.typeaheadQuery[0])
+            : this.normalizeSearchText(this.typeaheadQuery);
+        const startIndex = repeatedSingleKey ? this.selectedOptionIndex(options) : -1;
+        const option = this.findTypeaheadOption(options, query, startIndex);
+
+        if (option) {
+            this.emitClosedOptionValue(option);
+        }
+    }
+
+    private scheduleTypeaheadReset(): void {
+        this.clearTypeaheadTimer();
+        this.typeaheadResetTimer = setTimeout(() => {
+            this.typeaheadQuery = '';
+            this.typeaheadResetTimer = null;
+        }, TYPEAHEAD_RESET_MS);
+    }
+
+    private clearTypeaheadTimer(): void {
+        if (this.typeaheadResetTimer === null) return;
+
+        clearTimeout(this.typeaheadResetTimer);
+        this.typeaheadResetTimer = null;
+    }
+
     private normalizedFilterQuery(): string {
         return this.normalizeSearchText(this.filterQuery());
     }
@@ -569,6 +677,51 @@ export class ImsSelect<T = unknown>
     private optionHasValue(option: ImsSelectOptionLike<T>, value: T): boolean {
         const optionValue = this.readOptionValue(option);
         return optionValue.available && this.valuesEqual(optionValue.value, value);
+    }
+
+    private selectableOptions(): readonly ImsSelectOptionLike<T>[] {
+        return this.options().filter((option) => !option.disabled() && this.readOptionValue(option).available);
+    }
+
+    private selectedOptionIndex(options: readonly ImsSelectOptionLike<T>[]): number {
+        return options.findIndex((option) => this.isOptionSelected(option));
+    }
+
+    private findTypeaheadOption(
+        options: readonly ImsSelectOptionLike<T>[],
+        query: string,
+        startIndex: number
+    ): ImsSelectOptionLike<T> | null {
+        return this.findOptionByTypeahead(options, query, startIndex, 'prefix') ??
+            this.findOptionByTypeahead(options, query, startIndex, 'contains');
+    }
+
+    private findOptionByTypeahead(
+        options: readonly ImsSelectOptionLike<T>[],
+        query: string,
+        startIndex: number,
+        strategy: 'prefix' | 'contains'
+    ): ImsSelectOptionLike<T> | null {
+        for (let offset = 1; offset <= options.length; offset++) {
+            const index = (startIndex + offset + options.length) % options.length;
+            const option = options[index];
+            const label = this.normalizeSearchText(option.selectionLabel());
+            const matches = strategy === 'prefix'
+                ? label.startsWith(query)
+                : this.matchesSearchQuery(label, query);
+
+            if (matches) return option;
+        }
+
+        return null;
+    }
+
+    private emitClosedOptionValue(option: ImsSelectOptionLike<T>): boolean {
+        const optionValue = this.readOptionValue(option);
+        if (!optionValue.available) return false;
+
+        this.emitValue(optionValue.value);
+        return true;
     }
 
     private readOptionValue(option: ImsSelectOptionLike<T>):

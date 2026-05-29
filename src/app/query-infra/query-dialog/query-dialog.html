@@ -13,14 +13,14 @@
       </label>
     }
 
-    <button type="submit" [disabled]="loading()">Search</button>
+    <button type="submit" [disabled]="loading()">חפש</button>
   </form>
 
   <p class="status-line">
     @if (loading()) {
-      Searching...
+      מחפש...
     } @else {
-      {{ total() }} result(s)
+      {{ total() }} תוצאות
     }
   </p>
 
@@ -73,11 +73,11 @@
 </div>
 
 <div class="dialog-actions">
-  <button type="button" (click)="goFirst()" [disabled]="!canGoPrev()">First</button>
-  <button type="button" (click)="goBack()" [disabled]="!canGoPrev()">Back</button>
-  <button type="button" (click)="goNext()" [disabled]="!canGoNext()">Next</button>
-  <button type="button" (click)="goLast()" [disabled]="!canGoNext()">Last</button>
-  <button type="button" (click)="clear()" [disabled]="loading()">Clear</button>
-  <button type="button" (click)="cancel()">Cancel</button>
-  <button type="button" (click)="confirmSelection()" [disabled]="!selectedItem()">Select</button>
+  <button type="button" (click)="goFirst()" [disabled]="!canGoPrev()">ראשון</button>
+  <button type="button" (click)="goBack()" [disabled]="!canGoPrev()">הקודם</button>
+  <button type="button" (click)="goNext()" [disabled]="!canGoNext()">הבא</button>
+  <button type="button" (click)="goLast()" [disabled]="!canGoNext()">אחרון</button>
+  <button type="button" (click)="clear()" [disabled]="loading()">נקה</button>
+  <button type="button" (click)="cancel()">ביטול</button>
+  <button type="button" (click)="confirmSelection()" [disabled]="!selectedItem()">בחר</button>
 </div>
