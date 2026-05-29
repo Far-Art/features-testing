@@ -54,6 +54,51 @@
         ></button>
     </section>
 
+    <section class="select-demo">
+        <div>
+            <h2>Select component</h2>
+            <p>Projected options with object values, custom option text, filtering, multi toolbar, and form bindings.</p>
+        </div>
+
+        <div class="select-demo__grid">
+            <label class="select-demo__field">
+                <span>Reactive multi select</span>
+                <ims-select
+                    multiple
+                    filter="auto"
+                    toolbar="auto"
+                    placeholder="Choose bags"
+                    ariaLabel="Reactive multi select"
+                    [formControl]="selectedBagsControl"
+                    [compareWith]="compareBagById"
+                >
+                    @for (bag of bagOptions; track bag.id) {
+                        <ims-option [value]="bag" [selectionText]="bag.label">
+                            +{{ bag.count }} {{ bag.label }}
+                        </ims-option>
+                    }
+                </ims-select>
+            </label>
+
+            <label class="select-demo__field">
+                <span>Template single select</span>
+                <ims-select
+                    filter="auto"
+                    placeholder="Choose a bag"
+                    ariaLabel="Template single select"
+                    [(ngModel)]="selectedBagModel"
+                    [compareWith]="compareBagById"
+                >
+                    @for (bag of bagOptions; track bag.id) {
+                        <ims-option [value]="bag" [selectionText]="bag.label">
+                            +{{ bag.count }} {{ bag.label }}
+                        </ims-option>
+                    }
+                </ims-select>
+            </label>
+        </div>
+    </section>
+
     <section>
         <app-fetch-indicator [request$]="fetchResult$" [resolveState]="resolveFetchState" [size]="50" [strokeWidth]="2"></app-fetch-indicator>
 

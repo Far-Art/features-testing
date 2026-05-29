@@ -4,9 +4,11 @@
 // Learn more about theming and how to use it for your application's
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
+@use '@angular/cdk' as cdk;
 @use './styles/ims-virtual-scroll';
 @use './styles/ims-grid2';
 @use './styles/ims-grid2-adapters';
+@use './styles/ims-select';
 
 @use './styles/gradient-animate';
 @use './styles/action-required';
@@ -93,6 +95,8 @@ html {
       density: 0,
     ));
 }
+
+@include cdk.overlay();
 
 body {
     // Default the application to a light color theme. This can be changed to
