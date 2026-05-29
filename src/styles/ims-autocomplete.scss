@@ -1,0 +1,310 @@
+.ims-autocomplete-host {
+    --ims-ac-p: var(--mat-sys-primary, #2563eb);
+    --ims-ac-s: var(--mat-sys-surface-container-lowest, #fff);
+
+    display: inline-block;
+    width: 100%;
+    min-width: 0;
+    color: var(--mat-sys-on-surface, #1f2937);
+}
+
+.ims-autocomplete,
+.ims-autocomplete__trigger,
+.ims-autocomplete__input {
+    width: 100%;
+    min-width: 0;
+}
+
+.ims-autocomplete__trigger,
+.ims-autocomplete__input {
+    box-sizing: border-box;
+    min-height: 2.5rem;
+    border: 1px solid color-mix(in oklch, currentColor 28%, transparent);
+    border-radius: 0.5rem;
+    background: var(--ims-ac-s);
+    color: inherit;
+    font: inherit;
+    transition: border-color 140ms ease;
+}
+
+.ims-autocomplete__trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.65rem;
+    cursor: pointer;
+}
+
+.ims-autocomplete__input {
+    padding: 0.45rem 0.65rem;
+}
+
+.ims-autocomplete__trigger:hover,
+.ims-autocomplete__trigger:focus-visible,
+.ims-autocomplete__input:focus-visible,
+.ims-autocomplete__filter input:focus-visible {
+    border-color: var(--ims-ac-p);
+}
+
+.ims-autocomplete__trigger:focus-visible,
+.ims-autocomplete__input:focus-visible,
+.ims-autocomplete__filter input:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--ims-ac-p) 22%, transparent);
+}
+
+.ims-autocomplete__trigger:disabled,
+.ims-autocomplete__input:disabled {
+    opacity: 0.58;
+    cursor: not-allowed;
+}
+
+.ims-autocomplete__value-row {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    gap: 0.375rem;
+    min-width: 0;
+}
+
+.ims-autocomplete__value-text,
+.ims-autocomplete__placeholder {
+    min-width: 0;
+    overflow: hidden;
+    color: inherit;
+    white-space: nowrap;
+}
+
+.ims-autocomplete__value-text--truncate,
+.ims-autocomplete__placeholder {
+    text-overflow: ellipsis;
+}
+
+.ims-autocomplete__placeholder,
+.ims-autocomplete__state {
+    color: color-mix(in oklch, currentColor 55%, transparent);
+}
+
+.ims-autocomplete__badge {
+    flex: 0 0 auto;
+    min-width: 1.75rem;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    background: color-mix(in oklch, var(--ims-ac-p) 12%, white);
+    color: color-mix(in oklch, var(--ims-ac-p) 82%, black);
+    font-size: 0.78rem;
+    font-weight: 650;
+    line-height: 1.35;
+    text-align: center;
+}
+
+.ims-autocomplete__chevron {
+    flex: 0 0 auto;
+    width: 0.5rem;
+    height: 0.5rem;
+    border: solid currentColor;
+    border-width: 0 1.5px 1.5px 0;
+    opacity: 0.72;
+    rotate: 45deg;
+    translate: 0 -0.125rem;
+    transition: rotate 140ms ease, translate 140ms ease;
+}
+
+.ims-autocomplete__trigger--open .ims-autocomplete__chevron {
+    rotate: -135deg;
+    translate: 0 0.125rem;
+}
+
+.ims-autocomplete__overlay {
+    --ims-ac-p: var(--mat-sys-primary, #2563eb);
+    --ims-ac-s: var(--mat-sys-surface-container-lowest, #fff);
+
+    position: relative;
+    contain: layout style;
+    filter: drop-shadow(0 18px 42px rgb(15 23 42 / 16%));
+}
+
+.ims-autocomplete__overlay--toolbar-left .ims-autocomplete__toolbar {
+    right: calc(100% + 0.5rem);
+}
+
+.ims-autocomplete__overlay--toolbar-right .ims-autocomplete__toolbar {
+    left: calc(100% + 0.5rem);
+}
+
+.ims-autocomplete__menu,
+.ims-autocomplete__toolbar {
+    box-sizing: border-box;
+    border: 1px solid color-mix(in oklch, currentColor 14%, transparent);
+    border-radius: 0.5rem;
+    background: var(--ims-ac-s);
+    contain: layout style paint;
+}
+
+.ims-autocomplete__menu {
+    overflow: hidden;
+}
+
+.ims-autocomplete__filter {
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    border-bottom: 1px solid color-mix(in oklch, currentColor 10%, transparent);
+}
+
+.ims-autocomplete__filter span {
+    font-size: 0.75rem;
+    color: color-mix(in oklch, currentColor 58%, transparent);
+}
+
+.ims-autocomplete__filter input {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 2rem;
+    padding: 0.3rem 0.45rem;
+    border: 1px solid color-mix(in oklch, currentColor 20%, transparent);
+    border-radius: 0.375rem;
+    background: var(--ims-ac-s);
+    color: inherit;
+    font: inherit;
+}
+
+.ims-autocomplete__panel {
+    contain: layout style paint;
+}
+
+.ims-autocomplete__viewport {
+    width: 100%;
+    overflow-x: hidden;
+    scrollbar-gutter: stable;
+}
+
+.ims-autocomplete__toolbar {
+    position: absolute;
+    top: 0;
+    display: grid;
+    align-content: start;
+    justify-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem;
+}
+
+.ims-autocomplete__bulk {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    cursor: pointer;
+}
+
+.ims-autocomplete__bulk input {
+    width: 1rem;
+    height: 1rem;
+    margin: 0;
+    accent-color: var(--ims-ac-p);
+}
+
+.ims-autocomplete__segments {
+    display: grid;
+    gap: 0.25rem;
+}
+
+.ims-autocomplete__segment {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0.375rem;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.ims-autocomplete__segment svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+.ims-autocomplete__segment:hover,
+.ims-autocomplete__segment:focus-visible,
+.ims-autocomplete__segment--active {
+    background: color-mix(in oklch, var(--ims-ac-p) 12%, transparent);
+}
+
+.ims-autocomplete__segment:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--ims-ac-p) 22%, transparent);
+}
+
+.ims-autocomplete__segment--active {
+    color: color-mix(in oklch, var(--ims-ac-p) 82%, black);
+}
+
+.ims-autocomplete__option {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 0 0.55rem;
+    color: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.ims-autocomplete__option--active {
+    background: color-mix(in oklch, var(--ims-ac-p) 10%, transparent);
+}
+
+.ims-autocomplete__option--selected {
+    color: color-mix(in oklch, var(--ims-ac-p) 86%, black);
+    font-weight: 650;
+}
+
+.ims-autocomplete__option--selected::after {
+    content: "";
+    flex: 0 0 auto;
+    width: 0.45rem;
+    height: 0.75rem;
+    margin-inline-start: auto;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    rotate: 45deg;
+}
+
+.ims-autocomplete__option--disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.ims-autocomplete__option-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ims-autocomplete__option mark {
+    border-radius: 0.1875rem;
+    background: color-mix(in oklch, var(--ims-ac-p) 18%, transparent);
+    color: inherit;
+    font-weight: 750;
+}
+
+.ims-autocomplete__state {
+    padding: 0.8rem 0.75rem;
+    white-space: nowrap;
+}
+
+.ims-autocomplete__measure {
+    position: fixed;
+    inset: auto auto 0 0;
+    visibility: hidden;
+    pointer-events: none;
+    white-space: nowrap;
+    contain: layout style paint;
+}
