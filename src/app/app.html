@@ -1,58 +1,58 @@
 <main class="main">
-    <header class="hero">
-        <h1>{{ title }}</h1>
-        <p>
-            Shared dialog + shared query contracts, with concrete model implementations.
-        </p>
-    </header>
+    <!--    <header class="hero">-->
+    <!--        <h1>{{ title }}</h1>-->
+    <!--        <p>-->
+    <!--            Shared dialog + shared query contracts, with concrete model implementations.-->
+    <!--        </p>-->
+    <!--    </header>-->
 
-    <section class="button-demo">
-        <div>
-            <h2>Action-required button</h2>
-            <p>Use the pulsing wave variant to draw attention to a button that needs review or confirmation.</p>
-        </div>
-    </section>
+    <!--    <section class="button-demo">-->
+    <!--        <div>-->
+    <!--            <h2>Action-required button</h2>-->
+    <!--            <p>Use the pulsing wave variant to draw attention to a button that needs review or confirmation.</p>-->
+    <!--        </div>-->
+    <!--    </section>-->
 
-    <section class="button-demo">
-        <div>
-            <h2>Collapsible container</h2>
-            <p>Regular projected content stays mounted. Template-wrapped content is only created while expanded.</p>
-        </div>
+    <!--    <section class="button-demo">-->
+    <!--        <div>-->
+    <!--            <h2>Collapsible container</h2>-->
+    <!--            <p>Regular projected content stays mounted. Template-wrapped content is only created while expanded.</p>-->
+    <!--        </div>-->
 
-        <ims-collapsible-container title="Always-mounted projected content">
-            <p>This paragraph is projected directly and remains in the DOM when the section is collapsed.</p>
-        </ims-collapsible-container>
+    <!--        <ims-collapsible-container title="Always-mounted projected content">-->
+    <!--            <p>This paragraph is projected directly and remains in the DOM when the section is collapsed.</p>-->
+    <!--        </ims-collapsible-container>-->
 
-        <ims-collapsible-container title="Lazy projected template">
-            <ng-template>
-                <div>
-                    <strong>Template content</strong>
-                    <p>This block is instantiated on expand and destroyed again on collapse.</p>
-                </div>
-            </ng-template>
-        </ims-collapsible-container>
-    </section>
+    <!--        <ims-collapsible-container title="Lazy projected template">-->
+    <!--            <ng-template>-->
+    <!--                <div>-->
+    <!--                    <strong>Template content</strong>-->
+    <!--                    <p>This block is instantiated on expand and destroyed again on collapse.</p>-->
+    <!--                </div>-->
+    <!--            </ng-template>-->
+    <!--        </ims-collapsible-container>-->
+    <!--    </section>-->
 
-    <section class="button-demo">
-        <div>
-            <h2>Expand collapse button</h2>
-            <p>A standalone directive on a native button with icon-only visuals and disabled support.</p>
-        </div>
+    <!--    <section class="button-demo">-->
+    <!--        <div>-->
+    <!--            <h2>Expand collapse button</h2>-->
+    <!--            <p>A standalone directive on a native button with icon-only visuals and disabled support.</p>-->
+    <!--        </div>-->
 
-        <button imsExpandCollapseButton expandAriaLabel="Show filters" collapseAriaLabel="Hide filters"></button>
-        <button
-            imsExpandCollapseButton
-            [expanded]="true"
-            expandAriaLabel="Open details"
-            collapseAriaLabel="Close details"
-        ></button>
-        <button
-            imsExpandCollapseButton
-            [disabled]="true"
-            expandAriaLabel="Expand disabled"
-            collapseAriaLabel="Collapse disabled"
-        ></button>
-    </section>
+    <!--        <button imsExpandCollapseButton expandAriaLabel="Show filters" collapseAriaLabel="Hide filters"></button>-->
+    <!--        <button-->
+    <!--            imsExpandCollapseButton-->
+    <!--            [expanded]="true"-->
+    <!--            expandAriaLabel="Open details"-->
+    <!--            collapseAriaLabel="Close details"-->
+    <!--        ></button>-->
+    <!--        <button-->
+    <!--            imsExpandCollapseButton-->
+    <!--            [disabled]="true"-->
+    <!--            expandAriaLabel="Expand disabled"-->
+    <!--            collapseAriaLabel="Collapse disabled"-->
+    <!--        ></button>-->
+    <!--    </section>-->
 
     <section class="select-demo">
         <div>
@@ -99,155 +99,79 @@
         </div>
     </section>
 
-    <section>
-        <app-fetch-indicator [request$]="fetchResult$" [resolveState]="resolveFetchState" [size]="50" [strokeWidth]="2"></app-fetch-indicator>
+    <section class="select-demo">
+        <div>
+            <h2>Autocomplete component</h2>
+            <p>List-backed options with highlighting, virtual scrolling, async loading, sorting, and strict multi-selection.</p>
+        </div>
 
-        <ims-grid2>
-            <ims-grid2-header>
-                <ims-grid2-cell>header 1</ims-grid2-cell>
-                <ims-grid2-cell>header 2</ims-grid2-cell>
-            </ims-grid2-header>
+        <div class="select-demo__grid">
+            <label class="select-demo__field">
+                <span>Single autocomplete</span>
+                <ims-autocomplete
+                    placeholder="Type or choose"
+                    ariaLabel="Single autocomplete"
+                    sort="asc"
+                    [options]="bagAutocompleteOptions"
+                    [formControl]="autocompleteSingleControl"
+                    [compareWith]="compareBagById"
+                />
+            </label>
 
-            <ims-grid2-row>
-                <ims-grid2-cell>cell 1</ims-grid2-cell>
-                <ims-grid2-cell>cell 2</ims-grid2-cell>
-            </ims-grid2-row>
+            <label class="select-demo__field">
+                <span>Async multi autocomplete</span>
+                <ims-autocomplete
+                    multiple
+                    placeholder="Choose bags"
+                    ariaLabel="Async multi autocomplete"
+                    sort="asc"
+                    toolbar="auto"
+                    [loadOptions]="loadBagAutocompleteOptions"
+                    [formControl]="autocompleteMultiControl"
+                    [compareWith]="compareBagById"
+                />
+            </label>
+        </div>
+    </section>
 
-            <ims-grid2-row>
-                <ims-grid2-cell span="row">
-                    <ims-grid2>
-                        <ims-grid2-header>
-                            <ims-grid2-cell>nested header 1</ims-grid2-cell>
-                            <ims-grid2-cell>nested header 2</ims-grid2-cell>
-                            <ims-grid2-cell>nested header 3</ims-grid2-cell>
-                            <ims-grid2-cell>nested header 4</ims-grid2-cell>
-                        </ims-grid2-header>
-                        <ims-grid2-row>
-                            <ims-grid2-cell>nested cell 1</ims-grid2-cell>
-                            <ims-grid2-cell>nested cell 2</ims-grid2-cell>
-                            <ims-grid2-cell>nested cell 3</ims-grid2-cell>
-                            <ims-grid2-cell>nested cell 4</ims-grid2-cell>
-                        </ims-grid2-row>
-                    </ims-grid2>
-                </ims-grid2-cell>
-            </ims-grid2-row>
-        </ims-grid2>
+    <section class="select-demo">
+        <div>
+            <h2>Large autocomplete list</h2>
+            <p>Static list with {{ largeAutocompleteOptions.length }} generated options for virtual-scroll and filtering checks.</p>
+        </div>
 
-        <ims-grid2
-            [imsGrid2Sort]="grid2Rows"
-            #grid2Sort="imsGrid2Sort"
-        >
-            <ims-grid2-header>
-                <ims-grid2-cell>
-                    <ims-grid2-sort-header field="firstName">first name</ims-grid2-sort-header>
-                </ims-grid2-cell>
-                <ims-grid2-cell>
-                    <ims-grid2-sort-header field="lastName">last name</ims-grid2-sort-header>
-                </ims-grid2-cell>
-                <ims-grid2-cell>
-                    <ims-grid2-sort-header field="identity">identity</ims-grid2-sort-header>
-                </ims-grid2-cell>
-                <ims-grid2-cell>
-                    <ims-grid2-sort-header field="policyNumber">policy number</ims-grid2-sort-header>
-                </ims-grid2-cell>
-                <ims-grid2-cell>
-                    <ims-grid2-sort-header field="product">product</ims-grid2-sort-header>
-                </ims-grid2-cell>
-                <ims-grid2-cell>
-                    <ims-grid2-sort-header field="premium">premium</ims-grid2-sort-header>
-                </ims-grid2-cell>
-                <ims-grid2-cell>
-                    <ims-grid2-sort-header field="status">status</ims-grid2-sort-header>
-                </ims-grid2-cell>
-                <ims-grid2-cell maxWidth="70px">actions</ims-grid2-cell>
-            </ims-grid2-header>
+        <div class="select-demo__grid">
+            <label class="select-demo__field">
+                <span>100,000 option autocomplete</span>
+                <ims-autocomplete
+                    placeholder="Search customer, policy, or region"
+                    ariaLabel="Large autocomplete list"
+                    [options]="largeAutocompleteOptions"
+                    [formControl]="largeAutocompleteControl"
+                    [compareWith]="compareBagById"
+                />
+            </label>
+        </div>
+    </section>
 
-            <cdk-accordion>
-                <cdk-virtual-scroll-viewport itemSize="50" imsVirtualScrollAutoHeight>
-                    <ims-grid2-row *cdkVirtualFor="let row of grid2Sort.sortedData(); trackBy: trackByFunction">
-                        <mat-expansion-panel>
-                            <mat-expansion-panel-header>
-                                <ims-grid2-cell>{{ row.firstName }}</ims-grid2-cell>
-                                <ims-grid2-cell>{{ row.lastName }}</ims-grid2-cell>
-                                <ims-grid2-cell>{{ row.identity }}</ims-grid2-cell>
-                                <ims-grid2-cell>{{ row.policyNumber }}</ims-grid2-cell>
-                                <ims-grid2-cell>{{ row.product }}</ims-grid2-cell>
-                                <ims-grid2-cell>{{ row.premium }}</ims-grid2-cell>
-                                <ims-grid2-cell>{{ row.status }}</ims-grid2-cell>
-                                <ims-grid2-cell>
-                                    <button>fix</button>
-                                </ims-grid2-cell>
-                            </mat-expansion-panel-header>
+    <section class="select-demo">
+        <div>
+            <h2>Server-backed autocomplete</h2>
+            <p>Simulated remote option loading with a 2 second response delay and a capped result set.</p>
+        </div>
 
-                            @for (detail of row.details ?? []; track $index) {
-                                <ims-grid2-row>
-                                    <ims-grid2-cell></ims-grid2-cell>
-                                    <ims-grid2-cell></ims-grid2-cell>
-                                    <ims-grid2-cell>{{ detail.identity }}</ims-grid2-cell>
-                                    <ims-grid2-cell>{{ detail.policyNumber }}</ims-grid2-cell>
-                                    <ims-grid2-cell>{{ detail.product }}</ims-grid2-cell>
-                                    <ims-grid2-cell></ims-grid2-cell>
-                                    <ims-grid2-cell></ims-grid2-cell>
-                                    <ims-grid2-cell>
-                                        <button>fix</button>
-                                    </ims-grid2-cell>
-                                </ims-grid2-row>
-                            }
-                        </mat-expansion-panel>
-                    </ims-grid2-row>
-                </cdk-virtual-scroll-viewport>
-
-                @for (row of grid2Sort.sortedData(); track row.id) {
-                    <ims-grid2-row>
-                        <mat-expansion-panel>
-                            <mat-expansion-panel-header>
-                                <ims-grid2-cell>{{ row.firstName }}</ims-grid2-cell>
-                                <ims-grid2-cell>{{ row.lastName }}</ims-grid2-cell>
-                                <ims-grid2-cell>{{ row.identity }}</ims-grid2-cell>
-                                <ims-grid2-cell>{{ row.policyNumber }}</ims-grid2-cell>
-                                <ims-grid2-cell>{{ row.product }}</ims-grid2-cell>
-                                <ims-grid2-cell>{{ row.premium }}</ims-grid2-cell>
-                                <ims-grid2-cell>{{ row.status }}</ims-grid2-cell>
-                                <ims-grid2-cell>
-                                    <button>fix</button>
-                                </ims-grid2-cell>
-                            </mat-expansion-panel-header>
-
-                            <div>
-                            <cdk-virtual-scroll-viewport itemSize="50" imsVirtualScrollAutoHeight>
-                                <ims-grid2-row *cdkVirtualFor="let detail of row.details ?? [];">
-                                    <ims-grid2-cell></ims-grid2-cell>
-                                    <ims-grid2-cell></ims-grid2-cell>
-                                    <ims-grid2-cell>{{ detail.identity }}</ims-grid2-cell>
-                                    <ims-grid2-cell>{{ detail.policyNumber }}</ims-grid2-cell>
-                                    <ims-grid2-cell>{{ detail.product }}</ims-grid2-cell>
-                                    <ims-grid2-cell></ims-grid2-cell>
-                                    <ims-grid2-cell></ims-grid2-cell>
-                                    <ims-grid2-cell>
-                                        <button>fix</button>
-                                    </ims-grid2-cell>
-                                </ims-grid2-row>
-                            </cdk-virtual-scroll-viewport>
-
-                            </div>
-<!--                            @for (detail of row.details ?? []; track $index) {-->
-<!--                                <ims-grid2-row>-->
-<!--                                    <ims-grid2-cell></ims-grid2-cell>-->
-<!--                                    <ims-grid2-cell></ims-grid2-cell>-->
-<!--                                    <ims-grid2-cell>{{ detail.identity }}</ims-grid2-cell>-->
-<!--                                    <ims-grid2-cell>{{ detail.policyNumber }}</ims-grid2-cell>-->
-<!--                                    <ims-grid2-cell>{{ detail.product }}</ims-grid2-cell>-->
-<!--                                    <ims-grid2-cell></ims-grid2-cell>-->
-<!--                                    <ims-grid2-cell></ims-grid2-cell>-->
-<!--                                    <ims-grid2-cell>-->
-<!--                                        <button>fix</button>-->
-<!--                                    </ims-grid2-cell>-->
-<!--                                </ims-grid2-row>-->
-<!--                            }-->
-                        </mat-expansion-panel>
-                    </ims-grid2-row>
-                }
-            </cdk-accordion>
-        </ims-grid2>
+        <div class="select-demo__grid">
+            <label class="select-demo__field">
+                <span>2 second server fetch</span>
+                <ims-autocomplete
+                    placeholder="Search remote customers"
+                    ariaLabel="Server-backed autocomplete"
+                    [loadDebounceMs]="350"
+                    [loadOptions]="loadServerAutocompleteOptions"
+                    [formControl]="serverAutocompleteControl"
+                    [compareWith]="compareBagById"
+                />
+            </label>
+        </div>
     </section>
 </main>
