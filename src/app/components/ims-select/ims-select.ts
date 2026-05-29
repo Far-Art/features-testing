@@ -219,7 +219,7 @@ export class ImsSelect<T = unknown>
         }
 
         return options.filter((option) =>
-            option.selectionLabel().toLocaleLowerCase().includes(query)
+            this.matchesSearchQuery(option.selectionLabel(), query)
         );
     });
 
@@ -523,7 +523,16 @@ export class ImsSelect<T = unknown>
     }
 
     private normalizedFilterQuery(): string {
-        return this.filterQuery().trim().toLocaleLowerCase();
+        return this.normalizeSearchText(this.filterQuery());
+    }
+
+    private matchesSearchQuery(text: string, query: string): boolean {
+        const normalizedText = this.normalizeSearchText(text);
+        return query.split(' ').every((term) => normalizedText.includes(term));
+    }
+
+    private normalizeSearchText(text: string): string {
+        return text.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
     }
 
     private resolveViewMode(mode: ImsSelectViewMode): ImsSelectViewMode {
