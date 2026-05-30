@@ -4,13 +4,16 @@
 // Learn more about theming and how to use it for your application's
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
+@use '@angular/cdk' as cdk;
 @use './styles/ims-virtual-scroll';
 @use './styles/ims-grid2';
 @use './styles/ims-grid2-adapters';
+@use './styles/ims-select';
+@use './styles/ims-autocomplete';
 
-@import './styles/gradient-animate.scss';
-@import './styles/action-required.scss';
-@import './styles/ims-expand-collapse-button.scss';
+@use './styles/gradient-animate';
+@use './styles/action-required';
+@use './styles/ims-expand-collapse-button';
 
 :root {
     //--ims-color-primary-50: #f0f5ff;
@@ -92,6 +95,67 @@ html {
       typography: Roboto,
       density: 0,
     ));
+}
+
+@include cdk.overlay();
+
+::view-transition-group(ims-select-options-view),
+::view-transition-group(ims-autocomplete-options-view) {
+    animation-duration: 280ms;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+}
+
+::view-transition-old(ims-select-options-view),
+::view-transition-new(ims-select-options-view),
+::view-transition-old(ims-autocomplete-options-view),
+::view-transition-new(ims-autocomplete-options-view) {
+    mix-blend-mode: normal;
+    overflow: clip;
+    transform-origin: right center;
+}
+
+::view-transition-old(ims-select-options-view),
+::view-transition-old(ims-autocomplete-options-view) {
+    animation: ims-options-view-erase 210ms cubic-bezier(0.55, 0, 0.35, 1) both;
+}
+
+::view-transition-new(ims-select-options-view),
+::view-transition-new(ims-autocomplete-options-view) {
+    animation: ims-options-view-reveal 260ms 80ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes ims-options-view-reveal {
+    from {
+        opacity: 0;
+        clip-path: inset(0 0 0 100%);
+        transform: translateX(0.625rem);
+    }
+
+    to {
+        opacity: 1;
+        clip-path: inset(0 0 0 0);
+        transform: translateX(0);
+    }
+}
+
+@keyframes ims-options-view-erase {
+    from {
+        opacity: 1;
+        clip-path: inset(0 0 0 0);
+        transform: translateX(0);
+    }
+
+    to {
+        opacity: 0.16;
+        clip-path: inset(0 100% 0 0);
+        transform: translateX(-0.375rem);
+    }
 }
 
 body {

@@ -1,0 +1,222 @@
+<div
+    #origin
+    cdkOverlayOrigin
+    #overlayOrigin="cdkOverlayOrigin"
+    class="ims-autocomplete">
+
+    @if (multiple()) {
+        <button
+            type="button"
+            class="ims-autocomplete__trigger"
+            [class.ims-autocomplete__trigger--open]="open()"
+            [class.ims-autocomplete__trigger--empty]="!hasSelection()"
+            [disabled]="disabled()"
+            [attr.id]="id()"
+            [attr.aria-label]="ariaLabel()"
+            [attr.aria-labelledby]="ariaLabelledby()"
+            aria-haspopup="listbox"
+            [attr.aria-expanded]="open()"
+            [attr.aria-controls]="open() ? listboxId : null"
+            (click)="togglePanel()"
+            (keydown)="onKeydown($event)"
+        >
+            <span
+                #valueRow
+                class="ims-autocomplete__value-row"
+                [attr.title]="selectedLabels().join(', ')"
+            >
+                @if (hasSelection()) {
+                    <span
+                        class="ims-autocomplete__value-text"
+                        [class.ims-autocomplete__value-text--truncate]="multiDisplay().firstTruncated"
+                    >
+                        {{ multiDisplay().text }}
+                    </span>
+
+                    @if (multiDisplay().overflowCount > 0) {
+                        <span class="ims-autocomplete__badge">+{{ multiDisplay().overflowCount }}</span>
+                    }
+                } @else {
+                    <span class="ims-autocomplete__placeholder">{{ placeholder() }}</span>
+                }
+            </span>
+
+            <span class="ims-autocomplete__chevron" aria-hidden="true"></span>
+        </button>
+    } @else {
+        <input
+            #singleInput
+            type="text"
+            class="ims-autocomplete__input"
+            autocomplete="off"
+            [disabled]="disabled()"
+            [attr.id]="id()"
+            [attr.placeholder]="placeholder()"
+            [attr.aria-label]="ariaLabel()"
+            [attr.aria-labelledby]="ariaLabelledby()"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-haspopup="listbox"
+            [attr.aria-expanded]="open()"
+            [attr.aria-controls]="open() ? listboxId : null"
+            [attr.aria-activedescendant]="activeOptionId()"
+            [value]="query()"
+            (focus)="openPanel()"
+            (input)="onSingleInput($event)"
+            (keydown)="onKeydown($event)"
+            (blur)="onSingleBlur()"
+        />
+    }
+</div>
+
+<ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="overlayOrigin"
+    [cdkConnectedOverlayOpen]="open()"
+    [cdkConnectedOverlayPositions]="overlayPositions"
+    [cdkConnectedOverlayMinWidth]="panelWidth()"
+    [cdkConnectedOverlayViewportMargin]="8"
+    [cdkConnectedOverlayPush]="true"
+    [cdkConnectedOverlayFlexibleDimensions]="true"
+    (attach)="onOverlayAttached()"
+    (positionChange)="onOverlayPositionChange($event)"
+    (overlayOutsideClick)="onOutsideClick($event)"
+>
+    <div
+        class="ims-autocomplete__overlay"
+        tabindex="-1"
+        [attr.dir]="directionality.value"
+        [class.ims-autocomplete__overlay--toolbar-left]="toolbarSide() === 'left'"
+        [class.ims-autocomplete__overlay--toolbar-right]="toolbarSide() === 'right'"
+        (keydown)="onKeydown($event)"
+    >
+        @if (showToolbar()) {
+            <aside #toolbarPanel class="ims-autocomplete__toolbar" aria-label="סרגל בחירה">
+                <label
+                    class="ims-autocomplete__bulk"
+                >
+                    <input
+                        type="checkbox"
+                        aria-label="בחר את כל האפשרויות המוצגות"
+                        [checked]="bulkChecked()"
+                        [indeterminate]="bulkMixed()"
+                        [disabled]="disabled() || selectableVisibleOptions().length === 0"
+                        (change)="onBulkCheckboxChange($event)"
+                    />
+                </label>
+
+                <div class="ims-autocomplete__segments" role="group" aria-label="אפשרויות מוצגות">
+                    <button
+                        type="button"
+                        class="ims-autocomplete__segment"
+                        aria-label="הצג את כל האפשרויות"
+                        [disabled]="isViewModeDisabled('all')"
+                        [class.ims-autocomplete__segment--active]="viewMode() === 'all'"
+                        [attr.aria-pressed]="viewMode() === 'all'"
+                        (click)="setViewMode('all')"
+                    >
+                        <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                            <path d="M4 6h12M4 10h12M4 14h12" />
+                        </svg>
+                    </button>
+                    <button
+                        type="button"
+                        class="ims-autocomplete__segment"
+                        aria-label="הצג אפשרויות שנבחרו"
+                        [disabled]="isViewModeDisabled('selected')"
+                        [class.ims-autocomplete__segment--active]="viewMode() === 'selected'"
+                        [attr.aria-pressed]="viewMode() === 'selected'"
+                        (click)="setViewMode('selected')"
+                    >
+                        <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                            <path d="M4 10.5 8 14l8-8" />
+                        </svg>
+                    </button>
+                    <button
+                        type="button"
+                        class="ims-autocomplete__segment"
+                        aria-label="הצג אפשרויות שלא נבחרו"
+                        [disabled]="isViewModeDisabled('unselected')"
+                        [class.ims-autocomplete__segment--active]="viewMode() === 'unselected'"
+                        [attr.aria-pressed]="viewMode() === 'unselected'"
+                        (click)="setViewMode('unselected')"
+                    >
+                        <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                            <path d="M6 6h8v8H6z" />
+                        </svg>
+                    </button>
+                </div>
+            </aside>
+        }
+
+        <div #menu class="ims-autocomplete__menu" [style.width.px]="panelWidth()">
+            @if (multiple()) {
+                <label class="ims-autocomplete__filter">
+                    <span>חיפוש</span>
+                    <input
+                        #filterInput
+                        type="text"
+                        autocomplete="off"
+                        [attr.aria-controls]="listboxId"
+                        [attr.aria-activedescendant]="activeOptionId()"
+                        [value]="query()"
+                        (input)="onMultiFilterInput($event)"
+                    />
+                </label>
+            }
+
+            <div class="ims-autocomplete__panel">
+                @if (loading()) {
+                    <div class="ims-autocomplete__state" role="status">טוען...</div>
+                }
+
+                @if (visibleOptions().length > 0) {
+                    <cdk-virtual-scroll-viewport
+                        #viewport
+                        class="ims-autocomplete__viewport"
+                        role="listbox"
+                        [attr.id]="listboxId"
+                        [attr.aria-multiselectable]="multiple() ? 'true' : null"
+                        [attr.aria-activedescendant]="activeOptionId()"
+                        [itemSize]="optionHeight()"
+                        [style.height.px]="listboxHeight()"
+                        [style.max-height.px]="listboxMaxHeight()"
+                    >
+                        <div
+                            *cdkVirtualFor="let option of visibleOptions(); let index = index; trackBy: trackByOption"
+                            class="ims-autocomplete__option"
+                            role="option"
+                            tabindex="-1"
+                            [attr.id]="optionId(index)"
+                            [attr.aria-selected]="isSelected(option)"
+                            [attr.aria-disabled]="option.disabled ? 'true' : null"
+                            [class.ims-autocomplete__option--active]="activeIndex() === index"
+                            [class.ims-autocomplete__option--selected]="isSelected(option)"
+                            [class.ims-autocomplete__option--disabled]="option.disabled"
+                            [style.height.px]="optionHeight()"
+                            (click)="selectOption(option)"
+                            (mouseenter)="activateOption(option)"
+                        >
+                            <span class="ims-autocomplete__option-label">
+                                @for (part of highlightParts(option.label); track $index) {
+                                    @if (part.match) {
+                                        <mark>{{ part.text }}</mark>
+                                    } @else {
+                                        <span>{{ part.text }}</span>
+                                    }
+                                }
+                            </span>
+                        </div>
+                    </cdk-virtual-scroll-viewport>
+                } @else if (!loading()) {
+                    <div class="ims-autocomplete__state" role="note">אין אפשרויות</div>
+                }
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<span class="ims-autocomplete__measure" aria-hidden="true">
+    <span #measureText></span>
+    <span #measureBadge class="ims-autocomplete__badge"></span>
+</span>

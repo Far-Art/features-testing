@@ -13,13 +13,13 @@ import {NgIf} from '@angular/common';
                 aria-haspopup="menu"
                 (click)="toggle()"
             >
-                Choose option
+                בחר אפשרות
             </button>
 
             <div class="panel" *ngIf="open()" role="menu">
-                <button class="item" role="menuitem" type="button">First option</button>
-                <button class="item" role="menuitem" type="button">Second option</button>
-                <button class="item" role="menuitem" type="button">Third option</button>
+                <button class="item" role="menuitem" type="button">אפשרות ראשונה</button>
+                <button class="item" role="menuitem" type="button">אפשרות שנייה</button>
+                <button class="item" role="menuitem" type="button">אפשרות שלישית</button>
             </div>
         </div>
     `,

@@ -1,87 +1,200 @@
 import {Component} from '@angular/core';
-import {GlassButton} from './glass-button/glass-button';
-import {InsuredQuery} from './components/query/insured-query/insured-query';
-import {ImsCollapsibleContainer} from './components/ims-collapsible-container/ims-collapsible-container';
-import {ImsExpandCollapseButtonDirective} from './components/ims-expand-collapse-button/ims-expand-collapse-button.directive';
-import {ImsGrid, ImsGridCell, ImsGridRow} from './components/ims-grid';
-import {
-    ImsGrid2,
-    ImsGrid2Cell,
-    ImsGrid2ClipDirective,
-    ImsGrid2Row,
-    ImsGrid2SortDirective,
-    ImsGrid2SortHeader
-} from './components/ims-grid2';
-import {MatExpansionPanel, MatExpansionPanelHeader} from '@angular/material/expansion';
-import {FetchIndicator} from './components/fetch-indicator/fetch-indicator.component';
-import {map, timer} from 'rxjs';
-import {CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
-import {ImsVirtualScrollAutoHeightDirective} from './shared/ims-virtual-scroll-auto-height.directive';
+import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {delay, of} from 'rxjs';
+import {ImsOption, ImsSelect} from './components/ims-select';
+import {ImsAutocomplete, ImsAutocompleteOption} from './components/ims-autocomplete';
 
-interface Grid2DemoRow {
+
+interface SelectDemoBag {
     readonly id: number;
-    readonly firstName: string;
-    readonly lastName: string;
-    readonly identity: string;
-    readonly policyNumber: string;
-    readonly product: string;
-    readonly premium: boolean;
-    readonly status: string;
-    readonly details?: readonly {
-        readonly identity: string;
-        readonly policyNumber: string;
-        readonly product: string;
-    }[];
+    readonly label: string;
+    readonly count: number;
+    readonly disabled?: boolean;
+}
+
+interface LargeAutocompleteRow {
+    readonly id: number;
+    readonly customer: string;
+    readonly policy: string;
+    readonly region: string;
 }
 
 @Component({
     selector: 'app-root',
-    imports: [GlassButton, ImsCollapsibleContainer, ImsExpandCollapseButtonDirective, InsuredQuery, ImsGridCell, ImsGrid, ImsGridRow, ImsGrid2Cell, ImsGrid2, ImsGrid2Row, ImsGrid2ClipDirective, ImsGrid2SortDirective, ImsGrid2SortHeader, ImsVirtualScrollAutoHeightDirective, MatExpansionPanel, MatExpansionPanelHeader, FetchIndicator, CdkVirtualScrollViewport, CdkVirtualForOf, CdkFixedSizeVirtualScroll],
+    imports: [FormsModule, ReactiveFormsModule, ImsSelect, ImsOption, ImsAutocomplete],
     templateUrl: './app.html',
     styleUrl: './app.scss'
 })
 export class App {
-    readonly trackByFunction = (index: number, row: Grid2DemoRow) => row.id;
-    readonly title = 'Generic Query Infrastructure Demo';
-    readonly fetchResult$ = timer(2000).pipe(map(() => ({ ok: false })));
-    readonly resolveFetchState = (result: unknown) => (result as { ok: boolean }).ok ? 'success' as const : 'error' as const;
-    readonly grid2Rows: readonly Grid2DemoRow[] = [
+    readonly title = 'הדגמת תשתית שאילתות גנרית';
+    readonly bagOptions: readonly SelectDemoBag[] = [
         {
             id: 1,
-            firstName: 'artur',
-            lastName: 'cohen',
-            identity: '123456',
-            policyNumber: '1234',
-            product: 'policy',
-            premium: true,
-            status: 'active',
-            details: [
-                {
-                    identity: '123456',
-                    policyNumber: '1234',
-                    product: 'policy'
-                },
-                {
-                    identity: '123456',
-                    policyNumber: '1234',
-                    product: 'policy'
-                },
-                {
-                    identity: '123456',
-                    policyNumber: '1234',
-                    product: 'policy'
-                }
-            ]
+            label: 'מסמכים',
+            count: 35
         },
         {
             id: 2,
-            firstName: 'mira',
-            lastName: 'levi',
-            identity: '789012',
-            policyNumber: '9876',
-            product: 'claim',
-            premium: false,
-            status: 'pending'
+            label: 'קבלות',
+            count: 12
+        },
+        {
+            id: 3,
+            label: 'פוליסות',
+            count: 8
+        },
+        {
+            id: 4,
+            label: 'תביעות',
+            count: 19
+        },
+        {
+            id: 5,
+            label: 'חשבוניות',
+            count: 22
+        },
+        {
+            id: 6,
+            label: 'תמונות',
+            count: 4
+        },
+        {
+            id: 7,
+            label: 'תיקים רפואיים',
+            count: 16
+        },
+        {
+            id: 8,
+            label: 'דוחות רכב',
+            count: 9
+        },
+        {
+            id: 9,
+            label: 'הודעות משפטיות',
+            count: 11
+        },
+        {
+            id: 10,
+            label: 'טפסי נסיעה',
+            count: 6
+        },
+        {
+            id: 11,
+            label: 'אישורים',
+            count: 18
+        },
+        {
+            id: 12,
+            label: 'חידושים',
+            count: 21
+        },
+        {
+            id: 13,
+            label: 'ביקורות',
+            count: 7
+        },
+        {
+            id: 14,
+            label: 'דוחות',
+            count: 13
+        },
+        {
+            id: 15,
+            label: 'לוחות זמנים',
+            count: 15
+        },
+        {
+            id: 16,
+            label: 'תיקים בארכיון',
+            count: 3
+        },
+        {
+            id: 17,
+            label: 'ממתין לבדיקה',
+            count: 10
+        },
+        {
+            id: 18,
+            label: 'קטגוריית שמירה ארוכה',
+            count: 5
         }
     ];
+    readonly selectedBagsControl = new FormControl<readonly SelectDemoBag[]>(
+        [this.bagOptions[0], this.bagOptions[1], this.bagOptions[2], this.bagOptions[3], this.bagOptions[4]],
+        {nonNullable: true}
+    );
+    readonly bagAutocompleteOptions: readonly ImsAutocompleteOption<SelectDemoBag>[] = this.bagOptions.map((bag) => ({
+        value: bag,
+        label: bag.label,
+        disabled: bag.disabled
+    }));
+    readonly autocompleteSingleControl = new FormControl<SelectDemoBag | string | null>(null);
+    readonly autocompleteMultiControl = new FormControl<readonly SelectDemoBag[]>([], {
+        nonNullable: true
+    });
+    readonly largeAutocompleteOptions: readonly ImsAutocompleteOption<LargeAutocompleteRow>[] = Array.from(
+        {length: 100_000},
+        (_, index) => {
+            const id = index + 1;
+            const region = `אזור ${String((index % 24) + 1).padStart(2, '0')}`;
+            const policy = `פוליסה ${String((index % 997) + 1).padStart(4, '0')}`;
+            const customer = `לקוח ${String(id).padStart(6, '0')}`;
+
+            return {
+                value: {
+                    id,
+                    customer,
+                    policy,
+                    region
+                },
+                label: `${customer} - ${policy} - ${region}`
+            };
+        }
+    );
+    readonly largeAutocompleteControl = new FormControl<LargeAutocompleteRow | string | null>(null);
+    readonly serverAutocompleteControl = new FormControl<LargeAutocompleteRow | string | null>(null);
+    selectedBagModel: SelectDemoBag | null = this.bagOptions[0];
+
+    readonly loadBagAutocompleteOptions = (query: string) => {
+        const normalizedQuery = this.normalizeSearchText(query);
+        const options = normalizedQuery
+            ? this.bagAutocompleteOptions.filter((option) =>
+                this.matchesSearchQuery(option.label, normalizedQuery)
+            )
+            : this.bagAutocompleteOptions;
+
+        return of(options).pipe(delay(160));
+    };
+
+    readonly loadServerAutocompleteOptions = (query: string) => {
+        const normalizedQuery = this.normalizeSearchText(query);
+        const options = normalizedQuery
+            ? this.largeAutocompleteOptions.filter((option) =>
+                this.matchesSearchQuery(option.label, normalizedQuery)
+            )
+            : this.largeAutocompleteOptions;
+
+        return of(options.slice(0, 100)).pipe(delay(2000));
+    };
+
+    readonly compareBagById = (first: unknown, second: unknown) => {
+        if (this.isSelectDemoBag(first) && this.isSelectDemoBag(second)) {
+            return first.id === second.id;
+        }
+
+        return first === second;
+    };
+
+    private isSelectDemoBag(value: unknown): value is SelectDemoBag {
+        return typeof value === 'object' && value !== null && 'id' in value;
+    }
+
+    private matchesSearchQuery(text: string, query: string): boolean {
+        const normalizedText = this.normalizeSearchText(text);
+        return query.split(' ').every((term) => normalizedText.includes(term));
+    }
+
+    private normalizeSearchText(text: string): string {
+        return text.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
+    }
 }

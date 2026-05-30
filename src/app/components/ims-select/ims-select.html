@@ -1,0 +1,171 @@
+<button
+    #triggerButton
+    cdkOverlayOrigin
+    #overlayOrigin="cdkOverlayOrigin"
+    type="button"
+    class="ims-select__trigger"
+    [class.ims-select__trigger--open]="open()"
+    [class.ims-select__trigger--empty]="!hasSelection()"
+    [disabled]="disabled()"
+    [attr.id]="id()"
+    [attr.aria-label]="ariaLabel()"
+    [attr.aria-labelledby]="ariaLabelledby()"
+    [attr.aria-haspopup]="'listbox'"
+    [attr.aria-expanded]="open()"
+    [attr.aria-controls]="open() ? listboxId : null"
+    (click)="togglePanel()"
+    (keydown)="onTriggerKeydown($event)"
+    (blur)="onTriggerBlur()"
+>
+    <span
+        #valueRow
+        class="ims-select__value-row"
+        [attr.title]="multiple() ? selectedLabels().join(', ') : singleDisplayText()"
+    >
+        @if (hasSelection()) {
+            @if (multiple()) {
+                <span
+                    class="ims-select__value-text"
+                    [class.ims-select__value-text--truncate]="multiDisplay().firstTruncated"
+                >
+                    {{ multiDisplay().text }}
+                </span>
+
+                @if (multiDisplay().overflowCount > 0) {
+                    <span class="ims-select__badge">+{{ multiDisplay().overflowCount }}</span>
+                }
+            } @else {
+                <span class="ims-select__value-text ims-select__value-text--truncate">
+                    {{ singleDisplayText() }}
+                </span>
+            }
+        } @else {
+            <span class="ims-select__placeholder">{{ placeholder() }}</span>
+        }
+    </span>
+
+    <span class="ims-select__chevron" aria-hidden="true"></span>
+</button>
+
+<ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="overlayOrigin"
+    [cdkConnectedOverlayOpen]="open()"
+    [cdkConnectedOverlayPositions]="overlayPositions"
+    [cdkConnectedOverlayMinWidth]="panelMinWidth()"
+    [cdkConnectedOverlayViewportMargin]="8"
+    [cdkConnectedOverlayPush]="true"
+    [cdkConnectedOverlayFlexibleDimensions]="true"
+    (attach)="onOverlayAttached()"
+    (positionChange)="onOverlayPositionChange($event)"
+    (overlayOutsideClick)="onOutsideClick($event)"
+>
+    <div
+        class="ims-select__overlay"
+        tabindex="-1"
+        [attr.dir]="directionality.value"
+        [class.ims-select__overlay--toolbar-left]="toolbarSide() === 'left'"
+        [class.ims-select__overlay--toolbar-right]="toolbarSide() === 'right'"
+        (keydown)="onPanelKeydown($event)"
+    >
+        @if (showToolbar()) {
+            <aside #toolbarPanel class="ims-select__toolbar" aria-label="סרגל בחירה">
+                <label
+                    class="ims-select__bulk"
+                >
+                    <input
+                        type="checkbox"
+                        aria-label="בחר את כל האפשרויות המוצגות"
+                        [checked]="bulkChecked()"
+                        [indeterminate]="bulkMixed()"
+                        [disabled]="disabled() || selectableVisibleOptions().length === 0"
+                        (change)="onBulkCheckboxChange($event)"
+                    />
+                </label>
+
+                <div class="ims-select__segments" role="group" aria-label="אפשרויות מוצגות">
+                    <button
+                        type="button"
+                        class="ims-select__segment"
+                        aria-label="הצג את כל האפשרויות"
+                        [disabled]="isViewModeDisabled('all')"
+                        [class.ims-select__segment--active]="viewMode() === 'all'"
+                        [attr.aria-pressed]="viewMode() === 'all'"
+                        (click)="setViewMode('all')"
+                    >
+                        <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                            <path d="M4 6h12M4 10h12M4 14h12" />
+                        </svg>
+                    </button>
+                    <button
+                        type="button"
+                        class="ims-select__segment"
+                        aria-label="הצג אפשרויות שנבחרו"
+                        [disabled]="isViewModeDisabled('selected')"
+                        [class.ims-select__segment--active]="viewMode() === 'selected'"
+                        [attr.aria-pressed]="viewMode() === 'selected'"
+                        (click)="setViewMode('selected')"
+                    >
+                        <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                            <path d="M4 10.5 8 14l8-8" />
+                        </svg>
+                    </button>
+                    <button
+                        type="button"
+                        class="ims-select__segment"
+                        aria-label="הצג אפשרויות שלא נבחרו"
+                        [disabled]="isViewModeDisabled('unselected')"
+                        [class.ims-select__segment--active]="viewMode() === 'unselected'"
+                        [attr.aria-pressed]="viewMode() === 'unselected'"
+                        (click)="setViewMode('unselected')"
+                    >
+                        <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                            <path d="M6 6h8v8H6z" />
+                        </svg>
+                    </button>
+                </div>
+            </aside>
+        }
+
+        <div #menu class="ims-select__menu" [style.width.px]="panelMinWidth()">
+            @if (showFilter()) {
+                <label #filterField class="ims-select__filter">
+                    <span class="ims-select__filter-label">סינון</span>
+                    <input
+                        #filterInput
+                        type="text"
+                        autocomplete="off"
+                        [attr.id]="filterInputId"
+                        [attr.aria-controls]="listboxId"
+                        [attr.aria-activedescendant]="activeOptionId()"
+                        [value]="filterQuery()"
+                        (input)="onFilterInput($event)"
+                    />
+                </label>
+            }
+
+            <div
+                #listbox
+                class="ims-select__listbox"
+                role="listbox"
+                tabindex="-1"
+                [attr.id]="listboxId"
+                [attr.aria-multiselectable]="multiple() ? 'true' : null"
+                [attr.aria-activedescendant]="activeOptionId()"
+                [style.min-height.px]="listboxMinHeight()"
+                [style.max-height.px]="listboxMaxHeight()"
+            >
+                <ng-content select="ims-option" />
+
+                @if (visibleOptions().length === 0) {
+                    <div class="ims-select__empty" role="note">אין אפשרויות</div>
+                }
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<span class="ims-select__measure" aria-hidden="true">
+    <span #measureText class="ims-select__measure-text"></span>
+    <span #measureBadge class="ims-select__badge"></span>
+</span>
