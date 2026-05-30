@@ -7,6 +7,7 @@ import {
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
     Component,
     ElementRef,
     OnDestroy,
@@ -22,8 +23,8 @@ import {
     viewChild
 } from '@angular/core';
 import {Directionality} from '@angular/cdk/bidi';
-import {MatTooltip} from '@angular/material/tooltip';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
+import {runViewTransition} from '../../shared/view-transition';
 import {ImsOption} from './ims-option';
 import {
     IMS_SELECT_PARENT,
@@ -88,7 +89,7 @@ let nextSelectId = 0;
 @Component({
     selector: 'ims-select',
     standalone: true,
-    imports: [CdkOverlayOrigin, CdkConnectedOverlay, MatTooltip],
+    imports: [CdkOverlayOrigin, CdkConnectedOverlay],
     templateUrl: './ims-select.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
@@ -110,6 +111,7 @@ export class ImsSelect<T = unknown>
     private typeaheadQuery = '';
     private typeaheadResetTimer: ReturnType<typeof setTimeout> | null = null;
     readonly directionality = inject(Directionality);
+    private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
     private readonly triggerButton = viewChild<ElementRef<HTMLButtonElement>>('triggerButton');
     private readonly filterField = viewChild<ElementRef<HTMLElement>>('filterField');
@@ -232,6 +234,20 @@ export class ImsSelect<T = unknown>
 
     readonly visibleOptions = computed(() => {
         return this.optionsForViewMode(this.viewMode());
+    });
+    readonly viewOptionCounts = computed<Record<ImsSelectViewMode, number>>(() => {
+        const options = this.textFilteredOptions();
+        let selected = 0;
+
+        for (const option of options) {
+            if (this.isOptionSelected(option)) selected++;
+        }
+
+        return {
+            all: options.length,
+            selected,
+            unselected: options.length - selected
+        };
     });
 
     readonly activeOption = computed(() => this.visibleOptions()[this.activeIndex()] ?? null);
@@ -401,10 +417,24 @@ export class ImsSelect<T = unknown>
     }
 
     setViewMode(mode: ImsSelectViewMode): void {
+        if (this.isViewModeDisabled(mode)) return;
+
+        const nextMode = this.resolveViewMode(mode);
+        if (nextMode === this.viewMode()) return;
+
         this.captureListboxHeight();
-        this.viewMode.set(this.resolveViewMode(mode));
-        this.activeIndex.set(-1);
+        runViewTransition(
+            () => {
+                this.viewMode.set(nextMode);
+                this.activeIndex.set(-1);
+            },
+            () => this.changeDetectorRef.detectChanges()
+        );
         queueMicrotask(() => this.captureListboxHeight());
+    }
+
+    isViewModeDisabled(mode: ImsSelectViewMode): boolean {
+        return this.viewOptionCounts()[mode] === 0;
     }
 
     isOptionSelected(option: ImsSelectOptionLike<T>): boolean {

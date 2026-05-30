@@ -155,6 +155,7 @@
     overflow-y: auto;
     padding: 0.25rem;
     scrollbar-gutter: stable;
+    view-transition-name: ims-select-options-view;
 }
 
 .ims-select__empty {
@@ -227,6 +228,20 @@
     font-weight: 650;
 }
 
+.ims-select__segment:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+}
+
+.ims-select__segment:disabled:hover {
+    background: transparent;
+}
+
+.ims-select__segment--active:disabled {
+    background: color-mix(in oklch, var(--ims-p) 8%, transparent);
+    opacity: 0.52;
+}
+
 .ims-select__measure {
     position: fixed;
     inset: auto auto 0 0;
@@ -245,6 +260,7 @@
     color: inherit;
     cursor: pointer;
     white-space: nowrap;
+    user-select: none;
     transition: background-color 100ms ease, color 100ms ease;
 }
 

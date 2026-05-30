@@ -72,8 +72,6 @@
             <aside #toolbarPanel class="ims-select__toolbar" aria-label="סרגל בחירה">
                 <label
                     class="ims-select__bulk"
-                    matTooltip="בחר את כל האפשרויות המוצגות"
-                    matTooltipPosition="above"
                 >
                     <input
                         type="checkbox"
@@ -90,8 +88,7 @@
                         type="button"
                         class="ims-select__segment"
                         aria-label="הצג את כל האפשרויות"
-                        matTooltip="הצג את כל האפשרויות"
-                        matTooltipPosition="above"
+                        [disabled]="isViewModeDisabled('all')"
                         [class.ims-select__segment--active]="viewMode() === 'all'"
                         [attr.aria-pressed]="viewMode() === 'all'"
                         (click)="setViewMode('all')"
@@ -104,8 +101,7 @@
                         type="button"
                         class="ims-select__segment"
                         aria-label="הצג אפשרויות שנבחרו"
-                        matTooltip="הצג אפשרויות שנבחרו"
-                        matTooltipPosition="above"
+                        [disabled]="isViewModeDisabled('selected')"
                         [class.ims-select__segment--active]="viewMode() === 'selected'"
                         [attr.aria-pressed]="viewMode() === 'selected'"
                         (click)="setViewMode('selected')"
@@ -118,8 +114,7 @@
                         type="button"
                         class="ims-select__segment"
                         aria-label="הצג אפשרויות שלא נבחרו"
-                        matTooltip="הצג אפשרויות שלא נבחרו"
-                        matTooltipPosition="above"
+                        [disabled]="isViewModeDisabled('unselected')"
                         [class.ims-select__segment--active]="viewMode() === 'unselected'"
                         [attr.aria-pressed]="viewMode() === 'unselected'"
                         (click)="setViewMode('unselected')"

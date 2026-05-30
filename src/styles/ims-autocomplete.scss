@@ -171,6 +171,7 @@
 
 .ims-autocomplete__panel {
     contain: layout style paint;
+    view-transition-name: ims-autocomplete-options-view;
 }
 
 .ims-autocomplete__viewport {
@@ -245,6 +246,20 @@
 
 .ims-autocomplete__segment--active {
     color: color-mix(in oklch, var(--ims-ac-p) 82%, black);
+}
+
+.ims-autocomplete__segment:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+}
+
+.ims-autocomplete__segment:disabled:hover {
+    background: transparent;
+}
+
+.ims-autocomplete__segment--active:disabled {
+    background: color-mix(in oklch, var(--ims-ac-p) 8%, transparent);
+    opacity: 0.52;
 }
 
 .ims-autocomplete__option {

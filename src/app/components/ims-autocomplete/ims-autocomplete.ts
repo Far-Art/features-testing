@@ -12,6 +12,7 @@ import {
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
     Component,
     ElementRef,
     OnDestroy,
@@ -25,9 +26,9 @@ import {
     viewChild
 } from '@angular/core';
 import {Directionality} from '@angular/cdk/bidi';
-import {MatTooltip} from '@angular/material/tooltip';
 import {isObservable, Subscription} from 'rxjs';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
+import {runViewTransition} from '../../shared/view-transition';
 import {
     ImsAutocompleteCompareWith,
     ImsAutocompleteHighlightPart,
@@ -95,7 +96,7 @@ let nextAutocompleteId = 0;
 @Component({
     selector: 'ims-autocomplete',
     standalone: true,
-    imports: [CdkOverlayOrigin, CdkConnectedOverlay, CdkVirtualScrollViewport, CdkVirtualForOf, CdkFixedSizeVirtualScroll, MatTooltip],
+    imports: [CdkOverlayOrigin, CdkConnectedOverlay, CdkVirtualScrollViewport, CdkVirtualForOf, CdkFixedSizeVirtualScroll],
     templateUrl: './ims-autocomplete.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [provideValueAccessor(ImsAutocomplete)],
@@ -111,6 +112,7 @@ export class ImsAutocomplete<T = unknown>
     private optionsSubscription: Subscription | null = null;
     private asyncRequestId = 0;
     readonly directionality = inject(Directionality);
+    private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
     private readonly origin = viewChild<ElementRef<HTMLElement>>('origin');
     private readonly singleInput = viewChild<ElementRef<HTMLInputElement>>('singleInput');
@@ -232,6 +234,20 @@ export class ImsAutocomplete<T = unknown>
     });
 
     readonly visibleOptions = computed(() => this.optionsForViewMode(this.viewMode()));
+    readonly viewOptionCounts = computed<Record<ImsAutocompleteViewMode, number>>(() => {
+        const options = this.filteredOptions();
+        let selected = 0;
+
+        for (const option of options) {
+            if (this.isSelected(option)) selected++;
+        }
+
+        return {
+            all: options.length,
+            selected,
+            unselected: options.length - selected
+        };
+    });
     readonly activeOption = computed(() => this.visibleOptions()[this.activeIndex()] ?? null);
     readonly activeOptionId = computed(() => {
         const activeIndex = this.activeIndex();
@@ -475,13 +491,27 @@ export class ImsAutocomplete<T = unknown>
     }
 
     setViewMode(mode: ImsAutocompleteViewMode): void {
+        if (this.isViewModeDisabled(mode)) return;
+
+        const nextMode = this.resolveViewMode(mode);
+        if (nextMode === this.viewMode()) return;
+
         this.captureListboxHeight();
-        this.viewMode.set(this.resolveViewMode(mode));
-        this.activeIndex.set(-1);
+        runViewTransition(
+            () => {
+                this.viewMode.set(nextMode);
+                this.activeIndex.set(-1);
+            },
+            () => this.changeDetectorRef.detectChanges()
+        );
         queueMicrotask(() => {
             this.captureListboxHeight();
             this.viewport()?.checkViewportSize();
         });
+    }
+
+    isViewModeDisabled(mode: ImsAutocompleteViewMode): boolean {
+        return this.viewOptionCounts()[mode] === 0;
     }
 
     onSingleBlur(): void {
