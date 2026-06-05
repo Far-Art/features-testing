@@ -54,6 +54,25 @@
     <!--        ></button>-->
     <!--    </section>-->
 
+    <section class="button-demo">
+        <div>
+            <h2>כפתור לחיצה ממושכת</h2>
+            <p>הכפתור מפעיל את הפעולה רק אחרי החזקה של שנייה ושחרור לאחר שהטבעת התמלאה.</p>
+        </div>
+
+        <div class="long-press-demo__actions">
+            <button
+                type="button"
+                class="critical-action-button"
+                imsLongPress
+                (click)="registerCriticalAction()"
+            >
+                פעולה קריטית
+            </button>
+            <span class="long-press-demo__count">הופעל {{ criticalActionCount }} פעמים</span>
+        </div>
+    </section>
+
     <section class="select-demo">
         <div>
             <h2>רכיב בחירה</h2>

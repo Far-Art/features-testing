@@ -1,7 +1,4 @@
 cdk-virtual-scroll-viewport[imsVirtualScrollAutoHeight] {
+    box-sizing: border-box;
     scrollbar-gutter: stable;
-
-    &.ims-virtual-scroll-content-resizing {
-        overflow-y: hidden;
-    }
 }

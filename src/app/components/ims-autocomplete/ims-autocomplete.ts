@@ -40,6 +40,7 @@ import {
     ImsAutocompleteToolbarSide,
     ImsAutocompleteViewMode
 } from './ims-autocomplete.types';
+import {ImsLongPressDirective} from '../../ims-long-press.directive';
 
 interface ImsAutocompleteDisplayState {
     readonly text: string;
@@ -96,7 +97,7 @@ let nextAutocompleteId = 0;
 @Component({
     selector: 'ims-autocomplete',
     standalone: true,
-    imports: [CdkOverlayOrigin, CdkConnectedOverlay, CdkVirtualScrollViewport, CdkVirtualForOf, CdkFixedSizeVirtualScroll],
+  imports: [CdkOverlayOrigin, CdkConnectedOverlay, CdkVirtualScrollViewport, CdkVirtualForOf, CdkFixedSizeVirtualScroll, ImsLongPressDirective],
     templateUrl: './ims-autocomplete.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [provideValueAccessor(ImsAutocomplete)],

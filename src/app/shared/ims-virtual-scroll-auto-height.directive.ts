@@ -1,5 +1,4 @@
 import {AfterViewInit, DestroyRef, Directive, effect, inject, input, NgZone, Renderer2} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CdkFixedSizeVirtualScroll, CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 
 
@@ -11,10 +10,9 @@ import {CdkFixedSizeVirtualScroll, CdkVirtualScrollViewport} from '@angular/cdk/
  * Automatically assigns a concrete height to a CDK virtual-scroll viewport.
  *
  * CDK virtual scrolling requires a real viewport height. This directive derives
- * that height from the available browser viewport space and asks the CDK
- * viewport to re-measure whenever layout, scroll position, or rendered range
- * changes. Rendered-content resize events keep height measurement active while
- * temporarily hiding the scrollbar during row expand/collapse animations.
+ * that height from the viewport wrapper's remaining content height and asks the
+ * CDK viewport to re-measure when the wrapper, preceding siblings, or browser
+ * viewport size changes.
  */
 export class ImsVirtualScrollAutoHeightDirective implements AfterViewInit {
     /** Minimum viewport height. Numeric values are treated as pixels. */
@@ -27,7 +25,7 @@ export class ImsVirtualScrollAutoHeightDirective implements AfterViewInit {
      * Whether the viewport should shrink to its total virtual content height
      * when the data is shorter than the available viewport space.
      */
-    readonly fitContent = input<boolean>(true, {alias: 'imsVirtualScrollFitContent'});
+    readonly fitContent = input<boolean>(false, {alias: 'imsVirtualScrollFitContent'});
 
     private readonly destroyRef = inject(DestroyRef);
     private readonly fixedSizeVirtualScroll = inject(CdkFixedSizeVirtualScroll, {
@@ -40,16 +38,14 @@ export class ImsVirtualScrollAutoHeightDirective implements AfterViewInit {
     private readonly hostElement = this.viewport.elementRef.nativeElement;
     private readonly cleanupListeners: Array<() => void> = [];
     private animationFrameId: number | null = null;
-    private contentResizeTimeoutId: number | null = null;
     private lastHeight: number | null = null;
+    private mutationObserver: MutationObserver | null = null;
+    private previousWrapperOverflowY: string | null = null;
     private resizeObserver: ResizeObserver | null = null;
+    private wrapperElement: HTMLElement | null = null;
     private viewInitialized = false;
 
     constructor() {
-        this.viewport.renderedRangeStream
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe(() => this.scheduleMeasure());
-
         effect(() => {
             this.minHeight();
             this.maxHeight();
@@ -89,39 +85,9 @@ export class ImsVirtualScrollAutoHeightDirective implements AfterViewInit {
         });
     }
 
-    /** Hides the scrollbar while rendered content animations are changing size. */
-    private scheduleContentResizeMeasure(): void {
-        if (!this.viewInitialized) {
-            return;
-        }
-
-        const window = this.hostElement.ownerDocument.defaultView;
-        if (!window) {
-            return;
-        }
-
-        this.renderer.addClass(this.hostElement, 'ims-virtual-scroll-content-resizing');
-        this.scheduleMeasure();
-
-        if (this.contentResizeTimeoutId !== null) {
-            window.clearTimeout(this.contentResizeTimeoutId);
-        }
-
-        this.contentResizeTimeoutId = window.setTimeout(() => {
-            this.contentResizeTimeoutId = null;
-            this.renderer.removeClass(this.hostElement, 'ims-virtual-scroll-content-resizing');
-            this.viewport.checkViewportSize();
-        }, 100);
-    }
-
     /** Measures and applies the next viewport height. */
     private measure(): void {
-        const window = this.hostElement.ownerDocument.defaultView;
-        if (!window) {
-            return;
-        }
-
-        const availableHeight = this.resolveAvailableHeight(window);
+        const availableHeight = this.resolveAvailableHeight();
         const minHeight = Math.max(0, resolveCssLength(this.minHeight(), this.hostElement) ?? 0);
         const maxHeight = resolveCssLength(this.maxHeight(), this.hostElement) ?? availableHeight;
         const contentHeight = this.resolveContentHeight();
@@ -132,68 +98,158 @@ export class ImsVirtualScrollAutoHeightDirective implements AfterViewInit {
         }
 
         nextHeight = Math.max(minHeight, nextHeight);
-        nextHeight = Math.max(0, Math.round(nextHeight));
+        nextHeight = Math.max(0, Math.floor(nextHeight));
 
         if (nextHeight === this.lastHeight) {
             return;
         }
 
         this.lastHeight = nextHeight;
+        this.renderer.setStyle(this.hostElement, 'box-sizing', 'border-box');
         this.renderer.setStyle(this.hostElement, 'height', `${nextHeight}px`);
         this.viewport.checkViewportSize();
     }
 
-    /** Returns the available vertical space from the viewport's top edge. */
-    private resolveAvailableHeight(window: Window): number {
+    /** Returns wrapper height when available, otherwise viewport-bottom height. */
+    private resolveAvailableHeight(): number {
+        const window = this.hostElement.ownerDocument.defaultView;
+        if (!window) {
+            return 0;
+        }
+
+        const wrapperHeight = this.resolveWrapperHeight(window);
+        if (wrapperHeight > 0) {
+            return wrapperHeight;
+        }
+
+        const hostRect = this.hostElement.getBoundingClientRect();
         const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
-        const rect = this.hostElement.getBoundingClientRect();
         const bottomOffset = resolveCssLength(this.bottomOffset(), this.hostElement) ?? 0;
 
-        return Math.max(0, viewportHeight - Math.max(rect.top, 0) - bottomOffset);
+        return Math.max(0, viewportHeight - Math.max(hostRect.top, 0) - bottomOffset);
+    }
+
+    /** Returns the remaining content-box height in the viewport's wrapper. */
+    private resolveWrapperHeight(window: Window): number {
+        const wrapperElement = this.wrapperElement ?? this.resolveLayoutWrapper(window);
+        if (!wrapperElement) {
+            return 0;
+        }
+
+        const hostRect = this.hostElement.getBoundingClientRect();
+        const wrapperRect = wrapperElement.getBoundingClientRect();
+        const wrapperStyles = window.getComputedStyle(wrapperElement);
+        const borderTop = parseCssPixels(wrapperStyles.borderTopWidth);
+        const paddingBottom = parseCssPixels(wrapperStyles.paddingBottom);
+        const contentBottom = wrapperRect.top + borderTop + wrapperElement.clientHeight - paddingBottom;
+        const bottomOffset = resolveCssLength(this.bottomOffset(), this.hostElement) ?? 0;
+
+        return Math.max(0, contentBottom - hostRect.top - bottomOffset);
     }
 
     /** Returns total content height when it can be derived safely. */
     private resolveContentHeight(): number | null {
-        const renderedContentSize = this.viewport.measureRenderedContentSize();
-        const itemSize = this.fixedSizeVirtualScroll?.itemSize;
-        if (itemSize !== undefined && Number.isFinite(itemSize) && itemSize > 0) {
-            return Math.max(this.viewport.getDataLength() * itemSize, renderedContentSize);
+        const itemSize = this.resolveFixedItemSize();
+        if (itemSize !== null) {
+            return this.viewport.getDataLength() * itemSize;
         }
 
+        const renderedContentSize = this.viewport.measureRenderedContentSize();
         return renderedContentSize > 0 ? renderedContentSize : null;
     }
 
-    /** Watches ancestor and document size changes that can alter available height. */
+    private resolveFixedItemSize(): number | null {
+        const itemSize = this.fixedSizeVirtualScroll?.itemSize;
+        return itemSize !== undefined && Number.isFinite(itemSize) && itemSize > 0
+            ? itemSize
+            : null;
+    }
+
+    /** Watches wrapper and preceding sibling size changes that alter available height. */
     private observeLayout(): void {
         const window = this.hostElement.ownerDocument.defaultView;
         if (!window?.ResizeObserver) {
             return;
         }
 
-        const contentWrapper = this.hostElement.querySelector('.cdk-virtual-scroll-content-wrapper');
-        const resizeObserver = new window.ResizeObserver((entries: ResizeObserverEntry[]) => {
-            if (contentWrapper instanceof HTMLElement && entries.some((entry) => entry.target === contentWrapper)) {
-                this.scheduleContentResizeMeasure();
-                return;
-            }
-
-            this.scheduleMeasure();
-        });
-        this.resizeObserver = resizeObserver;
-        resizeObserver.observe(this.hostElement.ownerDocument.documentElement);
-        resizeObserver.observe(this.hostElement);
-
-        const parentElement = this.hostElement.parentElement;
-        if (parentElement) {
-            resizeObserver.observe(parentElement);
+        const wrapperElement = this.resolveLayoutWrapper(window);
+        if (!wrapperElement) {
+            return;
         }
 
-        if (contentWrapper instanceof HTMLElement) {
-            resizeObserver.observe(contentWrapper);
+        this.wrapperElement = wrapperElement;
+        this.previousWrapperOverflowY = wrapperElement.style.overflowY;
+        this.renderer.setStyle(wrapperElement, 'overflow-y', 'hidden');
+
+        const resizeObserver = new window.ResizeObserver(() => this.scheduleMeasure());
+        this.resizeObserver = resizeObserver;
+        resizeObserver.observe(wrapperElement);
+        this.observePrecedingSiblings(resizeObserver, wrapperElement, window);
+
+        if (window.MutationObserver) {
+            this.mutationObserver = new window.MutationObserver(() => {
+                resizeObserver.disconnect();
+                resizeObserver.observe(wrapperElement);
+                this.observePrecedingSiblings(resizeObserver, wrapperElement, window);
+                this.scheduleMeasure();
+            });
+            this.mutationObserver.observe(wrapperElement, {childList: true});
         }
     }
 
-    /** Watches browser viewport movement and resizing. */
+    private resolveLayoutWrapper(window: Window): HTMLElement | null {
+        let wrapperElement = this.hostElement.parentElement;
+        while (wrapperElement && window.getComputedStyle(wrapperElement).display === 'contents') {
+            wrapperElement = wrapperElement.parentElement;
+        }
+
+        return wrapperElement;
+    }
+
+    private observePrecedingSiblings(
+        resizeObserver: ResizeObserver,
+        wrapperElement: HTMLElement,
+        window: Window
+    ): void {
+        let element: HTMLElement | null = this.hostElement;
+        while (element?.parentElement && element !== wrapperElement) {
+            this.observePreviousSiblings(resizeObserver, element, window);
+            element = element.parentElement;
+        }
+    }
+
+    private observePreviousSiblings(
+        resizeObserver: ResizeObserver,
+        element: HTMLElement,
+        window: Window
+    ): void {
+        let sibling = element.previousElementSibling;
+        while (sibling) {
+            if (sibling instanceof HTMLElement) {
+                this.observeLayoutElement(resizeObserver, sibling, window);
+            }
+            sibling = sibling.previousElementSibling;
+        }
+    }
+
+    private observeLayoutElement(
+        resizeObserver: ResizeObserver,
+        element: HTMLElement,
+        window: Window
+    ): void {
+        if (window.getComputedStyle(element).display !== 'contents') {
+            resizeObserver.observe(element);
+            return;
+        }
+
+        for (const child of Array.from(element.children)) {
+            if (child instanceof HTMLElement) {
+                this.observeLayoutElement(resizeObserver, child, window);
+            }
+        }
+    }
+
+    /** Watches browser viewport resizing. */
     private listenForViewportChanges(): void {
         const window = this.hostElement.ownerDocument.defaultView;
         if (!window) {
@@ -202,19 +258,15 @@ export class ImsVirtualScrollAutoHeightDirective implements AfterViewInit {
 
         const schedule = () => this.scheduleMeasure();
         window.addEventListener('resize', schedule, {passive: true});
-        window.addEventListener('scroll', schedule, {passive: true});
         this.cleanupListeners.push(() => {
             window.removeEventListener('resize', schedule);
-            window.removeEventListener('scroll', schedule);
         });
 
         const visualViewport = window.visualViewport;
         if (visualViewport) {
             visualViewport.addEventListener('resize', schedule, {passive: true});
-            visualViewport.addEventListener('scroll', schedule, {passive: true});
             this.cleanupListeners.push(() => {
                 visualViewport.removeEventListener('resize', schedule);
-                visualViewport.removeEventListener('scroll', schedule);
             });
         }
     }
@@ -227,21 +279,34 @@ export class ImsVirtualScrollAutoHeightDirective implements AfterViewInit {
             this.animationFrameId = null;
         }
 
-        if (window && this.contentResizeTimeoutId !== null) {
-            window.clearTimeout(this.contentResizeTimeoutId);
-            this.contentResizeTimeoutId = null;
-        }
-
-        this.renderer.removeClass(this.hostElement, 'ims-virtual-scroll-content-resizing');
-
+        this.mutationObserver?.disconnect();
+        this.mutationObserver = null;
         this.resizeObserver?.disconnect();
         this.resizeObserver = null;
+        if (this.wrapperElement && this.previousWrapperOverflowY !== null) {
+            if (this.previousWrapperOverflowY) {
+                this.renderer.setStyle(
+                    this.wrapperElement,
+                    'overflow-y',
+                    this.previousWrapperOverflowY
+                );
+            } else {
+                this.renderer.removeStyle(this.wrapperElement, 'overflow-y');
+            }
+        }
+        this.previousWrapperOverflowY = null;
+        this.wrapperElement = null;
 
         for (const cleanupListener of this.cleanupListeners) {
             cleanupListener();
         }
         this.cleanupListeners.length = 0;
     }
+}
+
+function parseCssPixels(value: string): number {
+    const pixels = Number.parseFloat(value);
+    return Number.isFinite(pixels) ? pixels : 0;
 }
 
 function resolveCssLength(value: string | number | undefined, contextElement: HTMLElement): number | null {

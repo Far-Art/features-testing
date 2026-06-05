@@ -44,7 +44,15 @@
         }
     </span>
 
-    <span class="ims-select__chevron" aria-hidden="true"></span>
+    @if (multiple()) {
+        <span
+            class="ims-select__mode-icon material-icons"
+            aria-hidden="true"
+            [textContent]="'playlist_add_check'"
+        ></span>
+    } @else {
+        <span class="ims-select__chevron" aria-hidden="true"></span>
+    }
 </button>
 
 <ng-template

@@ -3,6 +3,7 @@ import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {delay, of} from 'rxjs';
 import {ImsOption, ImsSelect} from './components/ims-select';
 import {ImsAutocomplete, ImsAutocompleteOption} from './components/ims-autocomplete';
+import {ImsLongPressDirective} from './ims-long-press.directive';
 
 
 interface SelectDemoBag {
@@ -21,12 +22,13 @@ interface LargeAutocompleteRow {
 
 @Component({
     selector: 'app-root',
-    imports: [FormsModule, ReactiveFormsModule, ImsSelect, ImsOption, ImsAutocomplete],
+    imports: [FormsModule, ReactiveFormsModule, ImsSelect, ImsOption, ImsAutocomplete, ImsLongPressDirective],
     templateUrl: './app.html',
     styleUrl: './app.scss'
 })
 export class App {
     readonly title = 'הדגמת תשתית שאילתות גנרית';
+    criticalActionCount = 0;
     readonly bagOptions: readonly SelectDemoBag[] = [
         {
             id: 1,
@@ -184,6 +186,10 @@ export class App {
 
         return first === second;
     };
+
+    registerCriticalAction(): void {
+        this.criticalActionCount++;
+    }
 
     private isSelectDemoBag(value: unknown): value is SelectDemoBag {
         return typeof value === 'object' && value !== null && 'id' in value;

@@ -41,7 +41,11 @@
                 }
             </span>
 
-            <span class="ims-autocomplete__chevron" aria-hidden="true"></span>
+            <span
+                class="ims-autocomplete__mode-icon material-icons"
+                aria-hidden="true"
+                [textContent]="'playlist_add_check'"
+            ></span>
         </button>
     } @else {
         <input
@@ -66,6 +70,11 @@
             (keydown)="onKeydown($event)"
             (blur)="onSingleBlur()"
         />
+        <span
+            class="ims-autocomplete__mode-icon ims-autocomplete__mode-icon--input material-icons"
+            aria-hidden="true"
+            [textContent]="'search'"
+        ></span>
     }
 </div>
 
@@ -94,6 +103,8 @@
             <aside #toolbarPanel class="ims-autocomplete__toolbar" aria-label="סרגל בחירה">
                 <label
                     class="ims-autocomplete__bulk"
+                    imsLongPress
+                    imsLongPressVisual="circle"
                 >
                     <input
                         type="checkbox"

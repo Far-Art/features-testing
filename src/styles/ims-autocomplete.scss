@@ -15,6 +15,10 @@
     min-width: 0;
 }
 
+.ims-autocomplete {
+    position: relative;
+}
+
 .ims-autocomplete__trigger,
 .ims-autocomplete__input {
     box-sizing: border-box;
@@ -36,7 +40,13 @@
 }
 
 .ims-autocomplete__input {
-    padding: 0.45rem 0.65rem;
+    padding: 0.45rem 2.25rem 0.45rem 0.65rem;
+}
+
+[dir="rtl"] .ims-autocomplete__input,
+.ims-autocomplete:dir(rtl) .ims-autocomplete__input {
+    padding-right: 0.65rem;
+    padding-left: 2.25rem;
 }
 
 .ims-autocomplete__trigger:hover,
@@ -98,21 +108,29 @@
     text-align: center;
 }
 
-.ims-autocomplete__chevron {
+.ims-autocomplete__mode-icon {
     flex: 0 0 auto;
-    width: 0.5rem;
-    height: 0.5rem;
-    border: solid currentColor;
-    border-width: 0 1.5px 1.5px 0;
+    font-size: 1.25rem;
+    line-height: 1;
     opacity: 0.72;
-    rotate: 45deg;
-    translate: 0 -0.125rem;
-    transition: rotate 140ms ease, translate 140ms ease;
 }
 
-.ims-autocomplete__trigger--open .ims-autocomplete__chevron {
-    rotate: -135deg;
-    translate: 0 0.125rem;
+.ims-autocomplete__mode-icon--input {
+    position: absolute;
+    inset-block-start: 50%;
+    right: 0.65rem;
+    pointer-events: none;
+    translate: 0 -50%;
+}
+
+[dir="rtl"] .ims-autocomplete__mode-icon--input,
+.ims-autocomplete:dir(rtl) .ims-autocomplete__mode-icon--input {
+    right: auto;
+    left: 0.65rem;
+}
+
+.ims-autocomplete__input:disabled + .ims-autocomplete__mode-icon--input {
+    opacity: 0.58;
 }
 
 .ims-autocomplete__overlay {
