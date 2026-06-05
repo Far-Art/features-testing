@@ -1,22 +1,41 @@
 .ims-long-press {
     --ims-long-press-progress: 0;
     --ims-long-press-fill-radius: 0px;
-    --ims-long-press-fill-color: color-mix(
+    --ims-long-press-circle-angle: 0deg;
+    --ims-long-press-fill-start: color-mix(
         in oklch,
         var(--mat-sys-on-error-container, #7f1d1d) 30%,
         transparent
     );
+    --ims-long-press-fill-target: color-mix(
+        in oklch,
+        var(--mat-sys-primary, #2563eb) 34%,
+        transparent
+    );
+    --ims-long-press-fill-color: var(--ims-long-press-fill-start);
+    --ims-long-press-circle-start: var(--mat-sys-error, #dc2626);
+    --ims-long-press-circle-target: var(--mat-sys-primary, #2563eb);
+    --ims-long-press-circle-color: var(--ims-long-press-circle-start);
+    --ims-long-press-circle-offset: 2px;
+    --ims-long-press-circle-width: 3px;
 
     position: relative;
     isolation: isolate;
-    overflow: hidden;
     scale: 1;
     touch-action: manipulation;
     transition: scale 180ms cubic-bezier(0.22, 1, 0.36, 1);
     user-select: none;
 }
 
-.ims-long-press::before {
+.ims-long-press--visual-background {
+    overflow: hidden;
+}
+
+.ims-long-press--visual-circle {
+    overflow: visible;
+}
+
+.ims-long-press--visual-background::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -26,28 +45,53 @@
     clip-path: circle(var(--ims-long-press-fill-radius) at 50% 50%);
     opacity: 0;
     pointer-events: none;
-    transition:
-        background-color 220ms ease,
-        opacity 180ms ease;
+    transition: opacity 180ms ease;
 }
 
-.ims-long-press--holding::before,
-.ims-long-press--ready::before {
+.ims-long-press--visual-background.ims-long-press--holding::before,
+.ims-long-press--visual-background.ims-long-press--ready::before {
     opacity: 1;
 }
 
-.ims-long-press--cancelled::before,
-.ims-long-press--completed::before {
+.ims-long-press--visual-background.ims-long-press--cancelled::before,
+.ims-long-press--visual-background.ims-long-press--completed::before {
+    opacity: 0;
+    transition-duration: 220ms;
+}
+
+.ims-long-press--visual-circle::after {
+    content: '';
+    position: absolute;
+    inset: calc(var(--ims-long-press-circle-offset) * -1);
+    z-index: 1;
+    padding: var(--ims-long-press-circle-width);
+    border-radius: 50%;
+    background: conic-gradient(
+        from 0deg,
+        var(--ims-long-press-circle-color) 0deg var(--ims-long-press-circle-angle),
+        transparent var(--ims-long-press-circle-angle) 360deg
+    );
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease;
+    -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}
+
+.ims-long-press--visual-circle.ims-long-press--holding::after,
+.ims-long-press--visual-circle.ims-long-press--ready::after {
+    opacity: 1;
+}
+
+.ims-long-press--visual-circle.ims-long-press--cancelled::after,
+.ims-long-press--visual-circle.ims-long-press--completed::after {
     opacity: 0;
     transition-duration: 220ms;
 }
 
 .ims-long-press--ready {
-    --ims-long-press-fill-color: color-mix(
-        in oklch,
-        var(--mat-sys-primary, #2563eb) 34%,
-        transparent
-    );
-
     scale: 1.035;
 }

@@ -19,12 +19,15 @@ const coerceHoldMs = (value: unknown): number => {
 
 type HoldSource = 'pointer' | 'keyboard';
 export type ImsLongPressActivation = 'release' | 'timeout';
+export type ImsLongPressVisual = 'background' | 'circle';
 
 @Directive({
     selector: '[imsLongPress]',
     standalone: true,
     host: {
-        class: 'ims-long-press'
+        class: 'ims-long-press',
+        '[class.ims-long-press--visual-background]': 'visual() === "background"',
+        '[class.ims-long-press--visual-circle]': 'visual() === "circle"'
     }
 })
 export class ImsLongPressDirective {
@@ -51,6 +54,11 @@ export class ImsLongPressDirective {
     /** Controls whether activation happens when the hold completes or when the user releases afterward. */
     readonly activation = input<ImsLongPressActivation>('release', {
         alias: 'imsLongPressActivation'
+    });
+
+    /** Visual progress treatment. `circle` is intended primarily for icon buttons. */
+    readonly visual = input<ImsLongPressVisual>('background', {
+        alias: 'imsLongPressVisual'
     });
 
     constructor() {
@@ -102,9 +110,12 @@ export class ImsLongPressDirective {
     }
 
     private onPointerDown(event: PointerEvent): void {
-        if (this.shouldIgnoreInteraction()) return;
+        if (this.shouldIgnoreInteraction(event.target)) return;
         if (event.pointerType === 'mouse' && event.button !== 0) return;
 
+        if (this.host instanceof HTMLLabelElement) {
+            event.preventDefault();
+        }
         this.capturePointer(event);
         this.startHold('pointer');
         this.activePointerId = event.pointerId;
@@ -147,7 +158,7 @@ export class ImsLongPressDirective {
         }
 
         if (!this.isActivationKey(event)) return;
-        if (this.shouldIgnoreInteraction()) return;
+        if (this.shouldIgnoreInteraction(event.target)) return;
 
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -326,9 +337,20 @@ export class ImsLongPressDirective {
     private setProgress(progress: number): void {
         const {width, height} = this.host.getBoundingClientRect();
         const maxRadius = Math.hypot(width / 2, height / 2);
+        const targetPercentage = progress * 100;
+        const sourcePercentage = 100 - targetPercentage;
 
         this.host.style.setProperty('--ims-long-press-progress', String(progress));
         this.host.style.setProperty('--ims-long-press-fill-radius', `${maxRadius * progress}px`);
+        this.host.style.setProperty('--ims-long-press-circle-angle', `${progress * 360}deg`);
+        this.host.style.setProperty(
+            '--ims-long-press-fill-color',
+            `color-mix(in oklch, var(--ims-long-press-fill-start) ${sourcePercentage}%, var(--ims-long-press-fill-target) ${targetPercentage}%)`
+        );
+        this.host.style.setProperty(
+            '--ims-long-press-circle-color',
+            `color-mix(in oklch, var(--ims-long-press-circle-start) ${sourcePercentage}%, var(--ims-long-press-circle-target) ${targetPercentage}%)`
+        );
     }
 
     private capturePointer(event: PointerEvent): void {
@@ -382,12 +404,21 @@ export class ImsLongPressDirective {
         return event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar';
     }
 
-    private shouldIgnoreInteraction(): boolean {
-        return this.disabled() || this.isHostDisabled();
+    private shouldIgnoreInteraction(target?: EventTarget | null): boolean {
+        return this.disabled() || this.isHostDisabled() || this.isTargetDisabled(target);
     }
 
     private isHostDisabled(): boolean {
         return this.host.hasAttribute('disabled') || this.host.getAttribute('aria-disabled') === 'true';
+    }
+
+    private isTargetDisabled(target?: EventTarget | null): boolean {
+        return target instanceof HTMLButtonElement
+            || target instanceof HTMLInputElement
+            || target instanceof HTMLSelectElement
+            || target instanceof HTMLTextAreaElement
+            ? target.disabled
+            : false;
     }
 
     private get host(): HTMLElement {
