@@ -1,0 +1,53 @@
+.ims-long-press {
+    --ims-long-press-progress: 0;
+    --ims-long-press-fill-radius: 0px;
+    --ims-long-press-fill-color: color-mix(
+        in oklch,
+        var(--mat-sys-on-error-container, #7f1d1d) 30%,
+        transparent
+    );
+
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    scale: 1;
+    touch-action: manipulation;
+    transition: scale 180ms cubic-bezier(0.22, 1, 0.36, 1);
+    user-select: none;
+}
+
+.ims-long-press::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background-color: var(--ims-long-press-fill-color);
+    clip-path: circle(var(--ims-long-press-fill-radius) at 50% 50%);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        background-color 220ms ease,
+        opacity 180ms ease;
+}
+
+.ims-long-press--holding::before,
+.ims-long-press--ready::before {
+    opacity: 1;
+}
+
+.ims-long-press--cancelled::before,
+.ims-long-press--completed::before {
+    opacity: 0;
+    transition-duration: 220ms;
+}
+
+.ims-long-press--ready {
+    --ims-long-press-fill-color: color-mix(
+        in oklch,
+        var(--mat-sys-primary, #2563eb) 34%,
+        transparent
+    );
+
+    scale: 1.035;
+}
