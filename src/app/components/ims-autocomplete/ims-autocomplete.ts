@@ -28,6 +28,7 @@ import {
 import {Directionality} from '@angular/cdk/bidi';
 import {isObservable, Subscription} from 'rxjs';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
+import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
 import {runViewTransition} from '../../shared/view-transition';
 import {
     ImsAutocompleteCompareWith,
@@ -91,13 +92,14 @@ const LISTBOX_MAX_HEIGHT = 350;
 const VIEWPORT_MARGIN = 12;
 const TOOLBAR_FALLBACK_WIDTH = 40;
 const TOOLBAR_GAP = 8;
+const TRIGGER_ITEM_GAP = 8;
 
 let nextAutocompleteId = 0;
 
 @Component({
     selector: 'ims-autocomplete',
     standalone: true,
-  imports: [CdkOverlayOrigin, CdkConnectedOverlay, CdkVirtualScrollViewport, CdkVirtualForOf, CdkFixedSizeVirtualScroll, ImsLongPressDirective],
+  imports: [CdkOverlayOrigin, CdkConnectedOverlay, CdkVirtualScrollViewport, CdkVirtualForOf, CdkFixedSizeVirtualScroll, ImsLongPressDirective, ImsTextTruncateDirective],
     templateUrl: './ims-autocomplete.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [provideValueAccessor(ImsAutocomplete)],
@@ -105,6 +107,17 @@ let nextAutocompleteId = 0;
         class: 'ims-autocomplete-host'
     }
 })
+/**
+ * Form-compatible autocomplete supporting free text, strict option selection,
+ * multiple values, asynchronous loading, and virtualized option rendering.
+ *
+ * Single mode writes `T`, a free-text `string`, or `null` depending on
+ * `strict`. Multiple mode writes a readonly `T[]` and always requires values
+ * from the option list.
+ *
+ * Selected labels are compacted to fit the trigger. Truncated input or
+ * selection text exposes the full value through `ImsTextTruncateDirective`.
+ */
 export class ImsAutocomplete<T = unknown>
     extends BasicValueAccessor<ImsAutocompleteValue<T>>
     implements AfterViewInit, OnDestroy {
@@ -999,7 +1012,11 @@ export class ImsAutocomplete<T = unknown>
             return;
         }
 
-        const valueRowWidth = this.valueRow()?.nativeElement.clientWidth ?? 0;
+        const valueRow = this.valueRow()?.nativeElement;
+        const valueRowWidth = this.resolveAvailableValueWidth(
+            valueRow,
+            '.ims-autocomplete__badge'
+        );
         if (valueRowWidth <= 0) {
             this.multiDisplay.set({
                 text: labels[0],
@@ -1014,7 +1031,9 @@ export class ImsAutocomplete<T = unknown>
             const text = overflowCount > 0
                 ? `${labels.slice(0, visibleCount).join(', ')}, ...`
                 : labels.join(', ');
-            const badgeWidth = overflowCount > 0 ? this.measureBadgeWidth(overflowCount) + 6 : 0;
+            const badgeWidth = overflowCount > 0
+                ? this.measureBadgeWidth(overflowCount) + TRIGGER_ITEM_GAP
+                : 0;
             const textWidth = this.measureTextWidth(text);
 
             if (textWidth + badgeWidth <= valueRowWidth) {
@@ -1036,6 +1055,22 @@ export class ImsAutocomplete<T = unknown>
 
         element.textContent = text;
         return element.getBoundingClientRect().width;
+    }
+
+    private resolveAvailableValueWidth(
+        valueRow: HTMLElement | undefined,
+        badgeSelector: string
+    ): number {
+        if (!valueRow) return 0;
+
+        const renderedBadge = valueRow.parentElement?.querySelector<HTMLElement>(
+            `:scope > ${badgeSelector}`
+        );
+        return valueRow.clientWidth + (
+            renderedBadge
+                ? renderedBadge.getBoundingClientRect().width + TRIGGER_ITEM_GAP
+                : 0
+        );
     }
 
     private measureBadgeWidth(count: number): number {

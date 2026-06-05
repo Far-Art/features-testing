@@ -24,6 +24,7 @@ import {
 } from '@angular/core';
 import {Directionality} from '@angular/cdk/bidi';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
+import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
 import {runViewTransition} from '../../shared/view-transition';
 import {ImsOption} from './ims-option';
 import {
@@ -82,6 +83,7 @@ const LISTBOX_MAX_HEIGHT = 350;
 const VIEWPORT_MARGIN = 12;
 const TOOLBAR_FALLBACK_WIDTH = 40;
 const TOOLBAR_GAP = 8;
+const TRIGGER_ITEM_GAP = 8;
 const TYPEAHEAD_RESET_MS = 700;
 
 let nextSelectId = 0;
@@ -89,7 +91,7 @@ let nextSelectId = 0;
 @Component({
     selector: 'ims-select',
     standalone: true,
-    imports: [CdkOverlayOrigin, CdkConnectedOverlay],
+    imports: [CdkOverlayOrigin, CdkConnectedOverlay, ImsTextTruncateDirective],
     templateUrl: './ims-select.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
@@ -103,6 +105,17 @@ let nextSelectId = 0;
         class: 'ims-select-host'
     }
 })
+/**
+ * Form-compatible select control backed by projected `ims-option` elements.
+ *
+ * Supports single and multiple values, optional client-side filtering,
+ * keyboard navigation, typeahead, and a multi-select toolbar. Single-select
+ * mode writes `T | null`; multiple mode writes a readonly `T[]`.
+ *
+ * Selected labels are compacted to fit the trigger. When values are hidden or
+ * truncated, hovering the trigger displays their full text through
+ * `ImsTextTruncateDirective`.
+ */
 export class ImsSelect<T = unknown>
     extends BasicValueAccessor<ImsSelectFormValue<T>>
     implements AfterViewInit, OnDestroy, ImsSelectParent<T> {
@@ -123,6 +136,7 @@ export class ImsSelect<T = unknown>
     private readonly measureTextElement = viewChild<ElementRef<HTMLElement>>('measureText');
     private readonly measureBadgeElement = viewChild<ElementRef<HTMLElement>>('measureBadge');
 
+    /** Projected options participating in filtering, selection, and keyboard navigation. */
     readonly options = contentChildren<ImsOption<T>>(ImsOption, {descendants: true});
 
     /** Enables multi-selection. Multi-select writes a readonly array of selected values. */
@@ -971,7 +985,8 @@ export class ImsSelect<T = unknown>
             return;
         }
 
-        const valueRowWidth = this.valueRow()?.nativeElement.clientWidth ?? 0;
+        const valueRow = this.valueRow()?.nativeElement;
+        const valueRowWidth = this.resolveAvailableValueWidth(valueRow, '.ims-select__badge');
         if (valueRowWidth <= 0) {
             this.multiDisplay.set({
                 text: labels[0],
@@ -986,7 +1001,9 @@ export class ImsSelect<T = unknown>
             const text = overflowCount > 0
                 ? `${labels.slice(0, visibleCount).join(', ')}, ...`
                 : labels.join(', ');
-            const badgeWidth = overflowCount > 0 ? this.measureBadgeWidth(overflowCount) + 6 : 0;
+            const badgeWidth = overflowCount > 0
+                ? this.measureBadgeWidth(overflowCount) + TRIGGER_ITEM_GAP
+                : 0;
             const textWidth = this.measureTextWidth(text);
 
             if (textWidth + badgeWidth <= valueRowWidth) {
@@ -1012,6 +1029,22 @@ export class ImsSelect<T = unknown>
 
         element.textContent = text;
         return element.getBoundingClientRect().width;
+    }
+
+    private resolveAvailableValueWidth(
+        valueRow: HTMLElement | undefined,
+        badgeSelector: string
+    ): number {
+        if (!valueRow) return 0;
+
+        const renderedBadge = valueRow.parentElement?.querySelector<HTMLElement>(
+            `:scope > ${badgeSelector}`
+        );
+        return valueRow.clientWidth + (
+            renderedBadge
+                ? renderedBadge.getBoundingClientRect().width + TRIGGER_ITEM_GAP
+                : 0
+        );
     }
 
     private measureBadgeWidth(count: number): number {

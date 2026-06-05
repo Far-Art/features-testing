@@ -14,44 +14,126 @@ import {
     input
 } from '@angular/core';
 
-type ImsTextTruncatePosition = 'center' | 'top' | 'bottom';
+/** Supported positions for the full-text tooltip relative to the host element. */
+export type ImsTextTruncatePosition = 'center' | 'top' | 'bottom';
 
+/**
+ * Applies single-line CSS truncation and displays the full value in a lazy CDK
+ * overlay only when the measured text overflows.
+ *
+ * By default the directive truncates and measures its host. Composite controls
+ * can disable the host styles with `imsTextTruncateApplyStyles="false"` and
+ * provide a descendant selector through `imsTextTruncateTarget`.
+ *
+ * The tooltip is non-interactive by default and closes when the pointer leaves
+ * the host. Enable `imsTextTruncateInteractive` when users must select or copy
+ * the full text.
+ */
 @Directive({
     selector: '[imsTextTruncate]',
     standalone: true,
     host: {
-        '[style.display]': 'display()',
-        '[style.min-width]': '"0"',
-        '[style.max-width]': 'maxWidthCss()',
-        '[style.overflow]': '"hidden"',
-        '[style.text-overflow]': '"ellipsis"',
-        '[style.white-space]': '"nowrap"',
+        '[style.display]': 'applyStyles() ? display() : null',
+        '[style.min-width]': 'applyStyles() ? "0" : null',
+        '[style.max-width]': 'applyStyles() ? maxWidthCss() : null',
+        '[style.overflow]': 'applyStyles() ? "hidden" : null',
+        '[style.text-overflow]': 'applyStyles() ? "ellipsis" : null',
+        '[style.white-space]': 'applyStyles() ? "nowrap" : null',
         '[attr.aria-describedby]': 'popoverVisible ? popoverId : null',
         '[attr.tabindex]': 'focusable() ? "0" : null',
         '(mouseenter)': 'showPopover()',
-        '(focusin)': 'showPopover()',
+        '(focusin)': 'showPopoverOnFocus()',
         '(mouseleave)': 'hidePopover($event)',
         '(focusout)': 'hidePopoverImmediately()',
         '(keydown.escape)': 'hidePopoverImmediately()'
     }
 })
 export class ImsTextTruncateDirective implements OnDestroy {
+    /**
+     * Full text rendered in the tooltip.
+     *
+     * When omitted or empty, text is read from the measured target element.
+     */
     readonly text = input<string | null | undefined>(undefined, {alias: 'imsTextTruncate'});
+
+    /** CSS display value applied to the host when truncation styles are enabled. */
     readonly display = input<string | null>('block', {alias: 'imsTruncateDisplay'});
+
+    /** Adds `tabindex="0"` so a normally non-focusable host can reveal the tooltip by keyboard. */
     readonly focusable = input(false, {
         alias: 'imsTruncateFocusable',
         transform: booleanAttribute
     });
+
+    /** Disables tooltip creation while preserving any configured truncation styles. */
     readonly popoverDisabled = input(false, {
         alias: 'imsTruncatePopoverDisabled',
         transform: booleanAttribute
     });
+
+    /** Maximum width applied to the truncated host. Numeric values are treated as pixels. */
     readonly maxWidth = input<string | number | null>('100%', {alias: 'imsTruncateMaxWidth'});
+
+    /** Maximum tooltip width. Numeric values are treated as pixels. */
     readonly popoverMaxWidth = input<string | number>('min(36rem, calc(100vw - 24px))', {
         alias: 'imsTruncatePopoverMaxWidth'
     });
+
+    /**
+     * Tooltip placement.
+     *
+     * `center` overlays the host, `top` places it above, and `bottom` places it below.
+     */
     readonly position = input<ImsTextTruncatePosition>('center', {
         alias: 'imsTextTruncatePosition'
+    });
+
+    /**
+     * Element used for overflow measurement and inherited typography.
+     *
+     * Accepts a descendant CSS selector or a direct element reference. Defaults
+     * to the directive host.
+     */
+    readonly target = input<string | HTMLElement | null>(null, {
+        alias: 'imsTextTruncateTarget'
+    });
+
+    /**
+     * Whether the directive applies its CSS truncation styles to the host.
+     *
+     * Disable this when the component already owns its truncation styles.
+     */
+    readonly applyStyles = input(true, {
+        alias: 'imsTextTruncateApplyStyles',
+        transform: booleanAttribute
+    });
+
+    /** Whether focus entering the host may display the tooltip. */
+    readonly showOnFocus = input(true, {
+        alias: 'imsTextTruncateShowOnFocus',
+        transform: booleanAttribute
+    });
+
+    /**
+     * Explicit overflow state supplied by a component.
+     *
+     * Use this when content is semantically abbreviated, such as a `+N` selected
+     * values badge, even if the measured DOM node does not currently overflow.
+     */
+    readonly overflow = input(false, {
+        alias: 'imsTextTruncateOverflow',
+        transform: booleanAttribute
+    });
+
+    /**
+     * Enables pointer interaction and text selection inside the tooltip.
+     *
+     * Interactive tooltips remain open while the pointer is over either the
+     * host or tooltip. The default non-interactive mode closes on host leave.
+     */
+    readonly interactive = input(false, {
+        alias: 'imsTextTruncateInteractive',
+        transform: booleanAttribute
     });
 
     readonly maxWidthCss = computed(() => toCssLength(this.maxWidth()));
@@ -73,12 +155,13 @@ export class ImsTextTruncateDirective implements OnDestroy {
         }
 
         const hostElement = this.elementRef.nativeElement;
-        if (!isOverflowing(hostElement)) {
+        const targetElement = this.resolveTargetElement(hostElement);
+        if (!targetElement || (!this.overflow() && !isOverflowing(targetElement))) {
             this.hidePopoverImmediately();
             return;
         }
 
-        const text = this.resolveText(hostElement);
+        const text = this.resolveText(targetElement);
         if (!text) {
             this.hidePopoverImmediately();
             return;
@@ -94,23 +177,35 @@ export class ImsTextTruncateDirective implements OnDestroy {
 
         const popover = this.popoverRef?.instance;
         if (popover) {
-            const hostStyles = hostElement.ownerDocument.defaultView?.getComputedStyle(hostElement);
+            const hostStyles = targetElement.ownerDocument.defaultView?.getComputedStyle(targetElement);
             popover.id = this.popoverId;
             popover.text = text;
             popover.maxWidth = toCssLength(this.popoverMaxWidth()) ?? '';
             popover.font = hostStyles?.font ?? 'inherit';
             popover.lineHeight = hostStyles?.lineHeight ?? 'normal';
             popover.direction = hostStyles?.direction ?? 'inherit';
+            popover.interactive = this.interactive();
             this.popoverRef?.changeDetectorRef.detectChanges();
         }
 
+        this.applyOverlayInteractivity(overlayRef);
         overlayRef.updatePosition();
         this.popoverVisible = true;
-        this.listenForDocumentMouseMove();
+        if (this.interactive()) {
+            this.listenForDocumentMouseMove();
+        } else {
+            this.stopListeningForDocumentMouseMove();
+        }
+    }
+
+    showPopoverOnFocus(): void {
+        if (this.showOnFocus()) {
+            this.showPopover();
+        }
     }
 
     hidePopover(event?: MouseEvent): void {
-        if (event && this.isPointerInsideVisibleRegion(event)) {
+        if (this.interactive() && event && this.isPointerInsideVisibleRegion(event)) {
             return;
         }
 
@@ -140,6 +235,19 @@ export class ImsTextTruncateDirective implements OnDestroy {
         )?.trim() ?? '';
     }
 
+    private resolveTargetElement(hostElement: HTMLElement): HTMLElement | null {
+        const target = this.target();
+        if (target instanceof HTMLElement) {
+            return target;
+        }
+
+        if (typeof target === 'string' && target) {
+            return hostElement.querySelector<HTMLElement>(target);
+        }
+
+        return hostElement;
+    }
+
     private ensureOverlayRef(hostElement: HTMLElement): OverlayRef {
         if (this.overlayRef) {
             const position = this.position();
@@ -160,10 +268,13 @@ export class ImsTextTruncateDirective implements OnDestroy {
             hasBackdrop: false
         });
         this.overlayRef.hostElement.style.pointerEvents = 'none';
-        this.overlayRef.overlayElement.style.pointerEvents = 'none';
         this.overlayPosition = position;
 
         return this.overlayRef;
+    }
+
+    private applyOverlayInteractivity(overlayRef: OverlayRef): void {
+        overlayRef.overlayElement.style.pointerEvents = this.interactive() ? 'auto' : 'none';
     }
 
     private createPositionStrategy(hostElement: HTMLElement, position: ImsTextTruncatePosition) {
@@ -226,7 +337,9 @@ export class ImsTextTruncateDirective implements OnDestroy {
         '[style.box-shadow]': '"0 8px 24px rgba(15, 23, 42, 0.18)"',
         '[style.white-space]': '"normal"',
         '[style.overflow-wrap]': '"anywhere"',
-        '[style.pointer-events]': '"none"',
+        '[style.pointer-events]': 'interactive ? "auto" : "none"',
+        '[style.user-select]': 'interactive ? "text" : "none"',
+        '[style.cursor]': 'interactive ? "text" : null',
         '[style.max-width]': 'maxWidth',
         '[style.font]': 'font',
         '[style.line-height]': 'lineHeight',
@@ -241,6 +354,7 @@ class ImsTextTruncatePopover {
     font = 'inherit';
     lineHeight = 'normal';
     direction = 'inherit';
+    interactive = false;
 }
 
 let nextPopoverId = 0;

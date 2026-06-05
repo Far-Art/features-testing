@@ -7,6 +7,31 @@ import {ImsTextTruncateDirective} from './ims-text-truncate.directive';
     template: `
         <div id="target" imsTextTruncate>Very long clipped text</div>
         <div id="custom" [imsTextTruncate]="'Custom popover text'">Rendered text</div>
+        <div
+            id="wrapper"
+            [imsTextTruncate]="'Full selected value'"
+            imsTextTruncateTarget=".measured-value"
+            [imsTextTruncateApplyStyles]="false"
+            [imsTextTruncateShowOnFocus]="false"
+        >
+            <span class="measured-value">Clipped value</span>
+        </div>
+        <div
+            id="known-overflow"
+            [imsTextTruncate]="'All selected values'"
+            [imsTextTruncateApplyStyles]="false"
+            [imsTextTruncateOverflow]="true"
+        >
+            Visible selection
+        </div>
+        <div
+            id="interactive"
+            [imsTextTruncate]="'Selectable tooltip text'"
+            [imsTextTruncateOverflow]="true"
+            [imsTextTruncateInteractive]="true"
+        >
+            Interactive selection
+        </div>
     `
 })
 class TestHost {}
@@ -55,6 +80,8 @@ describe('ImsTextTruncateDirective', () => {
         const popover = document.querySelector('.ims-text-truncate-popover') as HTMLElement;
         expect(popover).toBeTruthy();
         expect(popover.textContent).toBe('Very long clipped text');
+        expect(popover.style.pointerEvents).toBe('none');
+        expect(popover.style.userSelect).toBe('none');
 
         target.dispatchEvent(new MouseEvent('mouseleave'));
         fixture.detectChanges();
@@ -91,6 +118,74 @@ describe('ImsTextTruncateDirective', () => {
 
         expect(document.querySelector('.ims-text-truncate-popover')?.textContent)
             .toBe('Custom popover text');
+    });
+
+    it('can measure a child without changing the hover host styles', () => {
+        const wrapper = fixture.nativeElement.querySelector('#wrapper') as HTMLElement;
+        const measuredValue = wrapper.querySelector('.measured-value') as HTMLElement;
+        setElementSize(measuredValue, {
+            clientWidth: 80,
+            scrollWidth: 200,
+            clientHeight: 20,
+            scrollHeight: 20
+        });
+
+        expect(wrapper.style.display).toBe('');
+        expect(wrapper.style.overflow).toBe('');
+
+        wrapper.dispatchEvent(new FocusEvent('focusin'));
+        fixture.detectChanges();
+        expect(document.querySelector('.ims-text-truncate-popover')).toBeNull();
+
+        wrapper.dispatchEvent(new MouseEvent('mouseenter'));
+        fixture.detectChanges();
+        expect(document.querySelector('.ims-text-truncate-popover')?.textContent)
+            .toBe('Full selected value');
+    });
+
+    it('can use a known overflow state supplied by a component', () => {
+        const knownOverflow = fixture.nativeElement.querySelector('#known-overflow') as HTMLElement;
+        setElementSize(knownOverflow, {
+            clientWidth: 200,
+            scrollWidth: 200,
+            clientHeight: 20,
+            scrollHeight: 20
+        });
+
+        knownOverflow.dispatchEvent(new MouseEvent('mouseenter'));
+        fixture.detectChanges();
+
+        expect(document.querySelector('.ims-text-truncate-popover')?.textContent)
+            .toBe('All selected values');
+    });
+
+    it('keeps an interactive popover open while the pointer is over selectable text', () => {
+        const interactive = fixture.nativeElement.querySelector('#interactive') as HTMLElement;
+
+        interactive.dispatchEvent(new MouseEvent('mouseenter'));
+        fixture.detectChanges();
+
+        const popover = document.querySelector('.ims-text-truncate-popover') as HTMLElement;
+        const overlayPane = popover.parentElement as HTMLElement;
+        spyOn(overlayPane, 'getBoundingClientRect').and.returnValue(new DOMRect(40, 40, 160, 40));
+
+        expect(overlayPane.style.pointerEvents).toBe('auto');
+        expect(popover.style.pointerEvents).toBe('auto');
+        expect(popover.style.userSelect).toBe('text');
+
+        interactive.dispatchEvent(new MouseEvent('mouseleave', {
+            clientX: 80,
+            clientY: 60
+        }));
+        fixture.detectChanges();
+        expect(document.querySelector('.ims-text-truncate-popover')).toBeTruthy();
+
+        document.dispatchEvent(new MouseEvent('mousemove', {
+            clientX: 400,
+            clientY: 400
+        }));
+        fixture.detectChanges();
+        expect(document.querySelector('.ims-text-truncate-popover')).toBeNull();
     });
 });
 

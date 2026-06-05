@@ -41,6 +41,7 @@
 
 .ims-autocomplete__input {
     padding: 0.45rem 2.25rem 0.45rem 0.65rem;
+    text-overflow: ellipsis;
 }
 
 [dir="rtl"] .ims-autocomplete__input,
@@ -96,6 +97,7 @@
 }
 
 .ims-autocomplete__badge {
+    order: -1;
     flex: 0 0 auto;
     min-width: 1.75rem;
     padding: 0.1rem 0.45rem;
@@ -106,6 +108,18 @@
     font-weight: 650;
     line-height: 1.35;
     text-align: center;
+}
+
+.ims-autocomplete__trigger > .ims-autocomplete__mode-icon {
+    order: -2;
+}
+
+.ims-autocomplete__trigger:dir(rtl) > .ims-autocomplete__badge {
+    order: 1;
+}
+
+.ims-autocomplete__trigger:dir(rtl) > .ims-autocomplete__mode-icon {
+    order: 2;
 }
 
 .ims-autocomplete__mode-icon {

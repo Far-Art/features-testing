@@ -4,6 +4,12 @@
     #overlayOrigin="cdkOverlayOrigin"
     type="button"
     class="ims-select__trigger"
+    [imsTextTruncate]="multiple() ? selectedLabels().join(', ') : singleDisplayText()"
+    imsTextTruncateTarget=".ims-select__value-text"
+    imsTextTruncatePosition="bottom"
+    [imsTextTruncateApplyStyles]="false"
+    [imsTextTruncateShowOnFocus]="false"
+    [imsTextTruncateOverflow]="multiple() && (multiDisplay().firstTruncated || multiDisplay().overflowCount > 0)"
     [class.ims-select__trigger--open]="open()"
     [class.ims-select__trigger--empty]="!hasSelection()"
     [disabled]="disabled()"
@@ -20,7 +26,6 @@
     <span
         #valueRow
         class="ims-select__value-row"
-        [attr.title]="multiple() ? selectedLabels().join(', ') : singleDisplayText()"
     >
         @if (hasSelection()) {
             @if (multiple()) {
@@ -31,9 +36,6 @@
                     {{ multiDisplay().text }}
                 </span>
 
-                @if (multiDisplay().overflowCount > 0) {
-                    <span class="ims-select__badge">+{{ multiDisplay().overflowCount }}</span>
-                }
             } @else {
                 <span class="ims-select__value-text ims-select__value-text--truncate">
                     {{ singleDisplayText() }}
@@ -52,6 +54,10 @@
         ></span>
     } @else {
         <span class="ims-select__chevron" aria-hidden="true"></span>
+    }
+
+    @if (multiple() && multiDisplay().overflowCount > 0) {
+        <span class="ims-select__badge">+{{ multiDisplay().overflowCount }}</span>
     }
 </button>
 

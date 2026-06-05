@@ -2,7 +2,13 @@
     #origin
     cdkOverlayOrigin
     #overlayOrigin="cdkOverlayOrigin"
-    class="ims-autocomplete">
+    class="ims-autocomplete"
+    [imsTextTruncate]="multiple() ? selectedLabels().join(', ') : query()"
+    imsTextTruncatePosition="bottom"
+    [imsTextTruncateTarget]="multiple() ? '.ims-autocomplete__value-text' : '.ims-autocomplete__input'"
+    [imsTextTruncateApplyStyles]="false"
+    [imsTextTruncateShowOnFocus]="false"
+    [imsTextTruncateOverflow]="multiple() && (multiDisplay().firstTruncated || multiDisplay().overflowCount > 0)">
 
     @if (multiple()) {
         <button
@@ -23,7 +29,6 @@
             <span
                 #valueRow
                 class="ims-autocomplete__value-row"
-                [attr.title]="selectedLabels().join(', ')"
             >
                 @if (hasSelection()) {
                     <span
@@ -33,9 +38,6 @@
                         {{ multiDisplay().text }}
                     </span>
 
-                    @if (multiDisplay().overflowCount > 0) {
-                        <span class="ims-autocomplete__badge">+{{ multiDisplay().overflowCount }}</span>
-                    }
                 } @else {
                     <span class="ims-autocomplete__placeholder">{{ placeholder() }}</span>
                 }
@@ -46,6 +48,10 @@
                 aria-hidden="true"
                 [textContent]="'playlist_add_check'"
             ></span>
+
+            @if (multiDisplay().overflowCount > 0) {
+                <span class="ims-autocomplete__badge">+{{ multiDisplay().overflowCount }}</span>
+            }
         </button>
     } @else {
         <input
