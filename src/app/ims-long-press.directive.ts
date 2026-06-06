@@ -10,6 +10,12 @@ import {
 
 const DEFAULT_HOLD_MS = 500;
 
+/** Keeps completion or cancellation feedback visible long enough for its CSS fade-out. */
+const FEEDBACK_MS = 220;
+
+/** Maximum time to authorize the native click generated after a successful pointer release. */
+const NATIVE_CLICK_WAIT_MS = 500;
+
 const coerceHoldMs = (value: unknown): number => {
     if (value === '' || value === null || value === undefined) return DEFAULT_HOLD_MS;
 
@@ -39,11 +45,12 @@ export class ImsLongPressDirective {
     private activeSource: HoldSource | null = null;
     private activePointerId: number | null = null;
     private startedAt = 0;
+    private maxRadius = 0;
     private ready = false;
     private allowNextClick = false;
+    private syntheticClick: MouseEvent | null = null;
     private frameId: ReturnType<typeof requestAnimationFrame> | null = null;
-    private cancelClassTimer: ReturnType<typeof setTimeout> | null = null;
-    private resetTimer: ReturnType<typeof setTimeout> | null = null;
+    private timerId: ReturnType<typeof setTimeout> | null = null;
 
     /** Duration, in milliseconds, that must elapse before releasing activates the click. */
     readonly holdMs = input(DEFAULT_HOLD_MS, {alias: 'imsLongPress', transform: coerceHoldMs});
@@ -64,9 +71,7 @@ export class ImsLongPressDirective {
     constructor() {
         this.zone.runOutsideAngular(() => {
             this.listen('pointerdown', this.onPointerDown);
-            this.listen('pointerup', this.onPointerUp);
-            this.listen('pointercancel', this.onPointerCancel);
-            this.listen('lostpointercapture', this.onLostPointerCapture);
+            this.listen('lostpointercapture', this.onPointerAbort);
             this.listen('keydown', this.onKeyDown);
             this.listen('keyup', this.onKeyUp);
             this.listen('blur', this.onBlur);
@@ -74,7 +79,7 @@ export class ImsLongPressDirective {
 
             const document = this.host.ownerDocument;
             this.listenTo(document, 'pointerup', this.onPointerUp);
-            this.listenTo(document, 'pointercancel', this.onPointerCancel);
+            this.listenTo(document, 'pointercancel', this.onPointerAbort);
             this.listenTo(document, 'visibilitychange', this.onVisibilityChange);
 
             if (document.defaultView) {
@@ -85,8 +90,7 @@ export class ImsLongPressDirective {
         this.destroyRef.onDestroy(() => {
             this.eventCleanups.forEach((cleanup) => cleanup());
             this.cancelFrame();
-            this.clearCancelClassTimer();
-            this.clearResetTimer();
+            this.clearTimer();
         });
     }
 
@@ -116,13 +120,18 @@ export class ImsLongPressDirective {
         if (this.host instanceof HTMLLabelElement) {
             event.preventDefault();
         }
-        this.capturePointer(event);
         this.startHold('pointer');
         this.activePointerId = event.pointerId;
+        this.capturePointer(event);
     }
 
     private onPointerUp(event: PointerEvent): void {
         if (this.activeSource !== 'pointer' || event.pointerId !== this.activePointerId) return;
+
+        if (this.shouldIgnoreInteraction(event.target)) {
+            this.cancelHold();
+            return;
+        }
 
         if (this.activation() === 'release' && !this.isPointerInsideHost(event)) {
             this.cancelHold();
@@ -132,19 +141,14 @@ export class ImsLongPressDirective {
         if (this.ready) {
             this.clearActiveInteraction();
             this.allowNextClick = true;
-            this.scheduleReset(500);
+            this.scheduleFinish(NATIVE_CLICK_WAIT_MS);
             return;
         }
 
         this.cancelHold();
     }
 
-    private onPointerCancel(event: PointerEvent): void {
-        if (this.activeSource !== 'pointer' || event.pointerId !== this.activePointerId) return;
-        this.cancelHold();
-    }
-
-    private onLostPointerCapture(event: PointerEvent): void {
+    private onPointerAbort(event: PointerEvent): void {
         if (this.activeSource !== 'pointer' || event.pointerId !== this.activePointerId) return;
         this.cancelHold();
     }
@@ -173,10 +177,13 @@ export class ImsLongPressDirective {
         event.preventDefault();
         event.stopImmediatePropagation();
 
+        if (this.shouldIgnoreInteraction(event.target)) {
+            this.cancelHold();
+            return;
+        }
+
         if (this.ready) {
-            this.allowNextClick = true;
-            this.dispatchClick();
-            this.scheduleReset();
+            this.activate();
             return;
         }
 
@@ -189,7 +196,9 @@ export class ImsLongPressDirective {
         }
     }
 
-    private onWindowBlur(): void {
+    private onWindowBlur(event: FocusEvent): void {
+        if (event.target !== this.host.ownerDocument.defaultView) return;
+
         if (this.activeSource) {
             this.cancelHold();
         }
@@ -204,13 +213,17 @@ export class ImsLongPressDirective {
     private onClick(event: MouseEvent): void {
         if (this.disabled()) return;
 
-        if (this.allowNextClick || this.ready) {
+        if (event === this.syntheticClick) return;
+
+        if (this.allowNextClick) {
             this.allowNextClick = false;
-            this.scheduleReset();
+            this.scheduleFinish();
             return;
         }
 
-        this.cancelHold();
+        if (this.activeSource) {
+            this.cancelHold();
+        }
         event.preventDefault();
         event.stopImmediatePropagation();
     }
@@ -219,18 +232,18 @@ export class ImsLongPressDirective {
         this.resetHold();
         this.activeSource = source;
         this.startedAt = performance.now();
-        this.ready = false;
-        this.allowNextClick = false;
-        this.clearResetTimer();
-        this.clearCancelClassTimer();
+        const {width, height} = this.host.getBoundingClientRect();
+        this.maxRadius = Math.hypot(width / 2, height / 2);
         this.host.classList.add('ims-long-press--holding');
-        this.host.classList.remove('ims-long-press--ready', 'ims-long-press--cancelled');
-        this.setProgress(0);
         this.frameId = requestAnimationFrame(this.updateProgress);
     }
 
     private readonly updateProgress = (timestamp: number): void => {
         if (!this.activeSource) return;
+        if (this.shouldIgnoreInteraction()) {
+            this.cancelHold();
+            return;
+        }
 
         const progress = Math.min((timestamp - this.startedAt) / this.holdMs(), 1);
         this.setProgress(progress);
@@ -246,23 +259,16 @@ export class ImsLongPressDirective {
     private markReady(): void {
         this.cancelFrame();
         this.ready = true;
-        this.allowNextClick = false;
         this.setProgress(1);
         this.host.classList.add('ims-long-press--ready');
 
         if (this.activation() === 'timeout') {
-            this.allowNextClick = true;
-            this.dispatchClick();
+            this.activate();
         }
     }
 
     private resetHold(): void {
-        this.cancelFrame();
-        this.clearActiveInteraction();
-        this.startedAt = 0;
-        this.ready = false;
-        this.allowNextClick = false;
-        this.clearResetTimer();
+        this.stopInteraction();
         this.setProgress(0);
         this.host.classList.remove(
             'ims-long-press--holding',
@@ -273,44 +279,57 @@ export class ImsLongPressDirective {
     }
 
     private cancelHold(): void {
+        this.endHold('cancelled');
+    }
+
+    private activate(): void {
+        this.clearActiveInteraction();
+        this.dispatchClick();
+        this.scheduleFinish();
+    }
+
+    private scheduleFinish(delayMs = 0): void {
+        this.schedule(this.finishHold, delayMs);
+    }
+
+    private readonly finishHold = (): void => {
+        this.endHold('completed');
+    };
+
+    private endHold(outcome: 'cancelled' | 'completed'): void {
+        const outcomeClass = `ims-long-press--${outcome}`;
+        const otherOutcomeClass = outcome === 'cancelled'
+            ? 'ims-long-press--completed'
+            : 'ims-long-press--cancelled';
+
+        this.stopInteraction();
+        this.host.classList.add(outcomeClass);
+        this.host.classList.remove(
+            'ims-long-press--holding',
+            'ims-long-press--ready',
+            otherOutcomeClass
+        );
+        this.schedule(() => {
+            this.setProgress(0);
+            this.host.classList.remove(outcomeClass);
+        }, FEEDBACK_MS);
+    }
+
+    private stopInteraction(): void {
         this.cancelFrame();
         this.clearActiveInteraction();
         this.startedAt = 0;
         this.ready = false;
         this.allowNextClick = false;
-        this.clearResetTimer();
-        this.host.classList.add('ims-long-press--cancelled');
-        this.host.classList.remove('ims-long-press--holding', 'ims-long-press--ready');
-        this.clearCancelClassTimer();
-        this.cancelClassTimer = setTimeout(() => {
-            this.setProgress(0);
-            this.host.classList.remove('ims-long-press--cancelled');
-            this.cancelClassTimer = null;
-        }, 220);
+        this.clearTimer();
     }
 
-    private scheduleReset(delayMs = 0): void {
-        this.clearResetTimer();
-        this.resetTimer = setTimeout(() => {
-            this.resetTimer = null;
-            this.finishHold();
+    private schedule(callback: () => void, delayMs: number): void {
+        this.clearTimer();
+        this.timerId = setTimeout(() => {
+            this.timerId = null;
+            callback();
         }, delayMs);
-    }
-
-    private finishHold(): void {
-        this.cancelFrame();
-        this.clearActiveInteraction();
-        this.startedAt = 0;
-        this.ready = false;
-        this.allowNextClick = false;
-        this.host.classList.add('ims-long-press--completed');
-        this.host.classList.remove('ims-long-press--holding', 'ims-long-press--ready');
-        this.clearCancelClassTimer();
-        this.cancelClassTimer = setTimeout(() => {
-            this.setProgress(0);
-            this.host.classList.remove('ims-long-press--completed');
-            this.cancelClassTimer = null;
-        }, 220);
     }
 
     private cancelFrame(): void {
@@ -320,28 +339,19 @@ export class ImsLongPressDirective {
         this.frameId = null;
     }
 
-    private clearCancelClassTimer(): void {
-        if (this.cancelClassTimer === null) return;
+    private clearTimer(): void {
+        if (this.timerId === null) return;
 
-        clearTimeout(this.cancelClassTimer);
-        this.cancelClassTimer = null;
-    }
-
-    private clearResetTimer(): void {
-        if (this.resetTimer === null) return;
-
-        clearTimeout(this.resetTimer);
-        this.resetTimer = null;
+        clearTimeout(this.timerId);
+        this.timerId = null;
     }
 
     private setProgress(progress: number): void {
-        const {width, height} = this.host.getBoundingClientRect();
-        const maxRadius = Math.hypot(width / 2, height / 2);
         const targetPercentage = progress * 100;
         const sourcePercentage = 100 - targetPercentage;
 
         this.host.style.setProperty('--ims-long-press-progress', String(progress));
-        this.host.style.setProperty('--ims-long-press-fill-radius', `${maxRadius * progress}px`);
+        this.host.style.setProperty('--ims-long-press-fill-radius', `${this.maxRadius * progress}px`);
         this.host.style.setProperty('--ims-long-press-circle-angle', `${progress * 360}deg`);
         this.host.style.setProperty(
             '--ims-long-press-fill-color',
@@ -397,7 +407,12 @@ export class ImsLongPressDirective {
             view: this.host.ownerDocument.defaultView
         });
 
-        this.host.dispatchEvent(event);
+        this.syntheticClick = event;
+        try {
+            this.host.dispatchEvent(event);
+        } finally {
+            this.syntheticClick = null;
+        }
     }
 
     private isActivationKey(event: KeyboardEvent): boolean {
@@ -413,12 +428,11 @@ export class ImsLongPressDirective {
     }
 
     private isTargetDisabled(target?: EventTarget | null): boolean {
-        return target instanceof HTMLButtonElement
+        return (target instanceof HTMLButtonElement
             || target instanceof HTMLInputElement
             || target instanceof HTMLSelectElement
-            || target instanceof HTMLTextAreaElement
-            ? target.disabled
-            : false;
+            || target instanceof HTMLTextAreaElement)
+            && target.disabled;
     }
 
     private get host(): HTMLElement {
