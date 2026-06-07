@@ -1,0 +1,286 @@
+<section class="form-layout-demo" aria-labelledby="form-layout-demo-title">
+    <div class="form-layout-demo__intro">
+        <h1 id="form-layout-demo-title">פריסת שדות טופס</h1>
+        <p>
+            רכיבים מימין לשמאל. בכל עמודה חזותית רוחב התווית ורוחב הערך נקבעים
+            לפי התוכן הרחב ביותר באותה עמודה בלבד.
+        </p>
+    </div>
+
+    <div class="form-layout-demo__example">
+        <h2>קבוצה רספונסיבית ללא מספר עמודות</h2>
+        <p class="form-layout-demo__hint">
+            הקבוצה מחשבת את מספר העמודות לפי הרוחב הזמין.
+        </p>
+
+        <ims-form-field-group>
+            <ims-form-field>
+                <label imsFormFieldLabel>שם פרטי</label>
+                <input imsFormFieldControl value="נועה">
+            </ims-form-field>
+
+            <ims-form-field>
+                <label imsFormFieldLabel>מספר לקוח במערכת</label>
+                <input imsFormFieldControl imsFormFieldControlWidth="20rem" value="45872196">
+            </ims-form-field>
+
+            <ims-form-field>
+                <label imsFormFieldLabel>עיר</label>
+                <input imsFormFieldControl imsFormFieldControlWidth="16rem" value="תל אביב">
+            </ims-form-field>
+
+            <ims-form-field>
+                <label imsFormFieldLabel>שם משפחה ארוך</label>
+                <input imsFormFieldControl value="ישראלי">
+            </ims-form-field>
+
+            <ims-form-field>
+                <label imsFormFieldLabel>פוליסה</label>
+                <input
+                    imsFormFieldControl
+                    imsFormFieldControlWidth="20rem"
+                    value="פוליסת בריאות משפחתית"
+                >
+            </ims-form-field>
+
+            <ims-form-field>
+                <label imsFormFieldLabel>מיקוד למשלוח מסמכים</label>
+                <input imsFormFieldControl imsFormFieldControlWidth="16rem" value="6100001">
+            </ims-form-field>
+
+            <ims-form-field>
+                <label imsFormFieldLabel>הערות מפורטות</label>
+                <textarea imsFormFieldControl imsFormFieldControlWidth="20rem" rows="4">התווית נשארת בראש השדה הגבוה, ובשדה רגיל היא ממורכזת בתוך גובה של 26 פיקסלים.</textarea>
+            </ims-form-field>
+        </ims-form-field-group>
+    </div>
+
+    <div class="form-layout-demo__example">
+        <h2>שלוש עמודות עם שורות יציבות</h2>
+        <p class="form-layout-demo__hint">
+            כל ims-form-field-row תופס שורה מלאה. המאפיין column מקבע שדה לעמודה גם כששדה אחר מוסר.
+        </p>
+
+        <ims-form-field-group columns="3">
+            <ims-form-field-row>
+                <ims-form-field column="1">
+                    <label imsFormFieldLabel>מספר זהות</label>
+                    <input imsFormFieldControl value="123456789">
+                </ims-form-field>
+
+                <ims-form-field column="2">
+                    <label imsFormFieldLabel>טלפון ראשי ליצירת קשר</label>
+                    <input imsFormFieldControl imsFormFieldControlWidth="16rem" value="050-5555555">
+                </ims-form-field>
+
+                <ims-form-field column="3">
+                    <span imsFormFieldLabel>סטטוס</span>
+                    <span imsFormFieldControl>פעיל</span>
+                </ims-form-field>
+            </ims-form-field-row>
+
+            <ims-form-field-row>
+                <ims-form-field column="1">
+                    <label imsFormFieldLabel id="demo-validity-label">תוקף הפוליסה</label>
+                    <ims-form-control-group
+                        imsFormFieldControl
+                        role="group"
+                        aria-labelledby="demo-validity-label"
+                    >
+                        <label>
+                            <span>מתאריך</span>
+                            <input type="date" value="2026-01-01">
+                        </label>
+
+                        <label>
+                            <span>עד תאריך</span>
+                            <input type="date" value="2026-12-31">
+                        </label>
+                    </ims-form-control-group>
+                </ims-form-field>
+
+                <ims-form-field column="3">
+                    <span imsFormFieldLabel>נציג מטפל</span>
+                    <span imsFormFieldControl>מיכל כהן, מחלקת שירות</span>
+                </ims-form-field>
+            </ims-form-field-row>
+
+            <ims-form-field-row>
+                <ims-form-field column="2">
+                    <label imsFormFieldLabel id="demo-inline-validity-label">תקופת זכאות</label>
+                    <ims-form-control-group
+                        imsFormFieldControl
+                        layout="inline"
+                        role="group"
+                        aria-labelledby="demo-inline-validity-label"
+                    >
+                        <label>
+                            <span>מתאריך</span>
+                            <input type="date" value="2026-03-01">
+                        </label>
+
+                        <label>
+                            <span>עד תאריך</span>
+                            <input type="date" value="2026-09-30">
+                        </label>
+                    </ims-form-control-group>
+                </ims-form-field>
+            </ims-form-field-row>
+
+            <ims-form-field-row>
+                <ims-form-field column="1">
+                    <label imsFormFieldLabel>סניף</label>
+                    <select imsFormFieldControl>
+                        <option>ירושלים</option>
+                        <option>תל אביב</option>
+                        <option>חיפה</option>
+                    </select>
+                </ims-form-field>
+
+                <ims-form-field column="2">
+                    <label imsFormFieldLabel>כתובת דואר אלקטרוני</label>
+                    <input
+                        imsFormFieldControl
+                        imsFormFieldControlWidth="20rem"
+                        type="email"
+                        value="noa@example.co.il"
+                        dir="ltr"
+                    >
+                </ims-form-field>
+            </ims-form-field-row>
+
+            <ims-form-field-row>
+                <ims-form-field column="1">
+                    <label imsFormFieldLabel>חשבון לחיוב</label>
+                    <input
+                        imsFormFieldControl
+                        class="ng-invalid"
+                        value="ערך לא תקין"
+                        aria-invalid="true"
+                    >
+                </ims-form-field>
+
+                <ims-form-field column="2">
+                    <label imsFormFieldLabel>אסמכתה נעולה</label>
+                    <input
+                        imsFormFieldControl
+                        imsFormFieldControlWidth="16rem"
+                        value="REF-2026-1042"
+                        disabled
+                        dir="ltr"
+                    >
+                </ims-form-field>
+            </ims-form-field-row>
+        </ims-form-field-group>
+
+        <div class="form-layout-demo__legend" aria-hidden="true">
+            <span>רוחב התווית משותף בתוך העמודה</span>
+            <span>רוחב אזור הערך משותף בתוך העמודה</span>
+        </div>
+    </div>
+
+    <div class="form-layout-demo__example">
+        <h2>שדה עצמאי</h2>
+        <ims-form-field class="form-layout-demo__standalone">
+            <label imsFormFieldLabel>חיפוש חופשי</label>
+            <input
+                imsFormFieldControl
+                imsFormFieldControlWidth="20rem"
+                type="search"
+                placeholder="הקלדת שם או מספר"
+            >
+        </ims-form-field>
+    </div>
+</section>
+
+<section class="form-grid-demo" aria-labelledby="form-grid-demo-title">
+    <div>
+        <h1 id="form-grid-demo-title">שדות טופס בתוך טבלה ממוינת</h1>
+        <p>
+            עמודות ללא רוחב מפורש מושפעות גם מתוכן התאים, בדומה לטבלה. עמודת
+            הפרמיה נשארת ברוחב קבוע שהוגדר בכותרת. לחיצה על כותרת ממיינת.
+        </p>
+    </div>
+
+    <div class="form-grid-demo__viewport">
+        <ims-grid
+            columnGap="1rem"
+            [imsGridSort]="formGridSource"
+            #formGridSort="imsGridSort"
+        >
+            <ims-grid-header>
+                <ims-grid-cell>
+                    <ims-grid-sort-header field="customerName">שם לקוח</ims-grid-sort-header>
+                </ims-grid-cell>
+                <ims-grid-cell>
+                    <ims-grid-sort-header field="policyNumber">מספר פוליסה</ims-grid-sort-header>
+                </ims-grid-cell>
+                <ims-grid-cell>
+                    <ims-grid-sort-header field="validUntil">תוקף</ims-grid-sort-header>
+                </ims-grid-cell>
+                <ims-grid-cell width="12rem">
+                    <ims-grid-sort-header field="premium">פרמיה חודשית</ims-grid-sort-header>
+                </ims-grid-cell>
+            </ims-grid-header>
+
+            @for (row of formGridSort.sortedData(); track row.id) {
+                <ims-grid-row>
+                    <ims-grid-cell>
+                        <ims-form-field>
+                            <label imsFormFieldLabel>
+                                {{ row.id === 3 ? 'שם המבוטח הראשי' : 'לקוח' }}
+                            </label>
+                            <input
+                                imsFormFieldControl
+                                imsFormFieldControlWidth="9rem"
+                                [(ngModel)]="row.customerName"
+                            >
+                        </ims-form-field>
+                    </ims-grid-cell>
+
+                    <ims-grid-cell>
+                        <ims-form-field>
+                            <label imsFormFieldLabel>
+                                {{ row.id === 2 ? 'מספר פוליסה פנימי' : 'פוליסה' }}
+                            </label>
+                            <input
+                                imsFormFieldControl
+                                imsFormFieldControlWidth="8rem"
+                                [(ngModel)]="row.policyNumber"
+                                dir="ltr"
+                            >
+                        </ims-form-field>
+                    </ims-grid-cell>
+
+                    <ims-grid-cell>
+                        <ims-form-field>
+                            <label imsFormFieldLabel>
+                                {{ row.id === 4 ? 'תוקף כיסוי ביטוחי' : 'עד' }}
+                            </label>
+                            <input
+                                imsFormFieldControl
+                                imsFormFieldControlWidth="9.5rem"
+                                type="date"
+                                [(ngModel)]="row.validUntil"
+                            >
+                        </ims-form-field>
+                    </ims-grid-cell>
+
+                    <ims-grid-cell>
+                        <ims-form-field>
+                            <label imsFormFieldLabel>₪</label>
+                            <input
+                                imsFormFieldControl
+                                imsFormFieldControlWidth="6rem"
+                                type="number"
+                                min="0"
+                                step="5"
+                                [(ngModel)]="row.premium"
+                            >
+                        </ims-form-field>
+                    </ims-grid-cell>
+                </ims-grid-row>
+            }
+        </ims-grid>
+    </div>
+</section>

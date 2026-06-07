@@ -1,20 +1,12 @@
-import { TestBed } from '@angular/core/testing';
-import {of} from 'rxjs';
-import { App } from './app';
-import {QueryDialogService} from './query-infra/query-dialog.service';
-import {QuerySelectionResult} from './query-infra/query.models';
-
-class QueryDialogServiceStub {
-  open(_queryKey: string, _scopeInjector?: unknown, _initialFilter?: Record<string, unknown>) {
-    return of<QuerySelectionResult | null>(null);
-  }
-}
+import {TestBed} from '@angular/core/testing';
+import {provideRouter} from '@angular/router';
+import {App} from './app';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [{provide: QueryDialogService, useClass: QueryDialogServiceStub}]
+      providers: [provideRouter([])]
     }).compileComponents();
   });
 
@@ -24,10 +16,14 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render translated demo heading', () => {
+  it('should render demo navigation', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h2')?.textContent).toContain('רכיב בחירה');
+    const links = Array.from(compiled.querySelectorAll('nav a')).map((link) =>
+      link.textContent?.trim()
+    );
+
+    expect(links).toEqual(['טפסים וטבלה', 'בחירה והשלמה', 'כפתורים']);
   });
 });

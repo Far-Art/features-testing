@@ -123,7 +123,12 @@ export class ImsGridCell {
         return toCssLength(maxWidth);
     }
 
-    /** CSS grid track expression contributed by this cell when it is in a header row. */
+    /**
+     * CSS grid track expression contributed by this cell when it is in a header row.
+     *
+     * A fixed width opts out of intrinsic sizing. Minimum-only and maximum-only
+     * constraints still allow body cells to influence the final track size.
+     */
     get columnTrackCss(): string | null {
         const width = this.widthCss;
         if (width) {
@@ -137,11 +142,15 @@ export class ImsGridCell {
         }
 
         if (minWidth) {
-            return `minmax(${minWidth}, 1fr)`;
+            return `minmax(${minWidth}, max-content)`;
         }
 
         if (maxWidth) {
-            return `minmax(0px, ${maxWidth})`;
+            if (isFlexibleTrack(maxWidth)) {
+                return `minmax(auto, ${maxWidth})`;
+            }
+
+            return `fit-content(${maxWidth})`;
         }
 
         return null;
@@ -214,4 +223,8 @@ function toCssLength(value: string | number): string {
     }
 
     return normalized;
+}
+
+function isFlexibleTrack(value: string): boolean {
+    return /^-?\d*\.?\d+fr$/i.test(value);
 }

@@ -39,8 +39,14 @@ export class ImsGrid implements ImsGridContext {
     readonly offsetStart = input<string | number>(0);
     /** End rail track applied once on the root grid without shrinking full-width children. */
     readonly offsetEnd = input<string | number>(0);
-    /** Track used for header columns that do not declare width/minWidth/maxWidth. */
-    readonly defaultColumnTrack = input<string>('minmax(0, 1fr)');
+    /**
+     * Track used for columns without header sizing.
+     *
+     * `auto` mirrors table auto-layout: intrinsic contributions from header and
+     * body subgrid cells establish the column width, then remaining space may
+     * be distributed across auto tracks.
+     */
+    readonly defaultColumnTrack = input<string>('auto');
     /**
      * Optional complete CSS grid-template-columns override.
      *
@@ -90,10 +96,11 @@ export class ImsGrid implements ImsGridContext {
     /**
      * CSS `grid-template-columns` value applied to the root grid.
      *
-     * Header cell `width`, `minWidth`, and `maxWidth` inputs win per column.
-     * Columns without explicit header sizing use `defaultColumnTrack`. Offset
-     * inputs are modeled as real grid tracks so components spanning the whole
-     * grid keep their natural width while cells align inside the offset rails.
+     * A header cell `width` is authoritative. Otherwise header and body cell
+     * intrinsic sizes both contribute, with optional minWidth/maxWidth
+     * constraints. Offset inputs are modeled as real grid tracks so components
+     * spanning the whole grid keep their natural width while cells align inside
+     * the offset rails.
      */
     readonly resolvedColumnTemplate: Signal<string> = computed(() => {
         const explicitTemplate = this.columnTemplate()?.trim();
@@ -107,7 +114,7 @@ export class ImsGrid implements ImsGridContext {
         }
 
         const headerRow = this.rows().find((row) => row.headerCellCount() > 0);
-        const defaultTrack = this.defaultColumnTrack().trim() || 'minmax(0, 1fr)';
+        const defaultTrack = this.defaultColumnTrack().trim() || 'auto';
         const columnTracks: string[] = [];
         for (let index = 0; index < columnCount; index += 1) {
             columnTracks.push(headerRow?.resolveColumnTrack(index) ?? defaultTrack);

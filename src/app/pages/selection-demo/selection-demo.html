@@ -1,0 +1,125 @@
+<header class="page-heading">
+    <h1>בחירה והשלמה אוטומטית</h1>
+    <p>הדגמות לערכים יחידים, בחירה מרובה, סינון, טעינה אסינכרונית וגלילה וירטואלית.</p>
+</header>
+
+<section class="select-demo">
+    <div>
+        <h2>רכיב בחירה</h2>
+        <p>אפשרויות מוקרנות עם ערכי אובייקט, טקסט מותאם לאפשרות, סינון, סרגל מרובה בחירה וחיבור לטפסים.</p>
+    </div>
+
+    <div class="select-demo__grid">
+        <label class="select-demo__field">
+            <span>בחירה מרובה ריאקטיבית</span>
+            <ims-select
+                multiple
+                filter="auto"
+                toolbar="auto"
+                placeholder="בחר תיקים"
+                ariaLabel="בחירה מרובה ריאקטיבית"
+                [formControl]="selectedBagsControl"
+                [compareWith]="compareBagById"
+            >
+                @for (bag of bagOptions; track bag.id) {
+                    <ims-option [value]="bag" [selectionText]="bag.label">
+                        {{ bag.label }} (+{{ bag.count }})
+                    </ims-option>
+                }
+            </ims-select>
+        </label>
+
+        <label class="select-demo__field">
+            <span>בחירה יחידה עם ngModel</span>
+            <ims-select
+                filter="auto"
+                placeholder="בחר תיק"
+                ariaLabel="בחירה יחידה עם ngModel"
+                [(ngModel)]="selectedBagModel"
+                [compareWith]="compareBagById"
+            >
+                @for (bag of bagOptions; track bag.id) {
+                    <ims-option [value]="bag" [selectionText]="bag.label">
+                        {{ bag.label }} (+{{ bag.count }})
+                    </ims-option>
+                }
+            </ims-select>
+        </label>
+    </div>
+</section>
+
+<section class="select-demo">
+    <div>
+        <h2>רכיב השלמה אוטומטית</h2>
+        <p>אפשרויות מתוך רשימה עם הדגשת התאמות, גלילה וירטואלית, טעינה אסינכרונית, מיון ובחירה מרובה מחייבת.</p>
+    </div>
+
+    <div class="select-demo__grid">
+        <label class="select-demo__field">
+            <span>השלמה אוטומטית יחידה</span>
+            <ims-autocomplete
+                placeholder="הקלד או בחר"
+                ariaLabel="השלמה אוטומטית יחידה"
+                sort="asc"
+                [options]="bagAutocompleteOptions"
+                [formControl]="autocompleteSingleControl"
+                [compareWith]="compareBagById"
+            />
+        </label>
+
+        <label class="select-demo__field">
+            <span>השלמה אוטומטית מרובה אסינכרונית</span>
+            <ims-autocomplete
+                multiple
+                placeholder="בחר תיקים"
+                ariaLabel="השלמה אוטומטית מרובה אסינכרונית"
+                sort="asc"
+                toolbar="auto"
+                [loadOptions]="loadBagAutocompleteOptions"
+                [formControl]="autocompleteMultiControl"
+                [compareWith]="compareBagById"
+            />
+        </label>
+    </div>
+</section>
+
+<section class="select-demo">
+    <div>
+        <h2>רשימת השלמה אוטומטית גדולה</h2>
+        <p>רשימה סטטית עם {{ largeAutocompleteOptions.length }} אפשרויות שנוצרו לבדיקת גלילה וירטואלית וסינון.</p>
+    </div>
+
+    <div class="select-demo__grid">
+        <label class="select-demo__field">
+            <span>השלמה אוטומטית עם 100,000 אפשרויות</span>
+            <ims-autocomplete
+                placeholder="חפש לקוח, פוליסה או אזור"
+                ariaLabel="רשימת השלמה אוטומטית גדולה"
+                [options]="largeAutocompleteOptions"
+                [formControl]="largeAutocompleteControl"
+                [compareWith]="compareBagById"
+            />
+        </label>
+    </div>
+</section>
+
+<section class="select-demo">
+    <div>
+        <h2>השלמה אוטומטית מול שרת</h2>
+        <p>טעינה מרוחקת מדומה של אפשרויות עם השהיית תגובה של 2 שניות והגבלת כמות תוצאות.</p>
+    </div>
+
+    <div class="select-demo__grid">
+        <label class="select-demo__field">
+            <span>שליפה מהשרת במשך 2 שניות</span>
+            <ims-autocomplete
+                placeholder="חפש לקוחות מרוחקים"
+                ariaLabel="השלמה אוטומטית מול שרת"
+                [loadDebounceMs]="350"
+                [loadOptions]="loadServerAutocompleteOptions"
+                [formControl]="serverAutocompleteControl"
+                [compareWith]="compareBagById"
+            />
+        </label>
+    </div>
+</section>

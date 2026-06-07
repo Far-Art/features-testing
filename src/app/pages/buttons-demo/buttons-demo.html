@@ -1,0 +1,34 @@
+<header class="page-heading">
+    <h1>כפתורים ואינטראקציות</h1>
+    <p>הדגמות לפעולות בולטות ולחיצה ממושכת.</p>
+</header>
+
+<section class="button-demo">
+    <div>
+        <h2>כפתור קריאה לפעולה</h2>
+        <p>שני גלים מדורגים מושכים תשומת לב לפעולה המרכזית בלי להזיז את הכפתור עצמו.</p>
+    </div>
+
+    <button type="button" class="call-to-action cta-demo__button">
+        המשך לתשלום
+    </button>
+</section>
+
+<section class="button-demo">
+    <div>
+        <h2>כפתור לחיצה ממושכת</h2>
+        <p>הכפתור מפעיל את הפעולה רק אחרי החזקה של שנייה ושחרור לאחר שהטבעת התמלאה.</p>
+    </div>
+
+    <div class="long-press-demo__actions">
+        <button
+            type="button"
+            class="critical-action-button"
+            imsLongPress
+            (click)="registerCriticalAction()"
+        >
+            פעולה קריטית
+        </button>
+        <span class="long-press-demo__count">הופעל {{ criticalActionCount }} פעמים</span>
+    </div>
+</section>
