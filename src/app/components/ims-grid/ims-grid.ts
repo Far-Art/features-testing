@@ -1,0 +1,235 @@
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, ElementRef, forwardRef, inject, input, Signal, signal} from '@angular/core';
+import {IMS_GRID_CONTEXT, ImsGridAppearance, ImsGridContext, ImsGridRowContext} from './ims-grid.tokens';
+
+
+@Component({
+    selector: 'ims-grid',
+    standalone: true,
+    template: '<ng-content/>',
+    host: {
+        '[style.--ims-grid-column-gap]': 'columnGap()',
+        '[style.--ims-grid-offset-start]': 'offsetStartCss()',
+        '[style.--ims-grid-offset-end]': 'offsetEndCss()',
+        '[style.--ims-grid-template]': 'resolvedColumnTemplate()',
+        '[style.row-gap]': 'rowGap()',
+        '[attr.appearance]': 'appearance()'
+    },
+    providers: [
+        {
+            provide: IMS_GRID_CONTEXT,
+            useExisting: forwardRef(() => ImsGrid)
+        }
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
+})
+/**
+ * Root grid container that owns the shared column template for `ims-grid-row`,
+ * `ims-grid-header`, and nested subgrid wrappers.
+ *
+ * The component intentionally keeps layout state at the root and exposes it
+ * through CSS custom properties so projected rows can align with the header
+ * using CSS `subgrid`.
+ */
+export class ImsGrid implements ImsGridContext {
+    /** Horizontal gutter track between logical columns. */
+    readonly gap = input<string | number>(3, {alias: 'columnGap'});
+    /** Vertical gap between top-level grid rows. */
+    readonly rowGapInput = input<string | number>(0, {alias: 'rowGap'});
+    /** Start rail track applied once on the root grid without shrinking full-width children. */
+    readonly offsetStart = input<string | number>(0);
+    /** End rail track applied once on the root grid without shrinking full-width children. */
+    readonly offsetEnd = input<string | number>(0);
+    /** Track used for header columns that do not declare width/minWidth/maxWidth. */
+    readonly defaultColumnTrack = input<string>('minmax(0, 1fr)');
+    /**
+     * Optional complete CSS grid-template-columns override.
+     *
+     * This is an advanced escape hatch. The default template includes offset
+     * rails and explicit gutter tracks, which is what `ims-grid-cell` indexes
+     * against. Custom templates should preserve that track structure.
+     */
+    readonly columnTemplate = input<string | undefined>(undefined);
+    /** Appearance marker mirrored to `appearance` attribute on host. */
+    readonly appearance = input<ImsGridAppearance>('default');
+    /** Normalized CSS length for the column gutter track custom property. */
+    readonly columnGap: Signal<string> = computed(() => toCssLength(this.gap()));
+    /** Normalized CSS length for the host row gap style. */
+    readonly rowGap: Signal<string> = computed(() => toCssLength(this.rowGapInput()));
+    /** Normalized CSS length for the root start rail. */
+    readonly offsetStartCss: Signal<string> = computed(() => toCssLength(this.offsetStart()));
+    /** Normalized CSS length for the root end rail. */
+    readonly offsetEndCss: Signal<string> = computed(() => toCssLength(this.offsetEnd()));
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly hostElement = inject(ElementRef<HTMLElement>).nativeElement;
+    private readonly rows = signal<readonly ImsGridRowContext[]>([]);
+    /** Maximum logical column count across header rows, falling back to body rows. */
+    readonly columnCount: Signal<number> = computed(() => {
+        const rows = this.rows();
+        if (rows.length === 0) {
+            return 0;
+        }
+
+        const headerCounts = rows.map((row) => row.headerCellCount()).filter((count) => count > 0);
+        if (headerCounts.length > 0) {
+            return Math.max(...headerCounts);
+        }
+
+        return Math.max(...rows.map((row) => row.cellCount()));
+    });
+
+    /** Adds a row/header to the root grid's column calculations. */
+    registerRow(row: ImsGridRowContext): void {
+        this.rows.update((rows) => rows.includes(row) ? rows : [...rows, row]);
+    }
+
+    /** Removes a row/header from the root grid's column calculations. */
+    unregisterRow(row: ImsGridRowContext): void {
+        this.rows.update((rows) => rows.filter((current) => current !== row));
+    }
+
+    /**
+     * CSS `grid-template-columns` value applied to the root grid.
+     *
+     * Header cell `width`, `minWidth`, and `maxWidth` inputs win per column.
+     * Columns without explicit header sizing use `defaultColumnTrack`. Offset
+     * inputs are modeled as real grid tracks so components spanning the whole
+     * grid keep their natural width while cells align inside the offset rails.
+     */
+    readonly resolvedColumnTemplate: Signal<string> = computed(() => {
+        const explicitTemplate = this.columnTemplate()?.trim();
+        if (explicitTemplate) {
+            return explicitTemplate;
+        }
+
+        const columnCount = this.columnCount();
+        if (columnCount <= 0) {
+            return 'none';
+        }
+
+        const headerRow = this.rows().find((row) => row.headerCellCount() > 0);
+        const defaultTrack = this.defaultColumnTrack().trim() || 'minmax(0, 1fr)';
+        const columnTracks: string[] = [];
+        for (let index = 0; index < columnCount; index += 1) {
+            columnTracks.push(headerRow?.resolveColumnTrack(index) ?? defaultTrack);
+        }
+
+        return buildTemplateWithOffsetRails(columnTracks);
+    });
+
+    constructor() {
+        const document = this.hostElement.ownerDocument;
+        const onCopy = (event: ClipboardEvent) => this.onCopy(event);
+        document.addEventListener('copy', onCopy);
+        this.destroyRef.onDestroy(() => document.removeEventListener('copy', onCopy));
+    }
+
+    /** Copies a selected grid range as tab/newline-delimited cell text. */
+    onCopy(event: ClipboardEvent): void {
+        const selectedText = resolveSelectedGridText(
+            this.hostElement,
+            this.hostElement.ownerDocument.getSelection()
+        );
+        if (selectedText === null || !event.clipboardData) {
+            return;
+        }
+
+        event.clipboardData.setData('text/plain', selectedText);
+        event.preventDefault();
+    }
+}
+
+function buildTemplateWithOffsetRails(columnTracks: readonly string[]): string {
+    const tracks = ['var(--ims-grid-offset-start)'];
+
+    columnTracks.forEach((track, index) => {
+        if (index > 0) {
+            tracks.push('var(--ims-grid-column-gap)');
+        }
+
+        tracks.push(track);
+    });
+
+    tracks.push('var(--ims-grid-offset-end)');
+
+    return tracks.join(' ');
+}
+
+/** Converts numeric or unitless length inputs into valid CSS length strings. */
+function toCssLength(value: string | number): string {
+    if (typeof value === 'number') {
+        return `${value}px`;
+    }
+
+    const normalized = value.trim();
+    if (!normalized) {
+        return '0px';
+    }
+
+    if (/^-?\d+(\.\d+)?$/.test(normalized)) {
+        return `${normalized}px`;
+    }
+
+    return normalized;
+}
+
+function resolveSelectedGridText(hostElement: HTMLElement, selection: Selection | null): string | null {
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+        return null;
+    }
+
+    const rows = Array.from(
+        hostElement.querySelectorAll<HTMLElement>('ims-grid-header, ims-grid-row')
+    ).filter((row) => row.closest('ims-grid') === hostElement);
+
+    const lines: string[] = [];
+    for (const row of rows) {
+        const selectedCells = resolveOwnGridCells(row)
+            .map((cell) => resolveSelectedNodeText(selection, cell))
+            .filter((text): text is string => text !== null);
+
+        if (selectedCells.length > 0) {
+            lines.push(selectedCells.map(normalizeCopiedCellText).join('\t'));
+        }
+    }
+
+    return lines.length > 0 ? lines.join('\n') : null;
+}
+
+function resolveOwnGridCells(row: HTMLElement): readonly HTMLElement[] {
+    return Array.from(row.querySelectorAll<HTMLElement>('ims-grid-cell'))
+                .filter((cell) => cell.closest('ims-grid-row, ims-grid-header') === row);
+}
+
+function resolveSelectedNodeText(selection: Selection, node: HTMLElement): string | null {
+    const selectedParts: string[] = [];
+    for (let index = 0; index < selection.rangeCount; index += 1) {
+        const range = selection.getRangeAt(index);
+        if (!rangeIntersectsNode(range, node)) {
+            continue;
+        }
+
+        const clippedRange = range.cloneRange();
+        if (!node.contains(range.startContainer)) {
+            clippedRange.setStart(node, 0);
+        }
+        if (!node.contains(range.endContainer)) {
+            clippedRange.setEnd(node, node.childNodes.length);
+        }
+
+        selectedParts.push(clippedRange.toString());
+    }
+
+    return selectedParts.length > 0 ? selectedParts.join('') : null;
+}
+
+function rangeIntersectsNode(range: Range, node: Node): boolean {
+    try {
+        return range.intersectsNode(node);
+    } catch {
+        return false;
+    }
+}
+
+function normalizeCopiedCellText(text: string): string {
+    return text.replace(/\s+/g, ' ').trim();
+}

@@ -1,0 +1,29 @@
+/*
+ * Appearance implementations for ims-grid.
+ *
+ * Base layout rules live in ims-grid.scss. Keep appearance-specific selectors
+ * here so variants such as `appearance="styled"` remain isolated from the grid
+ * structure and adapter rules.
+ */
+
+ims-grid[appearance='styled'] {
+    /*
+     * Grid-level styled appearance rules go here.
+     * Header rows inherit this appearance unless they provide their own input.
+     */
+
+    ims-grid-row {
+
+        &:hover:not(:has(ims-grid-row:hover)) {
+            //background-color: #9e4f4f;
+        }
+    }
+}
+
+ims-grid-header[appearance='styled'] {
+    /*
+     * Header-specific styled appearance rules go here.
+     * This selector also covers the inherited effective appearance from the grid.
+     */
+
+}
