@@ -208,37 +208,37 @@
         </div>
 
         <div class="ims-form-grid-demo__viewport">
-            <ims-grid2
+            <ims-grid
                 columnGap="1rem"
-                [imsGrid2Sort]="formGridSource"
-                #formGridSort="imsGrid2Sort"
+                [imsGridSort]="formGridSource"
+                #formGridSort="imsGridSort"
             >
-                <ims-grid2-header>
-                    <ims-grid2-cell minWidth="14rem" maxWidth="1fr">
-                        <ims-grid2-sort-header field="customerName">
+                <ims-grid-header>
+                    <ims-grid-cell minWidth="14rem" maxWidth="1fr">
+                        <ims-grid-sort-header field="customerName">
                             שם לקוח
-                        </ims-grid2-sort-header>
-                    </ims-grid2-cell>
-                    <ims-grid2-cell minWidth="13rem" maxWidth="1fr">
-                        <ims-grid2-sort-header field="policyNumber">
+                        </ims-grid-sort-header>
+                    </ims-grid-cell>
+                    <ims-grid-cell minWidth="13rem" maxWidth="1fr">
+                        <ims-grid-sort-header field="policyNumber">
                             מספר פוליסה
-                        </ims-grid2-sort-header>
-                    </ims-grid2-cell>
-                    <ims-grid2-cell minWidth="14rem" maxWidth="1fr">
-                        <ims-grid2-sort-header field="validUntil">
+                        </ims-grid-sort-header>
+                    </ims-grid-cell>
+                    <ims-grid-cell minWidth="14rem" maxWidth="1fr">
+                        <ims-grid-sort-header field="validUntil">
                             תוקף
-                        </ims-grid2-sort-header>
-                    </ims-grid2-cell>
-                    <ims-grid2-cell minWidth="12rem" maxWidth="1fr">
-                        <ims-grid2-sort-header field="premium">
+                        </ims-grid-sort-header>
+                    </ims-grid-cell>
+                    <ims-grid-cell minWidth="12rem" maxWidth="1fr">
+                        <ims-grid-sort-header field="premium">
                             פרמיה חודשית
-                        </ims-grid2-sort-header>
-                    </ims-grid2-cell>
-                </ims-grid2-header>
+                        </ims-grid-sort-header>
+                    </ims-grid-cell>
+                </ims-grid-header>
 
                 @for (row of formGridSort.sortedData(); track row.id) {
-                    <ims-grid2-row>
-                        <ims-grid2-cell>
+                    <ims-grid-row>
+                        <ims-grid-cell>
                             <ims-form-field>
                                 <label imsFormFieldLabel>לקוח</label>
                                 <input
@@ -247,9 +247,9 @@
                                     [(ngModel)]="row.customerName"
                                 >
                             </ims-form-field>
-                        </ims-grid2-cell>
+                        </ims-grid-cell>
 
-                        <ims-grid2-cell>
+                        <ims-grid-cell>
                             <ims-form-field>
                                 <label imsFormFieldLabel>פוליסה</label>
                                 <input
@@ -259,9 +259,9 @@
                                     dir="ltr"
                                 >
                             </ims-form-field>
-                        </ims-grid2-cell>
+                        </ims-grid-cell>
 
-                        <ims-grid2-cell>
+                        <ims-grid-cell>
                             <ims-form-field>
                                 <label imsFormFieldLabel>עד</label>
                                 <input
@@ -271,9 +271,9 @@
                                     [(ngModel)]="row.validUntil"
                                 >
                             </ims-form-field>
-                        </ims-grid2-cell>
+                        </ims-grid-cell>
 
-                        <ims-grid2-cell>
+                        <ims-grid-cell>
                             <ims-form-field>
                                 <label imsFormFieldLabel>₪</label>
                                 <input
@@ -285,10 +285,10 @@
                                     [(ngModel)]="row.premium"
                                 >
                             </ims-form-field>
-                        </ims-grid2-cell>
-                    </ims-grid2-row>
+                        </ims-grid-cell>
+                    </ims-grid-row>
                 }
-            </ims-grid2>
+            </ims-grid>
         </div>
     </section>
 

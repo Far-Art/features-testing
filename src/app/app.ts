@@ -12,12 +12,12 @@ import {
     ImsFormFieldRow
 } from './components/ims-form-layout';
 import {
-    ImsGrid2,
-    ImsGrid2Cell,
-    ImsGrid2Row,
-    ImsGrid2SortDirective,
-    ImsGrid2SortHeader
-} from './components/ims-grid2';
+    ImsGrid,
+    ImsGridCell,
+    ImsGridRow,
+    ImsGridSortDirective,
+    ImsGridSortHeader
+} from './components/ims-grid';
 import {ImsLongPressDirective} from './ims-long-press.directive';
 
 
@@ -58,11 +58,11 @@ interface FormGridDemoRow {
         ImsFormControlGroup,
         ImsFormFieldLabel,
         ImsFormFieldControl,
-        ImsGrid2,
-        ImsGrid2Row,
-        ImsGrid2Cell,
-        ImsGrid2SortDirective,
-        ImsGrid2SortHeader
+        ImsGrid,
+        ImsGridRow,
+        ImsGridCell,
+        ImsGridSortDirective,
+        ImsGridSortHeader
     ],
     templateUrl: './app.html',
     styleUrl: './app.scss'
