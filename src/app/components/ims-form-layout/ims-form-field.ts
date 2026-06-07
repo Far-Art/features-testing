@@ -11,6 +11,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
+/** Monotonic id source for controls that need automatic label association. */
 let nextFormControlId = 0;
 
 @Component({
@@ -28,26 +29,70 @@ let nextFormControlId = 0;
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
+/**
+ * Two-column form-field layout containing one main label and value content.
+ *
+ * Projection is split into two slots:
+ * - A direct native `label` or `[imsFormFieldLabel]` is projected into the
+ *   label column.
+ * - Every other direct child is projected into the value column.
+ *
+ * A native main label is automatically associated with the first labelable
+ * control owned by this field. Existing explicit `for`/`id` associations are
+ * preserved. Nested `ims-form-field` controls are ignored, which prevents an
+ * outer field from taking ownership of a nested field's control.
+ *
+ * The component works standalone with intrinsic label/value tracks. Inside an
+ * `ims-form-field-group` or `ims-form-field-row`, it adopts the parent tracks
+ * through CSS `subgrid` so labels and values align across fields.
+ */
 export class ImsFormField {
     private readonly destroyRef = inject(DestroyRef);
     private readonly hostElement: HTMLElement = inject(ElementRef).nativeElement;
+    /** Watches dynamically added or removed projected labels and controls. */
     private contentObserver: MutationObserver | null = null;
+    /** Current direct child selected for the main label slot. */
     private mainLabel: HTMLElement | null = null;
+    /** Labelable descendant currently associated with the main native label. */
     private mainControl: HTMLElement | null = null;
+    /** `for` value created by this component, used to distinguish it from consumer input. */
     private automaticLabelFor: string | null = null;
 
+    /**
+     * Optional one-based logical column used inside a field group or row.
+     *
+     * When omitted, normal CSS grid auto-placement is used. Invalid and
+     * non-positive values are treated as omitted.
+     */
     readonly column = input<number | null, number | string | null>(null, {
         transform: (value) => {
             const parsed = numberAttribute(value, Number.NaN);
             return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
         }
     });
+    /**
+     * Optional CSS inline size for direct native controls in the value column.
+     *
+     * The value is exposed as `--ims-form-control-width`. Compound groups and
+     * custom value components may choose their own sizing.
+     */
     readonly controlWidth = input<string | null>(null);
+    /**
+     * CSS grid placement for this field.
+     *
+     * Each logical form column occupies two tracks, so an explicitly placed
+     * field starts at the corresponding label track and spans its label/value
+     * pair.
+     */
     readonly gridColumn = computed(() => {
         const column = this.column();
         return column === null ? 'auto / span 2' : `${((column - 1) * 2) + 1} / span 2`;
     });
 
+    /**
+     * Initializes projected-content synchronization after rendering and
+     * removes observers and generated state when the component is destroyed.
+     */
     constructor() {
         afterNextRender(() => {
             this.syncFieldParts();
@@ -64,6 +109,13 @@ export class ImsFormField {
         });
     }
 
+    /**
+     * Resolves the current main label from direct projected children.
+     *
+     * An explicit `[imsFormFieldLabel]` wins over an unmarked native `label`.
+     * If dynamic content changes the selected label, any association generated
+     * for the previous label is removed before the new label is synchronized.
+     */
     private syncFieldParts(): void {
         const directChildren = Array.from(this.hostElement.children)
             .filter((element): element is HTMLElement => element instanceof HTMLElement);
@@ -83,6 +135,14 @@ export class ImsFormField {
         this.syncMainLabel();
     }
 
+    /**
+     * Associates the main native label with its target control.
+     *
+     * An explicit consumer-provided `for` attribute is resolved and retained.
+     * Otherwise the first labelable control belonging to this field receives a
+     * generated id and becomes the automatic target. The chosen control is
+     * marked for CSS state propagation from nested compound value content.
+     */
     private syncMainLabel(): void {
         const label = this.mainLabel;
         if (!(label instanceof HTMLLabelElement)) {
@@ -119,11 +179,18 @@ export class ImsFormField {
         }
     }
 
+    /** Finds an explicitly referenced control only when it belongs to this field. */
     private findControlById(id: string): HTMLElement | null {
         const target = this.hostElement.ownerDocument.getElementById(id);
         return target instanceof HTMLElement && this.belongsToThisField(target) ? target : null;
     }
 
+    /**
+     * Returns the first labelable descendant owned by this field.
+     *
+     * Hidden inputs are excluded because native labels cannot meaningfully
+     * activate them.
+     */
     private findFirstLabelableControl(): HTMLElement | null {
         const controls = this.hostElement.querySelectorAll<HTMLElement>(
             'button, input:not([type="hidden"]), meter, output, progress, select, textarea'
@@ -132,10 +199,16 @@ export class ImsFormField {
         return Array.from(controls).find((control) => this.belongsToThisField(control)) ?? null;
     }
 
+    /** Prevents controls inside nested form fields from being claimed by this field. */
     private belongsToThisField(control: HTMLElement): boolean {
         return control.closest('ims-form-field') === this.hostElement;
     }
 
+    /**
+     * Removes only associations and markers generated by this component.
+     *
+     * Consumer-provided `for` and `id` attributes are left intact.
+     */
     private clearMainControl(): void {
         if (this.automaticLabelFor !== null) {
             const label = this.mainLabel;
