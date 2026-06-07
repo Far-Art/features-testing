@@ -16,7 +16,7 @@ ims-form-field-row > ims-form-field {
     grid-template-columns: subgrid;
 }
 
-ims-form-field > [imsFormFieldLabel] {
+ims-form-field > :is(label, [imsFormFieldLabel]) {
     grid-column: 1;
     align-self: start;
     font-weight: 700;
@@ -31,12 +31,12 @@ ims-form-field > [imsFormFieldLabel] {
         text-shadow 160ms ease;
 }
 
-ims-form-field > [imsFormFieldControl] {
+ims-form-field > :not(label):not([imsFormFieldLabel]) {
     grid-column: 2;
     min-width: 0;
 }
 
-ims-form-field > :is(input, select, button)[imsFormFieldControl] {
+ims-form-field > :is(input, select, button) {
     box-sizing: border-box;
     inline-size: var(--ims-form-control-width, 13rem);
     max-inline-size: 100%;
@@ -50,7 +50,7 @@ ims-form-field > :is(input, select, button)[imsFormFieldControl] {
     font: inherit;
 }
 
-ims-form-field > textarea[imsFormFieldControl] {
+ims-form-field > textarea {
     box-sizing: border-box;
     inline-size: var(--ims-form-control-width, 13rem);
     max-inline-size: 100%;
@@ -64,13 +64,13 @@ ims-form-field > textarea[imsFormFieldControl] {
     resize: vertical;
 }
 
-ims-form-field > :is(input, select, textarea, button)[imsFormFieldControl]:focus {
+ims-form-field > :is(input, select, textarea, button):focus {
     border-color: var(--ims-form-accent);
     outline: 2px solid color-mix(in srgb, var(--ims-form-accent) 25%, transparent);
     outline-offset: 1px;
 }
 
-ims-form-field > :not(:is(input, select, textarea, button))[imsFormFieldControl] {
+ims-form-field > :not(:is(label, input, select, textarea, button, [imsFormFieldLabel])) {
     min-block-size: var(--ims-form-control-height);
     line-height: var(--ims-form-control-height);
 }
@@ -91,16 +91,19 @@ ims-form-field > :not(:is(input, select, textarea, button))[imsFormFieldControl]
     }
 }
 
-ims-form-field:has(> [imsFormFieldControl]:is(input, select, textarea, button):not(:disabled)) >
-    label[imsFormFieldLabel],
-ims-form-field:has([data-ims-main-control]:not(:disabled)) > label[imsFormFieldLabel] {
+ims-form-field:has(
+    > :is(input, select, textarea, button):not(:disabled)
+) > label,
+ims-form-field:has([data-ims-main-control]:not(:disabled)) >
+    label {
     cursor: pointer;
 }
 
 ims-form-field:has(
-    > [imsFormFieldControl]:is(input, select, textarea, button):not(:disabled):hover
-) > label[imsFormFieldLabel],
-ims-form-field:has([data-ims-main-control]:not(:disabled):hover) > label[imsFormFieldLabel] {
+    > :is(input, select, textarea, button):not(:disabled):hover
+) > :is(label, [imsFormFieldLabel]),
+ims-form-field:has([data-ims-main-control]:not(:disabled):hover) >
+    :is(label, [imsFormFieldLabel]) {
     background:
         linear-gradient(
             100deg,
@@ -116,17 +119,21 @@ ims-form-field:has([data-ims-main-control]:not(:disabled):hover) > label[imsForm
 }
 
 ims-form-field:has(
-    > [imsFormFieldControl]:is(input, select, textarea, button):not(:disabled):focus
-) > label[imsFormFieldLabel],
-ims-form-field:has([data-ims-main-control]:not(:disabled):focus) > label[imsFormFieldLabel] {
+    > :is(input, select, textarea, button):not(:disabled):focus
+) > :is(label, [imsFormFieldLabel]),
+ims-form-field:has([data-ims-main-control]:not(:disabled):focus) >
+    :is(label, [imsFormFieldLabel]) {
     color: var(--ims-form-accent);
     text-decoration: underline;
     text-decoration-color: currentColor;
     text-underline-offset: 0.2em;
 }
 
-ims-form-field:has(> [imsFormFieldControl].ng-invalid) > [imsFormFieldLabel],
-ims-form-field:has([data-ims-main-control].ng-invalid) > [imsFormFieldLabel] {
+ims-form-field:has(
+    > .ng-invalid:not(label):not([imsFormFieldLabel])
+) > :is(label, [imsFormFieldLabel]),
+ims-form-field:has([data-ims-main-control].ng-invalid) >
+    :is(label, [imsFormFieldLabel]) {
     color: var(--ims-form-error);
     background:
         linear-gradient(
@@ -143,8 +150,11 @@ ims-form-field:has([data-ims-main-control].ng-invalid) > [imsFormFieldLabel] {
     text-decoration-color: var(--ims-form-error);
 }
 
-ims-form-field:has(> [imsFormFieldControl].ng-invalid:hover) > [imsFormFieldLabel],
-ims-form-field:has([data-ims-main-control].ng-invalid:hover) > [imsFormFieldLabel] {
+ims-form-field:has(
+    > .ng-invalid:not(label):not([imsFormFieldLabel]):hover
+) > :is(label, [imsFormFieldLabel]),
+ims-form-field:has([data-ims-main-control].ng-invalid:hover) >
+    :is(label, [imsFormFieldLabel]) {
     background-image:
         linear-gradient(
             100deg,
@@ -159,7 +169,7 @@ ims-form-field:has([data-ims-main-control].ng-invalid:hover) > [imsFormFieldLabe
 }
 
 @media (prefers-reduced-motion: reduce) {
-    ims-form-field > [imsFormFieldLabel] {
+    ims-form-field > :is(label, [imsFormFieldLabel]) {
         animation: none !important;
         background-position: center;
     }

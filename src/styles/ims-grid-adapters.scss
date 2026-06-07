@@ -63,7 +63,7 @@ ims-grid ims-grid-cell ims-form-field {
         var(--ims-grid-form-label-width, max-content)
         minmax(0, 1fr);
 
-    > [imsFormFieldControl] {
+    > :not(label):not([imsFormFieldLabel]) {
         inline-size: 100%;
         max-inline-size: 100%;
     }

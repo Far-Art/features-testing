@@ -69,6 +69,7 @@
 .form-grid-demo {
     display: grid;
     gap: 1rem;
+    margin-block-end: 2rem;
     padding: clamp(1rem, 3vw, 2rem);
     color: #18212f;
     background: #fff;
@@ -123,4 +124,11 @@
 
 .form-grid-demo ims-grid-cell {
     min-width: 0;
+}
+
+.form-grid-demo--auto ims-grid-cell ims-form-field >
+    .form-grid-demo__intrinsic-value {
+    inline-size: max-content;
+    max-inline-size: none;
+    white-space: nowrap;
 }

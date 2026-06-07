@@ -3,7 +3,6 @@ import {FormsModule} from '@angular/forms';
 import {
     ImsFormControlGroup,
     ImsFormField,
-    ImsFormFieldControl,
     ImsFormFieldGroup,
     ImsFormFieldLabel,
     ImsFormFieldRow
@@ -33,7 +32,6 @@ interface FormGridDemoRow {
         ImsFormFieldGroup,
         ImsFormControlGroup,
         ImsFormFieldLabel,
-        ImsFormFieldControl,
         ImsGrid,
         ImsGridRow,
         ImsGridCell,
@@ -44,30 +42,61 @@ interface FormGridDemoRow {
     styleUrl: './form-layout-demo.scss'
 })
 export class FormLayoutDemo {
-    readonly formGridSource: FormGridDemoRow[] = [
+    readonly autoWidthGridSource: FormGridDemoRow[] = [
         {
             id: 1,
-            customerName: 'אביגיל לוי',
-            policyNumber: 'PL-1048',
+            customerName: 'נועה',
+            policyNumber: 'P-8',
             validUntil: '2026-11-30',
-            premium: 420
+            premium: 85
         },
         {
             id: 2,
-            customerName: 'יונתן כהן',
-            policyNumber: 'PL-0982',
+            customerName: 'יונתן בן דוד',
+            policyNumber: 'POLICY-2026-000982',
             validUntil: '2026-08-15',
-            premium: 315
+            premium: 1315
         },
         {
             id: 3,
-            customerName: 'מיכל אברהם',
+            customerName: 'מיכל אברהם ומשפחתה',
             policyNumber: 'PL-1274',
             validUntil: '2027-02-01',
             premium: 560
         },
         {
             id: 4,
+            customerName: 'רועי ברק',
+            policyNumber: '1011',
+            validUntil: '2026-06-30',
+            premium: 275
+        }
+    ];
+
+    readonly explicitWidthGridSource: FormGridDemoRow[] = [
+        {
+            id: 11,
+            customerName: 'אביגיל לוי',
+            policyNumber: 'PL-1048',
+            validUntil: '2026-11-30',
+            premium: 420
+        },
+        {
+            id: 12,
+            customerName: 'יונתן כהן',
+            policyNumber: 'PL-0982',
+            validUntil: '2026-08-15',
+            premium: 315
+        },
+        {
+            id: 13,
+            customerName: 'מיכל אברהם',
+            policyNumber: 'PL-1274',
+            validUntil: '2027-02-01',
+            premium: 560
+        },
+        {
+            id: 14,
             customerName: 'רועי ברק',
             policyNumber: 'PL-1011',
             validUntil: '2026-06-30',

@@ -16,10 +16,14 @@ let nextFormControlId = 0;
 @Component({
     selector: 'ims-form-field',
     standalone: true,
-    template: '<ng-content/>',
+    template: `
+        <ng-content select="label, [imsFormFieldLabel]"/>
+        <ng-content/>
+    `,
     styleUrl: './ims-form-field.scss',
     host: {
-        '[style.grid-column]': 'gridColumn()'
+        '[style.grid-column]': 'gridColumn()',
+        '[style.--ims-form-control-width]': 'controlWidth()'
     },
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -28,6 +32,7 @@ export class ImsFormField {
     private readonly destroyRef = inject(DestroyRef);
     private readonly hostElement: HTMLElement = inject(ElementRef).nativeElement;
     private contentObserver: MutationObserver | null = null;
+    private mainLabel: HTMLElement | null = null;
     private mainControl: HTMLElement | null = null;
     private automaticLabelFor: string | null = null;
 
@@ -37,6 +42,7 @@ export class ImsFormField {
             return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
         }
     });
+    readonly controlWidth = input<string | null>(null);
     readonly gridColumn = computed(() => {
         const column = this.column();
         return column === null ? 'auto / span 2' : `${((column - 1) * 2) + 1} / span 2`;
@@ -44,8 +50,8 @@ export class ImsFormField {
 
     constructor() {
         afterNextRender(() => {
-            this.syncMainLabel();
-            this.contentObserver = new MutationObserver(() => this.syncMainLabel());
+            this.syncFieldParts();
+            this.contentObserver = new MutationObserver(() => this.syncFieldParts());
             this.contentObserver.observe(this.hostElement, {
                 childList: true,
                 subtree: true
@@ -58,8 +64,27 @@ export class ImsFormField {
         });
     }
 
+    private syncFieldParts(): void {
+        const directChildren = Array.from(this.hostElement.children)
+            .filter((element): element is HTMLElement => element instanceof HTMLElement);
+        const labelElements = directChildren.filter((element) =>
+            element instanceof HTMLLabelElement ||
+            element.hasAttribute('imsFormFieldLabel')
+        );
+        const label = labelElements.find((element) =>
+            element.hasAttribute('imsFormFieldLabel')
+        ) ?? labelElements[0] ?? null;
+
+        if (this.mainLabel !== label) {
+            this.clearMainControl();
+        }
+
+        this.mainLabel = label;
+        this.syncMainLabel();
+    }
+
     private syncMainLabel(): void {
-        const label = this.hostElement.querySelector<HTMLElement>(':scope > [imsFormFieldLabel]');
+        const label = this.mainLabel;
         if (!(label instanceof HTMLLabelElement)) {
             this.clearMainControl();
             return;
@@ -95,7 +120,7 @@ export class ImsFormField {
     }
 
     private findControlById(id: string): HTMLElement | null {
-        const target = document.getElementById(id);
+        const target = this.hostElement.ownerDocument.getElementById(id);
         return target instanceof HTMLElement && this.belongsToThisField(target) ? target : null;
     }
 
@@ -113,7 +138,7 @@ export class ImsFormField {
 
     private clearMainControl(): void {
         if (this.automaticLabelFor !== null) {
-            const label = this.hostElement.querySelector<HTMLElement>(':scope > [imsFormFieldLabel]');
+            const label = this.mainLabel;
             if (label instanceof HTMLLabelElement && label.htmlFor === this.automaticLabelFor) {
                 label.removeAttribute('for');
             }
