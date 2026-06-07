@@ -11,6 +11,13 @@ import {
     ImsFormFieldLabel,
     ImsFormFieldRow
 } from './components/ims-form-layout';
+import {
+    ImsGrid2,
+    ImsGrid2Cell,
+    ImsGrid2Row,
+    ImsGrid2SortDirective,
+    ImsGrid2SortHeader
+} from './components/ims-grid2';
 import {ImsLongPressDirective} from './ims-long-press.directive';
 
 
@@ -28,6 +35,14 @@ interface LargeAutocompleteRow {
     readonly region: string;
 }
 
+interface FormGridDemoRow {
+    readonly id: number;
+    customerName: string;
+    policyNumber: string;
+    validUntil: string;
+    premium: number;
+}
+
 @Component({
     selector: 'app-root',
     imports: [
@@ -42,7 +57,12 @@ interface LargeAutocompleteRow {
         ImsFormFieldGroup,
         ImsFormControlGroup,
         ImsFormFieldLabel,
-        ImsFormFieldControl
+        ImsFormFieldControl,
+        ImsGrid2,
+        ImsGrid2Row,
+        ImsGrid2Cell,
+        ImsGrid2SortDirective,
+        ImsGrid2SortHeader
     ],
     templateUrl: './app.html',
     styleUrl: './app.scss'
@@ -176,6 +196,36 @@ export class App {
     );
     readonly largeAutocompleteControl = new FormControl<LargeAutocompleteRow | string | null>(null);
     readonly serverAutocompleteControl = new FormControl<LargeAutocompleteRow | string | null>(null);
+    readonly formGridSource: FormGridDemoRow[] = [
+        {
+            id: 1,
+            customerName: 'אביגיל לוי',
+            policyNumber: 'PL-1048',
+            validUntil: '2026-11-30',
+            premium: 420
+        },
+        {
+            id: 2,
+            customerName: 'יונתן כהן',
+            policyNumber: 'PL-0982',
+            validUntil: '2026-08-15',
+            premium: 315
+        },
+        {
+            id: 3,
+            customerName: 'מיכל אברהם',
+            policyNumber: 'PL-1274',
+            validUntil: '2027-02-01',
+            premium: 560
+        },
+        {
+            id: 4,
+            customerName: 'רועי ברק',
+            policyNumber: 'PL-1011',
+            validUntil: '2026-06-30',
+            premium: 275
+        }
+    ];
     selectedBagModel: SelectDemoBag | null = this.bagOptions[0];
 
     readonly loadBagAutocompleteOptions = (query: string) => {

@@ -56,3 +56,15 @@ ims-grid2 {
         min-height: 0;
     }
 }
+
+ims-grid2 ims-grid2-cell ims-form-field {
+    inline-size: 100%;
+    grid-template-columns:
+        var(--ims-grid2-form-label-width, max-content)
+        minmax(0, 1fr);
+
+    > [imsFormFieldControl] {
+        inline-size: 100%;
+        max-inline-size: 100%;
+    }
+}

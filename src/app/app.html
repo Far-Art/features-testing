@@ -198,6 +198,100 @@
         </div>
     </section>
 
+    <section class="ims-form-grid-demo" aria-labelledby="form-grid-demo-title">
+        <div>
+            <h2 id="form-grid-demo-title">שדות טופס בתוך טבלה ממוינת</h2>
+            <p>
+                לחיצה על כותרת ממיינת את השורות לפי הערכים הנוכחיים בשדות. לחיצה שלישית
+                מסירה את המיון ומחזירה את הסדר המקורי.
+            </p>
+        </div>
+
+        <div class="ims-form-grid-demo__viewport">
+            <ims-grid2
+                columnGap="1rem"
+                [imsGrid2Sort]="formGridSource"
+                #formGridSort="imsGrid2Sort"
+            >
+                <ims-grid2-header>
+                    <ims-grid2-cell minWidth="14rem" maxWidth="1fr">
+                        <ims-grid2-sort-header field="customerName">
+                            שם לקוח
+                        </ims-grid2-sort-header>
+                    </ims-grid2-cell>
+                    <ims-grid2-cell minWidth="13rem" maxWidth="1fr">
+                        <ims-grid2-sort-header field="policyNumber">
+                            מספר פוליסה
+                        </ims-grid2-sort-header>
+                    </ims-grid2-cell>
+                    <ims-grid2-cell minWidth="14rem" maxWidth="1fr">
+                        <ims-grid2-sort-header field="validUntil">
+                            תוקף
+                        </ims-grid2-sort-header>
+                    </ims-grid2-cell>
+                    <ims-grid2-cell minWidth="12rem" maxWidth="1fr">
+                        <ims-grid2-sort-header field="premium">
+                            פרמיה חודשית
+                        </ims-grid2-sort-header>
+                    </ims-grid2-cell>
+                </ims-grid2-header>
+
+                @for (row of formGridSort.sortedData(); track row.id) {
+                    <ims-grid2-row>
+                        <ims-grid2-cell>
+                            <ims-form-field>
+                                <label imsFormFieldLabel>לקוח</label>
+                                <input
+                                    imsFormFieldControl
+                                    imsFormFieldControlWidth="9rem"
+                                    [(ngModel)]="row.customerName"
+                                >
+                            </ims-form-field>
+                        </ims-grid2-cell>
+
+                        <ims-grid2-cell>
+                            <ims-form-field>
+                                <label imsFormFieldLabel>פוליסה</label>
+                                <input
+                                    imsFormFieldControl
+                                    imsFormFieldControlWidth="8rem"
+                                    [(ngModel)]="row.policyNumber"
+                                    dir="ltr"
+                                >
+                            </ims-form-field>
+                        </ims-grid2-cell>
+
+                        <ims-grid2-cell>
+                            <ims-form-field>
+                                <label imsFormFieldLabel>עד</label>
+                                <input
+                                    imsFormFieldControl
+                                    imsFormFieldControlWidth="9.5rem"
+                                    type="date"
+                                    [(ngModel)]="row.validUntil"
+                                >
+                            </ims-form-field>
+                        </ims-grid2-cell>
+
+                        <ims-grid2-cell>
+                            <ims-form-field>
+                                <label imsFormFieldLabel>₪</label>
+                                <input
+                                    imsFormFieldControl
+                                    imsFormFieldControlWidth="6rem"
+                                    type="number"
+                                    min="0"
+                                    step="5"
+                                    [(ngModel)]="row.premium"
+                                >
+                            </ims-form-field>
+                        </ims-grid2-cell>
+                    </ims-grid2-row>
+                }
+            </ims-grid2>
+        </div>
+    </section>
+
     <!--    <header class="hero">-->
     <!--        <h1>{{ title }}</h1>-->
     <!--        <p>-->
