@@ -1,0 +1,61 @@
+@keyframes call-to-action-wave {
+    0% {
+        opacity: 0;
+        scale: 1;
+    }
+
+    12% {
+        opacity: 0.5;
+    }
+
+    65% {
+        opacity: 0.22;
+    }
+
+    100% {
+        opacity: 0;
+        scale: var(--cta-wave-scale);
+    }
+}
+
+.call-to-action {
+    --cta-wave-color: var(--mat-sys-primary, #2563eb);
+    --cta-wave-duration: 2.8s;
+    --cta-wave-scale: 1.45;
+    --cta-wave-width: 6px;
+
+    position: relative;
+    isolation: isolate;
+    overflow: visible;
+}
+
+.call-to-action::before,
+.call-to-action::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border: var(--cta-wave-width) solid
+        color-mix(in oklch, var(--cta-wave-color) 58%, transparent);
+    border-radius: inherit;
+    pointer-events: none;
+    animation: call-to-action-wave var(--cta-wave-duration) linear infinite;
+}
+
+.call-to-action::after {
+    animation-delay: calc(var(--cta-wave-duration) / 2);
+}
+
+.call-to-action:is(:disabled, [aria-disabled='true'])::before,
+.call-to-action:is(:disabled, [aria-disabled='true'])::after {
+    animation: none;
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .call-to-action::before,
+    .call-to-action::after {
+        animation: none;
+        opacity: 0;
+    }
+}

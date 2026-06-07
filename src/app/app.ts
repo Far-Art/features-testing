@@ -3,6 +3,14 @@ import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {delay, of} from 'rxjs';
 import {ImsOption, ImsSelect} from './components/ims-select';
 import {ImsAutocomplete, ImsAutocompleteOption} from './components/ims-autocomplete';
+import {
+    ImsFormControlGroup,
+    ImsFormField,
+    ImsFormFieldControl,
+    ImsFormFieldGroup,
+    ImsFormFieldLabel,
+    ImsFormFieldRow
+} from './components/ims-form-layout';
 import {ImsLongPressDirective} from './ims-long-press.directive';
 
 
@@ -22,7 +30,20 @@ interface LargeAutocompleteRow {
 
 @Component({
     selector: 'app-root',
-    imports: [FormsModule, ReactiveFormsModule, ImsSelect, ImsOption, ImsAutocomplete, ImsLongPressDirective],
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        ImsSelect,
+        ImsOption,
+        ImsAutocomplete,
+        ImsLongPressDirective,
+        ImsFormField,
+        ImsFormFieldRow,
+        ImsFormFieldGroup,
+        ImsFormControlGroup,
+        ImsFormFieldLabel,
+        ImsFormFieldControl
+    ],
     templateUrl: './app.html',
     styleUrl: './app.scss'
 })

@@ -1,0 +1,8 @@
+ims-form-field-row {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: 1 / -1;
+    column-gap: var(--ims-form-column-gap, 2.5rem);
+    align-items: start;
+    min-width: 0;
+}
