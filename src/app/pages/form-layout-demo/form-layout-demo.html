@@ -48,6 +48,39 @@
                 <label imsFormFieldLabel>הערות מפורטות</label>
                 <textarea rows="4">התווית נשארת בראש השדה הגבוה, ובשדה רגיל היא ממורכזת בתוך גובה של 26 פיקסלים.</textarea>
             </ims-form-field>
+
+            <ims-form-field>
+                <label>שליחת עדכונים בדואר אלקטרוני</label>
+                <ims-checkbox checked/>
+            </ims-form-field>
+        </ims-form-field-group>
+    </div>
+
+    <div class="form-layout-demo__example">
+        <h2>פיזור זוגות שדה על מלוא הרוחב</h2>
+        <p class="form-layout-demo__hint">
+            שלושת זוגות התווית והערך קצרים בכוונה. הרווח הפנוי מתחלק בין
+            הזוגות, בעוד שהרווח בין כל תווית לערך שלה נשאר קבוע.
+        </p>
+
+        <ims-form-field-group columns="3">
+            <ims-form-field controlWidth="7rem">
+                <label>שם</label>
+                <input value="נועה">
+            </ims-form-field>
+
+            <ims-form-field controlWidth="7rem">
+                <label>עיר</label>
+                <input value="חיפה">
+            </ims-form-field>
+
+            <ims-form-field controlWidth="7rem">
+                <label>סטטוס</label>
+                <select>
+                    <option>פעיל</option>
+                    <option>לא פעיל</option>
+                </select>
+            </ims-form-field>
         </ims-form-field-group>
     </div>
 

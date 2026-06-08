@@ -32,6 +32,7 @@ function positiveNumber(value: number | string): number {
     styleUrl: './ims-form-field-group.scss',
     host: {
         '[style.grid-template-columns]': 'columnTemplate()',
+        '[style.--ims-form-column-gap]': 'columnGap()',
         '[style.--ims-form-row-gap]': 'rowGap()'
     },
     encapsulation: ViewEncapsulation.None,
@@ -40,11 +41,10 @@ function positiveNumber(value: number | string): number {
 /**
  * Responsive container that aligns multiple `ims-form-field` instances.
  *
- * Each logical form column consists of a shared label track and a shared value
- * track. Non-final value tracks absorb remaining width after their content,
- * distributing complete field pairs without increasing the label/value gap.
- * Because child fields use `subgrid`, every label and value in the same logical
- * column expands to the widest content in that column.
+ * Each logical form column consists of a shared label track and an equal
+ * fractional value track. Because child fields use `subgrid`, every label in
+ * the same logical column aligns to the widest label while the value tracks
+ * divide the remaining width evenly.
  *
  * The number of logical columns can be fixed through `columns`. Without an
  * explicit count, a `ResizeObserver` derives the count from the host's
@@ -76,6 +76,8 @@ export class ImsFormFieldGroup {
     readonly minColumnWidth = input<number, number | string>(320, {
         transform: positiveNumber
     });
+    /** Gap between adjacent generated label and value tracks. */
+    readonly columnGap = input('0');
     /** Vertical gap between automatically placed fields or explicit rows. */
     readonly rowGap = input('1rem');
     /** Effective logical column count after fixed or responsive resolution. */
@@ -91,8 +93,7 @@ export class ImsFormFieldGroup {
      * CSS track list applied to the host.
      *
      * Every logical form column expands to a `max-content` label track followed
-     * by a value track. All value tracks except the final one can absorb free
-     * space after their intrinsic content.
+     * by an equal `1fr` value track.
      */
     readonly columnTemplate = computed(() => buildColumnTemplate(this.resolvedColumns()));
 
@@ -120,18 +121,11 @@ export class ImsFormFieldGroup {
 }
 
 /**
- * Builds pair-aware tracks that distribute free space only between fields.
- *
- * Flexible value tracks place free space after each value, effectively between
- * complete pairs. The final value remains intrinsic so no trailing space is
- * added after the last pair.
+ * Builds equal value tracks while preserving content-sized shared label tracks.
  */
 function buildColumnTemplate(columnCount: number): string {
-    return Array.from({length: columnCount}, (_, index) => {
-        const valueTrack = index === columnCount - 1
-            ? 'max-content'
-            : 'minmax(max-content, 1fr)';
-
-        return `max-content ${valueTrack}`;
-    }).join(' ');
+    return Array.from(
+        {length: columnCount},
+        () => 'max-content minmax(0, 1fr)'
+    ).join(' ');
 }

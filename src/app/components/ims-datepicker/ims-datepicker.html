@@ -1,0 +1,280 @@
+<div
+    #field
+    class="ims-datepicker__field"
+    cdkOverlayOrigin
+    #overlayOrigin="cdkOverlayOrigin"
+    [class.ims-datepicker__field--open]="open()"
+    [class.ims-datepicker__field--invalid]="parseInvalid()"
+>
+    <input
+        #textInput
+        type="text"
+        inputmode="numeric"
+        autocomplete="off"
+        class="ims-datepicker__input"
+        [attr.id]="id()"
+        [attr.pattern]="inputPattern()"
+        [attr.placeholder]="inputPlaceholder()"
+        [attr.aria-label]="ariaLabel()"
+        [attr.aria-labelledby]="ariaLabelledby()"
+        [attr.aria-controls]="open() ? dialogId : null"
+        [attr.aria-expanded]="open()"
+        [attr.aria-invalid]="parseInvalid()"
+        [disabled]="disabled()"
+        [value]="rawText()"
+        (beforeinput)="onBeforeInput($event)"
+        (input)="onTextInput($event)"
+        (blur)="onInputBlur()"
+        (keydown)="onInputKeydown($event)"
+    />
+
+    <button
+        type="button"
+        class="ims-datepicker__toggle"
+        aria-label="Open calendar"
+        [attr.aria-controls]="open() ? dialogId : null"
+        [attr.aria-expanded]="open()"
+        [disabled]="disabled()"
+        (click)="togglePicker()"
+    >
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M7 2v3M17 2v3M3.5 9h17M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Z" />
+            <path d="M7 13h2M11 13h2M15 13h2M7 17h2M11 17h2M15 17h2" />
+        </svg>
+    </button>
+</div>
+
+<ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="overlayOrigin"
+    [cdkConnectedOverlayOpen]="open()"
+    [cdkConnectedOverlayPositions]="overlayPositions"
+    [cdkConnectedOverlayViewportMargin]="8"
+    [cdkConnectedOverlayPush]="true"
+    [cdkConnectedOverlayFlexibleDimensions]="true"
+    (attach)="onOverlayAttached()"
+    (overlayOutsideClick)="onOutsideClick($event)"
+    (detach)="closePicker()"
+>
+    <section
+        #panel
+        class="ims-datepicker__panel"
+        role="dialog"
+        aria-modal="true"
+        cdkTrapFocus
+        [attr.id]="dialogId"
+        [attr.aria-labelledby]="headerButtonId"
+        [attr.dir]="directionality.value"
+        (keydown.escape)="onPanelEscape($event)"
+    >
+        <header class="ims-datepicker__header">
+            <div class="ims-datepicker__navigation">
+                <button
+                    type="button"
+                    class="ims-datepicker__step ims-datepicker__step--far"
+                    [attr.aria-label]="navigationLabel('far', -1)"
+                    [attr.title]="navigationLabel('far', -1)"
+                    [disabled]="!canPreviousFar()"
+                    (click)="navigate('far', -1)"
+                >
+                    <span
+                        class="ims-datepicker__step-icon material-icons"
+                        aria-hidden="true"
+                        [textContent]="navigationIcon('far', -1)"
+                    ></span>
+                </button>
+                <button
+                    type="button"
+                    class="ims-datepicker__step"
+                    [attr.aria-label]="navigationLabel('near', -1)"
+                    [attr.title]="navigationLabel('near', -1)"
+                    [disabled]="!canPreviousNear()"
+                    (click)="navigate('near', -1)"
+                >
+                    <span
+                        class="ims-datepicker__step-icon material-icons"
+                        aria-hidden="true"
+                        [textContent]="navigationIcon('near', -1)"
+                    ></span>
+                </button>
+                <button
+                    [attr.id]="headerButtonId"
+                    type="button"
+                    class="ims-datepicker__view-button"
+                    aria-label="Change calendar view"
+                    (click)="cycleView()"
+                >
+                    {{ headerLabel() }}
+                </button>
+                <button
+                    type="button"
+                    class="ims-datepicker__step"
+                    [attr.aria-label]="navigationLabel('near', 1)"
+                    [attr.title]="navigationLabel('near', 1)"
+                    [disabled]="!canNextNear()"
+                    (click)="navigate('near', 1)"
+                >
+                    <span
+                        class="ims-datepicker__step-icon material-icons"
+                        aria-hidden="true"
+                        [textContent]="navigationIcon('near', 1)"
+                    ></span>
+                </button>
+                <button
+                    type="button"
+                    class="ims-datepicker__step ims-datepicker__step--far"
+                    [attr.aria-label]="navigationLabel('far', 1)"
+                    [attr.title]="navigationLabel('far', 1)"
+                    [disabled]="!canNextFar()"
+                    (click)="navigate('far', 1)"
+                >
+                    <span
+                        class="ims-datepicker__step-icon material-icons"
+                        aria-hidden="true"
+                        [textContent]="navigationIcon('far', 1)"
+                    ></span>
+                </button>
+            </div>
+
+            <div
+                class="ims-datepicker__shortcuts"
+                [class.ims-datepicker__shortcuts--today-only]="calendarView() !== 'day'"
+            >
+                @if (calendarView() === 'day') {
+                    <button
+                        type="button"
+                        class="ims-datepicker__shortcut"
+                        [disabled]="!canSelectMonthStart()"
+                        (click)="focusShortcut('month-start')"
+                    >
+                        Start of month
+                    </button>
+                }
+                <button
+                    type="button"
+                    class="ims-datepicker__shortcut"
+                    [disabled]="!canSelectToday()"
+                    (click)="focusShortcut('today')"
+                >
+                    Today
+                </button>
+                @if (calendarView() === 'day') {
+                    <button
+                        type="button"
+                        class="ims-datepicker__shortcut"
+                        [disabled]="!canSelectMonthEnd()"
+                        (click)="focusShortcut('month-end')"
+                    >
+                        End of month
+                    </button>
+                }
+            </div>
+        </header>
+
+        <div class="ims-datepicker__calendar">
+            @switch (calendarView()) {
+                @case ('day') {
+                    <div class="ims-datepicker__weekdays" aria-hidden="true">
+                        @for (weekday of weekdayLabels(); track $index) {
+                            <span>{{ weekday }}</span>
+                        }
+                    </div>
+                    <div
+                        class="ims-datepicker__days"
+                        role="grid"
+                        [attr.aria-label]="gridAriaLabel()"
+                        (keydown)="onCalendarKeydown($event)"
+                    >
+                        @for (cell of dayCells(); track cell.date.toISODate(); let cellIndex = $index) {
+                            @if (cell.currentMonth) {
+                                <button
+                                    [attr.id]="cell.id"
+                                    type="button"
+                                    role="gridcell"
+                                    class="ims-datepicker__cell ims-datepicker__day"
+                                    [class.ims-datepicker__cell--active]="cell.active"
+                                    [class.ims-datepicker__cell--selected]="cell.selected"
+                                    [class.ims-datepicker__cell--today]="cell.today"
+                                    [attr.tabindex]="cell.active ? 0 : -1"
+                                    [attr.aria-label]="cell.date.setLocale(effectiveLocale()).toFormat(effectiveFormats().display.dayAriaLabel)"
+                                    [attr.aria-selected]="cell.selected"
+                                    [attr.aria-current]="cell.today ? 'date' : null"
+                                    [attr.aria-rowindex]="(cellIndex - cellIndex % 7) / 7 + 1"
+                                    [attr.aria-colindex]="cellIndex % 7 + 1"
+                                    [disabled]="cell.disabled"
+                                    (click)="selectDay(cell)"
+                                    (focus)="activateDay(cell.date)"
+                                >
+                                    {{ cell.label }}
+                                </button>
+                            } @else {
+                                <span
+                                    class="ims-datepicker__day ims-datepicker__day-placeholder"
+                                    aria-hidden="true"
+                                ></span>
+                            }
+                        }
+                    </div>
+                }
+                @case ('month') {
+                    <div
+                        class="ims-datepicker__months"
+                        role="grid"
+                        [attr.aria-label]="gridAriaLabel()"
+                        (keydown)="onCalendarKeydown($event)"
+                    >
+                        @for (cell of monthCells(); track cell.month; let cellIndex = $index) {
+                            <button
+                                [attr.id]="cell.id"
+                                type="button"
+                                role="gridcell"
+                                class="ims-datepicker__cell ims-datepicker__month"
+                                [class.ims-datepicker__cell--active]="cell.active"
+                                [class.ims-datepicker__cell--selected]="cell.selected"
+                                [attr.tabindex]="cell.active ? 0 : -1"
+                                [attr.aria-label]="cell.label + ' ' + cursor().year"
+                                [attr.aria-selected]="cell.selected"
+                                [attr.aria-rowindex]="(cellIndex - cellIndex % 3) / 3 + 1"
+                                [attr.aria-colindex]="cellIndex % 3 + 1"
+                                [disabled]="cell.disabled"
+                                (click)="selectMonth(cell)"
+                                (focus)="activateMonth(cell.month)"
+                            >
+                                {{ cell.label }}
+                            </button>
+                        }
+                    </div>
+                }
+                @case ('year') {
+                    <div
+                        class="ims-datepicker__years"
+                        role="grid"
+                        [attr.aria-label]="gridAriaLabel()"
+                        (keydown)="onCalendarKeydown($event)"
+                    >
+                        @for (cell of yearCells(); track cell.year; let cellIndex = $index) {
+                            <button
+                                [attr.id]="cell.id"
+                                type="button"
+                                role="gridcell"
+                                class="ims-datepicker__cell ims-datepicker__year"
+                                [class.ims-datepicker__cell--active]="cell.active"
+                                [class.ims-datepicker__cell--selected]="cell.selected"
+                                [attr.tabindex]="cell.active ? 0 : -1"
+                                [attr.aria-label]="cell.year"
+                                [attr.aria-selected]="cell.selected"
+                                [attr.aria-rowindex]="(cellIndex - cellIndex % 4) / 4 + 1"
+                                [attr.aria-colindex]="cellIndex % 4 + 1"
+                                [disabled]="cell.disabled"
+                                (click)="selectYear(cell)"
+                                (focus)="activateYear(cell.year)"
+                            >
+                                {{ cell.year }}
+                            </button>
+                        }
+                    </div>
+                }
+            }
+        </div>
+    </section>
+</ng-template>

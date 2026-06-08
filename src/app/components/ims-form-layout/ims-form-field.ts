@@ -45,6 +45,10 @@ let nextFormControlId = 0;
  * The component works standalone with intrinsic label/value tracks. Inside an
  * `ims-form-field-group` or `ims-form-field-row`, it adopts the parent tracks
  * through CSS `subgrid` so labels and values align across fields.
+ *
+ * With a direct `ims-checkbox`, the checkbox component and main field label
+ * share value column 2 and row 1. The form layout only handles placement;
+ * checkbox visuals remain owned by the checkbox component.
  */
 export class ImsFormField {
     private readonly destroyRef = inject(DestroyRef);

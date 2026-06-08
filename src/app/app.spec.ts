@@ -24,6 +24,6 @@ describe('App', () => {
       link.textContent?.trim()
     );
 
-    expect(links).toEqual(['טפסים וטבלה', 'בחירה והשלמה', 'כפתורים']);
+    expect(links).toEqual(['טפסים וטבלה', 'בחירה והשלמה', 'כפתורים', 'תאריכים']);
   });
 });

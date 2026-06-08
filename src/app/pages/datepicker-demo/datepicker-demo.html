@@ -1,0 +1,51 @@
+<header class="page-heading">
+    <h1>בורר תאריך</h1>
+    <p>בחירה לפי יום או חודש, ערכי Luxon או milliseconds, קלט מקוצר וטווחים דינמיים.</p>
+</header>
+
+<section class="datepicker-demo">
+    <div class="datepicker-demo__actions">
+        <button type="button" (click)="tightenRange()">הגבל לשנת 2026</button>
+        <button type="button" (click)="restoreRange()">החזר טווח 2020-2035</button>
+    </div>
+
+    <div class="datepicker-demo__grid">
+        <label class="datepicker-demo__field">
+            <span>תאריך מלא, Luxon, reactive form</span>
+            <ims-datepicker
+                ariaLabel="תאריך מלא"
+                [formControl]="dateControl"
+                [min]="min()"
+                [max]="max()"
+            />
+            <code>{{ describe(dateControl.value) }}</code>
+            <code>{{ dateControl.errors | json }}</code>
+        </label>
+
+        <label class="datepicker-demo__field">
+            <span>חודש, milliseconds, סוף חודש</span>
+            <ims-datepicker
+                format="MM/yyyy"
+                monthDay="end"
+                valueType="millis"
+                ariaLabel="חודש"
+                [formControl]="monthControl"
+                [min]="min()"
+                [max]="max()"
+            />
+            <code>{{ describe(monthControl.value) }}</code>
+            <code>{{ monthControl.errors | json }}</code>
+        </label>
+
+        <label class="datepicker-demo__field">
+            <span>ngModel עם פורמט תצוגה וניתוח מותאם</span>
+            <ims-datepicker
+                ariaLabel="תאריך בתבנית מותאמת"
+                [(ngModel)]="templateDate"
+                [formats]="customFormats"
+            />
+            <code>{{ describe(templateDate) }}</code>
+        </label>
+    </div>
+</section>
+

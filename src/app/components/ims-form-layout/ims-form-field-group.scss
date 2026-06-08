@@ -2,9 +2,14 @@ ims-form-field-group {
     display: grid;
     grid-auto-flow: row;
     row-gap: var(--ims-form-row-gap, 1rem);
-    column-gap: var(--ims-form-field-gap, 0.5rem);
+    column-gap: var(--ims-form-column-gap, 0);
     align-items: start;
     justify-content: stretch;
     min-width: 0;
-    overflow-x: auto;
+
+    > hr {
+        grid-column: 1 / -1;
+        inline-size: 100%;
+        box-sizing: border-box;
+    }
 }

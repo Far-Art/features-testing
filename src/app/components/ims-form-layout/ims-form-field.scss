@@ -76,6 +76,20 @@ ims-form-field {
         line-height: var(--ims-form-control-height);
     }
 
+    &:has(> ims-checkbox) {
+        > ims-checkbox {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        > :is(label, [imsFormFieldLabel]) {
+            grid-column: 2;
+            grid-row: 1;
+            margin-inline-start:
+                calc(var(--ims-form-checkbox-size, 1rem) + var(--ims-form-field-gap));
+        }
+    }
+
     @at-root {
         @keyframes ims-form-label-gradient-shift {
             from {

@@ -1,5 +1,6 @@
 import {Component} from '@angular/core';
 import {FormsModule} from '@angular/forms';
+import {ImsCheckbox} from '../../components/ims-checkbox/ims-checkbox';
 import {
     ImsFormControlGroup,
     ImsFormField,
@@ -27,6 +28,7 @@ interface FormGridDemoRow {
     selector: 'app-form-layout-demo',
     imports: [
         FormsModule,
+        ImsCheckbox,
         ImsFormField,
         ImsFormFieldRow,
         ImsFormFieldGroup,

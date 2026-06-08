@@ -17,6 +17,11 @@ export const routes: Routes = [
             import('./pages/buttons-demo/buttons-demo').then((module) => module.ButtonsDemo)
     },
     {
+        path: 'datepicker',
+        loadComponent: () =>
+            import('./pages/datepicker-demo/datepicker-demo').then((module) => module.DatepickerDemo)
+    },
+    {
         path: '',
         pathMatch: 'full',
         redirectTo: 'forms'
