@@ -12,7 +12,7 @@ export type ImsFormControlGroupLayout = 'stacked' | 'inline';
     template: '<ng-content/>',
     styleUrl: './ims-form-control-group.scss',
     host: {
-        '[attr.layout]': 'layout()'
+        '[attr.data-layout]': 'layout()'
     },
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -34,8 +34,11 @@ export class ImsFormControlGroup {
     /**
      * Arrangement of the projected local label/control pairs.
      *
-     * `stacked` renders one pair per row. `inline` renders two equal tracks and
-     * lets their controls fill the available width.
+     * `stacked` renders one pair per row with shared label and control tracks,
+     * aligning every control after the widest local label. `inline` renders two
+     * equal pair tracks side by side. In both modes, each pair's non-`span`
+     * child fills its control track and may be a native element or component
+     * host.
      */
     readonly layout = input<ImsFormControlGroupLayout>('stacked');
 }

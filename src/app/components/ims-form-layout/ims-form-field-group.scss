@@ -1,9 +1,10 @@
 ims-form-field-group {
     display: grid;
     grid-auto-flow: row;
-    gap: var(--ims-form-row-gap, 1rem) var(--ims-form-column-gap, 2.5rem);
+    row-gap: var(--ims-form-row-gap, 1rem);
+    column-gap: var(--ims-form-field-gap, 0.5rem);
     align-items: start;
-    justify-content: start;
+    justify-content: stretch;
     min-width: 0;
     overflow-x: auto;
 }

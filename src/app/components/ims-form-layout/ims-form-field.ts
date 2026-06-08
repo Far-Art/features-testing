@@ -86,7 +86,7 @@ export class ImsFormField {
      */
     readonly gridColumn = computed(() => {
         const column = this.column();
-        return column === null ? 'auto / span 2' : `${((column - 1) * 2) + 1} / span 2`;
+        return column === null ? null : `${((column - 1) * 2) + 1} / span 2`;
     });
 
     /**

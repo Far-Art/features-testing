@@ -13,6 +13,7 @@ ims-form-field {
     ims-form-field-group > &,
     ims-form-field-row > & {
         grid-template-columns: subgrid;
+        grid-column: auto / span 2;
     }
 
     > :is(label, [imsFormFieldLabel]) {
@@ -21,6 +22,7 @@ ims-form-field {
         font-weight: 700;
         line-height: var(--ims-form-control-height);
         white-space: nowrap;
+        user-select: none;
         background: linear-gradient(currentColor, currentColor);
         background-clip: text;
         -webkit-text-fill-color: transparent;
