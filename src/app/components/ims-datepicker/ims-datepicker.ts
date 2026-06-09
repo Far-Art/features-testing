@@ -1,5 +1,6 @@
 import {
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
     Component,
     ElementRef,
     LOCALE_ID,
@@ -24,6 +25,7 @@ import {
 } from '@angular/forms';
 import {DateTime, Info} from 'luxon';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
+import {runScopedViewTransition} from '../../shared/view-transition';
 import {
     IMS_DATEPICKER_CONFIG,
     ImsDatepickerDateFilter,
@@ -78,6 +80,7 @@ interface ImsDatepickerYearCell {
 type ImsDatepickerNavigationDistance = 'near' | 'far';
 type ImsDatepickerNavigationDirection = -1 | 1;
 type ImsDatepickerShortcut = 'today' | 'month-start' | 'month-end';
+type ImsDatepickerTransitionDirection = 'view' | 'left-to-right' | 'right-to-left';
 
 const OVERLAY_POSITIONS: ConnectedPosition[] = [
     {
@@ -130,12 +133,15 @@ export class ImsDatepicker
     implements Validator {
     private readonly globalConfig = inject(IMS_DATEPICKER_CONFIG);
     private readonly angularLocale = inject(LOCALE_ID);
+    private readonly changeDetectorRef = inject(ChangeDetectorRef);
     readonly directionality = inject(Directionality);
     private readonly field = viewChild<ElementRef<HTMLElement>>('field');
     private readonly textInput = viewChild<ElementRef<HTMLInputElement>>('textInput');
     private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
+    private readonly calendar = viewChild<ElementRef<HTMLElement>>('calendar');
     private validatorChange: () => void = () => undefined;
     private focusFrame: number | null = null;
+    private pendingNavigationCursor: DateTime | null = null;
     private readonly userEditing = signal(false);
     private readonly inferredValueType = signal<ImsDatepickerValueType>('luxon');
 
@@ -158,6 +164,7 @@ export class ImsDatepicker
     readonly rawText = signal('');
     readonly parseInvalid = signal(false);
     readonly calendarView = signal<ImsDatepickerView>('day');
+    readonly calendarTransitionDirection = signal<ImsDatepickerTransitionDirection>('view');
     readonly cursor = signal(DEFAULT_MIN);
 
     readonly datepickerId = `ims-datepicker-${nextDatepickerId++}`;
@@ -548,11 +555,11 @@ export class ImsDatepicker
         const current = this.calendarView();
 
         if (current === 'day') {
-            this.calendarView.set('year');
+            this.setCalendarView('year');
         } else if (current === 'year') {
-            this.calendarView.set('month');
+            this.setCalendarView('month');
         } else {
-            this.calendarView.set(this.format() === 'dd/MM/yyyy' ? 'day' : 'year');
+            this.setCalendarView(this.format() === 'dd/MM/yyyy' ? 'day' : 'year');
         }
     }
 
@@ -607,9 +614,20 @@ export class ImsDatepicker
         if (!this.canNavigate(distance, direction)) return;
 
         const {unit, amount} = this.navigationStep(distance);
-        this.setActiveDate(
-            this.cursor().plus({[unit]: amount * direction}),
-            false
+        const target = this.resolveActiveDate(
+            (this.pendingNavigationCursor ?? this.cursor()).plus({
+                [unit]: amount * direction
+            }),
+            this.calendarView()
+        );
+        this.pendingNavigationCursor = target;
+        this.runCalendarTransition(
+            () => {
+                const pendingCursor = this.pendingNavigationCursor;
+                this.pendingNavigationCursor = null;
+                if (pendingCursor) this.cursor.set(pendingCursor);
+            },
+            this.navigationTransitionDirection(direction)
         );
     }
 
@@ -696,8 +714,7 @@ export class ImsDatepicker
             this.closePicker();
             this.textInput()?.nativeElement.focus();
         } else {
-            this.calendarView.set('day');
-            this.scheduleActiveCellFocus();
+            this.setCalendarView('day');
         }
     }
 
@@ -715,8 +732,7 @@ export class ImsDatepicker
         );
         if (!date) return;
         this.cursor.set(date);
-        this.calendarView.set('month');
-        this.scheduleActiveCellFocus();
+        this.setCalendarView('month');
     }
 
     private commitText(): void {
@@ -944,6 +960,40 @@ export class ImsDatepicker
         const resolved = this.resolveActiveDate(date, this.calendarView());
         this.cursor.set(resolved);
         if (focus) this.scheduleActiveCellFocus();
+    }
+
+    private setCalendarView(view: ImsDatepickerView): void {
+        if (view === this.calendarView()) return;
+
+        this.calendarTransitionDirection.set('view');
+        this.calendarView.set(view);
+        this.scheduleActiveCellFocus();
+    }
+
+    private runCalendarTransition(
+        update: () => void,
+        direction: ImsDatepickerTransitionDirection
+    ): void {
+        if (!this.open() || !this.panel()) {
+            update();
+            return;
+        }
+
+        this.calendarTransitionDirection.set(direction);
+        this.changeDetectorRef.detectChanges();
+        runScopedViewTransition(
+            this.calendar()?.nativeElement,
+            update,
+            () => this.changeDetectorRef.detectChanges()
+        );
+    }
+
+    private navigationTransitionDirection(
+        direction: ImsDatepickerNavigationDirection
+    ): ImsDatepickerTransitionDirection {
+        const movesForward = direction > 0;
+        const isRtl = this.directionality.value === 'rtl';
+        return movesForward !== isRtl ? 'right-to-left' : 'left-to-right';
     }
 
     private resolveActiveDate(date: DateTime, view: ImsDatepickerView): DateTime {

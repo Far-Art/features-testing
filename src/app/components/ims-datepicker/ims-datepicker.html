@@ -171,7 +171,7 @@
             </div>
         </header>
 
-        <div class="ims-datepicker__calendar">
+        <div #calendar class="ims-datepicker__calendar">
             @switch (calendarView()) {
                 @case ('day') {
                     <div class="ims-datepicker__weekdays" aria-hidden="true">
@@ -180,8 +180,9 @@
                         }
                     </div>
                     <div
-                        class="ims-datepicker__days"
+                        class="ims-datepicker__grid ims-datepicker__days"
                         role="grid"
+                        [attr.data-transition-direction]="calendarTransitionDirection()"
                         [attr.aria-label]="gridAriaLabel()"
                         (keydown)="onCalendarKeydown($event)"
                     >
@@ -218,8 +219,9 @@
                 }
                 @case ('month') {
                     <div
-                        class="ims-datepicker__months"
+                        class="ims-datepicker__grid ims-datepicker__months"
                         role="grid"
+                        [attr.data-transition-direction]="calendarTransitionDirection()"
                         [attr.aria-label]="gridAriaLabel()"
                         (keydown)="onCalendarKeydown($event)"
                     >
@@ -247,8 +249,9 @@
                 }
                 @case ('year') {
                     <div
-                        class="ims-datepicker__years"
+                        class="ims-datepicker__grid ims-datepicker__years"
                         role="grid"
+                        [attr.data-transition-direction]="calendarTransitionDirection()"
                         [attr.aria-label]="gridAriaLabel()"
                         (keydown)="onCalendarKeydown($event)"
                     >
