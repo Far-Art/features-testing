@@ -171,7 +171,7 @@
             </div>
         </header>
 
-        <div #calendar class="ims-datepicker__calendar">
+        <div class="ims-datepicker__calendar">
             @switch (calendarView()) {
                 @case ('day') {
                     <div class="ims-datepicker__weekdays" aria-hidden="true">
@@ -180,6 +180,7 @@
                         }
                     </div>
                     <div
+                        #grid
                         class="ims-datepicker__grid ims-datepicker__days"
                         role="grid"
                         [attr.data-transition-direction]="calendarTransitionDirection()"
@@ -219,6 +220,7 @@
                 }
                 @case ('month') {
                     <div
+                        #grid
                         class="ims-datepicker__grid ims-datepicker__months"
                         role="grid"
                         [attr.data-transition-direction]="calendarTransitionDirection()"
@@ -249,6 +251,7 @@
                 }
                 @case ('year') {
                     <div
+                        #grid
                         class="ims-datepicker__grid ims-datepicker__years"
                         role="grid"
                         [attr.data-transition-direction]="calendarTransitionDirection()"

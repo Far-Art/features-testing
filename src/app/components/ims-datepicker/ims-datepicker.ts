@@ -6,6 +6,7 @@ import {
     LOCALE_ID,
     Type,
     VERSION,
+    ViewEncapsulation,
     computed,
     effect,
     forwardRef,
@@ -119,6 +120,7 @@ function provideDatepickerValidator(type: Type<unknown>) {
     imports: [CdkOverlayOrigin, CdkConnectedOverlay, CdkTrapFocus],
     templateUrl: './ims-datepicker.html',
     styleUrl: './ims-datepicker.scss',
+    encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
         provideValueAccessor(ImsDatepicker),
@@ -138,7 +140,7 @@ export class ImsDatepicker
     private readonly field = viewChild<ElementRef<HTMLElement>>('field');
     private readonly textInput = viewChild<ElementRef<HTMLInputElement>>('textInput');
     private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
-    private readonly calendar = viewChild<ElementRef<HTMLElement>>('calendar');
+    private readonly grid = viewChild<ElementRef<HTMLElement>>('grid');
     private validatorChange: () => void = () => undefined;
     private focusFrame: number | null = null;
     private pendingNavigationCursor: DateTime | null = null;
@@ -982,7 +984,7 @@ export class ImsDatepicker
         this.calendarTransitionDirection.set(direction);
         this.changeDetectorRef.detectChanges();
         runScopedViewTransition(
-            this.calendar()?.nativeElement,
+            this.grid()?.nativeElement,
             update,
             () => this.changeDetectorRef.detectChanges()
         );

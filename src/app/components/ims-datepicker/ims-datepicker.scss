@@ -1,4 +1,4 @@
-:host {
+.ims-datepicker-host {
     --ims-datepicker-primary: var(--mat-sys-primary, #1769aa);
     --ims-datepicker-surface: var(--mat-sys-surface-container-lowest, #fff);
 
@@ -96,27 +96,15 @@
 }
 
 .ims-datepicker__calendar {
-    contain: layout;
     padding: 0.75rem;
     border: 1px solid color-mix(in oklch, currentColor 14%, transparent);
     border-radius: 0.75rem;
     background: var(--ims-datepicker-surface);
     box-shadow: 0 18px 42px rgb(15 23 42 / 18%);
-    view-transition-name: none;
 }
 
 .ims-datepicker__grid {
     contain: layout style;
-    margin: -0.25rem;
-    padding: 0.25rem;
-
-    &[data-transition-direction='left-to-right'] {
-        view-transition-name: ims-datepicker-grid-left-to-right;
-    }
-
-    &[data-transition-direction='right-to-left'] {
-        view-transition-name: ims-datepicker-grid-right-to-left;
-    }
 }
 
 .ims-datepicker__navigation {
@@ -179,9 +167,48 @@
     cursor: not-allowed;
 }
 
+.ims-datepicker__shortcuts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.25rem;
+    padding-block-start: 0.25rem;
+    border-block-start: 1px solid color-mix(in oklch, currentColor 10%, transparent);
+}
+
 .ims-datepicker__shortcuts--today-only {
     .ims-datepicker__shortcut {
         grid-column: 2;
+    }
+}
+
+.ims-datepicker__shortcut {
+    min-height: 1.85rem;
+    padding: 0.25rem;
+    border: 0;
+    border-radius: 0.5rem;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 650;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+        background: color-mix(in oklch, var(--ims-datepicker-primary) 10%, transparent);
+    }
+
+    &:focus-visible {
+        outline: 3px solid color-mix(
+            in oklch,
+            var(--ims-datepicker-primary) 24%,
+            transparent
+        );
+        outline-offset: 1px;
+    }
+
+    &:disabled {
+        opacity: 0.32;
+        cursor: not-allowed;
     }
 }
 
@@ -226,8 +253,16 @@
     &,
     &:focus-visible {
         z-index: 1;
-        outline: 3px solid var(--ims-datepicker-primary);
-        outline-offset: 1px;
+        outline: 0;
+    }
+
+    &::after {
+        position: absolute;
+        inset: 0;
+        border: 3px solid var(--ims-datepicker-primary);
+        border-radius: inherit;
+        content: '';
+        pointer-events: none;
     }
 }
 
@@ -273,4 +308,81 @@
 .ims-datepicker__year {
     min-height: 2.75rem;
     padding: 0.4rem;
+}
+
+.ims-datepicker__grid::view-transition {
+    pointer-events: none;
+}
+
+.ims-datepicker__grid::view-transition-group(root) {
+    animation: none;
+}
+
+.ims-datepicker__grid::view-transition-old(root),
+.ims-datepicker__grid::view-transition-new(root) {
+    mix-blend-mode: normal;
+}
+
+.ims-datepicker__grid[data-transition-direction='right-to-left']::view-transition-old(root) {
+    animation: ims-datepicker-wipe-out-right-to-left 210ms cubic-bezier(0.55, 0, 0.35, 1) both;
+}
+
+.ims-datepicker__grid[data-transition-direction='right-to-left']::view-transition-new(root) {
+    animation: ims-datepicker-wipe-in-right-to-left 260ms 60ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.ims-datepicker__grid[data-transition-direction='left-to-right']::view-transition-old(root) {
+    animation: ims-datepicker-wipe-out-left-to-right 210ms cubic-bezier(0.55, 0, 0.35, 1) both;
+}
+
+.ims-datepicker__grid[data-transition-direction='left-to-right']::view-transition-new(root) {
+    animation: ims-datepicker-wipe-in-left-to-right 260ms 60ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes ims-datepicker-wipe-in-right-to-left {
+    from {
+        opacity: 0;
+        clip-path: inset(0 0 0 100%);
+    }
+
+    to {
+        opacity: 1;
+        clip-path: inset(0 0 0 0);
+    }
+}
+
+@keyframes ims-datepicker-wipe-out-right-to-left {
+    from {
+        opacity: 1;
+        clip-path: inset(0 0 0 0);
+    }
+
+    to {
+        opacity: 0.16;
+        clip-path: inset(0 100% 0 0);
+    }
+}
+
+@keyframes ims-datepicker-wipe-in-left-to-right {
+    from {
+        opacity: 0;
+        clip-path: inset(0 100% 0 0);
+    }
+
+    to {
+        opacity: 1;
+        clip-path: inset(0 0 0 0);
+    }
+}
+
+@keyframes ims-datepicker-wipe-out-left-to-right {
+    from {
+        opacity: 1;
+        clip-path: inset(0 0 0 0);
+    }
+
+    to {
+        opacity: 0.16;
+        clip-path: inset(0 0 0 100%);
+    }
 }
