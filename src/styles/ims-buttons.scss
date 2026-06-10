@@ -1,0 +1,59 @@
+:is(.ims-button) {
+    --ims-button__end-color: #fff;
+
+    position: relative;
+    isolation: isolate;
+    min-block-size: 1rem;
+    max-block-size: max-content;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    background: transparent;
+    transition: color 250ms ease;
+
+    &:before {
+        --ims-button__ripple-background-color: var(--mat-sys-primary, #2563eb);
+        --ims-button__ripple-background-radius: 0%;
+        --ims-button__ripple-speed: 250ms;
+        --ims-button__ripple-background: radial-gradient(circle, var(--ims-button__ripple-background-color) var(--ims-button__ripple-background-radius), transparent calc(var(--ims-button__ripple-background-radius) + 1px));
+        background: var(--ims-button__ripple-background);
+        opacity: 0;
+        transition:
+            opacity var(--ims-button__ripple-speed) ease,
+            --ims-button__ripple-background-radius 0ms linear var(--ims-button__ripple-speed);
+    }
+
+    &:hover, &:focus-visible {
+        color: var(--ims-button__end-color);
+        transition: color 350ms ease 200ms;
+
+        &:before {
+            --ims-button__ripple-speed: 1.3s;
+            --ims-button__ripple-background-radius: 100%;
+            opacity: 1;
+            transition:
+                opacity var(--ims-button__ripple-speed) cubic-bezier(0, 0.5, 0, 1),
+                --ims-button__ripple-background-radius var(--ims-button__ripple-speed) cubic-bezier(0, 0.5, 0, 1);
+        }
+    }
+
+    &:before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        border-radius: inherit;
+    }
+}
+
+@property --ims-button__ripple-background-radius {
+    syntax: '<percentage>';
+    initial-value: 0%;
+    inherits: false;
+}
+
+@property --ims-button__ripple-background-color {
+    syntax: '<color>';
+    initial-value: #fff;
+    inherits: false;
+}
