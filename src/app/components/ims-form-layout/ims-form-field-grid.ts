@@ -50,8 +50,8 @@ function positiveNumber(value: number | string): number {
  * columns an equal share of the available width.
  *
  * The number of logical columns can be fixed through `columns`. Without an
- * explicit count, the host width and `minColumnWidth` define the maximum
- * candidate count, which is reduced until the intrinsic field tracks fit.
+ * explicit count, projected field occupancy defines the maximum candidate
+ * count, which is reduced until the intrinsic field tracks fit.
  *
  * Direct fields may flow naturally. Wrap fields in `ims-form-field-row` when
  * they must remain on the same visual row as fields are added or removed.
@@ -87,8 +87,8 @@ export class ImsFormFieldGrid {
         transform: positiveIntegerOrNull
     });
     /**
-     * Approximate minimum width, in CSS pixels, used to cap the initial
-     * automatic column count before intrinsic field widths are fitted.
+     * Approximate width, in CSS pixels, used to estimate how many logical
+     * columns an open-ended `span="stretch"` field can consume.
      *
      * @example
      * ```html
@@ -153,17 +153,14 @@ export class ImsFormFieldGrid {
     private layoutFrame: number | null = null;
     private layoutReady = false;
     private resetColumnsBeforeLayout = false;
-    /**
-     * Maximum responsive column count supported by both the available width
-     * and the projected fields that can occupy the logical columns.
-     */
+    /** Maximum responsive column count that projected fields can occupy. */
     private readonly maximumAutomaticColumns = computed(() => {
-        const widthLimit = Math.max(
+        const stretchColumnEstimate = Math.max(
             1,
             Math.floor(this.availableWidth() / this.minColumnWidth())
         );
 
-        return Math.min(widthLimit, this.maximumUsefulContentColumns(widthLimit));
+        return this.maximumUsefulContentColumns(stretchColumnEstimate);
     });
 
     /**
@@ -249,21 +246,53 @@ export class ImsFormFieldGrid {
     }
 
     /**
-     * Places fields on paired label/value tracks and reduces automatic columns
-     * until the intrinsic grid fits.
+     * Resolves and applies field placement.
+     *
+     * Automatic fitting tests every candidate synchronously in one animation
+     * frame. Only the final count is committed to the signal, preventing
+     * intermediate templates from being painted during resize.
      */
     private syncLayout(): void {
-        if (this.resetColumnsBeforeLayout && this.columns() === null) {
-            this.automaticColumns.set(this.maximumAutomaticColumns());
+        const explicitColumns = this.columns();
+        if (explicitColumns !== null) {
+            this.resetColumnsBeforeLayout = false;
+            this.syncAutomaticFieldColumns(explicitColumns);
+            return;
         }
-        this.resetColumnsBeforeLayout = false;
-        this.syncAutomaticFieldColumns();
-        this.hostElement.getBoundingClientRect();
 
-        if (this.columns() === null && this.gridOverflows() && this.automaticColumns() > 1) {
-            this.automaticColumns.update((columnCount) => columnCount - 1);
-            this.scheduleLayout();
+        const startingColumns = this.resetColumnsBeforeLayout
+            ? this.maximumAutomaticColumns()
+            : this.automaticColumns();
+        this.resetColumnsBeforeLayout = false;
+        const fittedColumns = this.fitAutomaticColumns(startingColumns);
+        this.automaticColumns.set(fittedColumns);
+    }
+
+    /**
+     * Tests candidate templates without yielding to the browser between them.
+     *
+     * The final candidate is already applied to the host when this returns.
+     */
+    private fitAutomaticColumns(startingColumns: number): number {
+        for (let columnCount = startingColumns; columnCount > 1; columnCount--) {
+            this.applyCandidateLayout(columnCount);
+            if (!this.gridOverflows()) {
+                return columnCount;
+            }
         }
+
+        this.applyCandidateLayout(1);
+        return 1;
+    }
+
+    /** Applies one temporary candidate template and forces its measurement. */
+    private applyCandidateLayout(columnCount: number): void {
+        this.hostElement.style.gridTemplateColumns = buildColumnTemplate(
+            columnCount,
+            this.columnDistribution()
+        );
+        this.syncAutomaticFieldColumns(columnCount);
+        this.hostElement.getBoundingClientRect();
     }
 
     /** Reports whether intrinsic field tracks extend past the grid's inline box. */
@@ -276,9 +305,9 @@ export class ImsFormFieldGrid {
      *
      * Direct fields share one flow context. Each explicit row is independent,
      * so rows contribute their widest useful count rather than being summed.
-     * A stretch field can occupy every width-supported column.
+     * A stretch field can occupy every estimated width-supported column.
      */
-    private maximumUsefulContentColumns(widthLimit: number): number {
+    private maximumUsefulContentColumns(stretchColumnEstimate: number): number {
         const projectedFields = this.projectedFields();
         const fieldGroups: ImsFormField[][] = [
             projectedFields.filter(
@@ -298,14 +327,16 @@ export class ImsFormFieldGrid {
 
         return Math.max(
             1,
-            ...fieldGroups.map((fields) => this.usefulColumnCount(fields, widthLimit))
+            ...fieldGroups.map((fields) =>
+                this.usefulColumnCount(fields, stretchColumnEstimate)
+            )
         );
     }
 
     /** Returns the logical columns that one field flow can meaningfully occupy. */
     private usefulColumnCount(
         fields: readonly ImsFormField[],
-        widthLimit: number
+        stretchColumnEstimate: number
     ): number {
         let totalSpan = 0;
         let furthestExplicitColumn = 0;
@@ -313,7 +344,7 @@ export class ImsFormFieldGrid {
         for (const field of fields) {
             const span = field.span();
             if (span === 'stretch') {
-                return widthLimit;
+                return stretchColumnEstimate;
             }
 
             totalSpan += span;
@@ -330,8 +361,7 @@ export class ImsFormFieldGrid {
     }
 
     /** Assigns auto-flow fields to logical columns while skipping spacer tracks. */
-    private syncAutomaticFieldColumns(): void {
-        const columnCount = this.resolvedColumns();
+    private syncAutomaticFieldColumns(columnCount: number): void {
         const projectedFields = this.projectedFields();
         const directFields = projectedFields.filter(
             (field) => field.getHostElement().parentElement === this.hostElement

@@ -95,8 +95,8 @@ semantics.
 | --- | --- | --- | --- |
 | `columns` | `number \| string \| null` | `null` | Positive integer for fixed mode. Omit it for responsive mode. |
 | `columnDistribution` | `'max-content' \| 'even'` | `'max-content'` | Uses intrinsic logical-column widths or distributes available width evenly. |
-| `minColumnWidth` | `number \| string` | `320` | Initial responsive column-width estimate in CSS pixels. |
-| `columnGap` | `string` | `'0'` | Minimum space between complete field pairs. Remaining width is also distributed through these spacer tracks. |
+| `minColumnWidth` | `number \| string` | `320` | Column-width estimate used to resolve open-ended `stretch` capacity. |
+| `columnGap` | `string` | `'1rem'` | Minimum space between complete field pairs. Remaining width is also distributed through these spacer tracks. |
 | `rowGap` | `string` | `'0.4rem'` | Vertical space between generated rows and explicit row wrappers. |
 
 ### `ims-form-field-group`
@@ -222,14 +222,19 @@ Omit `columns` to enable responsive mode:
 
 Responsive fitting works in two stages:
 
-1. The available inline size, `minColumnWidth`, and projected field occupancy
-   determine the maximum candidate column count. Empty logical columns are not
-   added when no field can occupy them.
+1. Projected field occupancy determines the maximum candidate column count.
+   The grid tries every useful content column instead of treating
+   `minColumnWidth` as a hard width cap.
 2. The count is reduced until the intrinsic label/value tracks no longer
    overflow the grid.
 
 Explicit `column` positions are included in the occupancy limit.
-`span="stretch"` can consume every width-supported column.
+For open-ended `span="stretch"`, the available width and `minColumnWidth`
+estimate how many logical columns it can consume.
+
+Candidate templates are measured synchronously within one animation frame.
+Only the final fitting count is committed, so intermediate candidates are not
+painted during resize.
 
 The implementation uses `ResizeObserver` because CSS auto-repeat cannot derive
 the repeat count from varying `max-content` field widths while preserving the
@@ -242,7 +247,8 @@ height changes caused by wrapping must not do so.
 
 ### Responsive Caveats
 
-- `minColumnWidth` is an initial estimate, not a guaranteed final track width.
+- `minColumnWidth` estimates open-ended `stretch` capacity. Ordinary field
+  columns are fitted from their actual intrinsic widths.
 - Responsive changes are intentionally delayed by the resize debounce.
 - Fixed `columns` mode does not reduce the requested count when content is too
   wide. The consumer must choose a count that fits.
