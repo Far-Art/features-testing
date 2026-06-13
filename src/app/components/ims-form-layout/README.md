@@ -222,10 +222,14 @@ Omit `columns` to enable responsive mode:
 
 Responsive fitting works in two stages:
 
-1. The available inline size and `minColumnWidth` determine the maximum
-   candidate column count.
+1. The available inline size, `minColumnWidth`, and projected field occupancy
+   determine the maximum candidate column count. Empty logical columns are not
+   added when no field can occupy them.
 2. The count is reduced until the intrinsic label/value tracks no longer
    overflow the grid.
+
+Explicit `column` positions are included in the occupancy limit.
+`span="stretch"` can consume every width-supported column.
 
 The implementation uses `ResizeObserver` because CSS auto-repeat cannot derive
 the repeat count from varying `max-content` field widths while preserving the

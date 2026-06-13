@@ -153,10 +153,18 @@ export class ImsFormFieldGrid {
     private layoutFrame: number | null = null;
     private layoutReady = false;
     private resetColumnsBeforeLayout = false;
-    /** Maximum responsive column count allowed by the configured minimum width. */
-    private readonly maximumAutomaticColumns = computed(() =>
-        Math.max(1, Math.floor(this.availableWidth() / this.minColumnWidth()))
-    );
+    /**
+     * Maximum responsive column count supported by both the available width
+     * and the projected fields that can occupy the logical columns.
+     */
+    private readonly maximumAutomaticColumns = computed(() => {
+        const widthLimit = Math.max(
+            1,
+            Math.floor(this.availableWidth() / this.minColumnWidth())
+        );
+
+        return Math.min(widthLimit, this.maximumUsefulContentColumns(widthLimit));
+    });
 
     /**
      * Starts responsive width observation after rendering and keeps the
@@ -261,6 +269,64 @@ export class ImsFormFieldGrid {
     /** Reports whether intrinsic field tracks extend past the grid's inline box. */
     private gridOverflows(): boolean {
         return this.hostElement.scrollWidth > this.hostElement.clientWidth + 1;
+    }
+
+    /**
+     * Caps automatic columns at the widest projected flow context.
+     *
+     * Direct fields share one flow context. Each explicit row is independent,
+     * so rows contribute their widest useful count rather than being summed.
+     * A stretch field can occupy every width-supported column.
+     */
+    private maximumUsefulContentColumns(widthLimit: number): number {
+        const projectedFields = this.projectedFields();
+        const fieldGroups: ImsFormField[][] = [
+            projectedFields.filter(
+                (field) => field.getHostElement().parentElement === this.hostElement
+            )
+        ];
+        const rows = Array.from(this.hostElement.children).filter(
+            (element): element is HTMLElement =>
+                element instanceof HTMLElement && element.matches('ims-form-field-row')
+        );
+
+        for (const row of rows) {
+            fieldGroups.push(projectedFields.filter(
+                (field) => field.getHostElement().parentElement === row
+            ));
+        }
+
+        return Math.max(
+            1,
+            ...fieldGroups.map((fields) => this.usefulColumnCount(fields, widthLimit))
+        );
+    }
+
+    /** Returns the logical columns that one field flow can meaningfully occupy. */
+    private usefulColumnCount(
+        fields: readonly ImsFormField[],
+        widthLimit: number
+    ): number {
+        let totalSpan = 0;
+        let furthestExplicitColumn = 0;
+
+        for (const field of fields) {
+            const span = field.span();
+            if (span === 'stretch') {
+                return widthLimit;
+            }
+
+            totalSpan += span;
+            const explicitColumn = field.column();
+            if (explicitColumn !== null) {
+                furthestExplicitColumn = Math.max(
+                    furthestExplicitColumn,
+                    explicitColumn + span - 1
+                );
+            }
+        }
+
+        return Math.max(1, totalSpan, furthestExplicitColumn);
     }
 
     /** Assigns auto-flow fields to logical columns while skipping spacer tracks. */
