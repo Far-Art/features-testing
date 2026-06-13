@@ -19,7 +19,6 @@ ims-form-field {
     > :is(label, [imsFormFieldLabel]) {
         grid-column: var(--ims-form-label-grid-column, 1);
         align-self: start;
-        white-space: nowrap;
     }
 
     > :not(label):not([imsFormFieldLabel]) {
