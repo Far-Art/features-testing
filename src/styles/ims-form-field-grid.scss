@@ -2,9 +2,9 @@ ims-form-field-grid {
     display: grid;
     grid-auto-flow: row;
     row-gap: var(--ims-form-row-gap, 1rem);
-    column-gap: var(--ims-form-column-gap, 0);
+    column-gap: 0;
     align-items: start;
-    justify-content: space-between;
+    justify-content: stretch;
     min-width: 0;
 
     > hr {

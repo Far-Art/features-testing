@@ -21,7 +21,7 @@ let nextFormControlId = 0;
         <ng-content/>
     `,
     host: {
-        '[style.grid-column]': 'gridColumn()',
+        '[style.--ims-form-grid-column-start]': 'gridColumn()',
         '[style.--ims-form-control-width]': 'controlWidth()'
     },
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -86,7 +86,7 @@ export class ImsFormField {
      */
     readonly gridColumn = computed(() => {
         const column = this.column();
-        return column === null ? null : `${column}`;
+        return column === null ? null : `${((column - 1) * 3) + 1}`;
     });
 
     /**
