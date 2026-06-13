@@ -218,6 +218,7 @@
         display: grid;
         grid-template-columns: repeat(7, minmax(0, 1fr));
         gap: 0.2rem;
+        user-select: none;
     }
 
     .ims-datepicker__weekdays {
@@ -244,7 +245,8 @@
 
     .ims-datepicker__cell--active {
         &:focus-visible {
-            outline: 0;
+            outline: 3px solid var(--ims-datepicker-primary);
+            outline-offset: -3px;
         }
     }
 
@@ -306,15 +308,10 @@
         &:focus-within {
             .ims-datepicker__cell--active {
                 z-index: 1;
+            }
 
-                &::after {
-                    position: absolute;
-                    inset: 0;
-                    border: 3px solid var(--ims-datepicker-primary);
-                    border-radius: inherit;
-                    content: '';
-                    pointer-events: none;
-                }
+            .ims-datepicker__cell--active.ims-datepicker__cell--selected {
+                outline-offset: 2px;
             }
         }
 

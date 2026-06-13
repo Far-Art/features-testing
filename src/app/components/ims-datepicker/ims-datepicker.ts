@@ -563,6 +563,29 @@ export class ImsDatepicker
         }
     }
 
+    onHeaderKeydown(event: KeyboardEvent): void {
+        switch (event.key) {
+            case 'ArrowLeft':
+            case 'ArrowRight':
+            case 'ArrowUp':
+            case 'ArrowDown':
+                this.onCalendarKeydown(event);
+        }
+    }
+
+    onHeaderClick(event: MouseEvent): void {
+        if (event.detail !== 0) return;
+
+        const target = event.target;
+        const button = target instanceof Element
+            ? target.closest<HTMLButtonElement>('button')
+            : null;
+        if (!button) return;
+
+        this.cancelActiveCellFocus();
+        button.focus({preventScroll: true});
+    }
+
     onCalendarKeydown(event: KeyboardEvent): void {
         const active = this.cursor();
         let target: ImsDatepickerDate | null = null;
@@ -605,6 +628,12 @@ export class ImsDatepicker
 
         event.preventDefault();
         if (target) this.setActiveDate(target, true);
+    }
+
+    onGridClick(event: MouseEvent): void {
+        const target = event.target;
+        if (target instanceof Element && target.closest('.ims-datepicker__cell')) return;
+        this.scheduleActiveCellFocus();
     }
 
     navigate(
@@ -1142,8 +1171,8 @@ export class ImsDatepicker
         return null;
     }
 
-    private scheduleActiveCellFocus(): void {
-        if (this.focusFrame !== null) cancelAnimationFrame(this.focusFrame);
+    private scheduleActiveCellFocus(retry = true): void {
+        this.cancelActiveCellFocus();
 
         this.focusFrame = requestAnimationFrame(() => {
             this.focusFrame = null;
@@ -1152,12 +1181,24 @@ export class ImsDatepicker
             );
             if (activeCell && !activeCell.matches(':disabled')) {
                 activeCell.focus({preventScroll: true});
-            } else {
-                this.panel()?.nativeElement.querySelector<HTMLElement>(
-                    `#${this.headerButtonId}`
-                )?.focus({preventScroll: true});
+                return;
             }
+
+            if (retry) {
+                this.scheduleActiveCellFocus(false);
+                return;
+            }
+
+            this.panel()?.nativeElement.querySelector<HTMLElement>(
+                `#${this.headerButtonId}`
+            )?.focus({preventScroll: true});
         });
+    }
+
+    private cancelActiveCellFocus(): void {
+        if (this.focusFrame === null) return;
+        cancelAnimationFrame(this.focusFrame);
+        this.focusFrame = null;
     }
 
     private dayCellId(date: ImsDatepickerDate): string {

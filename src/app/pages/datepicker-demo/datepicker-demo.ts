@@ -7,10 +7,7 @@ import {
     ImsDatepickerValue,
     toUtcEpochMillis
 } from '../../components/ims-datepicker';
-
-function plainDate(year: number, month: number, day: number): Temporal.PlainDate {
-    return Temporal.PlainDate.from({year, month, day});
-}
+import {TemporalHelper} from '../../shared/temporal.helper';
 
 @Component({
     selector: 'app-datepicker-demo',
@@ -20,13 +17,13 @@ function plainDate(year: number, month: number, day: number): Temporal.PlainDate
 })
 export class DatepickerDemo {
     readonly dateControl = new FormControl<ImsDatepickerValue>(
-        plainDate(2026, 6, 7)
+        TemporalHelper.plainDate(2026, 6, 7)
     );
     readonly monthControl = new FormControl<ImsDatepickerValue>(
-        toUtcEpochMillis(plainDate(2026, 6, 30))
+        toUtcEpochMillis(TemporalHelper.plainDate(2026, 6, 30))
     );
-    readonly min = signal<ImsDatepickerValue>(plainDate(2020, 1, 1));
-    readonly max = signal<ImsDatepickerValue>(plainDate(2035, 12, 31));
+    readonly min = signal<ImsDatepickerValue>(TemporalHelper.plainDate(2020, 1, 1));
+    readonly max = signal<ImsDatepickerValue>(TemporalHelper.plainDate(2035, 12, 31));
 
     templateDate: ImsDatepickerValue = null;
 
@@ -40,13 +37,13 @@ export class DatepickerDemo {
     };
 
     tightenRange(): void {
-        this.min.set(plainDate(2026, 1, 1));
-        this.max.set(plainDate(2026, 12, 31));
+        this.min.set(TemporalHelper.plainDate(2026, 1, 1));
+        this.max.set(TemporalHelper.plainDate(2026, 12, 31));
     }
 
     restoreRange(): void {
-        this.min.set(plainDate(2020, 1, 1));
-        this.max.set(plainDate(2035, 12, 31));
+        this.min.set(TemporalHelper.plainDate(2020, 1, 1));
+        this.max.set(TemporalHelper.plainDate(2035, 12, 31));
     }
 
     describe(value: ImsDatepickerValue): string {

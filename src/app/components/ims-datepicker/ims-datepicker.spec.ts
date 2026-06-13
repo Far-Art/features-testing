@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {OverlayContainer} from '@angular/cdk/overlay';
-import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {ComponentFixture, fakeAsync, TestBed, tick} from '@angular/core/testing';
 import {By} from '@angular/platform-browser';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {Temporal} from '@js-temporal/polyfill';
@@ -239,4 +239,127 @@ describe('ImsDatepicker', () => {
             'Next year'
         ]);
     });
+
+    it('returns focus to the grid when an arrow key is pressed in the header', fakeAsync(() => {
+        host.control.setValue(utcMillis(2028, 2, 5));
+        fixture.detectChanges();
+
+        const datepicker = fixture.debugElement.query(By.directive(ImsDatepicker))
+            .componentInstance as ImsDatepicker;
+        datepicker.openPicker();
+        fixture.detectChanges();
+        tick(16);
+
+        const overlay = overlayContainer.getContainerElement();
+        const headerButton = overlay.querySelector<HTMLButtonElement>(
+            '.ims-datepicker__view-button'
+        )!;
+        headerButton.focus();
+        headerButton.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'ArrowRight',
+            bubbles: true
+        }));
+        fixture.detectChanges();
+        tick(16);
+
+        const activeCell = overlay.querySelector<HTMLButtonElement>(
+            '.ims-datepicker__cell--active'
+        );
+        expect(activeCell?.textContent?.trim()).toBe('6');
+        expect(document.activeElement).toBe(activeCell);
+    }));
+
+    it('keeps focus on a header button after keyboard activation', fakeAsync(() => {
+        const datepicker = fixture.debugElement.query(By.directive(ImsDatepicker))
+            .componentInstance as ImsDatepicker;
+        datepicker.openPicker();
+        fixture.detectChanges();
+        tick(16);
+
+        const viewButton = overlayContainer.getContainerElement()
+            .querySelector<HTMLButtonElement>('.ims-datepicker__view-button')!;
+        viewButton.focus();
+        viewButton.dispatchEvent(new MouseEvent('click', {
+            bubbles: true,
+            detail: 0
+        }));
+        fixture.detectChanges();
+        tick(16);
+
+        expect(datepicker.calendarView()).toBe('year');
+        expect(document.activeElement).toBe(viewButton);
+    }));
+
+    it('focuses the month grid after selecting a year with Enter', fakeAsync(() => {
+        host.control.setValue(utcMillis(2028, 2, 5));
+        fixture.detectChanges();
+
+        const datepicker = fixture.debugElement.query(By.directive(ImsDatepicker))
+            .componentInstance as ImsDatepicker;
+        datepicker.openPicker();
+        fixture.detectChanges();
+        tick(16);
+
+        const overlay = overlayContainer.getContainerElement();
+        const viewButton = overlay.querySelector<HTMLButtonElement>(
+            '.ims-datepicker__view-button'
+        )!;
+        viewButton.focus();
+        viewButton.dispatchEvent(new MouseEvent('click', {
+            bubbles: true,
+            detail: 0
+        }));
+        fixture.detectChanges();
+        tick(16);
+
+        viewButton.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'ArrowRight',
+            bubbles: true
+        }));
+        fixture.detectChanges();
+        tick(16);
+
+        const activeYear = overlay.querySelector<HTMLButtonElement>(
+            '.ims-datepicker__year.ims-datepicker__cell--active'
+        )!;
+        activeYear.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Enter',
+            bubbles: true
+        }));
+        fixture.detectChanges();
+        tick(16);
+
+        const activeMonth = overlay.querySelector<HTMLButtonElement>(
+            '.ims-datepicker__month.ims-datepicker__cell--active'
+        );
+        expect(datepicker.calendarView()).toBe('month');
+        expect(document.activeElement).toBe(activeMonth);
+    }));
+
+    it('focuses the active cell when empty grid space is clicked', fakeAsync(() => {
+        host.control.setValue(utcMillis(2028, 2, 5));
+        fixture.detectChanges();
+
+        const datepicker = fixture.debugElement.query(By.directive(ImsDatepicker))
+            .componentInstance as ImsDatepicker;
+        datepicker.openPicker();
+        fixture.detectChanges();
+        tick(16);
+
+        const overlay = overlayContainer.getContainerElement();
+        const viewButton = overlay.querySelector<HTMLButtonElement>(
+            '.ims-datepicker__view-button'
+        )!;
+        const placeholder = overlay.querySelector<HTMLElement>(
+            '.ims-datepicker__day-placeholder'
+        )!;
+        viewButton.focus();
+        placeholder.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+        tick(16);
+
+        const activeCell = overlay.querySelector<HTMLButtonElement>(
+            '.ims-datepicker__cell--active'
+        );
+        expect(document.activeElement).toBe(activeCell);
+    }));
 });

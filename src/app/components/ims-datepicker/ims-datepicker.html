@@ -67,7 +67,11 @@
         [attr.dir]="directionality.value"
         (keydown.escape)="onPanelEscape($event)"
     >
-        <header class="ims-datepicker__header">
+        <header
+            class="ims-datepicker__header"
+            (keydown)="onHeaderKeydown($event)"
+            (click)="onHeaderClick($event)"
+        >
             <div class="ims-datepicker__navigation">
                 <button
                     type="button"
@@ -186,6 +190,7 @@
                         [attr.data-transition-direction]="calendarTransitionDirection()"
                         [attr.aria-label]="gridAriaLabel()"
                         (keydown)="onCalendarKeydown($event)"
+                        (click)="onGridClick($event)"
                     >
                         @for (cell of dayCells(); track cell.date.toString(); let cellIndex = $index) {
                             @if (cell.currentMonth) {
@@ -226,6 +231,7 @@
                         [attr.data-transition-direction]="calendarTransitionDirection()"
                         [attr.aria-label]="gridAriaLabel()"
                         (keydown)="onCalendarKeydown($event)"
+                        (click)="onGridClick($event)"
                     >
                         @for (cell of monthCells(); track cell.month; let cellIndex = $index) {
                             <button
@@ -257,6 +263,7 @@
                         [attr.data-transition-direction]="calendarTransitionDirection()"
                         [attr.aria-label]="gridAriaLabel()"
                         (keydown)="onCalendarKeydown($event)"
+                        (click)="onGridClick($event)"
                     >
                         @for (cell of yearCells(); track cell.year; let cellIndex = $index) {
                             <button
