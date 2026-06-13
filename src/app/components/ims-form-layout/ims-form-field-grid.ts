@@ -46,8 +46,8 @@ function positiveNumber(value: number | string): number {
  * Responsive container that aligns multiple `ims-form-field` instances.
  *
  * Each logical form column contains one complete `ims-form-field`. Columns use
- * intrinsic widths and distribute remaining container space between fields,
- * without changing the gap between a field's label and value.
+ * intrinsic widths by default. Use `columnDistribution="even"` to give logical
+ * columns an equal share of the available width.
  *
  * The number of logical columns can be fixed through `columns`. Without an
  * explicit count, the host width and `minColumnWidth` define the maximum
@@ -58,10 +58,30 @@ function positiveNumber(value: number | string): number {
  */
 export class ImsFormFieldGrid {
     /**
+     * Controls how logical form columns consume the available inline space.
+     *
+     * `even` gives value tracks an equal share of the available space while
+     * preserving shared label alignment. `max-content` uses intrinsic widths.
+     *
+     * @example
+     * ```html
+     * <ims-form-field-grid columnDistribution="max-content">...</ims-form-field-grid>
+     * <ims-form-field-grid columnDistribution="even">...</ims-form-field-grid>
+     * ```
+     */
+    readonly columnDistribution = input<'even' | 'max-content'>('max-content');
+    /**
      * Optional fixed number of logical form columns.
      *
      * Positive integers select fixed mode. `null`, invalid values, and
      * non-positive values use automatic responsive mode.
+     *
+     * @example
+     * ```html
+     * <ims-form-field-grid columns="3">...</ims-form-field-grid>
+     * <ims-form-field-grid [columns]="null">...</ims-form-field-grid>
+     * <ims-form-field-grid [columns]="columnCount">...</ims-form-field-grid>
+     * ```
      */
     readonly columns = input<number | null, number | string | null>(null, {
         transform: positiveIntegerOrNull
@@ -69,21 +89,49 @@ export class ImsFormFieldGrid {
     /**
      * Approximate minimum width, in CSS pixels, used to cap the initial
      * automatic column count before intrinsic field widths are fitted.
+     *
+     * @example
+     * ```html
+     * <ims-form-field-grid minColumnWidth="320">...</ims-form-field-grid>
+     * <ims-form-field-grid [minColumnWidth]="360">...</ims-form-field-grid>
+     * ```
      */
     readonly minColumnWidth = input<number, number | string>(320, {
         transform: positiveNumber
     });
-    /** Minimum gap between adjacent form-field columns. */
+    /**
+     * Minimum gap between adjacent form-field columns.
+     *
+     * Accepts any valid CSS length.
+     *
+     * @example
+     * ```html
+     * <ims-form-field-grid columnGap="1rem">...</ims-form-field-grid>
+     * <ims-form-field-grid columnGap="24px">...</ims-form-field-grid>
+     * ```
+     */
     readonly columnGap = input('0');
-    /** Vertical gap between automatically placed fields or explicit rows. */
+    /**
+     * Vertical gap between automatically placed fields or explicit rows.
+     *
+     * Accepts any valid CSS length.
+     *
+     * @example
+     * ```html
+     * <ims-form-field-grid rowGap="0.75rem">...</ims-form-field-grid>
+     * <ims-form-field-grid [rowGap]="configuredRowGap">...</ims-form-field-grid>
+     * ```
+     */
     readonly rowGap = input('0.4rem');
     /**
      * CSS track list applied to the host.
      *
-     * Each logical form column contains a shared intrinsic label/value pair.
-     * Flexible spacer tracks distribute remaining width only between pairs.
+     * Both modes use shared label/value pairs so projected fields and compound
+     * field groups remain aligned through CSS subgrid.
      */
-    readonly columnTemplate = computed(() => buildColumnTemplate(this.resolvedColumns()));
+    readonly columnTemplate = computed(() =>
+        buildColumnTemplate(this.resolvedColumns(), this.columnDistribution())
+    );
     private readonly destroyRef = inject(DestroyRef);
     private readonly hostElement: HTMLElement = inject(ElementRef).nativeElement;
     private readonly projectedFields = contentChildren(ImsFormField, {descendants: true});
@@ -150,7 +198,13 @@ export class ImsFormFieldGrid {
         effect(() => {
             this.maximumAutomaticColumns();
             this.columns();
-            this.projectedFields();
+            this.columnDistribution();
+            for (const field of this.projectedFields()) {
+                field.column();
+                field.span();
+                field.labelSpan();
+                field.valueSpan();
+            }
             this.scheduleLayout(true);
         });
 
@@ -212,49 +266,83 @@ export class ImsFormFieldGrid {
     /** Assigns auto-flow fields to logical columns while skipping spacer tracks. */
     private syncAutomaticFieldColumns(): void {
         const columnCount = this.resolvedColumns();
-        const directFields = Array.from(this.hostElement.children)
-                                  .filter((element): element is HTMLElement =>
-                                      element instanceof HTMLElement && element.matches('ims-form-field')
-                                  );
+        const projectedFields = this.projectedFields();
+        const directFields = projectedFields.filter(
+            (field) => field.getHostElement().parentElement === this.hostElement
+        );
         this.assignAutomaticColumns(directFields, columnCount);
 
-        const rows = Array.from(this.hostElement.children)
-                          .filter((element): element is HTMLElement =>
-                              element instanceof HTMLElement && element.matches('ims-form-field-row')
-                          );
+        const rows = Array.from(this.hostElement.children).filter(
+            (element): element is HTMLElement =>
+                element instanceof HTMLElement && element.matches('ims-form-field-row')
+        );
         for (const row of rows) {
-            const rowFields = Array.from(row.children)
-                                   .filter((element): element is HTMLElement =>
-                                       element instanceof HTMLElement && element.matches('ims-form-field')
-                                   );
+            const rowFields = projectedFields.filter(
+                (field) => field.getHostElement().parentElement === row
+            );
             this.assignAutomaticColumns(rowFields, columnCount);
         }
     }
 
-    private assignAutomaticColumns(fields: HTMLElement[], columnCount: number): void {
-        for (const [index, field] of fields.entries()) {
-            const logicalColumn = (index % columnCount) + 1;
-            field.style.setProperty(
-                '--ims-form-auto-grid-column-start',
-                `${physicalColumnStart(logicalColumn)}`
-            );
+    /** Places automatic fields sequentially while respecting their logical spans. */
+    private assignAutomaticColumns(fields: readonly ImsFormField[], columnCount: number): void {
+        let nextColumn = 1;
+
+        for (const field of fields) {
+            const explicitColumn = field.column();
+            const span = field.span();
+            let automaticColumn: number | null = null;
+            let requestedSpan: number;
+
+            if (explicitColumn === null) {
+                if (span === 'stretch') {
+                    automaticColumn = nextColumn;
+                    requestedSpan = columnCount - nextColumn + 1;
+                } else {
+                    requestedSpan = Math.min(span, columnCount);
+                    if (nextColumn + requestedSpan - 1 > columnCount) {
+                        nextColumn = 1;
+                    }
+
+                    automaticColumn = nextColumn;
+                }
+                nextColumn += requestedSpan;
+            } else {
+                requestedSpan = span === 'stretch'
+                    ? Math.max(1, columnCount - explicitColumn + 1)
+                    : Math.min(span, columnCount);
+                nextColumn = explicitColumn + requestedSpan;
+            }
+
+            if (nextColumn > columnCount) {
+                nextColumn = 1;
+            }
+
+            field.setGridContext(automaticColumn, columnCount);
         }
     }
 }
 
 /**
- * Builds intrinsic label/value pairs separated by flexible inter-field tracks.
+ * Builds either equal logical columns or intrinsic label/value track pairs.
  */
-function buildColumnTemplate(columnCount: number): string {
+function buildColumnTemplate(
+    columnCount: number,
+    columnDistribution: 'even' | 'max-content'
+): string {
+    if (columnDistribution === 'even') {
+        return Array.from(
+            {length: columnCount},
+            (_, index) => index < columnCount - 1
+                ? 'max-content minmax(0, 1fr) var(--ims-form-column-gap, 0)'
+                : 'max-content minmax(0, 1fr)'
+        ).join(' ');
+    }
+
     return Array.from(
         {length: columnCount},
         (_, index) => index < columnCount - 1
             ? 'max-content max-content minmax(var(--ims-form-column-gap, 0), 1fr)'
             : 'max-content max-content'
     ).join(' ');
-}
-
-/** Maps a one-based logical field column to its label-track grid line. */
-function physicalColumnStart(logicalColumn: number): number {
-    return ((logicalColumn - 1) * 3) + 1;
 }

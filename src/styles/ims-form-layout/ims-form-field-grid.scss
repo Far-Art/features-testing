@@ -1,8 +1,8 @@
 ims-form-field-grid {
     display: grid;
     grid-auto-flow: row;
-    row-gap: var(--ims-form-row-gap, 1rem);
-    column-gap: 0;
+    row-gap: var(--ims-form-row-gap, 0.4rem);
+    column-gap: var(--ims-form-column-gap, 0);
     align-items: start;
     justify-content: stretch;
     min-width: 0;
@@ -10,6 +10,5 @@ ims-form-field-grid {
     > hr {
         grid-column: 1 / -1;
         inline-size: 100%;
-        box-sizing: border-box;
     }
 }

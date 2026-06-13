@@ -18,5 +18,14 @@ import {ChangeDetectionStrategy, Component, input} from '@angular/core';
  * stable one-based logical form column within the row.
  */
 export class ImsFormFieldRow {
+    /**
+     * Controls whether the row is visible while preserving its grid space.
+     *
+     * @example
+     * ```html
+     * <ims-form-field-row [visible]="showContactFields">...</ims-form-field-row>
+     * <ims-form-field-row [visible]="false">...</ims-form-field-row>
+     * ```
+     */
     visible = input<boolean>(true);
 }

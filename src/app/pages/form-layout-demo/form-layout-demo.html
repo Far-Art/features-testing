@@ -19,14 +19,14 @@
                 <input value="נועה">
             </ims-form-field>
 
-            <ims-form-field controlWidth="20rem">
+            <ims-form-field>
                 <label>מספר לקוח במערכת</label>
-                <input value="45872196">
+                <input value="45872196" style="inline-size: 20rem">
             </ims-form-field>
 
-            <ims-form-field controlWidth="16rem">
+            <ims-form-field>
                 <label imsFormFieldLabel>עיר</label>
-                <input value="תל אביב">
+                <input value="תל אביב" style="inline-size: 16rem">
             </ims-form-field>
 
             <ims-form-field>
@@ -34,19 +34,19 @@
                 <input value="ישראלי">
             </ims-form-field>
 
-            <ims-form-field controlWidth="20rem">
+            <ims-form-field>
                 <label imsFormFieldLabel>פוליסה</label>
-                <input value="פוליסת בריאות משפחתית">
+                <input value="פוליסת בריאות משפחתית" style="inline-size: 20rem">
             </ims-form-field>
 
-            <ims-form-field controlWidth="16rem">
+            <ims-form-field>
                 <label imsFormFieldLabel>מיקוד למשלוח מסמכים</label>
-                <input value="6100001">
+                <input value="6100001" style="inline-size: 16rem">
             </ims-form-field>
 
-            <ims-form-field controlWidth="20rem">
+            <ims-form-field>
                 <label imsFormFieldLabel>הערות מפורטות</label>
-                <textarea rows="4">התווית נשארת בראש השדה הגבוה, ובשדה רגיל היא ממורכזת בתוך גובה של 26 פיקסלים.</textarea>
+                <textarea rows="4" style="inline-size: 20rem">התווית נשארת בראש השדה הגבוה, ובשדה רגיל היא ממורכזת בתוך גובה של 26 פיקסלים.</textarea>
             </ims-form-field>
 
             <ims-form-field>
@@ -63,38 +63,46 @@
             הזוגות, בעוד שהרווח בין כל תווית לערך שלה נשאר קבוע.
         </p>
 
-        <ims-form-field-grid columns="3">
-            <ims-form-field controlWidth="7rem">
+        <ims-form-field-grid columns="3" columnDistribution="max-content">
+            <ims-form-field>
                 <label>שם</label>
-                <input value="נועה">
+                <input value="נועה" style="inline-size: 7rem">
             </ims-form-field>
 
-            <ims-form-field controlWidth="7rem">
+            <ims-form-field>
                 <label>עיר</label>
-                <input value="חיפה">
+                <input value="חיפה" style="inline-size: 7rem">
             </ims-form-field>
 
-            <ims-form-field controlWidth="7rem">
+            <ims-form-field>
                 <label>סטטוס</label>
-                <select>
+                <select style="inline-size: 7rem">
                     <option>פעיל</option>
                     <option>לא פעיל</option>
                 </select>
             </ims-form-field>
 
-            <ims-form-field controlWidth="8rem">
-                <label imsFormFieldLabel>קוד</label>
-                <input value="A-17" dir="ltr">
+            <ims-form-field>
+                <label>קוד</label>
+                <input value="A-17" dir="ltr" style="inline-size: 8rem">
             </ims-form-field>
 
-            <ims-form-field controlWidth="13rem">
-                <label imsFormFieldLabel>אזור שירות מועדף</label>
-                <input value="מרכז">
+            <ims-form-field>
+                <label>אזור שירות מועדף</label>
+                <input value="מרכז" style="inline-size: 13rem">
             </ims-form-field>
 
-            <ims-form-field controlWidth="18rem">
-                <label imsFormFieldLabel>שם איש קשר חלופי למקרה חירום</label>
-                <input value="דניאל לוי">
+            <ims-form-field>
+                <label>שם איש קשר חלופי למקרה חירום</label>
+                <input value="דניאל לוי" style="inline-size: 18rem">
+            </ims-form-field>
+
+            <ims-form-field span="stretch">
+                <label>הערה המשתרעת על מספר עמודות</label>
+                <input
+                    value="התווית תופסת עמודה אחת והערך תופס שתי עמודות"
+                    style="inline-size: 100%"
+                >
             </ims-form-field>
         </ims-form-field-grid>
     </div>
@@ -112,9 +120,9 @@
                     <input value="123456789">
                 </ims-form-field>
 
-                <ims-form-field column="2" controlWidth="16rem">
+                <ims-form-field column="2">
                     <label imsFormFieldLabel>טלפון ראשי ליצירת קשר</label>
-                    <input value="050-5555555">
+                    <input value="050-5555555" style="inline-size: 16rem">
                 </ims-form-field>
 
                 <ims-form-field column="3">
@@ -179,12 +187,13 @@
                     </select>
                 </ims-form-field>
 
-                <ims-form-field column="2" controlWidth="20rem">
+                <ims-form-field column="2">
                     <label imsFormFieldLabel>כתובת דואר אלקטרוני</label>
                     <input
                         type="email"
                         value="noa@example.co.il"
                         dir="ltr"
+                        style="inline-size: 20rem"
                     >
                 </ims-form-field>
             </ims-form-field-row>
@@ -199,12 +208,13 @@
                     >
                 </ims-form-field>
 
-                <ims-form-field column="2" controlWidth="16rem">
+                <ims-form-field column="2">
                     <label imsFormFieldLabel>אסמכתה נעולה</label>
                     <input
                         value="REF-2026-1042"
                         disabled
                         dir="ltr"
+                        style="inline-size: 16rem"
                     >
                 </ims-form-field>
             </ims-form-field-row>
@@ -218,11 +228,12 @@
 
     <div class="form-layout-demo__example">
         <h2>שדה עצמאי</h2>
-        <ims-form-field class="form-layout-demo__standalone" controlWidth="20rem">
+        <ims-form-field class="form-layout-demo__standalone">
             <label imsFormFieldLabel>חיפוש חופשי</label>
             <input
                 type="search"
                 placeholder="הקלדת שם או מספר"
+                style="inline-size: 20rem"
             >
         </ims-form-field>
     </div>

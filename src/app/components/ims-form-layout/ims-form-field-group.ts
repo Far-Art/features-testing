@@ -37,6 +37,12 @@ export class ImsFormFieldGroup {
      * equal pair tracks side by side. In both modes, each pair's non-`span`
      * child fills its control track and may be a native element or component
      * host.
+     *
+     * @example
+     * ```html
+     * <ims-form-field-group layout="stacked">...</ims-form-field-group>
+     * <ims-form-field-group layout="inline">...</ims-form-field-group>
+     * ```
      */
     readonly layout = input<ImsFormControlGroupLayout>('inline');
 }

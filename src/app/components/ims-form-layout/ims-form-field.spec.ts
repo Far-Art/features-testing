@@ -15,10 +15,6 @@ import { ImsFormFieldLabel } from './ims-form-field.directives';
             <span imsFormFieldLabel>Readonly label</span>
             <span>Readonly value</span>
         </ims-form-field>
-        <ims-form-field id="width-field" controlWidth="20rem">
-            <label>Width label</label>
-            <input>
-        </ims-form-field>
         <ims-form-field id="projection-order-field">
             <input>
             <label>Projected label</label>
@@ -56,16 +52,6 @@ describe('ImsFormField', () => {
 
         expect(parts[0].hasAttribute('imsFormFieldLabel')).toBe(true);
         expect(parts[1].textContent?.trim()).toBe('Readonly value');
-    });
-
-    it('sets the value width on the form field', async () => {
-        const fixture = TestBed.createComponent(ImsFormFieldTestHost);
-        fixture.detectChanges();
-        await fixture.whenStable();
-
-        const field = fixture.nativeElement.querySelector('#width-field') as HTMLElement;
-
-        expect(field.style.getPropertyValue('--ims-form-control-width')).toBe('20rem');
     });
 
     it('projects the label slot before the catch-all value slot', async () => {

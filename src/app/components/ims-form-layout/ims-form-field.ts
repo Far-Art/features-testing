@@ -7,11 +7,30 @@ import {
     computed,
     inject,
     input,
-    numberAttribute
+    numberAttribute,
+    signal
 } from '@angular/core';
 
 /** Monotonic id source for controls that need automatic label association. */
 let nextFormControlId = 0;
+
+/** Supported complete-field span modes. */
+export type ImsFormFieldSpan = number | 'stretch';
+
+/** Converts a span-like input to a positive integer or its fallback value. */
+function positiveInteger(value: number | string | null, fallback: number | null): number | null {
+    const parsed = numberAttribute(value, Number.NaN);
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+/** Converts the public span input to a logical count or stretch mode. */
+function formFieldSpanAttribute(value: number | string): ImsFormFieldSpan {
+    if (typeof value === 'string' && value.trim().toLowerCase() === 'stretch') {
+        return 'stretch';
+    }
+
+    return positiveInteger(value, 1) ?? 1;
+}
 
 @Component({
     selector: 'ims-form-field',
@@ -22,7 +41,9 @@ let nextFormControlId = 0;
     `,
     host: {
         '[style.--ims-form-grid-column-start]': 'gridColumn()',
-        '[style.--ims-form-control-width]': 'controlWidth()'
+        '[style.--ims-form-grid-column-track-span]': 'gridColumnTrackSpan()',
+        '[style.--ims-form-label-grid-column]': 'labelGridColumn()',
+        '[style.--ims-form-value-grid-column]': 'valueGridColumn()'
     },
     changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -58,35 +79,138 @@ export class ImsFormField {
     private mainControl: HTMLElement | null = null;
     /** `for` value created by this component, used to distinguish it from consumer input. */
     private automaticLabelFor: string | null = null;
+    /** Automatic logical column assigned by the nearest form-field grid. */
+    private readonly automaticColumn = signal<number | null>(null);
+    /** Logical column count supplied by the nearest form-field grid. */
+    private readonly gridColumnCount = signal<number | null>(null);
 
     /**
      * Optional one-based logical column used inside a field group or row.
      *
      * When omitted, normal CSS grid auto-placement is used. Invalid and
      * non-positive values are treated as omitted.
+     *
+     * @example
+     * ```html
+     * <ims-form-field column="2">...</ims-form-field>
+     * <ims-form-field [column]="selectedColumn">...</ims-form-field>
+     * ```
      */
     readonly column = input<number | null, number | string | null>(null, {
-        transform: (value) => {
-            const parsed = numberAttribute(value, Number.NaN);
-            return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
-        }
+        transform: (value) => positiveInteger(value, null)
     });
     /**
-     * Optional CSS inline size for direct native controls in the value column.
+     * Logical form-grid columns occupied by this field.
      *
-     * The value is exposed as `--ims-form-control-width`. Compound groups and
-     * custom value components may choose their own sizing.
+     * A positive number requests that many columns. `stretch` consumes every
+     * column remaining after the field's resolved starting position. Numeric
+     * spans are clamped to the available columns. Invalid values use one.
+     *
+     * @example
+     * ```html
+     * <ims-form-field span="2">...</ims-form-field>
+     * <ims-form-field span="stretch">...</ims-form-field>
+     * <ims-form-field [span]="fieldSpan">...</ims-form-field>
+     * ```
      */
-    readonly controlWidth = input<string | null>(null);
+    readonly span = input<ImsFormFieldSpan, number | string>(1, {
+        transform: formFieldSpanAttribute
+    });
+    /**
+     * Optional logical-column span allocated to the main label area.
+     *
+     * This takes effect for fields spanning at least two logical columns.
+     * When `valueSpan` is omitted, the value receives the remaining columns.
+     *
+     * @example
+     * ```html
+     * <ims-form-field span="3" labelSpan="1">...</ims-form-field>
+     * <ims-form-field span="stretch" [labelSpan]="labelColumns">...</ims-form-field>
+     * ```
+     */
+    readonly labelSpan = input<number | null, number | string | null>(null, {
+        transform: (value) => positiveInteger(value, null)
+    });
+    /**
+     * Optional logical-column span allocated to the main value area.
+     *
+     * This takes effect for fields spanning at least two logical columns.
+     * When `labelSpan` is omitted, the label receives the remaining columns.
+     *
+     * @example
+     * ```html
+     * <ims-form-field span="3" valueSpan="2">...</ims-form-field>
+     * <ims-form-field span="stretch" [valueSpan]="valueColumns">...</ims-form-field>
+     * ```
+     */
+    readonly valueSpan = input<number | null, number | string | null>(null, {
+        transform: (value) => positiveInteger(value, null)
+    });
     /**
      * CSS grid placement for this field.
      *
-     * Each logical form column contains one complete field, so an explicitly
-     * placed field targets that column directly.
+     * Explicit columns take precedence over automatic placement supplied by
+     * the nearest grid.
      */
     readonly gridColumn = computed(() => {
-        const column = this.column();
-        return column === null ? null : `${((column - 1) * 3) + 1}`;
+        const column = this.column() ?? this.automaticColumn();
+        return column === null ? null : `${physicalColumnStart(column)}`;
+    });
+    /** Physical subgrid-track count occupied by the effective logical span. */
+    readonly gridColumnTrackSpan = computed(() =>
+        `${physicalTrackSpan(this.effectiveSpan())}`
+    );
+    /** CSS placement for an explicitly partitioned logical label region. */
+    readonly labelGridColumn = computed(() => {
+        const spans = this.resolvedPartSpans();
+        return spans === null ? null : `1 / span ${physicalTrackSpan(spans.label)}`;
+    });
+    /** CSS placement for the main value region within a spanning field. */
+    readonly valueGridColumn = computed(() => {
+        const spans = this.resolvedPartSpans();
+        if (spans !== null) {
+            return `${physicalColumnStart(spans.label + 1)} / span ${physicalTrackSpan(spans.value)}`;
+        }
+
+        return this.gridColumnCount() !== null && this.effectiveSpan() > 1
+            ? '2 / -1'
+            : null;
+    });
+    /** Effective span after accounting for the field's start and grid width. */
+    private readonly effectiveSpan = computed<number>(() => {
+        const span = this.span();
+        const columnCount = this.gridColumnCount();
+        const startColumn = this.column() ?? this.automaticColumn();
+        if (columnCount === null || startColumn === null || startColumn > columnCount) {
+            return span === 'stretch' ? 1 : span;
+        }
+
+        const availableColumns = columnCount - startColumn + 1;
+        return span === 'stretch'
+            ? availableColumns
+            : Math.min(span, availableColumns);
+    });
+    /** Normalized logical label/value regions for an explicitly split field. */
+    private readonly resolvedPartSpans = computed(() => {
+        const fieldSpan = this.effectiveSpan();
+        const requestedLabelSpan = this.labelSpan();
+        const requestedValueSpan = this.valueSpan();
+        if (
+            this.gridColumnCount() === null ||
+            fieldSpan < 2 ||
+            (requestedLabelSpan === null && requestedValueSpan === null)
+        ) {
+            return null;
+        }
+
+        if (requestedLabelSpan === null) {
+            const value = Math.min(requestedValueSpan ?? 1, fieldSpan - 1);
+            return {label: fieldSpan - value, value};
+        }
+
+        const label = Math.min(requestedLabelSpan, fieldSpan - 1);
+        const value = Math.min(requestedValueSpan ?? fieldSpan - label, fieldSpan - label);
+        return {label, value};
     });
 
     /**
@@ -107,6 +231,36 @@ export class ImsFormField {
             this.contentObserver?.disconnect();
             this.mainControl?.removeAttribute('data-ims-main-control');
         });
+    }
+
+    /** Host element used by the owning grid to resolve direct field children. */
+    getHostElement(): HTMLElement {
+        return this.hostElement;
+    }
+
+    /** Applies automatic placement context from the nearest form-field grid. */
+    setGridContext(automaticColumn: number | null, columnCount: number): void {
+        this.automaticColumn.set(automaticColumn);
+        this.gridColumnCount.set(columnCount);
+        this.syncGridPlacementStyles();
+    }
+
+    /** Applies placement immediately so same-frame overflow checks see the new layout. */
+    private syncGridPlacementStyles(): void {
+        this.setHostStyle('--ims-form-grid-column-start', this.gridColumn());
+        this.setHostStyle('--ims-form-grid-column-track-span', this.gridColumnTrackSpan());
+        this.setHostStyle('--ims-form-label-grid-column', this.labelGridColumn());
+        this.setHostStyle('--ims-form-value-grid-column', this.valueGridColumn());
+    }
+
+    /** Sets or removes one internal CSS custom property on the field host. */
+    private setHostStyle(property: string, value: string | null): void {
+        if (value === null) {
+            this.hostElement.style.removeProperty(property);
+            return;
+        }
+
+        this.hostElement.style.setProperty(property, value);
     }
 
     /**
@@ -221,4 +375,14 @@ export class ImsFormField {
         this.mainControl = null;
         this.automaticLabelFor = null;
     }
+}
+
+/** Maps a one-based logical field column to its label-track grid line. */
+function physicalColumnStart(logicalColumn: number): number {
+    return ((logicalColumn - 1) * 3) + 1;
+}
+
+/** Returns the number of physical tracks occupied by logical field columns. */
+function physicalTrackSpan(logicalSpan: number): number {
+    return (logicalSpan * 3) - 1;
 }
