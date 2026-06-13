@@ -1,13 +1,14 @@
 import {InjectionToken, Provider} from '@angular/core';
-import {DateTime} from 'luxon';
+import {Temporal} from '@js-temporal/polyfill';
 
 export type ImsDatepickerPrecision = 'dd/MM/yyyy' | 'MM/yyyy';
-export type ImsDatepickerValue = DateTime | number | null | undefined;
-export type ImsDatepickerValueType = 'luxon' | 'millis';
+export type ImsDatepickerDate = Temporal.PlainDate;
+export type ImsDatepickerValue = ImsDatepickerDate | number | null | undefined;
+export type ImsDatepickerValueType = 'temporal' | 'millis';
 export type ImsDatepickerMonthDay = 'start' | 'end';
 export type ImsDatepickerView = 'day' | 'month' | 'year';
 export type ImsDatepickerFirstDayOfWeek = 1 | 7;
-export type ImsDatepickerDateFilter = (date: DateTime) => boolean;
+export type ImsDatepickerDateFilter = (date: ImsDatepickerDate) => boolean;
 
 export interface ImsDatepickerFormats {
     readonly parse: {
@@ -36,7 +37,7 @@ export interface ImsDatepickerConfig {
     readonly locale?: string;
     /**
      * Zone used to interpret millisecond inputs and obtain the current calendar
-     * date. Internally, date-only values are represented at UTC midnight.
+     * date. Millisecond outputs are serialized at UTC midnight.
      */
     readonly zone?: string;
     readonly firstDayOfWeek?: ImsDatepickerFirstDayOfWeek;

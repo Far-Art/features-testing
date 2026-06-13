@@ -187,7 +187,7 @@
                         [attr.aria-label]="gridAriaLabel()"
                         (keydown)="onCalendarKeydown($event)"
                     >
-                        @for (cell of dayCells(); track cell.date.toISODate(); let cellIndex = $index) {
+                        @for (cell of dayCells(); track cell.date.toString(); let cellIndex = $index) {
                             @if (cell.currentMonth) {
                                 <button
                                     [attr.id]="cell.id"
@@ -198,7 +198,7 @@
                                     [class.ims-datepicker__cell--selected]="cell.selected"
                                     [class.ims-datepicker__cell--today]="cell.today"
                                     [attr.tabindex]="cell.active ? 0 : -1"
-                                    [attr.aria-label]="cell.date.setLocale(effectiveLocale()).toFormat(effectiveFormats().display.dayAriaLabel)"
+                                    [attr.aria-label]="dayAriaLabel(cell.date)"
                                     [attr.aria-selected]="cell.selected"
                                     [attr.aria-current]="cell.today ? 'date' : null"
                                     [attr.aria-rowindex]="(cellIndex - cellIndex % 7) / 7 + 1"

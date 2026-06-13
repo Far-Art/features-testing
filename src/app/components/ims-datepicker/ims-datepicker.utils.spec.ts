@@ -1,9 +1,13 @@
-import {DateTime} from 'luxon';
+import {Temporal} from '@js-temporal/polyfill';
 import {IMS_DATEPICKER_DEFAULT_FORMATS} from './ims-datepicker.types';
-import {normalizeDateValue, parseDateText} from './ims-datepicker.utils';
+import {
+    IMS_DATEPICKER_INPUT_PATTERNS,
+    normalizeDateValue,
+    parseDateText
+} from './ims-datepicker.utils';
 
 describe('ims-datepicker coercion', () => {
-    const now = DateTime.fromISO('2026-06-07T14:30:00', {zone: 'Asia/Jerusalem'});
+    const now = Temporal.PlainDate.from('2026-06-07');
     const baseOptions = {
         precision: 'dd/MM/yyyy' as const,
         monthDay: 'start' as const,
@@ -14,18 +18,44 @@ describe('ims-datepicker coercion', () => {
     };
 
     it('coerces one or two digits to a day in the current month', () => {
-        expect(parseDateText('1', baseOptions)?.toISO()).toBe('2026-06-01T00:00:00.000Z');
-        expect(parseDateText('10', baseOptions)?.toISO()).toBe('2026-06-10T00:00:00.000Z');
+        expect(parseDateText('1', baseOptions)?.toString()).toBe('2026-06-01');
+        expect(parseDateText('10', baseOptions)?.toString()).toBe('2026-06-10');
     });
 
     it('coerces four digits to a year and preserves the current month and day', () => {
-        expect(parseDateText('2032', baseOptions)?.toISO()).toBe('2032-06-07T00:00:00.000Z');
+        expect(parseDateText('2032', baseOptions)?.toString()).toBe('2032-06-07');
     });
 
     it('accepts slash, dash, dot, and whitespace separators', () => {
         for (const text of ['5/2/2028', '5-2-2028', '5.2.2028', '5 2 2028']) {
-            expect(parseDateText(text, baseOptions)?.toISO()).toBe('2028-02-05T00:00:00.000Z');
+            expect(parseDateText(text, baseOptions)?.toString()).toBe('2028-02-05');
         }
+    });
+
+    it('uses HTML pattern expressions that compile with the browser v flag', () => {
+        const datePattern = new RegExp(`^(?:${IMS_DATEPICKER_INPUT_PATTERNS['dd/MM/yyyy']})$`, 'v');
+        const monthPattern = new RegExp(`^(?:${IMS_DATEPICKER_INPUT_PATTERNS['MM/yyyy']})$`, 'v');
+
+        for (const text of ['5/2/2028', '5-2-2028', '5.2.2028', '5 2 2028']) {
+            expect(datePattern.test(text)).toBeTrue();
+        }
+
+        for (const text of ['2/2028', '2-2028', '2.2028', '2 2028']) {
+            expect(monthPattern.test(text)).toBeTrue();
+        }
+    });
+
+    it('parses custom numeric token order', () => {
+        expect(parseDateText('2028.02.05', {
+            ...baseOptions,
+            formats: {
+                ...IMS_DATEPICKER_DEFAULT_FORMATS,
+                parse: {
+                    ...IMS_DATEPICKER_DEFAULT_FORMATS.parse,
+                    dateInput: ['yyyy.MM.dd']
+                }
+            }
+        })?.toString()).toBe('2028-02-05');
     });
 
     it('rejects month or weekday names', () => {
@@ -38,35 +68,36 @@ describe('ims-datepicker coercion', () => {
             ...baseOptions,
             precision: 'MM/yyyy',
             monthDay: 'start'
-        })?.toISO()).toBe('2026-02-01T00:00:00.000Z');
+        })?.toString()).toBe('2026-02-01');
 
         expect(parseDateText('2/2028', {
             ...baseOptions,
             precision: 'MM/yyyy',
             monthDay: 'end'
-        })?.toISO()).toBe('2028-02-29T00:00:00.000Z');
+        })?.toString()).toBe('2028-02-29');
     });
 
-    it('normalizes Luxon values to a UTC date-only value', () => {
-        const source = DateTime.fromISO('2026-06-07T23:45:12.789', {zone: 'Asia/Jerusalem'});
+    it('normalizes Temporal values to a date-only value', () => {
+        const source = Temporal.PlainDate.from('2026-06-07');
 
         expect(normalizeDateValue(
             source,
             'Asia/Jerusalem',
             'dd/MM/yyyy',
             'start'
-        )?.toISO()).toBe('2026-06-07T00:00:00.000Z');
+        )?.toString()).toBe('2026-06-07');
     });
 
     it('interprets millisecond inputs in the configured zone before removing time', () => {
-        const source = DateTime.fromISO('2026-06-08T00:30:00', {zone: 'Asia/Jerusalem'});
+        const source = Temporal.PlainDateTime
+            .from('2026-06-08T00:30:00')
+            .toZonedDateTime('Asia/Jerusalem');
 
         expect(normalizeDateValue(
-            source.toMillis(),
+            source.epochMilliseconds,
             'Asia/Jerusalem',
             'dd/MM/yyyy',
             'start'
-        )?.toISO()).toBe('2026-06-08T00:00:00.000Z');
+        )?.toString()).toBe('2026-06-08');
     });
 });
-
