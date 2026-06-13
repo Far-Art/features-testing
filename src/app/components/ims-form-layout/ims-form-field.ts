@@ -7,8 +7,7 @@ import {
     computed,
     inject,
     input,
-    numberAttribute,
-    ViewEncapsulation
+    numberAttribute
 } from '@angular/core';
 
 /** Monotonic id source for controls that need automatic label association. */
@@ -21,12 +20,10 @@ let nextFormControlId = 0;
         <ng-content select="label, [imsFormFieldLabel]"/>
         <ng-content/>
     `,
-    styleUrl: './ims-form-field.scss',
     host: {
         '[style.grid-column]': 'gridColumn()',
         '[style.--ims-form-control-width]': 'controlWidth()'
     },
-    encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 /**

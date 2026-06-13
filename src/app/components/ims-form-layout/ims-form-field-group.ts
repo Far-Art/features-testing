@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, input, ViewEncapsulation} from '@angular/core';
+import {ChangeDetectionStrategy, Component, input} from '@angular/core';
 
 /**
  * Supported arrangements for the label/control pairs projected into an
@@ -10,11 +10,9 @@ export type ImsFormControlGroupLayout = 'stacked' | 'inline';
     selector: 'ims-form-field-group',
     standalone: true,
     template: '<ng-content/>',
-    styleUrl: './ims-form-field-group.scss',
     host: {
         '[attr.data-layout]': 'layout()'
     },
-    encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 /**

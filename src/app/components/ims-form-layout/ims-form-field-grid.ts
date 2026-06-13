@@ -9,8 +9,7 @@ import {
     inject,
     input,
     numberAttribute,
-    signal,
-    ViewEncapsulation
+    signal
 } from '@angular/core';
 
 /** Converts a column-count input to a positive integer or automatic mode. */
@@ -29,13 +28,11 @@ function positiveNumber(value: number | string): number {
     selector: 'ims-form-field-grid',
     standalone: true,
     template: '<ng-content/>',
-    styleUrl: './ims-form-field-grid.scss',
     host: {
         '[style.grid-template-columns]': 'columnTemplate()',
         '[style.--ims-form-column-gap]': 'columnGap()',
         '[style.--ims-form-row-gap]': 'rowGap()'
     },
-    encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 /**
