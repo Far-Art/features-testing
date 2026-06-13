@@ -11,10 +11,10 @@
 @use './styles/ims-select';
 @use './styles/ims-autocomplete';
 @use './styles/ims-datepicker';
-@use './styles/ims-form-field';
-@use './styles/ims-form-field-grid';
-@use './styles/ims-form-field-group';
-@use './styles/ims-form-field-row';
+@use './styles/ims-form-layout/ims-form-field';
+@use './styles/ims-form-layout/ims-form-field-grid';
+@use './styles/ims-form-layout/ims-form-field-group';
+@use './styles/ims-form-layout/ims-form-field-row';
 
 @use './styles/gradient-animate';
 @use './styles/action-required';

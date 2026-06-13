@@ -39,10 +39,9 @@ ims-form-field-group {
             background: linear-gradient(currentColor, currentColor);
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            transition:
-                color 120ms ease,
-                text-decoration-color 120ms ease,
-                text-shadow 160ms ease;
+            transition: color 120ms ease,
+            text-decoration-color 120ms ease,
+            text-shadow 160ms ease;
         }
 
         > :not(span) {
@@ -65,16 +64,14 @@ ims-form-field-group {
         }
 
         &:has(> :is(input, select, textarea, button):not(:disabled):hover) > span {
-            background:
-                linear-gradient(
-                    100deg,
-                    var(--ims-form-accent, #1769aa) 0%,
-                    var(--ims-form-accent, #1769aa) 35%,
-                    #80d8ff 50%,
-                    var(--ims-form-accent, #1769aa) 65%,
-                    var(--ims-form-accent, #1769aa) 100%
-                )
-                100% center / 300% auto;
+            background: linear-gradient(
+              100deg,
+              var(--ims-form-accent, #1769aa) 0%,
+              var(--ims-form-accent, #1769aa) 35%,
+              #80d8ff 50%,
+              var(--ims-form-accent, #1769aa) 65%,
+              var(--ims-form-accent, #1769aa) 100%
+            ) 100% center / 300% auto;
             background-clip: text;
             animation: ims-form-label-gradient-shift 1.8s linear infinite;
         }
@@ -87,34 +84,29 @@ ims-form-field-group {
 
         &:has(> .ng-invalid) > span {
             color: var(--ims-form-error, #c62828);
-            background:
-                linear-gradient(
-                    100deg,
-                    #8e0000 0%,
-                    var(--ims-form-error, #c62828) 30%,
-                    #ff5252 50%,
-                    #b71c1c 70%,
-                    #8e0000 100%
-                )
-                0 center / 200% auto;
+            background: linear-gradient(
+              100deg,
+              #8e0000 0%,
+              var(--ims-form-error, #c62828) 30%,
+              #ff5252 50%,
+              #b71c1c 70%,
+              #8e0000 100%
+            ) 0 center / 200% auto;
             background-clip: text;
             animation: ims-form-invalid-label-shift 2.6s ease-in-out infinite alternate;
         }
 
         &:has(> .ng-invalid:hover) > span {
-            background-image:
-                linear-gradient(
-                    100deg,
-                    #7f0000 0%,
-                    #ff1744 30%,
-                    #ff8a80 50%,
-                    #d50000 70%,
-                    #7f0000 100%
-                );
+            background-image: linear-gradient(
+              100deg,
+              #7f0000 0%,
+              #ff1744 30%,
+              #ff8a80 50%,
+              #d50000 70%,
+              #7f0000 100%
+            );
             animation-duration: 1.25s;
-            text-shadow:
-                0 0 0.65rem
-                color-mix(in srgb, var(--ims-form-error, #c62828) 35%, transparent);
+            text-shadow: 0 0 0.65rem color-mix(in srgb, var(--ims-form-error, #c62828) 35%, transparent);
         }
     }
 
