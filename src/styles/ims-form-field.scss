@@ -5,16 +5,10 @@ ims-form-field {
     --ims-form-error: #c62828;
 
     display: grid;
-    grid-template-columns: max-content max-content;
+    grid-template-columns: var(--ims-form-shared-label-width, max-content) max-content;
     column-gap: var(--ims-form-field-gap);
     align-items: start;
     min-width: 0;
-
-    ims-form-field-grid > &,
-    ims-form-field-row > & {
-        grid-template-columns: subgrid;
-        grid-column: auto / span 2;
-    }
 
     > :is(label, [imsFormFieldLabel]) {
         grid-column: 1;

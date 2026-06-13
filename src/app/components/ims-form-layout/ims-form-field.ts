@@ -39,9 +39,9 @@ let nextFormControlId = 0;
  * preserved. Nested `ims-form-field` controls are ignored, which prevents an
  * outer field from taking ownership of a nested field's control.
  *
- * The component works standalone with intrinsic label/value tracks. Inside an
- * `ims-form-field-grid` or `ims-form-field-row`, it adopts the parent tracks
- * through CSS `subgrid` so labels and values align across fields.
+ * The component always owns its intrinsic label/value tracks. Inside an
+ * `ims-form-field-grid` or `ims-form-field-row`, the complete field is placed
+ * as one unit so parent distribution never changes the label/value gap.
  *
  * With a direct `ims-checkbox`, the checkbox component and main field label
  * share value column 2 and row 1. The form layout only handles placement;
@@ -81,13 +81,12 @@ export class ImsFormField {
     /**
      * CSS grid placement for this field.
      *
-     * Each logical form column occupies two tracks, so an explicitly placed
-     * field starts at the corresponding label track and spans its label/value
-     * pair.
+     * Each logical form column contains one complete field, so an explicitly
+     * placed field targets that column directly.
      */
     readonly gridColumn = computed(() => {
         const column = this.column();
-        return column === null ? null : `${((column - 1) * 2) + 1} / span 2`;
+        return column === null ? null : `${column}`;
     });
 
     /**
