@@ -10,8 +10,8 @@ to be rewritten.
 
 ## File Map
 
-- `ims-form-field.ts`: label/value projection, label association, control width,
-  and logical-column placement.
+- `ims-form-field.ts`: label/value projection, label association, and
+  logical-column placement.
 - `ims-form-field-grid.ts`: fixed and responsive column counts, intrinsic-width
   fitting, and automatic field placement.
 - `ims-form-field-row.ts`: full-width stable row wrapper.
@@ -19,8 +19,8 @@ to be rewritten.
 - `ims-form-field.directives.ts`: the behavior-free `imsFormFieldLabel` marker.
 - `ims-form-field.spec.ts`: focused field projection and label-association tests.
 - `index.ts`: public exports.
-- `src/styles/ims-form-field.scss`: field, label, native-control, validation,
-  focus, and checkbox-placement styles.
+- `src/styles/ims-form-field.scss`: field layout, label interaction color, and
+  checkbox-placement styles.
 - `src/styles/ims-form-field-grid.scss`: grid host styles.
 - `src/styles/ims-form-field-row.scss`: stable row and subgrid styles.
 - `src/styles/ims-form-field-group.scss`: compound-control styles.
@@ -127,8 +127,8 @@ A native main label is automatically associated with a labelable control:
 - Supported targets are `button`, non-hidden `input`, `meter`, `output`,
   `progress`, `select`, and `textarea`.
 - Controls inside a nested `ims-form-field` are ignored.
-- The selected control receives `data-ims-main-control` for hover, focus, and
-  validation-state styling.
+- The selected control receives `data-ims-main-control` so hover and focus can
+  update the main label color.
 
 The field watches projected child additions and removals. It does not observe
 attribute-only changes. Changing `for`, `id`, or `type` dynamically after
@@ -308,10 +308,8 @@ side.
 The group does not create accessible group semantics. Consumers should provide
 `role="group"` and `aria-labelledby` or an equivalent accessible name.
 
-Direct native `input`, `select`, and `button` elements receive the group's base
-control styling. A grouped `textarea` participates in sizing and interaction
-selectors but needs consumer styling if it should visually match those native
-controls.
+The group only arranges its projected pairs. Native controls and custom
+components retain their own presentation styles.
 
 ## Accessibility Responsibilities
 
@@ -327,7 +325,6 @@ form accessibility policy.
   `role="group"` and `aria-labelledby`.
 - Consumers remain responsible for required-state communication, descriptions,
   error-message IDs, `aria-describedby`, and `aria-invalid`.
-- Do not rely on visual invalid styling as the only error indication.
 
 ## Direct `ims-checkbox` Exception
 
@@ -358,32 +355,25 @@ Override that variable if the checkbox visual size differs.
 
 ## Native And Custom Value Content
 
-Direct native `input`, `select`, `button`, and `textarea` elements receive field
-control styling with a default inline size of `13rem`. Set `inline-size`
-directly on a native control when it requires a different width.
+The form-layout styles do not set control width, height, padding, typography,
+background, border, outline, or other presentation. Native controls, read-only
+values, custom components, and compound groups retain their own styles.
 
-Custom components and compound groups choose their own internal sizing.
+Set control sizing directly on the control or through the control component's
+own API.
 
-Non-control value content receives the standard control-height minimum and line
-height. This is intended for simple read-only values.
-
-## Interaction And Validation Styling
+## Label Interaction Styling
 
 The main label reacts to the owned control:
 
-- Hover starts the label gradient animation.
-- Focus applies the accent color and underline.
-- `.ng-invalid` applies the error gradient and error color.
-- Disabled controls do not receive the interactive cursor.
-- Reduced-motion preferences disable label animation.
+- Hover applies `--ims-form-accent` as the label color.
+- Focus applies `--ims-form-accent` as the label color.
+- Disabled controls do not trigger these color states.
 
 For direct native controls, state is detected directly. For controls nested in a
 compound or custom component, the automatically associated native control is
 marked with `data-ims-main-control` so its state can propagate to the main
-label.
-
-Angular validation classes and `aria-invalid` remain the consumer's
-responsibility.
+label. Validation styling remains entirely consumer-owned.
 
 ## Styling Hooks
 
@@ -391,10 +381,8 @@ The main field custom properties are:
 
 | Property | Default | Purpose |
 | --- | --- | --- |
-| `--ims-form-control-height` | `26px` | Standard native-control and label-line height. |
 | `--ims-form-field-gap` | `0.5rem` | Gap between a field's label and value. |
 | `--ims-form-accent` | `#1769aa` | Focus and hover accent. |
-| `--ims-form-error` | `#c62828` | Invalid-state color. |
 | `--ims-form-checkbox-size` | `1rem` fallback | Direct-checkbox placement offset. |
 | `--ims-form-column-gap` | set by `columnGap` | Minimum flexible space between field pairs. |
 | `--ims-form-row-gap` | set by `rowGap` | Grid row gap. |
@@ -414,8 +402,7 @@ placement properties and should not be set by consumers.
 - An explicit `for` should reference a control owned by the same field.
 - `column` values are positive and one-based. Values beyond the configured grid
   count can create implicit CSS Grid tracks and should be avoided.
-- The layout depends on browser support for CSS Grid `subgrid`, `:has()`,
-  `color-mix()`, and text background clipping.
+- The layout depends on browser support for CSS Grid `subgrid` and `:has()`.
 - Nested `ims-form-field-grid` instances are independent. Field discovery and
   label association avoid claiming content owned by a nested grid or field.
 - The components do not add `fieldset`, `legend`, group roles, required

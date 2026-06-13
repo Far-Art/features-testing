@@ -1,8 +1,6 @@
 ims-form-field {
-    --ims-form-control-height: 26px;
     --ims-form-field-gap: 0.5rem;
     --ims-form-accent: #1769aa;
-    --ims-form-error: #c62828;
 
     display: grid;
     grid-template-columns: max-content max-content;
@@ -21,60 +19,12 @@ ims-form-field {
     > :is(label, [imsFormFieldLabel]) {
         grid-column: var(--ims-form-label-grid-column, 1);
         align-self: start;
-        font-weight: 700;
-        line-height: var(--ims-form-control-height);
         white-space: nowrap;
-        user-select: none;
-        background: linear-gradient(currentColor, currentColor);
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        transition: color 120ms ease,
-        text-decoration-color 120ms ease,
-        text-shadow 160ms ease;
     }
 
     > :not(label):not([imsFormFieldLabel]) {
         grid-column: var(--ims-form-value-grid-column, 2);
         min-width: 0;
-    }
-
-    > :is(input, select) {
-        box-sizing: border-box;
-        inline-size: 13rem;
-        max-inline-size: 100%;
-        block-size: var(--ims-form-control-height);
-        min-block-size: var(--ims-form-control-height);
-        padding: 0 0.65rem;
-        color: inherit;
-        background: #fff;
-        border: 1px solid #aeb7c4;
-        border-radius: 0.4rem;
-        font: inherit;
-    }
-
-    > textarea {
-        box-sizing: border-box;
-        inline-size: 13rem;
-        max-inline-size: 100%;
-        min-block-size: var(--ims-form-control-height);
-        padding: 0.45rem 0.65rem;
-        color: inherit;
-        background: #fff;
-        border: 1px solid #aeb7c4;
-        border-radius: 0.4rem;
-        font: inherit;
-        resize: vertical;
-    }
-
-    > :is(input, select, textarea):focus {
-        border-color: var(--ims-form-accent);
-        outline: 2px solid color-mix(in srgb, var(--ims-form-accent) 25%, transparent);
-        outline-offset: 1px;
-    }
-
-    > :not(:is(label, input, select, textarea, [imsFormFieldLabel])) {
-        min-block-size: var(--ims-form-control-height);
-        line-height: var(--ims-form-control-height);
     }
 
     &:has(> ims-checkbox) {
@@ -90,55 +40,10 @@ ims-form-field {
         }
     }
 
-    @at-root {
-        @keyframes ims-form-label-gradient-shift {
-            from {
-                background-position: 100% center;
-            }
-
-            to {
-                background-position: 0 center;
-            }
-        }
-
-        @keyframes ims-form-invalid-label-shift {
-            to {
-                background-position: 100% center;
-            }
-        }
+    &:has(:is(input, select, textarea, button, [data-ims-main-control]):not(:disabled):hover) >
+        :is(label, [imsFormFieldLabel]),
+    &:has(:is(input, select, textarea, button, [data-ims-main-control]):not(:disabled):focus) >
+        :is(label, [imsFormFieldLabel]) {
+        color: var(--ims-form-accent);
     }
-
-    &:has(:is(input, select, textarea, [data-ims-main-control]):not(:disabled)) > label {
-        cursor: pointer;
-    }
-
-    &:not(:has(.ng-invalid)):has(:is(input, select, textarea, [data-ims-main-control]):not(:disabled):hover) > :is(label, [imsFormFieldLabel]),
-    &:not(:has(.ng-invalid)):has(:is(input, select, textarea, [data-ims-main-control]):not(:disabled):focus) > :is(label, [imsFormFieldLabel]) {
-        background: linear-gradient(
-          100deg,
-          var(--ims-form-accent) 0%,
-          var(--ims-form-accent) 35%,
-          hsl(from var(--ims-form-accent) calc(h - 25) s 85%) 50%,
-          var(--ims-form-accent) 65%,
-          var(--ims-form-accent) 100%
-        ) 100% center / 250% auto;
-        background-clip: text;
-        animation: ims-form-label-gradient-shift 700ms linear forwards;
-    }
-
-    &:has(.ng-invalid) > :is(label, [imsFormFieldLabel]) {
-        color: var(--ims-form-error);
-        background: linear-gradient(
-          100deg,
-          var(--ims-form-error) 0%,
-          var(--ims-form-error) 30%,
-          hsl(from var(--ims-form-error) calc(h - 10) 100% 72%) 50%,
-          var(--ims-form-error) 70%,
-          var(--ims-form-error) 100%
-        ) 0 center / 200% auto;
-        background-clip: text;
-        animation: ims-form-invalid-label-shift 1s ease-in-out infinite alternate;
-        text-decoration-color: var(--ims-form-error);
-    }
-
 }

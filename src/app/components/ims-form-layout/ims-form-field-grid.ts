@@ -110,7 +110,7 @@ export class ImsFormFieldGrid {
      * <ims-form-field-grid columnGap="24px">...</ims-form-field-grid>
      * ```
      */
-    readonly columnGap = input('0');
+    readonly columnGap = input('1rem');
     /**
      * Vertical gap between automatically placed fields or explicit rows.
      *

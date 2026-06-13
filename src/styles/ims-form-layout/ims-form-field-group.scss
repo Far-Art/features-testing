@@ -4,7 +4,6 @@ ims-form-field-group {
     column-gap: 0.5rem;
     row-gap: 0.65rem;
     min-width: 0;
-    line-height: normal;
 
     &[data-layout="inline"] {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -25,23 +24,9 @@ ims-form-field-group {
         grid-column: 1 / -1;
         align-items: center;
         min-width: 0;
-        font-size: 0.9rem;
-        font-weight: 600;
-        cursor: pointer;
-
-        &:has(> :is(input, select, textarea, button):disabled) {
-            cursor: default;
-        }
 
         > span {
             grid-column: 1;
-            line-height: var(--ims-form-control-height, 26px);
-            background: linear-gradient(currentColor, currentColor);
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            transition: color 120ms ease,
-            text-decoration-color 120ms ease,
-            text-shadow 160ms ease;
         }
 
         > :not(span) {
@@ -51,44 +36,9 @@ ims-form-field-group {
             max-inline-size: 100%;
         }
 
-        &:has(> :is(input, select, textarea):not(:disabled):hover) > span {
-            background: linear-gradient(
-              100deg,
-              var(--ims-form-accent) 0%,
-              var(--ims-form-accent) 35%,
-              hsl(from var(--ims-form-accent) calc(h - 25) s 85%) 50%,
-              var(--ims-form-accent) 65%,
-              var(--ims-form-accent) 100%
-            ) 100% center / 250% auto;
-            background-clip: text;
-            animation: ims-form-label-gradient-shift 700ms linear forwards;
-        }
-
-        &:has(> :is(input, select, textarea):not(:disabled):focus) > span {
+        &:has(> :is(input, select, textarea, button):not(:disabled):hover) > span,
+        &:has(> :is(input, select, textarea, button):not(:disabled):focus) > span {
             color: var(--ims-form-accent);
-            text-decoration: underline;
-            text-underline-offset: 0.2em;
         }
-
-        &:has(> .ng-invalid) > span {
-            color: var(--ims-form-error);
-            background: linear-gradient(
-              100deg,
-              var(--ims-form-error) 0%,
-              var(--ims-form-error) 30%,
-              hsl(from var(--ims-form-error) calc(h - 10) 100% 72%) 50%,
-              var(--ims-form-error) 70%,
-              var(--ims-form-error) 100%
-            ) 0 center / 200% auto;
-            background-clip: text;
-            animation: ims-form-invalid-label-shift 1s ease-in-out infinite alternate;
-            text-decoration-color: var(--ims-form-error);
-        }
-    }
-}
-
-@keyframes ims-form-invalid-label-shift {
-    to {
-        background-position: 100% center;
     }
 }
