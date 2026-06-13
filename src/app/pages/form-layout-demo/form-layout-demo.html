@@ -13,7 +13,7 @@
             הקבוצה מחשבת את מספר העמודות לפי הרוחב הזמין.
         </p>
 
-        <ims-form-field-group>
+        <ims-form-field-grid>
             <ims-form-field>
                 <label>שם פרטי</label>
                 <input value="נועה">
@@ -53,7 +53,7 @@
                 <label>שליחת עדכונים בדואר אלקטרוני</label>
                 <ims-checkbox checked/>
             </ims-form-field>
-        </ims-form-field-group>
+        </ims-form-field-grid>
     </div>
 
     <div class="form-layout-demo__example">
@@ -63,7 +63,7 @@
             הזוגות, בעוד שהרווח בין כל תווית לערך שלה נשאר קבוע.
         </p>
 
-        <ims-form-field-group columns="3">
+        <ims-form-field-grid columns="3">
             <ims-form-field controlWidth="7rem">
                 <label>שם</label>
                 <input value="נועה">
@@ -81,7 +81,7 @@
                     <option>לא פעיל</option>
                 </select>
             </ims-form-field>
-        </ims-form-field-group>
+        </ims-form-field-grid>
     </div>
 
     <div class="form-layout-demo__example">
@@ -90,7 +90,7 @@
             כל ims-form-field-row תופס שורה מלאה. המאפיין column מקבע שדה לעמודה גם כששדה אחר מוסר.
         </p>
 
-        <ims-form-field-group columns="3">
+        <ims-form-field-grid columns="3">
             <ims-form-field-row>
                 <ims-form-field column="1">
                     <label imsFormFieldLabel>מספר זהות</label>
@@ -111,7 +111,7 @@
             <ims-form-field-row>
                 <ims-form-field column="1">
                     <label imsFormFieldLabel id="demo-validity-label">תוקף הפוליסה</label>
-                    <ims-form-control-group
+                    <ims-form-field-group
                         role="group"
                         aria-labelledby="demo-validity-label"
                     >
@@ -124,7 +124,7 @@
                             <span>עד תאריך</span>
                             <input type="date" value="2026-12-31">
                         </label>
-                    </ims-form-control-group>
+                    </ims-form-field-group>
                 </ims-form-field>
 
                 <ims-form-field column="3">
@@ -136,7 +136,7 @@
             <ims-form-field-row>
                 <ims-form-field column="2">
                     <label imsFormFieldLabel id="demo-inline-validity-label">תקופת זכאות</label>
-                    <ims-form-control-group
+                    <ims-form-field-group
                         layout="inline"
                         role="group"
                         aria-labelledby="demo-inline-validity-label"
@@ -150,7 +150,7 @@
                             <span>עד תאריך</span>
                             <input type="date" value="2026-09-30">
                         </label>
-                    </ims-form-control-group>
+                    </ims-form-field-group>
                 </ims-form-field>
             </ims-form-field-row>
 
@@ -193,7 +193,7 @@
                     >
                 </ims-form-field>
             </ims-form-field-row>
-        </ims-form-field-group>
+        </ims-form-field-grid>
 
         <div class="form-layout-demo__legend" aria-hidden="true">
             <span>רוחב התווית משותף בתוך העמודה</span>

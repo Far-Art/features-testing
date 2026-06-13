@@ -9,7 +9,7 @@ import {ChangeDetectionStrategy, Component, ViewEncapsulation} from '@angular/co
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 /**
- * Full-width row wrapper for fields inside an `ims-form-field-group`.
+ * Full-width row wrapper for fields inside an `ims-form-field-grid`.
  *
  * The row spans every track of the parent group and adopts those tracks through
  * CSS `subgrid`. Use it when a set of fields must remain on one visual row even

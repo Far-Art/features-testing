@@ -2,9 +2,8 @@ import {Component} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {ImsCheckbox} from '../../components/ims-checkbox/ims-checkbox';
 import {
-    ImsFormControlGroup,
-    ImsFormField,
     ImsFormFieldGroup,
+    ImsFormField, ImsFormFieldGrid,
     ImsFormFieldLabel,
     ImsFormFieldRow
 } from '../../components/ims-form-layout';
@@ -32,13 +31,13 @@ interface FormGridDemoRow {
         ImsFormField,
         ImsFormFieldRow,
         ImsFormFieldGroup,
-        ImsFormControlGroup,
         ImsFormFieldLabel,
         ImsGrid,
         ImsGridRow,
         ImsGridCell,
         ImsGridSortDirective,
-        ImsGridSortHeader
+        ImsGridSortHeader,
+        ImsFormFieldGrid
     ],
     templateUrl: './form-layout-demo.html',
     styleUrl: './form-layout-demo.scss'

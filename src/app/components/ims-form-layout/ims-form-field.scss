@@ -10,7 +10,7 @@ ims-form-field {
     align-items: start;
     min-width: 0;
 
-    ims-form-field-group > &,
+    ims-form-field-grid > &,
     ims-form-field-row > & {
         grid-template-columns: subgrid;
         grid-column: auto / span 2;

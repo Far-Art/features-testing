@@ -43,7 +43,7 @@ let nextFormControlId = 0;
  * outer field from taking ownership of a nested field's control.
  *
  * The component works standalone with intrinsic label/value tracks. Inside an
- * `ims-form-field-group` or `ims-form-field-row`, it adopts the parent tracks
+ * `ims-form-field-grid` or `ims-form-field-row`, it adopts the parent tracks
  * through CSS `subgrid` so labels and values align across fields.
  *
  * With a direct `ims-checkbox`, the checkbox component and main field label
