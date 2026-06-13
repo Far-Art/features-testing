@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {ImsCheckbox} from '../../components/ims-checkbox/ims-checkbox';
 import {
@@ -40,6 +40,7 @@ interface FormGridDemoRow {
         ImsFormFieldGrid
     ],
     templateUrl: './form-layout-demo.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './form-layout-demo.scss'
 })
 export class FormLayoutDemo {

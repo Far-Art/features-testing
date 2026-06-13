@@ -401,10 +401,10 @@ export class ImsLongPressDirective {
     }
 
     private dispatchClick(): void {
-        const event = new MouseEvent('click', {
+        const MouseEventConstructor = this.host.ownerDocument.defaultView?.MouseEvent ?? MouseEvent;
+        const event = new MouseEventConstructor('click', {
             bubbles: true,
-            cancelable: true,
-            view: this.host.ownerDocument.defaultView
+            cancelable: true
         });
 
         this.syntheticClick = event;

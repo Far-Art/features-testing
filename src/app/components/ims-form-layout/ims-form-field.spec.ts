@@ -1,33 +1,32 @@
-import {Component} from '@angular/core';
-import {TestBed} from '@angular/core/testing';
-import {ImsFormField} from './ims-form-field';
-import {ImsFormFieldLabel} from './ims-form-field.directives';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { ImsFormField } from './ims-form-field';
+import { ImsFormFieldLabel } from './ims-form-field.directives';
 
 @Component({
     imports: [ImsFormField, ImsFormFieldLabel],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
         <ims-form-field id="plain-field">
             <label>Plain label</label>
             <input>
         </ims-form-field>
-
         <ims-form-field id="readonly-field">
             <span imsFormFieldLabel>Readonly label</span>
             <span>Readonly value</span>
         </ims-form-field>
-
         <ims-form-field id="width-field" controlWidth="20rem">
             <label>Width label</label>
             <input>
         </ims-form-field>
-
         <ims-form-field id="projection-order-field">
             <input>
             <label>Projected label</label>
         </ims-form-field>
     `
 })
-class ImsFormFieldTestHost {}
+class ImsFormFieldTestHost {
+}
 
 describe('ImsFormField', () => {
     beforeEach(async () => {
@@ -55,7 +54,7 @@ describe('ImsFormField', () => {
 
         const parts = fixture.nativeElement.querySelectorAll('#readonly-field > span');
 
-        expect(parts[0].hasAttribute('imsFormFieldLabel')).toBeTrue();
+        expect(parts[0].hasAttribute('imsFormFieldLabel')).toBe(true);
         expect(parts[1].textContent?.trim()).toBe('Readonly value');
     });
 
@@ -74,9 +73,7 @@ describe('ImsFormField', () => {
         fixture.detectChanges();
         await fixture.whenStable();
 
-        const field = fixture.nativeElement.querySelector(
-            '#projection-order-field'
-        ) as HTMLElement;
+        const field = fixture.nativeElement.querySelector('#projection-order-field') as HTMLElement;
 
         expect(field.children[0].tagName).toBe('LABEL');
         expect(field.children[1].tagName).toBe('INPUT');

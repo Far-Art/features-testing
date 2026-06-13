@@ -1,9 +1,10 @@
-import {Component} from '@angular/core';
-import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {ImsTextTruncateDirective} from './ims-text-truncate.directive';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ImsTextTruncateDirective } from './ims-text-truncate.directive';
 
 @Component({
     imports: [ImsTextTruncateDirective],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
         <div id="target" imsTextTruncate>Very long clipped text</div>
         <div id="custom" [imsTextTruncate]="'Custom popover text'">Rendered text</div>
@@ -34,7 +35,8 @@ import {ImsTextTruncateDirective} from './ims-text-truncate.directive';
         </div>
     `
 })
-class TestHost {}
+class TestHost {
+}
 
 describe('ImsTextTruncateDirective', () => {
     let fixture: ComponentFixture<TestHost>;
@@ -167,7 +169,7 @@ describe('ImsTextTruncateDirective', () => {
 
         const popover = document.querySelector('.ims-text-truncate-popover') as HTMLElement;
         const overlayPane = popover.parentElement as HTMLElement;
-        spyOn(overlayPane, 'getBoundingClientRect').and.returnValue(new DOMRect(40, 40, 160, 40));
+        vi.spyOn(overlayPane, 'getBoundingClientRect').mockReturnValue(new DOMRect(40, 40, 160, 40));
 
         expect(overlayPane.style.pointerEvents).toBe('auto');
         expect(popover.style.pointerEvents).toBe('auto');
@@ -189,14 +191,11 @@ describe('ImsTextTruncateDirective', () => {
     });
 });
 
-function setElementSize(
-    element: HTMLElement,
-    size: Pick<HTMLElement, 'clientWidth' | 'scrollWidth' | 'clientHeight' | 'scrollHeight'>
-): void {
+function setElementSize(element: HTMLElement, size: Pick<HTMLElement, 'clientWidth' | 'scrollWidth' | 'clientHeight' | 'scrollHeight'>): void {
     Object.defineProperties(element, {
-        clientWidth: {configurable: true, value: size.clientWidth},
-        scrollWidth: {configurable: true, value: size.scrollWidth},
-        clientHeight: {configurable: true, value: size.clientHeight},
-        scrollHeight: {configurable: true, value: size.scrollHeight}
+        clientWidth: { configurable: true, value: size.clientWidth },
+        scrollWidth: { configurable: true, value: size.scrollWidth },
+        clientHeight: { configurable: true, value: size.clientHeight },
+        scrollHeight: { configurable: true, value: size.scrollHeight }
     });
 }

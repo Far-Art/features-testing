@@ -1,10 +1,6 @@
-import {Temporal} from '@js-temporal/polyfill';
-import {IMS_DATEPICKER_DEFAULT_FORMATS} from './ims-datepicker.types';
-import {
-    IMS_DATEPICKER_INPUT_PATTERNS,
-    normalizeDateValue,
-    parseDateText
-} from './ims-datepicker.utils';
+import { Temporal } from '@js-temporal/polyfill';
+import { IMS_DATEPICKER_DEFAULT_FORMATS } from './ims-datepicker.types';
+import { IMS_DATEPICKER_INPUT_PATTERNS, normalizeDateValue, parseDateText } from './ims-datepicker.utils';
 
 describe('ims-datepicker coercion', () => {
     const now = Temporal.PlainDate.from('2026-06-07');
@@ -37,11 +33,11 @@ describe('ims-datepicker coercion', () => {
         const monthPattern = new RegExp(`^(?:${IMS_DATEPICKER_INPUT_PATTERNS['MM/yyyy']})$`, 'v');
 
         for (const text of ['5/2/2028', '5-2-2028', '5.2.2028', '5 2 2028']) {
-            expect(datePattern.test(text)).toBeTrue();
+            expect(datePattern.test(text)).toBe(true);
         }
 
         for (const text of ['2/2028', '2-2028', '2.2028', '2 2028']) {
-            expect(monthPattern.test(text)).toBeTrue();
+            expect(monthPattern.test(text)).toBe(true);
         }
     });
 
@@ -80,12 +76,7 @@ describe('ims-datepicker coercion', () => {
     it('normalizes Temporal values to a date-only value', () => {
         const source = Temporal.PlainDate.from('2026-06-07');
 
-        expect(normalizeDateValue(
-            source,
-            'Asia/Jerusalem',
-            'dd/MM/yyyy',
-            'start'
-        )?.toString()).toBe('2026-06-07');
+        expect(normalizeDateValue(source, 'Asia/Jerusalem', 'dd/MM/yyyy', 'start')?.toString()).toBe('2026-06-07');
     });
 
     it('interprets millisecond inputs in the configured zone before removing time', () => {
@@ -93,11 +84,6 @@ describe('ims-datepicker coercion', () => {
             .from('2026-06-08T00:30:00')
             .toZonedDateTime('Asia/Jerusalem');
 
-        expect(normalizeDateValue(
-            source.epochMilliseconds,
-            'Asia/Jerusalem',
-            'dd/MM/yyyy',
-            'start'
-        )?.toString()).toBe('2026-06-08');
+        expect(normalizeDateValue(source.epochMilliseconds, 'Asia/Jerusalem', 'dd/MM/yyyy', 'start')?.toString()).toBe('2026-06-08');
     });
 });

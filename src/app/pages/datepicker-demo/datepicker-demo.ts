@@ -1,5 +1,5 @@
 import {JsonPipe} from '@angular/common';
-import {Component, signal} from '@angular/core';
+import {Component, signal, ChangeDetectionStrategy} from '@angular/core';
 import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {Temporal} from '@js-temporal/polyfill';
 import {
@@ -13,6 +13,7 @@ import {TemporalHelper} from '../../shared/temporal.helper';
     selector: 'app-datepicker-demo',
     imports: [FormsModule, ReactiveFormsModule, JsonPipe, ImsDatepicker],
     templateUrl: './datepicker-demo.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './datepicker-demo.scss'
 })
 export class DatepickerDemo {

@@ -1,14 +1,14 @@
-import {Component} from '@angular/core';
-import {OverlayContainer} from '@angular/cdk/overlay';
-import {ComponentFixture, fakeAsync, TestBed, tick} from '@angular/core/testing';
-import {By} from '@angular/platform-browser';
-import {FormControl, ReactiveFormsModule} from '@angular/forms';
-import {Temporal} from '@js-temporal/polyfill';
-import {ImsDatepicker} from './ims-datepicker';
-import {ImsDatepickerValue} from './ims-datepicker.types';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { OverlayContainer } from '@angular/cdk/overlay';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Temporal } from '@js-temporal/polyfill';
+import { ImsDatepicker } from './ims-datepicker';
+import { ImsDatepickerValue } from './ims-datepicker.types';
 
 function plainDate(year: number, month: number, day: number): Temporal.PlainDate {
-    return Temporal.PlainDate.from({year, month, day});
+    return Temporal.PlainDate.from({ year, month, day });
 }
 
 function utcMillis(year: number, month: number, day: number): number {
@@ -17,6 +17,7 @@ function utcMillis(year: number, month: number, day: number): number {
 
 @Component({
     imports: [ReactiveFormsModule, ImsDatepicker],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
         <ims-datepicker
             [formControl]="control"
@@ -38,6 +39,12 @@ class DatepickerTestHost {
 }
 
 describe('ImsDatepicker', () => {
+    beforeEach(() => {
+        vi.useFakeTimers({ advanceTimeDelta: 1, shouldAdvanceTime: true });
+    });
+    afterEach(() => {
+        vi.useRealTimers();
+    });
     let fixture: ComponentFixture<DatepickerTestHost>;
     let host: DatepickerTestHost;
     let input: HTMLInputElement;
@@ -74,7 +81,7 @@ describe('ImsDatepicker', () => {
         input.dispatchEvent(new Event('blur'));
         fixture.detectChanges();
 
-        expect(host.control.value instanceof Temporal.PlainDate).toBeTrue();
+        expect(host.control.value instanceof Temporal.PlainDate).toBe(true);
         expect(host.control.value?.toString()).toBe('2028-02-05');
     });
 
@@ -85,15 +92,15 @@ describe('ImsDatepicker', () => {
 
         host.control.setValue(utcMillis(2025, 12, 31));
         fixture.detectChanges();
-        expect(host.control.hasError('imsDatepickerMin')).toBeTrue();
+        expect(host.control.hasError('imsDatepickerMin')).toBe(true);
 
         host.control.setValue(utcMillis(2027, 1, 1));
         fixture.detectChanges();
-        expect(host.control.hasError('imsDatepickerMax')).toBeTrue();
+        expect(host.control.hasError('imsDatepickerMax')).toBe(true);
 
         host.control.setValue(utcMillis(2026, 6, 1));
         fixture.detectChanges();
-        expect(host.control.valid).toBeTrue();
+        expect(host.control.valid).toBe(true);
     });
 
     it('does not allow an instance range to relax the default global range', () => {
@@ -103,11 +110,11 @@ describe('ImsDatepicker', () => {
 
         host.control.setValue(utcMillis(1899, 12, 31));
         fixture.detectChanges();
-        expect(host.control.hasError('imsDatepickerMin')).toBeTrue();
+        expect(host.control.hasError('imsDatepickerMin')).toBe(true);
 
         host.control.setValue(utcMillis(2101, 1, 1));
         fixture.detectChanges();
-        expect(host.control.hasError('imsDatepickerMax')).toBeTrue();
+        expect(host.control.hasError('imsDatepickerMax')).toBe(true);
     });
 
     it('keeps invalid numeric text and exposes a parse validation error', () => {
@@ -118,7 +125,7 @@ describe('ImsDatepicker', () => {
 
         expect(input.value).toBe('99/99/9999');
         expect(host.control.value).toBeNull();
-        expect(host.control.hasError('imsDatepickerParse')).toBeTrue();
+        expect(host.control.hasError('imsDatepickerParse')).toBe(true);
     });
 
     it('uses the last day at UTC midnight for end-of-month precision', () => {
@@ -226,11 +233,7 @@ describe('ImsDatepicker', () => {
         datepicker.open.set(true);
         fixture.detectChanges();
 
-        const buttons = Array.from(
-            overlayContainer.getContainerElement().querySelectorAll<HTMLButtonElement>(
-                '.ims-datepicker__header .ims-datepicker__step'
-            )
-        );
+        const buttons = Array.from(overlayContainer.getContainerElement().querySelectorAll<HTMLButtonElement>('.ims-datepicker__header .ims-datepicker__step'));
 
         expect(buttons.map((button) => button.title)).toEqual([
             'Previous year',
@@ -240,7 +243,7 @@ describe('ImsDatepicker', () => {
         ]);
     });
 
-    it('returns focus to the grid when an arrow key is pressed in the header', fakeAsync(() => {
+    it('returns focus to the grid when an arrow key is pressed in the header', async () => {
         host.control.setValue(utcMillis(2028, 2, 5));
         fixture.detectChanges();
 
@@ -248,33 +251,29 @@ describe('ImsDatepicker', () => {
             .componentInstance as ImsDatepicker;
         datepicker.openPicker();
         fixture.detectChanges();
-        tick(16);
+        await vi.advanceTimersByTimeAsync(16);
 
         const overlay = overlayContainer.getContainerElement();
-        const headerButton = overlay.querySelector<HTMLButtonElement>(
-            '.ims-datepicker__view-button'
-        )!;
+        const headerButton = overlay.querySelector<HTMLButtonElement>('.ims-datepicker__view-button')!;
         headerButton.focus();
         headerButton.dispatchEvent(new KeyboardEvent('keydown', {
             key: 'ArrowRight',
             bubbles: true
         }));
         fixture.detectChanges();
-        tick(16);
+        await vi.advanceTimersByTimeAsync(16);
 
-        const activeCell = overlay.querySelector<HTMLButtonElement>(
-            '.ims-datepicker__cell--active'
-        );
+        const activeCell = overlay.querySelector<HTMLButtonElement>('.ims-datepicker__cell--active');
         expect(activeCell?.textContent?.trim()).toBe('6');
         expect(document.activeElement).toBe(activeCell);
-    }));
+    });
 
-    it('keeps focus on a header button after keyboard activation', fakeAsync(() => {
+    it('keeps focus on a header button after keyboard activation', async () => {
         const datepicker = fixture.debugElement.query(By.directive(ImsDatepicker))
             .componentInstance as ImsDatepicker;
         datepicker.openPicker();
         fixture.detectChanges();
-        tick(16);
+        await vi.advanceTimersByTimeAsync(16);
 
         const viewButton = overlayContainer.getContainerElement()
             .querySelector<HTMLButtonElement>('.ims-datepicker__view-button')!;
@@ -284,13 +283,13 @@ describe('ImsDatepicker', () => {
             detail: 0
         }));
         fixture.detectChanges();
-        tick(16);
+        await vi.advanceTimersByTimeAsync(16);
 
         expect(datepicker.calendarView()).toBe('year');
         expect(document.activeElement).toBe(viewButton);
-    }));
+    });
 
-    it('focuses the month grid after selecting a year with Enter', fakeAsync(() => {
+    it('focuses the month grid after selecting a year with Enter', async () => {
         host.control.setValue(utcMillis(2028, 2, 5));
         fixture.detectChanges();
 
@@ -298,45 +297,39 @@ describe('ImsDatepicker', () => {
             .componentInstance as ImsDatepicker;
         datepicker.openPicker();
         fixture.detectChanges();
-        tick(16);
+        await vi.advanceTimersByTimeAsync(16);
 
         const overlay = overlayContainer.getContainerElement();
-        const viewButton = overlay.querySelector<HTMLButtonElement>(
-            '.ims-datepicker__view-button'
-        )!;
+        const viewButton = overlay.querySelector<HTMLButtonElement>('.ims-datepicker__view-button')!;
         viewButton.focus();
         viewButton.dispatchEvent(new MouseEvent('click', {
             bubbles: true,
             detail: 0
         }));
         fixture.detectChanges();
-        tick(16);
+        await vi.advanceTimersByTimeAsync(16);
 
         viewButton.dispatchEvent(new KeyboardEvent('keydown', {
             key: 'ArrowRight',
             bubbles: true
         }));
         fixture.detectChanges();
-        tick(16);
+        await vi.advanceTimersByTimeAsync(16);
 
-        const activeYear = overlay.querySelector<HTMLButtonElement>(
-            '.ims-datepicker__year.ims-datepicker__cell--active'
-        )!;
+        const activeYear = overlay.querySelector<HTMLButtonElement>('.ims-datepicker__year.ims-datepicker__cell--active')!;
         activeYear.dispatchEvent(new KeyboardEvent('keydown', {
             key: 'Enter',
             bubbles: true
         }));
         fixture.detectChanges();
-        tick(16);
+        await vi.advanceTimersByTimeAsync(16);
 
-        const activeMonth = overlay.querySelector<HTMLButtonElement>(
-            '.ims-datepicker__month.ims-datepicker__cell--active'
-        );
+        const activeMonth = overlay.querySelector<HTMLButtonElement>('.ims-datepicker__month.ims-datepicker__cell--active');
         expect(datepicker.calendarView()).toBe('month');
         expect(document.activeElement).toBe(activeMonth);
-    }));
+    });
 
-    it('focuses the active cell when empty grid space is clicked', fakeAsync(() => {
+    it('focuses the active cell when empty grid space is clicked', async () => {
         host.control.setValue(utcMillis(2028, 2, 5));
         fixture.detectChanges();
 
@@ -344,22 +337,16 @@ describe('ImsDatepicker', () => {
             .componentInstance as ImsDatepicker;
         datepicker.openPicker();
         fixture.detectChanges();
-        tick(16);
+        await vi.advanceTimersByTimeAsync(16);
 
         const overlay = overlayContainer.getContainerElement();
-        const viewButton = overlay.querySelector<HTMLButtonElement>(
-            '.ims-datepicker__view-button'
-        )!;
-        const placeholder = overlay.querySelector<HTMLElement>(
-            '.ims-datepicker__day-placeholder'
-        )!;
+        const viewButton = overlay.querySelector<HTMLButtonElement>('.ims-datepicker__view-button')!;
+        const placeholder = overlay.querySelector<HTMLElement>('.ims-datepicker__day-placeholder')!;
         viewButton.focus();
-        placeholder.dispatchEvent(new MouseEvent('click', {bubbles: true}));
-        tick(16);
+        placeholder.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        await vi.advanceTimersByTimeAsync(16);
 
-        const activeCell = overlay.querySelector<HTMLButtonElement>(
-            '.ims-datepicker__cell--active'
-        );
+        const activeCell = overlay.querySelector<HTMLButtonElement>('.ims-datepicker__cell--active');
         expect(document.activeElement).toBe(activeCell);
-    }));
+    });
 });

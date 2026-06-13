@@ -1,4 +1,4 @@
-import {Component, computed, inject, signal} from '@angular/core';
+import {Component, computed, inject, signal, ChangeDetectionStrategy} from '@angular/core';
 import {DIALOG_DATA, DialogRef} from '@angular/cdk/dialog';
 import {FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {finalize} from 'rxjs';
@@ -30,6 +30,7 @@ const WRAPPER_MAX_HEIGHT_PX = 360;
   selector: 'ims-query-dialog',
   imports: [ReactiveFormsModule],
   templateUrl: './query-dialog.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './query-dialog.scss'
 })
 export class QueryDialog implements QueryDialogContract {

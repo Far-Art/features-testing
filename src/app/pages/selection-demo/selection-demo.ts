@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {delay, of} from 'rxjs';
 import {ImsAutocomplete, ImsAutocompleteOption} from '../../components/ims-autocomplete';
@@ -28,6 +28,7 @@ interface LargeAutocompleteRow {
         ImsAutocomplete
     ],
     templateUrl: './selection-demo.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './selection-demo.scss'
 })
 export class SelectionDemo {

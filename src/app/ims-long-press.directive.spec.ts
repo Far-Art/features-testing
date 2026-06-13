@@ -1,9 +1,10 @@
-import {Component} from '@angular/core';
-import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {ImsLongPressDirective} from './ims-long-press.directive';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ImsLongPressDirective } from './ims-long-press.directive';
 
 @Component({
     imports: [ImsLongPressDirective],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
         <input id="other" />
         <button
@@ -50,11 +51,11 @@ describe('ImsLongPressDirective', () => {
         }).compileComponents();
 
         frameCallbacks = [];
-        spyOn(window, 'requestAnimationFrame').and.callFake((callback) => {
+        vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
             frameCallbacks.push(callback);
             return frameCallbacks.length;
         });
-        spyOn(window, 'cancelAnimationFrame');
+        vi.spyOn(window, 'cancelAnimationFrame').mockReturnValue(undefined);
 
         fixture = TestBed.createComponent(TestHost);
         fixture.detectChanges();
@@ -62,9 +63,7 @@ describe('ImsLongPressDirective', () => {
         timeoutButton = fixture.nativeElement.querySelector('#timeout');
 
         [releaseButton, timeoutButton].forEach((button) => {
-            spyOn(button, 'getBoundingClientRect').and.returnValue(
-                new DOMRect(0, 0, 100, 40)
-            );
+            vi.spyOn(button, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 100, 40));
         });
     });
 
@@ -73,7 +72,7 @@ describe('ImsLongPressDirective', () => {
     });
 
     it('suppresses a normal click without a completed hold', () => {
-        releaseButton.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+        releaseButton.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
 
         expect(fixture.componentInstance.releaseClicks).toBe(0);
     });
@@ -82,7 +81,7 @@ describe('ImsLongPressDirective', () => {
         startPointerHold(releaseButton);
         completeHold();
         releasePointer(releaseButton);
-        releaseButton.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+        releaseButton.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
 
         expect(fixture.componentInstance.releaseClicks).toBe(1);
     });
@@ -95,7 +94,7 @@ describe('ImsLongPressDirective', () => {
         otherInput.blur();
         completeHold();
         releasePointer(releaseButton);
-        releaseButton.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+        releaseButton.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
 
         expect(fixture.componentInstance.releaseClicks).toBe(1);
     });
@@ -103,7 +102,7 @@ describe('ImsLongPressDirective', () => {
     it('does not treat readiness alone as permission to click', () => {
         startPointerHold(releaseButton);
         completeHold();
-        releaseButton.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+        releaseButton.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
 
         expect(fixture.componentInstance.releaseClicks).toBe(0);
     });
@@ -112,7 +111,7 @@ describe('ImsLongPressDirective', () => {
         startPointerHold(timeoutButton);
         completeHold();
         releasePointer(timeoutButton);
-        timeoutButton.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+        timeoutButton.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
 
         expect(fixture.componentInstance.timeoutClicks).toBe(1);
     });

@@ -1,8 +1,7 @@
 import { ApplicationConfig, LOCALE_ID, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { registerLocaleData } from '@angular/common';
-import {provideHttpClient} from '@angular/common/http';
-import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
+import {provideHttpClient, withXhr} from '@angular/common/http';
 import localeHe from '@angular/common/locales/he';
 
 import {routes} from './app.routes';
@@ -14,8 +13,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideHttpClient(),
-    provideAnimationsAsync(),
+    provideHttpClient(withXhr()),
     provideRouter(routes),
     provideImsDatepickerConfig({
       locale: 'he',
