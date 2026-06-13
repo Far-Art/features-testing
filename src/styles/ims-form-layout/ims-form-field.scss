@@ -40,7 +40,7 @@ ims-form-field {
         min-width: 0;
     }
 
-    > :is(input, select, button) {
+    > :is(input, select) {
         box-sizing: border-box;
         inline-size: var(--ims-form-control-width, 13rem);
         max-inline-size: 100%;
@@ -68,13 +68,13 @@ ims-form-field {
         resize: vertical;
     }
 
-    > :is(input, select, textarea, button):focus {
+    > :is(input, select, textarea):focus {
         border-color: var(--ims-form-accent);
         outline: 2px solid color-mix(in srgb, var(--ims-form-accent) 25%, transparent);
         outline-offset: 1px;
     }
 
-    > :not(:is(label, input, select, textarea, button, [imsFormFieldLabel])) {
+    > :not(:is(label, input, select, textarea, [imsFormFieldLabel])) {
         min-block-size: var(--ims-form-control-height);
         line-height: var(--ims-form-control-height);
     }
@@ -110,67 +110,37 @@ ims-form-field {
         }
     }
 
-    &:has(> :is(input, select, textarea, button):not(:disabled)) > label,
-    &:has([data-ims-main-control]:not(:disabled)) > label {
+    &:has(:is(input, select, textarea, [data-ims-main-control]):not(:disabled)) > label {
         cursor: pointer;
     }
 
-    &:has(> :is(input, select, textarea, button):not(:disabled):hover) > :is(label, [imsFormFieldLabel]),
-    &:has([data-ims-main-control]:not(:disabled):hover) > :is(label, [imsFormFieldLabel]) {
+    &:not(:has(.ng-invalid)):has(:is(input, select, textarea, [data-ims-main-control]):not(:disabled):hover) > :is(label, [imsFormFieldLabel]),
+    &:not(:has(.ng-invalid)):has(:is(input, select, textarea, [data-ims-main-control]):not(:disabled):focus) > :is(label, [imsFormFieldLabel]) {
         background: linear-gradient(
           100deg,
           var(--ims-form-accent) 0%,
           var(--ims-form-accent) 35%,
-          #80d8ff 50%,
+          hsl(from var(--ims-form-accent) calc(h - 25) s 85%) 50%,
           var(--ims-form-accent) 65%,
           var(--ims-form-accent) 100%
-        ) 100% center / 300% auto;
+        ) 100% center / 250% auto;
         background-clip: text;
-        animation: ims-form-label-gradient-shift 1.8s linear infinite;
+        animation: ims-form-label-gradient-shift 700ms linear forwards;
     }
 
-    &:has(> :is(input, select, textarea, button):not(:disabled):focus) > :is(label, [imsFormFieldLabel]),
-    &:has([data-ims-main-control]:not(:disabled):focus) > :is(label, [imsFormFieldLabel]) {
-        color: var(--ims-form-accent);
-        text-decoration: underline;
-        text-decoration-color: currentColor;
-        text-underline-offset: 0.2em;
-    }
-
-    &:has(> .ng-invalid:not(label):not([imsFormFieldLabel])) > :is(label, [imsFormFieldLabel]),
-    &:has([data-ims-main-control].ng-invalid) > :is(label, [imsFormFieldLabel]) {
+    &:has(.ng-invalid) > :is(label, [imsFormFieldLabel]) {
         color: var(--ims-form-error);
         background: linear-gradient(
           100deg,
-          #8e0000 0%,
+          var(--ims-form-error) 0%,
           var(--ims-form-error) 30%,
-          #ff5252 50%,
-          #b71c1c 70%,
-          #8e0000 100%
+          hsl(from var(--ims-form-error) calc(h - 10) 100% 72%) 50%,
+          var(--ims-form-error) 70%,
+          var(--ims-form-error) 100%
         ) 0 center / 200% auto;
         background-clip: text;
-        animation: ims-form-invalid-label-shift 2.6s ease-in-out infinite alternate;
+        animation: ims-form-invalid-label-shift 1s ease-in-out infinite alternate;
         text-decoration-color: var(--ims-form-error);
     }
 
-    &:has(> .ng-invalid:not(label):not([imsFormFieldLabel]):hover) > :is(label, [imsFormFieldLabel]),
-    &:has([data-ims-main-control].ng-invalid:hover) > :is(label, [imsFormFieldLabel]) {
-        background-image: linear-gradient(
-          100deg,
-          #7f0000 0%,
-          #ff1744 30%,
-          #ff8a80 50%,
-          #d50000 70%,
-          #7f0000 100%
-        );
-        animation-duration: 1.25s;
-        text-shadow: 0 0 0.65rem color-mix(in srgb, var(--ims-form-error) 35%, transparent);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        > :is(label, [imsFormFieldLabel]) {
-            animation: none !important;
-            background-position: center;
-        }
-    }
 }

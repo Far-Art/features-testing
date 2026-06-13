@@ -57,19 +57,6 @@ function positiveNumber(value: number | string): number {
  * they must remain on the same visual row as fields are added or removed.
  */
 export class ImsFormFieldGrid {
-    private readonly destroyRef = inject(DestroyRef);
-    private readonly hostElement: HTMLElement = inject(ElementRef).nativeElement;
-    private readonly projectedFields = contentChildren(ImsFormField, {descendants: true});
-    /** Last observed inline size of the group host, measured in CSS pixels. */
-    private readonly availableWidth = signal(0);
-    private readonly automaticColumns = signal(1);
-    private resizeObserver: ResizeObserver | null = null;
-    private resizeDebounceTimer: ReturnType<typeof setTimeout> | null = null;
-    private lastObservedInlineSize: number | null = null;
-    private layoutFrame: number | null = null;
-    private layoutReady = false;
-    private resetColumnsBeforeLayout = false;
-
     /**
      * Optional fixed number of logical form columns.
      *
@@ -89,11 +76,20 @@ export class ImsFormFieldGrid {
     /** Minimum gap between adjacent form-field columns. */
     readonly columnGap = input('0');
     /** Vertical gap between automatically placed fields or explicit rows. */
-    readonly rowGap = input('1rem');
-    /** Maximum responsive column count allowed by the configured minimum width. */
-    private readonly maximumAutomaticColumns = computed(() =>
-        Math.max(1, Math.floor(this.availableWidth() / this.minColumnWidth()))
-    );
+    readonly rowGap = input('0.4rem');
+    /**
+     * CSS track list applied to the host.
+     *
+     * Each logical form column contains a shared intrinsic label/value pair.
+     * Flexible spacer tracks distribute remaining width only between pairs.
+     */
+    readonly columnTemplate = computed(() => buildColumnTemplate(this.resolvedColumns()));
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly hostElement: HTMLElement = inject(ElementRef).nativeElement;
+    private readonly projectedFields = contentChildren(ImsFormField, {descendants: true});
+    /** Last observed inline size of the group host, measured in CSS pixels. */
+    private readonly availableWidth = signal(0);
+    private readonly automaticColumns = signal(1);
     /** Effective logical column count after fixed or responsive resolution. */
     readonly resolvedColumns = computed(() => {
         const explicitColumns = this.columns();
@@ -103,13 +99,16 @@ export class ImsFormFieldGrid {
 
         return this.automaticColumns();
     });
-    /**
-     * CSS track list applied to the host.
-     *
-     * Each logical form column contains a shared intrinsic label/value pair.
-     * Flexible spacer tracks distribute remaining width only between pairs.
-     */
-    readonly columnTemplate = computed(() => buildColumnTemplate(this.resolvedColumns()));
+    private resizeObserver: ResizeObserver | null = null;
+    private resizeDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+    private lastObservedInlineSize: number | null = null;
+    private layoutFrame: number | null = null;
+    private layoutReady = false;
+    private resetColumnsBeforeLayout = false;
+    /** Maximum responsive column count allowed by the configured minimum width. */
+    private readonly maximumAutomaticColumns = computed(() =>
+        Math.max(1, Math.floor(this.availableWidth() / this.minColumnWidth()))
+    );
 
     /**
      * Starts responsive width observation after rendering and keeps the
@@ -120,12 +119,11 @@ export class ImsFormFieldGrid {
             this.layoutReady = true;
             this.availableWidth.set(this.hostElement.clientWidth);
             this.resizeObserver = new ResizeObserver(([entry]) => {
-                console.log('here')
                 const inlineSize = entry.contentRect.width;
                 if (
                     this.lastObservedInlineSize !== null &&
                     Math.abs(inlineSize - this.lastObservedInlineSize) <
-                        RESIZE_INLINE_SIZE_TOLERANCE
+                    RESIZE_INLINE_SIZE_TOLERANCE
                 ) {
                     return;
                 }
@@ -215,20 +213,20 @@ export class ImsFormFieldGrid {
     private syncAutomaticFieldColumns(): void {
         const columnCount = this.resolvedColumns();
         const directFields = Array.from(this.hostElement.children)
-            .filter((element): element is HTMLElement =>
-                element instanceof HTMLElement && element.matches('ims-form-field')
-            );
+                                  .filter((element): element is HTMLElement =>
+                                      element instanceof HTMLElement && element.matches('ims-form-field')
+                                  );
         this.assignAutomaticColumns(directFields, columnCount);
 
         const rows = Array.from(this.hostElement.children)
-            .filter((element): element is HTMLElement =>
-                element instanceof HTMLElement && element.matches('ims-form-field-row')
-            );
+                          .filter((element): element is HTMLElement =>
+                              element instanceof HTMLElement && element.matches('ims-form-field-row')
+                          );
         for (const row of rows) {
             const rowFields = Array.from(row.children)
-                .filter((element): element is HTMLElement =>
-                    element instanceof HTMLElement && element.matches('ims-form-field')
-                );
+                                   .filter((element): element is HTMLElement =>
+                                       element instanceof HTMLElement && element.matches('ims-form-field')
+                                   );
             this.assignAutomaticColumns(rowFields, columnCount);
         }
     }

@@ -38,5 +38,5 @@ export class ImsFormFieldGroup {
      * child fills its control track and may be a native element or component
      * host.
      */
-    readonly layout = input<ImsFormControlGroupLayout>('stacked');
+    readonly layout = input<ImsFormControlGroupLayout>('inline');
 }

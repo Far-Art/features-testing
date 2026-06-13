@@ -1,10 +1,11 @@
-import {ChangeDetectionStrategy, Component} from '@angular/core';
+import {ChangeDetectionStrategy, Component, input} from '@angular/core';
 
 @Component({
     selector: 'ims-form-field-row',
     standalone: true,
     template: '<ng-content/>',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    host: {'[style.visibility]': '!visible() ? "hidden" : null'}
 })
 /**
  * Full-width row wrapper for fields inside an `ims-form-field-grid`.
@@ -17,4 +18,5 @@ import {ChangeDetectionStrategy, Component} from '@angular/core';
  * stable one-based logical form column within the row.
  */
 export class ImsFormFieldRow {
+    visible = input<boolean>(true);
 }
