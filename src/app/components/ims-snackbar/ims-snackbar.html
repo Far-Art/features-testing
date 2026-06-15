@@ -1,0 +1,11 @@
+<span class="ims-snackbar__message">{{ message }}</span>
+
+@if (action) {
+    <button
+        type="button"
+        class="ims-snackbar__action"
+        (click)="snackbarRef.dismissWithAction()"
+    >
+        {{ action }}
+    </button>
+}

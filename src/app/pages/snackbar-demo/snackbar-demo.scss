@@ -1,0 +1,105 @@
+.page-heading {
+    margin-block-end: 1.5rem;
+}
+
+.page-heading h1,
+.page-heading p {
+    margin: 0;
+}
+
+.page-heading p {
+    margin-block-start: 0.5rem;
+    color: #52627d;
+}
+
+.snackbar-demo {
+    display: grid;
+    grid-template-columns: minmax(14rem, 0.8fr) minmax(20rem, 1.2fr);
+    gap: 2rem;
+    margin-block-end: 1.5rem;
+    padding: 2rem;
+    background: #ffffff;
+    border: 1px solid #dfe5ed;
+    border-radius: 1.25rem;
+    box-shadow: 0 1rem 2.5rem rgb(32 51 84 / 8%);
+}
+
+.snackbar-demo__description h2 {
+    margin: 0 0 0.5rem;
+    color: #203354;
+}
+
+.snackbar-demo__description p {
+    margin: 0;
+    color: #52627d;
+    line-height: 1.6;
+}
+
+.snackbar-demo__actions,
+.snackbar-demo__positions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(10rem, 1fr));
+    gap: 0.75rem;
+}
+
+.snackbar-demo button {
+    min-height: 2.75rem;
+    padding: 0.65rem 1rem;
+    color: #ffffff;
+    background: #1769aa;
+    border: 0;
+    border-radius: 0.65rem;
+    font: inherit;
+    font-weight: 650;
+    cursor: pointer;
+    transition:
+        background-color 140ms ease,
+        translate 140ms ease;
+}
+
+.snackbar-demo button:hover {
+    background: #10588f;
+    translate: 0 -1px;
+}
+
+.snackbar-demo button:focus-visible {
+    outline: 3px solid rgb(23 105 170 / 25%);
+    outline-offset: 2px;
+}
+
+.snackbar-demo button.snackbar-demo__dismiss {
+    color: #9f1239;
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+}
+
+.snackbar-demo button.snackbar-demo__dismiss:hover {
+    background: #ffe4e6;
+}
+
+.snackbar-demo__event {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    color: #334155;
+    background: #eef6ff;
+    border-radius: 0.75rem;
+}
+
+.snackbar-demo__event strong {
+    color: #174f8a;
+}
+
+@media (max-width: 760px) {
+    .snackbar-demo {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+        padding: 1.5rem;
+    }
+
+    .snackbar-demo__actions,
+    .snackbar-demo__positions {
+        grid-template-columns: 1fr;
+    }
+}

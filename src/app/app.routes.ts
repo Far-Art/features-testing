@@ -22,6 +22,11 @@ export const routes: Routes = [
             import('./pages/datepicker-demo/datepicker-demo').then((module) => module.DatepickerDemo)
     },
     {
+        path: 'snackbar',
+        loadComponent: () =>
+            import('./pages/snackbar-demo/snackbar-demo').then((module) => module.SnackbarDemo)
+    },
+    {
         path: '',
         pathMatch: 'full',
         redirectTo: 'forms'
