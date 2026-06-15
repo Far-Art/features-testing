@@ -22,6 +22,7 @@ import {
     ImsSnackbarConfig,
     ImsSnackbarContent,
     ImsSnackbarHorizontalPosition,
+    ImsSnackbarKeyStrategy,
     ImsSnackbarResolvedProgressConfig,
     ImsSnackbarReplaceStrategy,
     ImsSnackbarSeverity,
@@ -65,6 +66,7 @@ export class ImsSnackbarService implements ImsSnackbarBuilderHost {
     private readonly destroyRef = inject(DestroyRef);
     private readonly globalConfig = inject(IMS_SNACKBAR_GLOBAL_CONFIG);
     private readonly activeSnackbars: ActiveSnackbar[] = [];
+    private readonly keyedSnackbars = new Map<string, ImsSnackbarRef>();
     private readonly expandedGroups = new Set<string>();
     private readonly dismissingGroups = new Set<string>();
     private readonly dismissingGroupRefs = new Map<string, Set<ImsSnackbarRef>>();
@@ -108,8 +110,27 @@ export class ImsSnackbarService implements ImsSnackbarBuilderHost {
         dismissible: boolean,
         replaceStrategy: ImsSnackbarReplaceStrategy,
         data: unknown,
-        progress: ImsSnackbarResolvedProgressConfig | null
+        progress: ImsSnackbarResolvedProgressConfig | null,
+        key: string | null,
+        keyStrategy: ImsSnackbarKeyStrategy
     ): ImsSnackbarRef {
+        if (key !== null) {
+            const existing = this.keyedSnackbars.get(key);
+            if (existing) {
+                if (keyStrategy === 'ignore') {
+                    return existing;
+                }
+                if (keyStrategy === 'update') {
+                    if (typeof content === 'string') {
+                        existing.updateMessage(content);
+                    }
+                    existing.updateSeverity(severity);
+                    return existing;
+                }
+                existing.dismiss();
+            }
+        }
+
         if (replaceStrategy === 'replace') {
             this.dismiss();
         }
@@ -170,6 +191,15 @@ export class ImsSnackbarService implements ImsSnackbarBuilderHost {
         overlayRef.overlayElement.addEventListener('mouseleave', mouseLeaveListener);
         this.activeSnackbars.push(activeSnackbar);
         snackbarRef.onDismiss().subscribe(() => this.remove(activeSnackbar));
+
+        if (key !== null) {
+            this.keyedSnackbars.set(key, snackbarRef);
+            snackbarRef.onDismiss().subscribe(() => {
+                if (this.keyedSnackbars.get(key) === snackbarRef) {
+                    this.keyedSnackbars.delete(key);
+                }
+            });
+        }
 
         this.enforceStackLimit(groupKey);
         this.startSnackbarTimer(activeSnackbar);
@@ -649,21 +679,21 @@ export class ImsSnackbarService implements ImsSnackbarBuilderHost {
 
     private pauseGroupTimers(groupKey: string): void {
         for (const snackbar of this.activeSnackbars) {
-            if (
-                snackbar.groupKey !== groupKey
-                || snackbar.dismissTimer === null
-                || snackbar.timerStartedAt === null
-            ) {
+            if (snackbar.groupKey !== groupKey) {
                 continue;
             }
 
-            clearTimeout(snackbar.dismissTimer);
-            snackbar.dismissTimer = null;
-            snackbar.remainingTimeout = Math.max(
-                0,
-                snackbar.remainingTimeout - (Date.now() - snackbar.timerStartedAt)
-            );
-            snackbar.timerStartedAt = null;
+            if (snackbar.dismissTimer !== null && snackbar.timerStartedAt !== null) {
+                clearTimeout(snackbar.dismissTimer);
+                snackbar.dismissTimer = null;
+                snackbar.remainingTimeout = Math.max(
+                    0,
+                    snackbar.remainingTimeout - (Date.now() - snackbar.timerStartedAt)
+                );
+                snackbar.timerStartedAt = null;
+            }
+
+            snackbar.ref.pauseSettle();
         }
     }
 
@@ -671,6 +701,7 @@ export class ImsSnackbarService implements ImsSnackbarBuilderHost {
         for (const snackbar of this.activeSnackbars) {
             if (snackbar.groupKey === groupKey) {
                 this.startSnackbarTimer(snackbar);
+                snackbar.ref.resumeSettle();
             }
         }
     }

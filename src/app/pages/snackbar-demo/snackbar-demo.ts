@@ -170,6 +170,49 @@ export class SnackbarDemo {
         this.observeProgress(ref, 'העלאת קבצים');
     }
 
+    showKeyIgnore(): void {
+        this.snackbar.info('הודעה ראשונה עם מפתח — ignore')
+            .key('demo-key', 'ignore')
+            .timeout(6000)
+            .open();
+        this.snackbar.warning('ניסיון שני — יתעלם ממנו')
+            .key('demo-key', 'ignore')
+            .timeout(6000)
+            .open();
+        this.lastEvent.set('נפתחה הודעה עם מפתח demo-key; הניסיון השני התעלם');
+    }
+
+    showKeyReplace(): void {
+        const ref = this.snackbar.info('הודעה ראשונה עם מפתח — replace')
+            .key('demo-key', 'replace')
+            .timeout(6000)
+            .open();
+        this.lastEvent.set('נפתחה הודעה ראשונה');
+        setTimeout(() => {
+            this.snackbar.success('הודעה שנייה — החליפה את הראשונה')
+                .key('demo-key', 'replace')
+                .timeout(6000)
+                .open();
+            this.lastEvent.set('הודעה שנייה החליפה את הראשונה');
+        }, 1500);
+        ref.onDismiss().subscribe(() => this.lastEvent.set('הודעה ראשונה נסגרה'));
+    }
+
+    showKeyUpdate(): void {
+        this.snackbar.info('שומר טיוטה...')
+            .key('demo-key', 'update')
+            .timeout(0)
+            .open();
+        this.lastEvent.set('נפתחה הודעת שמירה');
+        setTimeout(() => {
+            this.snackbar.success('הטיוטה נשמרה בהצלחה')
+                .key('demo-key', 'update')
+                .timeout(3000)
+                .open();
+            this.lastEvent.set('ההודעה עודכנה באותו מקום');
+        }, 2000);
+    }
+
     showLiveUpdate(): void {
         const steps = [
             'מעלה קבצים... 0%',

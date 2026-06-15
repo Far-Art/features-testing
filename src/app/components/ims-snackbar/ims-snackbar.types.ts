@@ -8,6 +8,7 @@ export type ImsSnackbarPoliteness = 'off' | 'polite' | 'assertive';
 export type ImsSnackbarSeverity = 'info' | 'success' | 'warning' | 'danger';
 export type ImsSnackbarContent = string | Type<unknown>;
 export type ImsSnackbarReplaceStrategy = 'replace' | 'stack';
+export type ImsSnackbarKeyStrategy = 'ignore' | 'replace' | 'update';
 export type ImsSnackbarProgressState = 'loading' | 'success' | 'error';
 export type ImsSnackbarProgressSource = Observable<unknown> | PromiseLike<unknown>;
 

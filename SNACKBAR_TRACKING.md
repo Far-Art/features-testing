@@ -23,6 +23,8 @@ Build a service-driven Angular snackbar with behavior similar to Angular Materia
   in progress.
 - Automatic timeout countdowns pause for the whole stack while it is hovered
   and resume with their remaining time after the pointer leaves.
+- The post-resolve settle window (success/error period before auto-dismissal)
+  also pauses while the stack is hovered and resumes with remaining time.
 - Dismissing an item immediately reflows the surviving snackbars into the
   vacated position.
 - If the pointer remains over the surviving stack after an item is dismissed,
@@ -50,6 +52,12 @@ Build a service-driven Angular snackbar with behavior similar to Angular Materia
     default 2000) before dismissal. Per-call values in `config` override the
     global defaults.
   - `replaceStrategy('stack' | 'replace')` controls concurrent snackbars.
+  - `key(id, strategy?)` tags the snackbar with a logical key. When another
+    snackbar with the same key is opened, `strategy` controls the outcome:
+    `'ignore'` returns the existing ref unchanged, `'replace'` dismisses the
+    existing one and opens a new snackbar, `'update'` updates the existing
+    snackbar's message (if string content) and severity in place and returns
+    the existing ref. Defaults to `'ignore'`.
 - Global defaults are provided by `IMS_SNACKBAR_GLOBAL_CONFIG` and can be
   overridden with `provideImsSnackbarConfig(...)`.
 - Default timeout is `4000` milliseconds and default replacement strategy is

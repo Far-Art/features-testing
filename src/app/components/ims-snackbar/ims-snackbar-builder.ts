@@ -3,6 +3,7 @@ import {
     ImsSnackbarContent,
     ImsSnackbarGlobalConfig,
     ImsSnackbarHorizontalPosition,
+    ImsSnackbarKeyStrategy,
     ImsSnackbarProgressConfig,
     ImsSnackbarProgressSource,
     ImsSnackbarReplaceStrategy,
@@ -21,7 +22,9 @@ export interface ImsSnackbarBuilderHost {
         dismissible: boolean,
         replaceStrategy: ImsSnackbarReplaceStrategy,
         data: unknown,
-        progress: ImsSnackbarResolvedProgressConfig | null
+        progress: ImsSnackbarResolvedProgressConfig | null,
+        key: string | null,
+        keyStrategy: ImsSnackbarKeyStrategy
     ): ImsSnackbarRef;
 }
 
@@ -33,6 +36,8 @@ export class ImsSnackbarBuilder {
     private strategy: ImsSnackbarReplaceStrategy;
     private customData: unknown;
     private progressConfig: ImsSnackbarResolvedProgressConfig | null = null;
+    private snackbarKey: string | null = null;
+    private snackbarKeyStrategy: ImsSnackbarKeyStrategy = 'ignore';
 
     constructor(
         private readonly host: ImsSnackbarBuilderHost,
@@ -91,6 +96,12 @@ export class ImsSnackbarBuilder {
         return this;
     }
 
+    key(id: string, strategy: ImsSnackbarKeyStrategy = 'ignore'): this {
+        this.snackbarKey = id;
+        this.snackbarKeyStrategy = strategy;
+        return this;
+    }
+
     replaceStrategy(strategy: ImsSnackbarReplaceStrategy): this {
         this.strategy = strategy;
         return this;
@@ -115,7 +126,9 @@ export class ImsSnackbarBuilder {
             this.isDismissible,
             this.strategy,
             this.customData,
-            this.progressConfig
+            this.progressConfig,
+            this.snackbarKey,
+            this.snackbarKeyStrategy
         );
     }
 }

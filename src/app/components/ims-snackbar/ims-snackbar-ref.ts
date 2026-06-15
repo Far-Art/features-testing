@@ -27,6 +27,9 @@ export class ImsSnackbarRef {
     private progressSubscription: Subscription | null = null;
     private closeDelayTimer: ReturnType<typeof setTimeout> | null = null;
     private settleTimer: ReturnType<typeof setTimeout> | null = null;
+    private settleStartedAt: number | null = null;
+    private remainingSettleDuration = 0;
+    private settled = false;
     private dismissedValue = false;
 
     readonly message = signal('');
@@ -161,6 +164,28 @@ export class ImsSnackbarRef {
         });
     }
 
+    pauseSettle(): void {
+        if (!this.settled || this.settleTimer === null || this.settleStartedAt === null) {
+            return;
+        }
+
+        clearTimeout(this.settleTimer);
+        this.settleTimer = null;
+        this.remainingSettleDuration = Math.max(
+            0,
+            this.remainingSettleDuration - (Date.now() - this.settleStartedAt)
+        );
+        this.settleStartedAt = null;
+    }
+
+    resumeSettle(): void {
+        if (!this.settled || this.settleTimer !== null || this.dismissedValue) {
+            return;
+        }
+
+        this.startSettleTimer();
+    }
+
     private settleProgress(result: ImsSnackbarProgressResult): void {
         if (!this.isProgressPending() || this.dismissedValue) {
             return;
@@ -177,10 +202,24 @@ export class ImsSnackbarRef {
             this.closeDelayTimer = null;
         }
 
+        this.settled = true;
+        this.remainingSettleDuration = this.progressConfig?.settleDuration ?? 0;
+        this.startSettleTimer();
+    }
+
+    private startSettleTimer(): void {
+        if (this.remainingSettleDuration <= 0) {
+            this.dismiss();
+            return;
+        }
+
+        this.settleStartedAt = Date.now();
         this.settleTimer = setTimeout(() => {
             this.settleTimer = null;
+            this.settleStartedAt = null;
+            this.remainingSettleDuration = 0;
             this.dismiss();
-        }, this.progressConfig?.settleDuration ?? 0);
+        }, this.remainingSettleDuration);
     }
 
     private clearProgressTimers(): void {

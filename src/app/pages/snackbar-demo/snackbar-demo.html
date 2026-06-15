@@ -44,6 +44,23 @@
 
 <section class="snackbar-demo">
     <div class="snackbar-demo__description">
+        <h2>כפילויות לפי מפתח</h2>
+        <p>
+            מפתח מזהה הודעה קיימת. <strong>ignore</strong> מתעלם מהניסיון השני,
+            <strong>replace</strong> סוגר את הקיימת ופותח חדשה,
+            <strong>update</strong> מעדכן את ההודעה הקיימת במקום.
+        </p>
+    </div>
+
+    <div class="snackbar-demo__actions">
+        <button type="button" (click)="showKeyIgnore()">מפתח — ignore</button>
+        <button type="button" (click)="showKeyReplace()">מפתח — replace</button>
+        <button type="button" (click)="showKeyUpdate()">מפתח — update</button>
+    </div>
+</section>
+
+<section class="snackbar-demo">
+    <div class="snackbar-demo__description">
         <h2>אסטרטגיית החלפה</h2>
         <p>
             ברירת המחדל עורמת הודעות. החדשה מוצגת מלפנים בתחתית, והודעות ישנות
