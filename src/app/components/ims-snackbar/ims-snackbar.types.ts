@@ -35,6 +35,8 @@ export interface ImsSnackbarGlobalConfig {
     readonly replaceStrategy: ImsSnackbarReplaceStrategy;
     readonly verticalPosition: ImsSnackbarVerticalPosition;
     readonly horizontalPosition: ImsSnackbarHorizontalPosition;
+    readonly progressCloseDelay: number;
+    readonly progressSettleDuration: number;
 }
 
 export interface ImsSnackbarConfig<D = unknown> {
@@ -59,7 +61,9 @@ export const IMS_SNACKBAR_DEFAULT_GLOBAL_CONFIG: ImsSnackbarGlobalConfig = {
     timeout: 4000,
     replaceStrategy: 'stack',
     verticalPosition: 'bottom',
-    horizontalPosition: 'center'
+    horizontalPosition: 'center',
+    progressCloseDelay: 5000,
+    progressSettleDuration: 2000
 };
 
 export const IMS_SNACKBAR_GLOBAL_CONFIG = new InjectionToken<ImsSnackbarGlobalConfig>(

@@ -38,7 +38,7 @@ export class ImsSnackbarBuilder {
         private readonly host: ImsSnackbarBuilderHost,
         private readonly content: ImsSnackbarContent,
         private readonly severity: ImsSnackbarSeverity,
-        globalConfig: ImsSnackbarGlobalConfig
+        private readonly globalConfig: ImsSnackbarGlobalConfig
     ) {
         this.timeoutMillis = globalConfig.timeout;
         this.strategy = globalConfig.replaceStrategy;
@@ -69,8 +69,8 @@ export class ImsSnackbarBuilder {
         source: ImsSnackbarProgressSource | null = null,
         config: ImsSnackbarProgressConfig = {}
     ): this {
-        const closeDelay = config.closeDelay ?? 5000;
-        const settleDuration = config.settleDuration ?? 2000;
+        const closeDelay = config.closeDelay ?? this.globalConfig.progressCloseDelay;
+        const settleDuration = config.settleDuration ?? this.globalConfig.progressSettleDuration;
         if (!Number.isFinite(closeDelay) || closeDelay < 0) {
             throw new RangeError(
                 'Snackbar progress close delay must be a finite, non-negative number.'

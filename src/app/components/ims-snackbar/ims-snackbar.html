@@ -11,7 +11,7 @@
         *ngComponentOutlet="contentComponent; injector: contentInjector"
     />
 } @else {
-    <span class="ims-snackbar__message">{{ message }}</span>
+    <span class="ims-snackbar__message">{{ snackbarRef.message() }}</span>
 }
 
 @if (config.dismissible) {

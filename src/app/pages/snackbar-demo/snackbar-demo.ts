@@ -170,6 +170,42 @@ export class SnackbarDemo {
         this.observeProgress(ref, 'העלאת קבצים');
     }
 
+    showLiveUpdate(): void {
+        const steps = [
+            'מעלה קבצים... 0%',
+            'מעלה קבצים... 20%',
+            'מעלה קבצים... 40%',
+            'מעלה קבצים... 60%',
+            'מעלה קבצים... 80%',
+            'מעלה קבצים... 100%'
+        ];
+
+        const ref = this.snackbar.info(steps[0]).timeout(0).open();
+        this.lastEvent.set('העלאה התחילה');
+
+        let step = 0;
+        const interval = setInterval(() => {
+            step++;
+            if (step < steps.length) {
+                ref.updateMessage(steps[step]);
+            }
+            if (step === steps.length - 1) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    ref.updateSeverity('success');
+                    ref.updateMessage('הקבצים הועלו בהצלחה!');
+                    this.lastEvent.set('העלאה הושלמה — ההודעה תיסגר בעוד שתי שניות');
+                    setTimeout(() => ref.dismiss(), 2000);
+                }, 600);
+            }
+        }, 1000);
+
+        ref.onDismiss().subscribe(() => {
+            clearInterval(interval);
+            this.lastEvent.set('הודעת העלאה נסגרה');
+        });
+    }
+
     showManualProgress(): void {
         this.manualProgressRef?.dismiss();
         this.manualProgressRef = this.snackbar.warning(

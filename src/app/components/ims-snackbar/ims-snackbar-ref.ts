@@ -1,5 +1,5 @@
 import {OverlayRef} from '@angular/cdk/overlay';
-import {signal} from '@angular/core';
+import {Signal, WritableSignal, computed, signal} from '@angular/core';
 import {
     Observable,
     ReplaySubject,
@@ -10,9 +10,11 @@ import {
 } from 'rxjs';
 import {
     ImsSnackbarDismiss,
+    ImsSnackbarPoliteness,
     ImsSnackbarProgressResult,
     ImsSnackbarProgressState,
-    ImsSnackbarResolvedProgressConfig
+    ImsSnackbarResolvedProgressConfig,
+    ImsSnackbarSeverity
 } from './ims-snackbar.types';
 
 const IMS_SNACKBAR_EXIT_DURATION_MS = 180;
@@ -27,14 +29,22 @@ export class ImsSnackbarRef {
     private settleTimer: ReturnType<typeof setTimeout> | null = null;
     private dismissedValue = false;
 
+    readonly message = signal('');
+    readonly severity: WritableSignal<ImsSnackbarSeverity>;
+    readonly politeness: Signal<ImsSnackbarPoliteness>;
     readonly progressState = signal<ImsSnackbarProgressState>('loading');
     readonly progressCloseVisible = signal(false);
 
     constructor(
         private readonly overlayRef: OverlayRef,
-        progressConfig: ImsSnackbarResolvedProgressConfig | null
+        progressConfig: ImsSnackbarResolvedProgressConfig | null,
+        severity: ImsSnackbarSeverity
     ) {
         this.progressConfig = progressConfig;
+        this.severity = signal(severity);
+        this.politeness = computed(() =>
+            this.severity() === 'danger' ? 'assertive' : 'polite'
+        );
         this.startProgress();
     }
 
@@ -82,6 +92,17 @@ export class ImsSnackbarRef {
 
     rejectProgress(error?: unknown): void {
         this.settleProgress({state: 'error', error});
+    }
+
+    updateMessage(message: string): void {
+        this.message.set(message);
+    }
+
+    updateSeverity(severity: ImsSnackbarSeverity): void {
+        const element = this.overlayRef.overlayElement;
+        element.classList.remove(`ims-snackbar-overlay--${this.severity()}`);
+        element.classList.add(`ims-snackbar-overlay--${severity}`);
+        this.severity.set(severity);
     }
 
     private finishDismiss(dismissedByAction: boolean): void {

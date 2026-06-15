@@ -45,20 +45,29 @@ Build a service-driven Angular snackbar with behavior similar to Angular Materia
   - `dismissible(boolean)` controls the close button and defaults to `true`.
   - `progress(source?, config?)` keeps the snackbar open while an Observable,
     Promise, or manually controlled operation is pending. Its individual close
-    button appears after five seconds by default, and its resolved state remains
-    visible for two seconds before dismissal.
+    button appears after `progressCloseDelay` ms (global default 5000), and its
+    resolved state remains visible for `progressSettleDuration` ms (global
+    default 2000) before dismissal. Per-call values in `config` override the
+    global defaults.
   - `replaceStrategy('stack' | 'replace')` controls concurrent snackbars.
 - Global defaults are provided by `IMS_SNACKBAR_GLOBAL_CONFIG` and can be
   overridden with `provideImsSnackbarConfig(...)`.
 - Default timeout is `4000` milliseconds and default replacement strategy is
   `stack`. Builders initialize from the global config rather than hardcoded
   timeout, strategy, or position values.
+- `progressCloseDelay` (default `5000`) and `progressSettleDuration` (default
+  `2000`) are configurable globally via `provideImsSnackbarConfig`.
 - Default position is bottom-center through `verticalPosition: 'bottom'` and
   `horizontalPosition: 'center'`.
 - `ImsSnackbarRef` exposes `dismiss()`, `onDismiss()`, `dismissWithAction()`,
   `onAction()`, and the compatibility alias `afterDismissed()`. Progress refs
   also expose `resolveProgress()`, `rejectProgress()`,
   `onProgressResolved()`, and progress state queries.
+- `ImsSnackbarRef.updateMessage(text)` reactively updates the displayed message
+  via a signal; works for string-content snackbars only.
+- `ImsSnackbarRef.updateSeverity(severity)` updates the severity signal (drives
+  host class bindings and `aria-live`) and swaps the overlay panel class so the
+  outer wrapper styling also reflects the new severity immediately.
 - Public exports are available from `src/app/components/ims-snackbar/index.ts`.
 - Snackbar styles are global in `src/styles/ims-snackbar.scss` and imported by
   `src/styles.scss`.

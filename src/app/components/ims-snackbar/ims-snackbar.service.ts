@@ -127,7 +127,7 @@ export class ImsSnackbarService implements ImsSnackbarBuilderHost {
             progress: progress ?? undefined
         };
         const overlayRef = this.createOverlay(config);
-        const snackbarRef = new ImsSnackbarRef(overlayRef, progress);
+        const snackbarRef = new ImsSnackbarRef(overlayRef, progress, severity);
         const portalInjector = Injector.create({
             parent: this.injector,
             providers: [
@@ -139,7 +139,7 @@ export class ImsSnackbarService implements ImsSnackbarBuilderHost {
         const componentRef = overlayRef.attach(new ComponentPortal(ImsSnackbar, null, portalInjector));
 
         if (typeof content === 'string') {
-            componentRef.instance.message = content;
+            snackbarRef.message.set(content);
         } else {
             componentRef.instance.contentComponent = content;
         }
