@@ -5,24 +5,62 @@
 
 <section class="snackbar-demo">
     <div class="snackbar-demo__description">
-        <h2>התנהגות בסיסית</h2>
-        <p>פתיחת הודעה חדשה סוגרת את ההודעה הפעילה, בדומה ל-Material Snackbar.</p>
+        <h2>סוגי הודעות</h2>
+        <p>כל מתודת שירות מחזירה Builder עם עיצוב סמנטי מתאים.</p>
     </div>
 
     <div class="snackbar-demo__actions">
-        <button type="button" (click)="showTimed()">הודעה ל-3 שניות</button>
-        <button type="button" (click)="showPersistent()">הודעה קבועה</button>
-        <button type="button" (click)="showWithAction()">הודעה עם ביטול</button>
+        <button type="button" (click)="showInfo()">מידע</button>
+        <button type="button" (click)="showSuccess()">הצלחה</button>
+        <button type="button" (click)="showWarning()">אזהרה ל-8 שניות</button>
+        <button type="button" (click)="showDanger()">סכנה</button>
+        <button type="button" (click)="showPersistent()">ללא Timeout</button>
+        <button type="button" (click)="showComponent()">תוכן קומפוננטה</button>
+        <button type="button" (click)="showNonDismissible()">ללא כפתור סגירה</button>
         <button type="button" class="snackbar-demo__dismiss" (click)="dismiss()">
-            סגירת הודעה פעילה
+            סגירת כל ההודעות
         </button>
     </div>
 </section>
 
 <section class="snackbar-demo">
     <div class="snackbar-demo__description">
+        <h2>הודעות התקדמות</h2>
+        <p>
+            הודעת התקדמות נשארת פתוחה עד שהפעולה מסתיימת. כפתור הסגירה שלה
+            מופיע לאחר חמש שניות, וכפתור סגירת הערימה אינו סוגר פעולה שעדיין
+            בתהליך.
+        </p>
+    </div>
+
+    <div class="snackbar-demo__actions">
+        <button type="button" (click)="showProgress()">הצלחה לאחר 8 שניות</button>
+        <button type="button" (click)="showManualProgress()">התקדמות ידנית</button>
+        <button type="button" (click)="resolveManualProgress()">סיום ידני בהצלחה</button>
+        <button type="button" (click)="rejectManualProgress()">סיום ידני בשגיאה</button>
+    </div>
+</section>
+
+<section class="snackbar-demo">
+    <div class="snackbar-demo__description">
+        <h2>אסטרטגיית החלפה</h2>
+        <p>
+            ברירת המחדל עורמת הודעות. החדשה מוצגת מלפנים בתחתית, והודעות ישנות
+            נפתחות כלפי מעלה במעבר עכבר. הערימה מוגבלת לארבע הודעות והזמן נעצר
+            בזמן שהעכבר מעליה.
+        </p>
+    </div>
+
+    <div class="snackbar-demo__actions">
+        <button type="button" (click)="showStack()">פתיחת 5 הודעות</button>
+        <button type="button" (click)="showReplace()">פתיחה עם replace</button>
+    </div>
+</section>
+
+<section class="snackbar-demo">
+    <div class="snackbar-demo__description">
         <h2>מיקום</h2>
-        <p>בדיקת נקודות העיגון הזמינות בכיוון RTL.</p>
+        <p>ברירת המחדל היא מרכז תחתון. כאן ניתן לבדוק את כל נקודות העיגון.</p>
     </div>
 
     <div class="snackbar-demo__positions">
