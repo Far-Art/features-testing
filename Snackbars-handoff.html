@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snackbars — component spec & implementation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     SNACKBAR COMPONENT — insurance portal
+     Brand: #00005F. Three styles, four appearances.
+     Framework-free. Self-contained. See <script> for the JS API.
+     ============================================================ */
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: #EEF0F4; font-family: 'Hanken Grotesk', -apple-system, sans-serif; color: #1c1c2e; }
+
+  /* ---- Semantic appearance tokens (set per .is-* class) ---- */
+  .is-info    { --main:#00005f; --tint:#ECECF6; --border:#D4D4E6; --text:#23234d; --accentDark:#A6A6FF; }
+  .is-success { --main:#1F7A4D; --tint:#E7F4EC; --border:#C3E2CF; --text:#155f3c; --accentDark:#5FD79B; }
+  .is-warning { --main:#B7791F; --tint:#FBF1DC; --border:#EBD3A1; --text:#86560f; --accentDark:#F4C24B; }
+  .is-danger  { --main:#C03A30; --tint:#FBE9E6; --border:#EFC3BD; --text:#962219; --accentDark:#FF8C82; }
+
+  /* ---- Base snackbar ---- */
+  .sb { display:flex; align-items:flex-start; gap:13px; width:100%; border-radius:13px; padding:14px; }
+  .sb-icon { flex:0 0 auto; display:flex; }
+  .sb-icon svg { width:20px; height:20px; }
+  .sb-body { flex:1 1 auto; min-width:0; padding-top:1px; }
+  .sb-title { font-size:14.5px; font-weight:700; line-height:1.3; }
+  .sb-msg { font-size:13px; line-height:1.45; margin-top:2px; }
+  .sb-actions { flex:0 0 auto; display:flex; align-items:center; gap:2px; align-self:center; }
+  .sb-action { border:none; background:transparent; font-family:inherit; font-size:13px; font-weight:700; cursor:pointer; padding:6px 8px; border-radius:7px; }
+  .sb-close { width:26px; height:26px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; border-radius:7px; cursor:pointer; padding:0; }
+  .sb-action:hover, .sb-close:hover { background: rgba(0,0,0,.06); }
+  .sb :focus-visible { outline:2px solid currentColor; outline-offset:2px; }
+
+  /* ---- STYLE 1: Soft tint ---- */
+  .sb.soft { background:var(--tint); border:1px solid var(--border); box-shadow:0 1px 2px rgba(20,20,50,.04); }
+  .sb.soft .sb-icon { width:32px; height:32px; border-radius:9px; background:var(--main); color:#fff; align-items:center; justify-content:center; }
+  .sb.soft .sb-icon svg { width:19px; height:19px; }
+  .sb.soft .sb-title { color:var(--text); }
+  .sb.soft .sb-msg { color:#5d5d74; }
+  .sb.soft .sb-action { color:var(--main); }
+  .sb.soft .sb-close { color:#7a7a92; }
+
+  /* ---- STYLE 2: Left accent ---- */
+  .sb.accent { background:#fff; border:1px solid #E5E7EF; border-left:4px solid var(--main); box-shadow:0 4px 16px rgba(20,20,50,.06); padding-left:15px; }
+  .sb.accent .sb-icon { color:var(--main); padding-top:1px; }
+  .sb.accent .sb-title { color:#1b1b2e; }
+  .sb.accent .sb-msg { color:#62627a; }
+  .sb.accent .sb-action { color:var(--main); }
+  .sb.accent .sb-close { color:#9a9ab0; }
+
+  /* ---- STYLE 3: Brand dark ---- */
+  .sb.dark { background:#00005f; border-left:3px solid var(--accentDark); box-shadow:0 8px 24px rgba(0,0,50,.32); padding-left:15px; }
+  .sb.dark .sb-icon { color:var(--accentDark); padding-top:1px; }
+  .sb.dark .sb-title { color:#fff; }
+  .sb.dark .sb-msg { color:rgba(255,255,255,.62); }
+  .sb.dark .sb-action { color:var(--accentDark); }
+  .sb.dark .sb-close { color:rgba(255,255,255,.55); }
+  .sb.dark .sb-action:hover, .sb.dark .sb-close:hover { background: rgba(255,255,255,.1); }
+
+  /* ---- Live toast stack ---- */
+  .sb-stack { position:fixed; right:24px; bottom:24px; display:flex; flex-direction:column; gap:10px; z-index:50; align-items:flex-end; pointer-events:none; }
+  .sb-stack .sb { width:340px; pointer-events:auto; box-shadow:0 10px 28px rgba(20,20,50,.18); animation:sbIn .34s cubic-bezier(.2,.85,.25,1) both; }
+  .sb-stack .sb.leaving { animation:sbOut .24s ease forwards; }
+  @keyframes sbIn  { from { opacity:0; transform:translateY(14px) scale(.97); } to { opacity:1; transform:none; } }
+  @keyframes sbOut { to   { opacity:0; transform:translateY(8px); } }
+
+  /* ---- Spec page chrome (reference gallery only — not part of the component) ---- */
+  .page { max-width:960px; margin:0 auto; padding:60px 24px 120px; }
+  .eyebrow { font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#8a8aa0; }
+  h1 { font-size:42px; font-weight:800; letter-spacing:-.02em; color:#00005f; margin:8px 0 0; line-height:1.05; }
+  .lede { font-size:16px; line-height:1.55; color:#55556e; margin:14px 0 0; max-width:560px; }
+  .legend { display:flex; flex-wrap:wrap; gap:8px; margin-top:22px; }
+  .chip { display:inline-flex; align-items:center; gap:7px; background:#fff; border:1px solid #e1e3ec; border-radius:999px; padding:6px 13px; font-size:12.5px; font-weight:600; color:#55556e; }
+  .chip .dot { width:11px; height:11px; border-radius:999px; }
+  .chip.brand { font-weight:700; color:#33334d; }
+  .chip.brand .dot { width:14px; height:14px; border-radius:4px; }
+  section.style { margin-top:52px; }
+  .style-head { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  .style-head h2 { font-size:20px; font-weight:800; color:#00005f; margin:0; letter-spacing:-.01em; white-space:nowrap; }
+  .style-head .tag { font-size:11.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#9a9ab0; }
+  .style-desc { margin:6px 0 20px; font-size:14px; color:#6a6a80; max-width:540px; }
+  .stack-col { display:flex; flex-direction:column; gap:12px; max-width:580px; }
+  .demo { margin-top:60px; background:#fff; border:1px solid #E3E5EC; border-radius:16px; padding:24px; }
+  .demo h2 { font-size:18px; font-weight:800; color:#00005f; margin:0; letter-spacing:-.01em; }
+  .demo-row { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+  .trigger { display:inline-flex; align-items:center; gap:8px; border:1px solid var(--border); background:var(--tint); color:var(--text); font-family:inherit; font-size:13.5px; font-weight:700; padding:10px 16px; border-radius:10px; cursor:pointer; }
+  .trigger .dot { width:9px; height:9px; border-radius:999px; background:var(--main); }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="eyebrow">Component spec</div>
+    <h1>Snackbars</h1>
+    <p class="lede">Transient status messages for the policyholder portal. Four appearances across three candidate styles.</p>
+
+    <div class="legend">
+      <span class="chip brand"><span class="dot" style="background:#00005f;"></span>#00005F · Brand</span>
+      <span class="chip"><span class="dot" style="background:#00005f;"></span>Info</span>
+      <span class="chip"><span class="dot" style="background:#1F7A4D;"></span>Success</span>
+      <span class="chip"><span class="dot" style="background:#B7791F;"></span>Warning</span>
+      <span class="chip"><span class="dot" style="background:#C03A30;"></span>Danger</span>
+    </div>
+
+    <!-- Reference gallery + demo are rendered by the script below -->
+    <div id="gallery"></div>
+
+    <div class="demo">
+      <h2>Live preview</h2>
+      <div class="demo-row" id="triggers"></div>
+    </div>
+  </div>
+
+<script>
+/* ================================================================
+   SNACKBAR API  (framework-free, drop-in)
+   ----------------------------------------------------------------
+   showSnackbar({
+     type:    'info' | 'success' | 'warning' | 'danger',   // default 'info'
+     style:   'soft' | 'accent'  | 'dark',                  // default 'soft'
+     title:   string,
+     message: string,
+     action:  string | null,        // optional action-link label
+     onAction: () => void,          // optional action callback
+     duration: ms                   // default 4800; 0 = sticky (no auto-dismiss)
+   }) -> returns a dismiss() function
+
+   Markup contract for a single snackbar:
+     <div class="sb {style} is-{type}">
+       <span class="sb-icon">{icon svg}</span>
+       <div class="sb-body">
+         <div class="sb-title">…</div>
+         <div class="sb-msg">…</div>
+       </div>
+       <div class="sb-actions">
+         <button class="sb-action">…</button>   (optional)
+         <button class="sb-close" aria-label="Dismiss">{x svg}</button>
+       </div>
+     </div>
+   All visual variation is pure CSS — see the stylesheet above.
+   ================================================================ */
+
+  const ICONS = {
+    info:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>',
+    success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.8 10A10 10 0 1 1 17 3.3"></path><path d="m9 11 3 3L22 4"></path></svg>',
+    warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>',
+    danger:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>'
+  };
+  const CLOSE_ICON = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>';
+
+  /* Build a snackbar element (used by both the static gallery and live toasts). */
+  function buildSnackbar({ type = 'info', style = 'soft', title = '', message = '', action = null, onAction } = {}) {
+    const el = document.createElement('div');
+    el.className = `sb ${style} is-${type}`;
+    el.innerHTML =
+      `<span class="sb-icon">${ICONS[type]}</span>` +
+      `<div class="sb-body"><div class="sb-title">${title}</div><div class="sb-msg">${message}</div></div>` +
+      `<div class="sb-actions">` +
+        (action ? `<button class="sb-action" type="button">${action}</button>` : '') +
+        `<button class="sb-close" type="button" aria-label="Dismiss">${CLOSE_ICON}</button>` +
+      `</div>`;
+    if (action && onAction) el.querySelector('.sb-action').addEventListener('click', onAction);
+    return el;
+  }
+
+  /* Live toast manager. */
+  function showSnackbar(opts = {}) {
+    let stack = document.querySelector('.sb-stack');
+    if (!stack) { stack = document.createElement('div'); stack.className = 'sb-stack'; document.body.appendChild(stack); }
+
+    const el = buildSnackbar(opts);
+    stack.appendChild(el);
+
+    let timer;
+    const dismiss = () => {
+      if (el.classList.contains('leaving')) return;
+      clearTimeout(timer);
+      el.classList.add('leaving');
+      el.addEventListener('animationend', () => el.remove(), { once: true });
+    };
+    el.querySelector('.sb-close').addEventListener('click', dismiss);
+
+    const duration = opts.duration ?? 4800;
+    if (duration > 0) timer = setTimeout(dismiss, duration);
+    return dismiss;
+  }
+  window.showSnackbar = showSnackbar;
+
+  /* ---------- Reference gallery + demo (spec page only) ---------- */
+  const STYLES = [
+    { key:'soft',   name:'01 — Soft tint',   tag:'Subtle · everyday', desc:'Tinted surface with a filled icon chip. Friendly and low-key for non-blocking, in-context messages.' },
+    { key:'accent', name:'02 — Left accent', tag:'Neutral · dashboard', desc:'Clean white card with a colored status bar and icon. Reads clearly layered over busy data screens.' },
+    { key:'dark',   name:'03 — Brand dark',  tag:'Premium · cohesive', desc:'Navy surface throughout, status conveyed by a colored edge and icon. Sits naturally with the brand header and footer.' }
+  ];
+  const APPEARANCES = [
+    { type:'info',    title:'Policy under review', message:"We're processing your auto policy update. This can take a few minutes.", action:'View' },
+    { type:'success', title:'Payment received',    message:'Your premium payment of $148.20 was processed successfully.',          action:'Receipt' },
+    { type:'warning', title:'Renewal due soon',    message:'Your home policy expires in 7 days. Renew now to stay covered.',        action:'Renew' },
+    { type:'danger',  title:'Payment failed',      message:"We couldn't process your payment. Please update your billing details.", action:'Update' }
+  ];
+
+  const gallery = document.getElementById('gallery');
+  STYLES.forEach(s => {
+    const section = document.createElement('section');
+    section.className = 'style';
+    section.innerHTML = `<div class="style-head"><h2>${s.name}</h2><span class="tag">${s.tag}</span></div><p class="style-desc">${s.desc}</p>`;
+    const col = document.createElement('div');
+    col.className = 'stack-col';
+    APPEARANCES.forEach(a => col.appendChild(buildSnackbar({ ...a, style: s.key })));
+    section.appendChild(col);
+    gallery.appendChild(section);
+  });
+
+  const triggers = document.getElementById('triggers');
+  APPEARANCES.forEach(a => {
+    const b = document.createElement('button');
+    b.className = `trigger is-${a.type}`;
+    b.innerHTML = `<span class="dot"></span>${a.type[0].toUpperCase() + a.type.slice(1)}`;
+    b.addEventListener('click', () => showSnackbar({ type:a.type, style:'soft', title:a.title, message:a.message, action:a.action }));
+    triggers.appendChild(b);
+  });
+</script>
+</body>
+</html>
