@@ -227,14 +227,31 @@ ims-snackbar.ims-snackbar--dark .ims-snackbar__dismiss:hover {
 /* ── Stack overlay panes ─────────────────────────────────────────────────── */
 
 .cdk-overlay-pane.ims-snackbar-stack-item {
+    border-radius: 13px;
+    box-shadow:
+        0 10px 24px rgb(20 20 50 / 14%),
+        0 2px 7px rgb(20 20 50 / 8%);
     transform:
         translateY(var(--ims-snackbar-stack-offset, 0))
         scale(var(--ims-snackbar-stack-scale, 1));
     transform-origin: var(--ims-snackbar-stack-origin, bottom center);
     transition:
         opacity 180ms ease,
-        transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
-    will-change: opacity, transform;
+        transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 180ms ease;
+    will-change: opacity, transform, box-shadow;
+}
+
+.cdk-overlay-pane.ims-snackbar-stack-item.ims-snackbar-stack-item--stacked {
+    box-shadow:
+        0 14px 32px rgb(20 20 50 / 18%),
+        0 4px 10px rgb(20 20 50 / 10%);
+}
+
+.cdk-overlay-pane.ims-snackbar-stack-item.ims-snackbar-stack-item--stacked.ims-snackbar-stack-item--expanded {
+    box-shadow:
+        0 10px 24px rgb(20 20 50 / 14%),
+        0 2px 7px rgb(20 20 50 / 8%);
 }
 
 .cdk-overlay-pane.ims-snackbar-stack-item.ims-snackbar-stack-item--expanded {
