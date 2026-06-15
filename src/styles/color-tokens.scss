@@ -1,0 +1,90 @@
+
+:root {
+  /* ---- Success (green) ---- */
+  --success-50:  #ECF7F1;
+  --success-100: #D2EEE0;
+  --success-150: #BDE5D1;
+  --success-200: #A7DCC1;
+  --success-250: #8DD1B1;
+  --success-300: #72C5A0;
+  --success-350: #5AB78E;
+  --success-400: #41A87C;
+  --success-450: #379B6E;
+  --success-500: #2C8E60;
+  --success-550: #268457;
+  --success-600: #1F7A4D;  /* snackbar success */
+  --success-650: #1C7047;
+  --success-700: #196641;
+  --success-750: #175C3B;
+  --success-800: #155234;
+  --success-850: #12482E;
+  --success-900: #0F3E28;
+  --success-950: #0A2A1B;
+
+  /* ---- Warning (amber) ---- */
+  --warning-50:  #FCF6E8;
+  --warning-100: #F9E9C4;
+  --warning-150: #F6DFA8;
+  --warning-200: #F2D58C;
+  --warning-250: #EEC96E;
+  --warning-300: #E9BC4F;
+  --warning-350: #E2AF3C;
+  --warning-400: #DBA228;
+  --warning-450: #D29623;
+  --warning-500: #C98A1E;
+  --warning-550: #C0821F;
+  --warning-600: #B7791F;  /* snackbar warning */
+  --warning-650: #A66D1D;
+  --warning-700: #95611A;
+  --warning-750: #865719;
+  --warning-800: #774D18;
+  --warning-850: #6A4517;
+  --warning-900: #5C3C15;
+  --warning-950: #3B260D;
+}
+
+:root {
+  /* ---- Danger — red ---- */
+  --danger-50:  #FBE9E6;
+  --danger-100: #F6D9D6;
+  --danger-150: #F0C9C5;
+  --danger-200: #EBB9B4;
+  --danger-250: #E6A9A4;
+  --danger-300: #E09A93;
+  --danger-350: #DB8A83;
+  --danger-400: #D67A72;
+  --danger-450: #D06A62;
+  --danger-500: #CB5A51;
+  --danger-550: #C54A41;
+  --danger-600: #C03A30;  /* snackbar danger */
+  --danger-650: #AD342B;
+  --danger-700: #9A2D25;
+  --danger-750: #872720;
+  --danger-800: #73211A;
+  --danger-850: #601B15;
+  --danger-900: #4D140F;
+  --danger-950: #3A0E0A;
+}
+
+:root {
+  /* ---- Info — brand navy (azure-corrected, no purple drift) ---- */
+  --info-50:  #E9F1FB;
+  --info-100: #CBDCF0;
+  --info-150: #A9C0E3;
+  --info-200: #88A6D6;
+  --info-250: #6A8DC8;
+  --info-300: #5276BA;
+  --info-350: #4163AB;
+  --info-400: #33529B;
+  --info-450: #27418A;
+  --info-500: #1C3179;
+  --info-550: #11226B;
+  --info-600: #00005F;  /* brand / snackbar info */
+  --info-650: #000053;
+  --info-700: #000048;
+  --info-750: #00003E;
+  --info-800: #010134;
+  --info-850: #02022B;
+  --info-900: #020221;
+  --info-950: #020218;
+}
