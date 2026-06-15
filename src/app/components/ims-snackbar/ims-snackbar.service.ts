@@ -26,7 +26,8 @@ import {
     ImsSnackbarResolvedProgressConfig,
     ImsSnackbarReplaceStrategy,
     ImsSnackbarSeverity,
-    ImsSnackbarVerticalPosition
+    ImsSnackbarVerticalPosition,
+    ImsSnackbarVisualStyle
 } from './ims-snackbar.types';
 
 interface ActiveSnackbar {
@@ -112,7 +113,9 @@ export class ImsSnackbarService implements ImsSnackbarBuilderHost {
         data: unknown,
         progress: ImsSnackbarResolvedProgressConfig | null,
         key: string | null,
-        keyStrategy: ImsSnackbarKeyStrategy
+        keyStrategy: ImsSnackbarKeyStrategy,
+        title: string,
+        visualStyle: ImsSnackbarVisualStyle
     ): ImsSnackbarRef {
         if (key !== null) {
             const existing = this.keyedSnackbars.get(key);
@@ -142,6 +145,7 @@ export class ImsSnackbarService implements ImsSnackbarBuilderHost {
             severity,
             dismissible,
             replaceStrategy,
+            visualStyle,
             direction: this.resolveDirection(),
             politeness: severity === 'danger' ? 'assertive' : 'polite',
             data,
@@ -159,6 +163,7 @@ export class ImsSnackbarService implements ImsSnackbarBuilderHost {
         });
         const componentRef = overlayRef.attach(new ComponentPortal(ImsSnackbar, null, portalInjector));
 
+        snackbarRef.title.set(title);
         if (typeof content === 'string') {
             snackbarRef.message.set(content);
         } else {

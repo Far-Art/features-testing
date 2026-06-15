@@ -1,23 +1,230 @@
+/* ── Severity tokens ─────────────────────────────────────────────────────── */
+
+ims-snackbar.ims-snackbar--info {
+    --ims-sb-main:        #00005f;
+    --ims-sb-tint:        #ececf6;
+    --ims-sb-border:      #d4d4e6;
+    --ims-sb-text:        #23234d;
+    --ims-sb-accent-dark: #a6a6ff;
+}
+
+ims-snackbar.ims-snackbar--success {
+    --ims-sb-main:        #1f7a4d;
+    --ims-sb-tint:        #e7f4ec;
+    --ims-sb-border:      #c3e2cf;
+    --ims-sb-text:        #155f3c;
+    --ims-sb-accent-dark: #5fd79b;
+}
+
+ims-snackbar.ims-snackbar--warning {
+    --ims-sb-main:        #b7791f;
+    --ims-sb-tint:        #fbf1dc;
+    --ims-sb-border:      #ebd3a1;
+    --ims-sb-text:        #86560f;
+    --ims-sb-accent-dark: #f4c24b;
+}
+
+ims-snackbar.ims-snackbar--danger {
+    --ims-sb-main:        #c03a30;
+    --ims-sb-tint:        #fbe9e6;
+    --ims-sb-border:      #efc3bd;
+    --ims-sb-text:        #962219;
+    --ims-sb-accent-dark: #ff8c82;
+}
+
+/* ── Base layout ─────────────────────────────────────────────────────────── */
+
 ims-snackbar.ims-snackbar {
     display: flex;
     box-sizing: border-box;
-    align-items: center;
-    gap: 0.875rem;
-    min-width: min(20rem, calc(100vw - 2rem));
-    max-width: min(38rem, calc(100vw - 2rem));
-    min-height: 3rem;
-    padding: 0.75rem 0.875rem 0.75rem 1.125rem;
-    color: #e8eaf6;
-    background: #0c0c2e;
-    border: 1px solid rgb(255 255 255 / 8%);
-    border-left: 3px solid var(--ims-snackbar-accent, #818cf8);
-    border-radius: 0.5rem;
-    box-shadow:
-        0 8px 28px rgb(0 0 5 / 40%),
-        0 2px 8px rgb(0 0 5 / 25%);
+    align-items: flex-start;
+    gap: 13px;
+    min-width: min(22rem, calc(100vw - 2rem));
+    max-width: min(26rem, calc(100vw - 2rem));
+    padding: 14px;
     font: inherit;
-    animation: ims-snackbar-enter 180ms cubic-bezier(0, 0, 0.2, 1);
+    font-family: 'Hanken Grotesk', -apple-system, sans-serif;
+    border-radius: 13px;
+    animation: ims-snackbar-enter 200ms cubic-bezier(0, 0, 0.2, 1);
 }
+
+/* ── Icon ────────────────────────────────────────────────────────────────── */
+
+.ims-snackbar__icon {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+        width: 19px;
+        height: 19px;
+    }
+}
+
+/* ── Body ────────────────────────────────────────────────────────────────── */
+
+.ims-snackbar__body {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-top: 1px;
+}
+
+.ims-snackbar__title {
+    font-size: 14.5px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.ims-snackbar__message {
+    font-size: 13px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.ims-snackbar__title + .ims-snackbar__message {
+    margin-top: 2px;
+}
+
+/* ── Actions ─────────────────────────────────────────────────────────────── */
+
+.ims-snackbar__actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    align-self: center;
+    gap: 4px;
+}
+
+.ims-snackbar__progress-indicator {
+    display: block;
+}
+
+.ims-snackbar__dismiss {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 120ms ease, color 120ms ease;
+
+    svg {
+        width: 15px;
+        height: 15px;
+        pointer-events: none;
+    }
+}
+
+.ims-snackbar__dismiss--hidden {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.ims-snackbar__dismiss:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+/* ── Style 1: Soft tint ──────────────────────────────────────────────────── */
+
+ims-snackbar.ims-snackbar--soft {
+    background: var(--ims-sb-tint);
+    border: 1px solid var(--ims-sb-border);
+    box-shadow: 0 1px 2px rgb(20 20 50 / 4%);
+}
+
+ims-snackbar.ims-snackbar--soft .ims-snackbar__icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: var(--ims-sb-main);
+    color: #fff;
+}
+
+ims-snackbar.ims-snackbar--soft .ims-snackbar__title {
+    color: var(--ims-sb-text);
+}
+
+ims-snackbar.ims-snackbar--soft .ims-snackbar__message {
+    color: #5d5d74;
+}
+
+ims-snackbar.ims-snackbar--soft .ims-snackbar__dismiss {
+    color: #7a7a92;
+}
+
+ims-snackbar.ims-snackbar--soft .ims-snackbar__dismiss:hover {
+    background: rgb(0 0 0 / 6%);
+}
+
+/* ── Style 2: Left accent ────────────────────────────────────────────────── */
+
+ims-snackbar.ims-snackbar--accent {
+    background: #fff;
+    border: 1px solid #e5e7ef;
+    border-left: 4px solid var(--ims-sb-main);
+    box-shadow: 0 4px 16px rgb(20 20 50 / 6%);
+    padding-left: 15px;
+}
+
+ims-snackbar.ims-snackbar--accent .ims-snackbar__icon {
+    color: var(--ims-sb-main);
+    padding-top: 1px;
+}
+
+ims-snackbar.ims-snackbar--accent .ims-snackbar__title {
+    color: #1b1b2e;
+}
+
+ims-snackbar.ims-snackbar--accent .ims-snackbar__message {
+    color: #62627a;
+}
+
+ims-snackbar.ims-snackbar--accent .ims-snackbar__dismiss {
+    color: #9a9ab0;
+}
+
+ims-snackbar.ims-snackbar--accent .ims-snackbar__dismiss:hover {
+    background: rgb(0 0 0 / 6%);
+}
+
+/* ── Style 3: Brand dark ─────────────────────────────────────────────────── */
+
+ims-snackbar.ims-snackbar--dark {
+    background: #00005f;
+    border-left: 3px solid var(--ims-sb-accent-dark);
+    box-shadow: 0 8px 24px rgb(0 0 50 / 32%);
+    padding-left: 15px;
+}
+
+ims-snackbar.ims-snackbar--dark .ims-snackbar__icon {
+    color: var(--ims-sb-accent-dark);
+    padding-top: 1px;
+}
+
+ims-snackbar.ims-snackbar--dark .ims-snackbar__title {
+    color: #fff;
+}
+
+ims-snackbar.ims-snackbar--dark .ims-snackbar__message {
+    color: rgb(255 255 255 / 62%);
+}
+
+ims-snackbar.ims-snackbar--dark .ims-snackbar__dismiss {
+    color: rgb(255 255 255 / 55%);
+}
+
+ims-snackbar.ims-snackbar--dark .ims-snackbar__dismiss:hover {
+    color: #fff;
+    background: rgb(255 255 255 / 10%);
+}
+
+/* ── Stack overlay panes ─────────────────────────────────────────────────── */
 
 .cdk-overlay-pane.ims-snackbar-stack-item {
     transform:
@@ -55,50 +262,7 @@ ims-snackbar.ims-snackbar {
         scale(0.96);
 }
 
-.ims-snackbar__message {
-    flex: 1 1 auto;
-    overflow-wrap: anywhere;
-    font-size: 0.9rem;
-    line-height: 1.45;
-}
-
-.ims-snackbar__progress-indicator {
-    display: block;
-    flex: 0 0 auto;
-}
-
-.ims-snackbar__dismiss {
-    display: grid;
-    flex: 0 0 auto;
-    place-items: center;
-    width: 1.625rem;
-    height: 1.625rem;
-    padding: 0;
-    color: rgb(255 255 255 / 50%);
-    background: transparent;
-    border: 0;
-    border-radius: 50%;
-    font: inherit;
-    font-size: 1.15rem;
-    line-height: 1;
-    cursor: pointer;
-    transition: color 120ms ease;
-}
-
-.ims-snackbar__dismiss--hidden {
-    visibility: hidden;
-    pointer-events: none;
-}
-
-.ims-snackbar__dismiss:hover {
-    color: #fff;
-    background: rgb(255 255 255 / 10%);
-}
-
-.ims-snackbar__dismiss:focus-visible {
-    outline: 2px solid var(--ims-snackbar-accent, #818cf8);
-    outline-offset: 2px;
-}
+/* ── Dismiss-all control ─────────────────────────────────────────────────── */
 
 .cdk-overlay-pane.ims-snackbar-stack-control-pane {
     z-index: 2000;
@@ -122,7 +286,7 @@ ims-snackbar.ims-snackbar {
 .ims-snackbar-stack-control__button {
     padding: 0.35rem 0.75rem;
     color: #e8eaf6;
-    background: #0c0c2e;
+    background: #00005f;
     border: 1px solid rgb(255 255 255 / 14%);
     border-radius: 999px;
     box-shadow: 0 4px 14px rgb(0 0 0 / 35%);
@@ -136,40 +300,26 @@ ims-snackbar.ims-snackbar {
 }
 
 .ims-snackbar-stack-control__button:hover {
-    background: #16163e;
+    background: #00008a;
     border-color: rgb(255 255 255 / 22%);
 }
 
 .ims-snackbar-stack-control__button:focus-visible {
-    outline: 2px solid #818cf8;
+    outline: 2px solid #a6a6ff;
     outline-offset: 2px;
 }
 
-ims-snackbar.ims-snackbar--info {
-    --ims-snackbar-accent: #60a5fa;
-}
-
-ims-snackbar.ims-snackbar--success {
-    --ims-snackbar-accent: #34d399;
-}
-
-ims-snackbar.ims-snackbar--warning {
-    --ims-snackbar-accent: #fbbf24;
-}
-
-ims-snackbar.ims-snackbar--danger {
-    --ims-snackbar-accent: #f87171;
-}
+/* ── Enter animation ─────────────────────────────────────────────────────── */
 
 @keyframes ims-snackbar-enter {
     from {
         opacity: 0;
-        transform: translateY(0.4rem) scale(0.97);
+        transform: translateY(14px) scale(0.97);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: none;
     }
 }
 

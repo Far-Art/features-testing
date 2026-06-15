@@ -9,7 +9,8 @@ import {
     ImsSnackbarReplaceStrategy,
     ImsSnackbarResolvedProgressConfig,
     ImsSnackbarSeverity,
-    ImsSnackbarVerticalPosition
+    ImsSnackbarVerticalPosition,
+    ImsSnackbarVisualStyle
 } from './ims-snackbar.types';
 
 export interface ImsSnackbarBuilderHost {
@@ -24,7 +25,9 @@ export interface ImsSnackbarBuilderHost {
         data: unknown,
         progress: ImsSnackbarResolvedProgressConfig | null,
         key: string | null,
-        keyStrategy: ImsSnackbarKeyStrategy
+        keyStrategy: ImsSnackbarKeyStrategy,
+        title: string,
+        visualStyle: ImsSnackbarVisualStyle
     ): ImsSnackbarRef;
 }
 
@@ -38,6 +41,8 @@ export class ImsSnackbarBuilder {
     private progressConfig: ImsSnackbarResolvedProgressConfig | null = null;
     private snackbarKey: string | null = null;
     private snackbarKeyStrategy: ImsSnackbarKeyStrategy = 'ignore';
+    private snackbarTitle = '';
+    private snackbarVisualStyle: ImsSnackbarVisualStyle;
 
     constructor(
         private readonly host: ImsSnackbarBuilderHost,
@@ -49,6 +54,7 @@ export class ImsSnackbarBuilder {
         this.strategy = globalConfig.replaceStrategy;
         this.verticalPosition = globalConfig.verticalPosition;
         this.horizontalPosition = globalConfig.horizontalPosition;
+        this.snackbarVisualStyle = globalConfig.visualStyle;
     }
 
     timeout(milliseconds: number): this {
@@ -96,6 +102,16 @@ export class ImsSnackbarBuilder {
         return this;
     }
 
+    title(text: string): this {
+        this.snackbarTitle = text;
+        return this;
+    }
+
+    style(visualStyle: ImsSnackbarVisualStyle): this {
+        this.snackbarVisualStyle = visualStyle;
+        return this;
+    }
+
     key(id: string, strategy: ImsSnackbarKeyStrategy = 'ignore'): this {
         this.snackbarKey = id;
         this.snackbarKeyStrategy = strategy;
@@ -128,7 +144,9 @@ export class ImsSnackbarBuilder {
             this.customData,
             this.progressConfig,
             this.snackbarKey,
-            this.snackbarKeyStrategy
+            this.snackbarKeyStrategy,
+            this.snackbarTitle,
+            this.snackbarVisualStyle
         );
     }
 }

@@ -1,33 +1,42 @@
-@if (snackbarRef.isProgress()) {
-    <app-fetch-indicator
-        class="ims-snackbar__progress-indicator"
-        [state]="snackbarRef.progressState()"
-        [size]="22"
-    />
-}
+<span class="ims-snackbar__icon" [innerHTML]="icon"></span>
 
-@if (contentComponent) {
-    <ng-container
-        *ngComponentOutlet="contentComponent; injector: contentInjector"
-    />
-} @else {
-    <span class="ims-snackbar__message">{{ snackbarRef.message() }}</span>
-}
+<div class="ims-snackbar__body">
+    @if (snackbarRef.title()) {
+        <div class="ims-snackbar__title">{{ snackbarRef.title() }}</div>
+    }
 
-@if (config.dismissible) {
-    <button
-        type="button"
-        class="ims-snackbar__dismiss"
-        [class.ims-snackbar__dismiss--hidden]="
-            snackbarRef.isProgress() && !snackbarRef.progressCloseVisible()
-        "
-        [disabled]="snackbarRef.isProgress() && !snackbarRef.progressCloseVisible()"
-        [attr.aria-hidden]="
-            snackbarRef.isProgress() && !snackbarRef.progressCloseVisible()
-        "
-        aria-label="Dismiss notification"
-        (click)="snackbarRef.dismiss()"
-    >
-        <span aria-hidden="true">&times;</span>
-    </button>
-}
+    @if (contentComponent) {
+        <ng-container
+            *ngComponentOutlet="contentComponent; injector: contentInjector"
+        />
+    } @else {
+        <div class="ims-snackbar__message">{{ snackbarRef.message() }}</div>
+    }
+</div>
+
+<div class="ims-snackbar__actions">
+    @if (snackbarRef.isProgress()) {
+        <app-fetch-indicator
+            class="ims-snackbar__progress-indicator"
+            [state]="snackbarRef.progressState()"
+            [size]="20"
+        />
+    }
+
+    @if (config.dismissible) {
+        <button
+            type="button"
+            class="ims-snackbar__dismiss"
+            [class.ims-snackbar__dismiss--hidden]="
+                snackbarRef.isProgress() && !snackbarRef.progressCloseVisible()
+            "
+            [disabled]="snackbarRef.isProgress() && !snackbarRef.progressCloseVisible()"
+            [attr.aria-hidden]="
+                snackbarRef.isProgress() && !snackbarRef.progressCloseVisible()
+            "
+            aria-label="Dismiss notification"
+            (click)="snackbarRef.dismiss()"
+            [innerHTML]="closeIcon"
+        ></button>
+    }
+</div>

@@ -33,6 +33,7 @@ export class ImsSnackbarRef {
     private dismissedValue = false;
 
     readonly message = signal('');
+    readonly title = signal('');
     readonly severity: WritableSignal<ImsSnackbarSeverity>;
     readonly politeness: Signal<ImsSnackbarPoliteness>;
     readonly progressState = signal<ImsSnackbarProgressState>('loading');
@@ -99,6 +100,10 @@ export class ImsSnackbarRef {
 
     updateMessage(message: string): void {
         this.message.set(message);
+    }
+
+    updateTitle(title: string): void {
+        this.title.set(title);
     }
 
     updateSeverity(severity: ImsSnackbarSeverity): void {

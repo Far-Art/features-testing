@@ -64,14 +64,18 @@ export class SnackbarDemo {
 
     showInfo(): void {
         this.observe(
-            this.snackbar.info('הודעת מידע עם ברירות המחדל').open(),
+            this.snackbar.info('הודעת מידע עם ברירות המחדל')
+                .title('מידע')
+                .open(),
             'הודעת מידע'
         );
     }
 
     showSuccess(): void {
         this.observe(
-            this.snackbar.success('הפעולה הושלמה בהצלחה').open(),
+            this.snackbar.success('הפעולה הושלמה בהצלחה')
+                .title('הצלחה')
+                .open(),
             'הודעת הצלחה'
         );
     }
@@ -79,6 +83,7 @@ export class SnackbarDemo {
     showWarning(): void {
         this.observe(
             this.snackbar.warning('יש לבדוק את הנתונים לפני המשך')
+                .title('אזהרה')
                 .timeout(8000)
                 .open(),
             'הודעת אזהרה'
@@ -87,7 +92,9 @@ export class SnackbarDemo {
 
     showDanger(): void {
         this.observe(
-            this.snackbar.danger('שמירת הנתונים נכשלה').open(),
+            this.snackbar.danger('שמירת הנתונים נכשלה')
+                .title('שגיאה')
+                .open(),
             'הודעת סכנה'
         );
     }
@@ -168,6 +175,45 @@ export class SnackbarDemo {
             .open();
 
         this.observeProgress(ref, 'העלאת קבצים');
+    }
+
+    showStyleSoft(): void {
+        for (const [sev, title, msg] of [
+            ['info',    'Policy under review', 'We\'re processing your policy update.'],
+            ['success', 'Payment received',    'Your payment of $148.20 was processed.'],
+            ['warning', 'Renewal due soon',    'Your home policy expires in 7 days.'],
+            ['danger',  'Payment failed',      'Please update your billing details.']
+        ] as const) {
+            (this.snackbar[sev] as (m: string) => ReturnType<typeof this.snackbar.info>)(msg)
+                .title(title).style('soft').timeout(6000).open();
+        }
+        this.lastEvent.set('soft — כל ארבע ההופעות');
+    }
+
+    showStyleAccent(): void {
+        for (const [sev, title, msg] of [
+            ['info',    'Policy under review', 'We\'re processing your policy update.'],
+            ['success', 'Payment received',    'Your payment of $148.20 was processed.'],
+            ['warning', 'Renewal due soon',    'Your home policy expires in 7 days.'],
+            ['danger',  'Payment failed',      'Please update your billing details.']
+        ] as const) {
+            (this.snackbar[sev] as (m: string) => ReturnType<typeof this.snackbar.info>)(msg)
+                .title(title).style('accent').timeout(6000).open();
+        }
+        this.lastEvent.set('accent — כל ארבע ההופעות');
+    }
+
+    showStyleDark(): void {
+        for (const [sev, title, msg] of [
+            ['info',    'Policy under review', 'We\'re processing your policy update.'],
+            ['success', 'Payment received',    'Your payment of $148.20 was processed.'],
+            ['warning', 'Renewal due soon',    'Your home policy expires in 7 days.'],
+            ['danger',  'Payment failed',      'Please update your billing details.']
+        ] as const) {
+            (this.snackbar[sev] as (m: string) => ReturnType<typeof this.snackbar.info>)(msg)
+                .title(title).style('dark').timeout(6000).open();
+        }
+        this.lastEvent.set('dark — כל ארבע ההופעות');
     }
 
     showKeyIgnore(): void {

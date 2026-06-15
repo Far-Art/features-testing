@@ -9,6 +9,7 @@ export type ImsSnackbarSeverity = 'info' | 'success' | 'warning' | 'danger';
 export type ImsSnackbarContent = string | Type<unknown>;
 export type ImsSnackbarReplaceStrategy = 'replace' | 'stack';
 export type ImsSnackbarKeyStrategy = 'ignore' | 'replace' | 'update';
+export type ImsSnackbarVisualStyle = 'soft' | 'accent' | 'dark';
 export type ImsSnackbarProgressState = 'loading' | 'success' | 'error';
 export type ImsSnackbarProgressSource = Observable<unknown> | PromiseLike<unknown>;
 
@@ -38,6 +39,7 @@ export interface ImsSnackbarGlobalConfig {
     readonly horizontalPosition: ImsSnackbarHorizontalPosition;
     readonly progressCloseDelay: number;
     readonly progressSettleDuration: number;
+    readonly visualStyle: ImsSnackbarVisualStyle;
 }
 
 export interface ImsSnackbarConfig<D = unknown> {
@@ -47,6 +49,7 @@ export interface ImsSnackbarConfig<D = unknown> {
     readonly severity: ImsSnackbarSeverity;
     readonly dismissible: boolean;
     readonly replaceStrategy: ImsSnackbarReplaceStrategy;
+    readonly visualStyle: ImsSnackbarVisualStyle;
     readonly direction?: ImsSnackbarDirection;
     readonly panelClass?: string | readonly string[];
     readonly politeness: ImsSnackbarPoliteness;
@@ -64,7 +67,8 @@ export const IMS_SNACKBAR_DEFAULT_GLOBAL_CONFIG: ImsSnackbarGlobalConfig = {
     verticalPosition: 'bottom',
     horizontalPosition: 'center',
     progressCloseDelay: 5000,
-    progressSettleDuration: 2000
+    progressSettleDuration: 2000,
+    visualStyle: 'soft'
 };
 
 export const IMS_SNACKBAR_GLOBAL_CONFIG = new InjectionToken<ImsSnackbarGlobalConfig>(

@@ -44,6 +44,24 @@
 
 <section class="snackbar-demo">
     <div class="snackbar-demo__description">
+        <h2>סגנונות ויזואליים</h2>
+        <p>
+            שלושה סגנונות זמינים: <strong>soft</strong> (tint רקע עם chip אייקון),
+            <strong>accent</strong> (רקע לבן עם פס צבעוני משמאל),
+            <strong>dark</strong> (רקע navy מותג עם פס נאון).
+            כל כפתור פותח את כל ארבע ההופעות.
+        </p>
+    </div>
+
+    <div class="snackbar-demo__actions">
+        <button type="button" (click)="showStyleSoft()">soft</button>
+        <button type="button" (click)="showStyleAccent()">accent</button>
+        <button type="button" (click)="showStyleDark()">dark</button>
+    </div>
+</section>
+
+<section class="snackbar-demo">
+    <div class="snackbar-demo__description">
         <h2>כפילויות לפי מפתח</h2>
         <p>
             מפתח מזהה הודעה קיימת. <strong>ignore</strong> מתעלם מהניסיון השני,
