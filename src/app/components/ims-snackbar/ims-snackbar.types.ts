@@ -37,6 +37,7 @@ export interface ImsSnackbarGlobalConfig {
     readonly replaceStrategy: ImsSnackbarReplaceStrategy;
     readonly verticalPosition: ImsSnackbarVerticalPosition;
     readonly horizontalPosition: ImsSnackbarHorizontalPosition;
+    readonly stackSize: number;
     readonly progressCloseDelay: number;
     readonly progressSettleDuration: number;
     readonly visualStyle: ImsSnackbarVisualStyle;
@@ -66,6 +67,7 @@ export const IMS_SNACKBAR_DEFAULT_GLOBAL_CONFIG: ImsSnackbarGlobalConfig = {
     replaceStrategy: 'stack',
     verticalPosition: 'bottom',
     horizontalPosition: 'center',
+    stackSize: 4,
     progressCloseDelay: 5000,
     progressSettleDuration: 2000,
     visualStyle: 'soft'
@@ -85,11 +87,16 @@ export const IMS_SNACKBAR_CONFIG = new InjectionToken<ImsSnackbarConfig>(
 export function provideImsSnackbarConfig(
     config: Partial<ImsSnackbarGlobalConfig>
 ): Provider {
+    const resolvedConfig = {
+        ...IMS_SNACKBAR_DEFAULT_GLOBAL_CONFIG,
+        ...config
+    };
+    if (!Number.isInteger(resolvedConfig.stackSize) || resolvedConfig.stackSize < 1) {
+        throw new RangeError('Snackbar stack size must be a positive integer.');
+    }
+
     return {
         provide: IMS_SNACKBAR_GLOBAL_CONFIG,
-        useValue: {
-            ...IMS_SNACKBAR_DEFAULT_GLOBAL_CONFIG,
-            ...config
-        }
+        useValue: resolvedConfig
     };
 }

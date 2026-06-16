@@ -5,7 +5,8 @@ import {provideHttpClient, withXhr} from '@angular/common/http';
 import localeHe from '@angular/common/locales/he';
 
 import {routes} from './app.routes';
-import {provideImsDatepickerConfig} from './components/ims-datepicker/ims-datepicker.types';
+import {provideImsDatepickerConfig} from './components/ims-datepicker';
+import {provideImsSnackbarConfig} from './components/ims-snackbar';
 
 registerLocaleData(localeHe);
 
@@ -19,6 +20,9 @@ export const appConfig: ApplicationConfig = {
       locale: 'he',
       zone: 'Asia/Jerusalem',
       firstDayOfWeek: 7
+    }),
+    provideImsSnackbarConfig({
+       visualStyle: 'soft'
     }),
     { provide: LOCALE_ID, useValue: 'he-IL' }
   ]

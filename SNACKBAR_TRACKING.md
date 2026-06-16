@@ -17,10 +17,10 @@ Build a service-driven Angular snackbar with behavior similar to Angular Materia
 - Collapsed stacks keep the newest snackbar nearest the viewport edge and in
   front. Older snackbars remain partially visible with progressively lower
   opacity. Hovering any item expands the stack using measured rendered heights.
-- Each position group normally keeps four snackbars. Opening a fifth dismisses
-  the oldest non-progress item; pending progress items are never evicted
-  automatically, so a group can temporarily exceed four when all items are
-  in progress.
+- Each position group normally keeps `stackSize` snackbars, with a global
+  default of `4`. Opening an item above that cap dismisses the oldest
+  non-progress item; pending progress items are never evicted automatically,
+  so a group can temporarily exceed `stackSize` when all items are in progress.
 - Automatic timeout countdowns pause for the whole stack while it is hovered
   and resume with their remaining time after the pointer leaves.
 - The post-resolve settle window (success/error period before auto-dismissal)
@@ -65,6 +65,8 @@ Build a service-driven Angular snackbar with behavior similar to Angular Materia
   timeout, strategy, or position values.
 - `progressCloseDelay` (default `5000`) and `progressSettleDuration` (default
   `2000`) are configurable globally via `provideImsSnackbarConfig`.
+- `stackSize` defaults to `4` and is configurable globally. It must be a
+  positive integer.
 - Default position is bottom-center through `verticalPosition: 'bottom'` and
   `horizontalPosition: 'center'`.
 - `ImsSnackbarRef` exposes `dismiss()`, `onDismiss()`, `dismissWithAction()`,
@@ -105,7 +107,8 @@ provideImsSnackbarConfig({
     timeout: 6000,
     replaceStrategy: 'replace',
     verticalPosition: 'top',
-    horizontalPosition: 'end'
+    horizontalPosition: 'end',
+    stackSize: 3
 })
 ```
 

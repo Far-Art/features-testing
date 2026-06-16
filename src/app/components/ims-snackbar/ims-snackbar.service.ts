@@ -50,7 +50,6 @@ interface StackControl {
     leaveTimer: ReturnType<typeof setTimeout> | null;
 }
 
-const STACK_MAX_SIZE = 4;
 const STACK_COLLAPSED_OFFSET_PX = 8;
 const STACK_EXPANDED_GAP_PX = 12;
 const STACK_MIN_OPACITY = 0.35;
@@ -650,7 +649,7 @@ export class ImsSnackbarService implements ImsSnackbarBuilderHost {
             (snackbar) => snackbar.groupKey === groupKey
         );
 
-        while (group.length > STACK_MAX_SIZE) {
+        while (group.length > this.globalConfig.stackSize) {
             const oldestDismissibleIndex = group.findIndex(
                 (snackbar) => !snackbar.ref.isProgressPending()
             );
