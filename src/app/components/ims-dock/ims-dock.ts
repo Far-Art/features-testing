@@ -67,6 +67,14 @@ export class ImsDock {
     private readonly row = viewChild.required<ElementRef<HTMLElement>>('row');
     private readonly itemEls = viewChildren(ImsDockItemComponent);
 
+    /**
+     * The row's left edge captured at the instant resting centres were measured (at
+     * rest). Both the resting centres and the live pointer are expressed relative to
+     * this frozen anchor, so they stay in one coordinate frame even as the row grows
+     * and slides while magnifying — otherwise the wave drifts sideways.
+     */
+    private restAnchorLeft = 0;
+
     /** Pointer position along the dock axis, relative to the row's left edge; null when away. */
     private readonly pointer = signal<number | null>(null);
 
@@ -121,16 +129,19 @@ export class ImsDock {
             syncMotion();
             media.addEventListener('change', syncMotion);
 
-            const resizeObserver = new ResizeObserver(() => {
+            // Re-snapshot on viewport changes while idle (the dock recentres). The row
+            // itself is re-measured at each gesture start, so we don't observe its
+            // (animating) size here — that would capture mid-magnification geometry.
+            const onResize = () => {
                 if (this.pointer() === null) {
                     this.measureRestingCenters();
                 }
-            });
-            resizeObserver.observe(this.row().nativeElement);
+            };
+            window.addEventListener('resize', onResize);
 
             this.destroyRef.onDestroy(() => {
                 media.removeEventListener('change', syncMotion);
-                resizeObserver.disconnect();
+                window.removeEventListener('resize', onResize);
                 if (this.trackTimer !== null) {
                     clearTimeout(this.trackTimer);
                 }
@@ -139,6 +150,9 @@ export class ImsDock {
     }
 
     onPointerEnter(event: MouseEvent): void {
+        // Snapshot the rest frame now, while the dock is still at rest, so the pointer
+        // and the resting centres share one coordinate frame for this whole gesture.
+        this.measureRestingCenters();
         // Ramp the wave in smoothly, then switch to instant tracking once it settles.
         this.tracking.set(false);
         this.onPointerMove(event);
@@ -149,8 +163,8 @@ export class ImsDock {
     }
 
     onPointerMove(event: MouseEvent): void {
-        const rowLeft = this.row().nativeElement.getBoundingClientRect().left;
-        this.pointer.set(event.clientX - rowLeft);
+        // Use the frozen rest anchor, not the live row edge — the row slides as it grows.
+        this.pointer.set(event.clientX - this.restAnchorLeft);
     }
 
     onPointerLeave(): void {
@@ -163,6 +177,8 @@ export class ImsDock {
     }
 
     onItemFocus(index: number): void {
+        // Keyboard focus arrives with the dock at rest — snapshot before centring.
+        this.measureRestingCenters();
         const center = this.restingCenters()[index];
         if (center !== undefined) {
             this.pointer.set(center);
@@ -173,12 +189,13 @@ export class ImsDock {
         this.pointer.set(null);
     }
 
-    /** Reads each icon's centre while the dock is at its resting size. */
+    /** Snapshots each icon's centre, and the anchor they're relative to, while at rest. */
     private measureRestingCenters(): void {
-        const rowLeft = this.row().nativeElement.getBoundingClientRect().left;
+        const anchorLeft = this.row().nativeElement.getBoundingClientRect().left;
+        this.restAnchorLeft = anchorLeft;
         const centers = this.itemEls().map((item) => {
             const rect = item.host.nativeElement.getBoundingClientRect();
-            return rect.left - rowLeft + rect.width / 2;
+            return rect.left - anchorLeft + rect.width / 2;
         });
         this.restingCenters.set(centers);
     }
