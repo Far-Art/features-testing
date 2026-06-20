@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "features-testing-dock",
+      "runtimeExecutable": "/Users/far-art/.nvm/versions/node/v26.3.1/bin/node",
+      "runtimeArgs": ["node_modules/@angular/cli/bin/ng.js", "serve", "--port", "4321"],
+      "port": 4321
+    }
+  ]
+}
