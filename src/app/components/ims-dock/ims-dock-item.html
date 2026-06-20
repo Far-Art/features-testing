@@ -5,7 +5,7 @@
         class="ims-dock-item__button"
         [routerLink]="data.routerLink"
         [attr.aria-label]="data.label"
-        (focus)="focused.emit()"
+        (focus)="onFocus($event)"
         (blur)="blurred.emit()"
         (click)="onActivate($event)"
     >
@@ -17,7 +17,7 @@
         class="ims-dock-item__button"
         [attr.aria-label]="data.label"
         [disabled]="data.disabled"
-        (focus)="focused.emit()"
+        (focus)="onFocus($event)"
         (blur)="blurred.emit()"
         (click)="onActivate($event)"
     >

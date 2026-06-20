@@ -41,6 +41,17 @@ export class ImsDockItem {
     /** Emitted when the icon is activated by click or keyboard. */
     readonly activated = output<ImsDockItemData>();
 
+    /**
+     * Centres the magnification wave on this icon only for keyboard focus. A mouse
+     * click also focuses the button, but should not move the wave — `:focus-visible`
+     * is false in that case, so we ignore it and let the pointer keep driving.
+     */
+    onFocus(event: FocusEvent): void {
+        if ((event.target as HTMLElement).matches(':focus-visible')) {
+            this.focused.emit();
+        }
+    }
+
     onActivate(event: Event): void {
         const data = this.item();
         if (data.disabled) {
