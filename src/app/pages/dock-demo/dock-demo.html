@@ -1,0 +1,64 @@
+<header class="page-heading">
+    <h1>סרגל הפעלה בסגנון macOS</h1>
+    <p>ריחוף או מיקוד על סמל מגדיל אותו ואת שכניו בגל חלק. שלוט בעוצמת ההגדלה למטה.</p>
+</header>
+
+<section class="dock-demo__stage">
+    <ims-dock
+        [items]="items"
+        [baseSize]="baseSize()"
+        [maxSize]="maxSize()"
+        [influenceRange]="influenceRange()"
+        (activated)="onActivated($event)"
+    />
+
+    <p class="dock-demo__status" aria-live="polite">
+        @if (lastActivated(); as active) {
+            הופעל: {{ active.label }}
+        } @else {
+            לחצו על סמל כדי להפעיל אותו
+        }
+    </p>
+</section>
+
+<section class="dock-demo__controls">
+    <h2>בקרת הגדלה</h2>
+
+    <label class="dock-demo__control">
+        <span>עוצמת הגדלה מרבית ({{ maxScale().toFixed(2) }}x)</span>
+        <input
+            type="range"
+            min="1"
+            max="3"
+            step="0.05"
+            [value]="maxScale()"
+            (input)="onNumberInput($event.target, maxScale.set)"
+        />
+    </label>
+
+    <label class="dock-demo__control">
+        <span>טווח השפעה ({{ influenceRange() }}px)</span>
+        <input
+            type="range"
+            min="40"
+            max="320"
+            step="5"
+            [value]="influenceRange()"
+            (input)="onNumberInput($event.target, influenceRange.set)"
+        />
+    </label>
+
+    <label class="dock-demo__control">
+        <span>גודל בסיס ({{ baseSize() }}px)</span>
+        <input
+            type="range"
+            min="28"
+            max="80"
+            step="2"
+            [value]="baseSize()"
+            (input)="onNumberInput($event.target, baseSize.set)"
+        />
+    </label>
+
+    <p class="dock-demo__readout">גודל מוגדל מרבי: {{ maxSize() }}px</p>
+</section>

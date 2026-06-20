@@ -1,0 +1,35 @@
+:host {
+    display: flex;
+    justify-content: center;
+}
+
+.ims-dock__row {
+    display: flex;
+    box-sizing: border-box;
+    align-items: flex-end;
+    /*
+     * Confine per-frame layout work during magnification to the dock subtree, so
+     * resizing icons doesn't force the rest of the page to re-evaluate layout.
+     * Only `layout` (not `paint`/`size`) — icons overflow the bar upward and must
+     * not be clipped, and the bar still grows to its intrinsic width.
+     */
+    contain: layout;
+    /* Bar keeps a constant height; magnified icons overflow upward (macOS style). */
+    height: calc(var(--ims-dock-base-size, 48px) + 20px);
+    overflow: visible;
+    gap: var(--ims-dock-gap, 12px);
+    padding: 10px 14px;
+    border-radius: 26px;
+    background: color-mix(in srgb, #fff 62%, transparent);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 18px 48px rgba(32, 51, 84, 0.22);
+    backdrop-filter: blur(18px) saturate(140%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ims-dock__row {
+        backdrop-filter: none;
+    }
+}

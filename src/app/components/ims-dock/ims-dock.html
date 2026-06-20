@@ -1,0 +1,19 @@
+<div
+    #row
+    class="ims-dock__row"
+    role="toolbar"
+    aria-label="סרגל אפליקציות"
+    (mouseenter)="onPointerEnter($event)"
+    (mousemove)="onPointerMove($event)"
+    (mouseleave)="onPointerLeave()"
+>
+    @for (item of items(); track item.id; let i = $index) {
+        <ims-dock-item
+            [item]="item"
+            [size]="sizes()[i] ?? baseSize()"
+            (focused)="onItemFocus(i)"
+            (blurred)="onItemBlur()"
+            (activated)="activated.emit($event)"
+        />
+    }
+</div>

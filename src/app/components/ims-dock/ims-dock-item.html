@@ -1,0 +1,28 @@
+@let data = item();
+
+@if (data.routerLink && !data.disabled) {
+    <a
+        class="ims-dock-item__button"
+        [routerLink]="data.routerLink"
+        [attr.aria-label]="data.label"
+        (focus)="focused.emit()"
+        (blur)="blurred.emit()"
+        (click)="onActivate($event)"
+    >
+        <span class="ims-dock-item__glyph" aria-hidden="true">{{ data.icon }}</span>
+    </a>
+} @else {
+    <button
+        type="button"
+        class="ims-dock-item__button"
+        [attr.aria-label]="data.label"
+        [disabled]="data.disabled"
+        (focus)="focused.emit()"
+        (blur)="blurred.emit()"
+        (click)="onActivate($event)"
+    >
+        <span class="ims-dock-item__glyph" aria-hidden="true">{{ data.icon }}</span>
+    </button>
+}
+
+<span class="ims-dock-item__tooltip" role="tooltip">{{ data.label }}</span>

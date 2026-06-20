@@ -27,6 +27,11 @@ export const routes: Routes = [
             import('./pages/snackbar-demo/snackbar-demo').then((module) => module.SnackbarDemo)
     },
     {
+        path: 'dock',
+        loadComponent: () =>
+            import('./pages/dock-demo/dock-demo').then((module) => module.DockDemo)
+    },
+    {
         path: '',
         pathMatch: 'full',
         redirectTo: 'forms'
