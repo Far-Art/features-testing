@@ -5,7 +5,7 @@
     aria-label="סרגל אפליקציות"
     (mouseenter)="onPointerEnter($event)"
     (mousemove)="onPointerMove($event)"
-    (mouseleave)="onPointerLeave()"
+    (mouseleave)="onPointerLeave($event)"
 >
     @for (item of items(); track item.id; let i = $index) {
         <ims-dock-item

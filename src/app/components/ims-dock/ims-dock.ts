@@ -94,6 +94,15 @@ export class ImsDock {
     /** Timer that flips {@link tracking} on after the enter ramp completes. */
     private trackTimer: ReturnType<typeof setTimeout> | null = null;
 
+    /** Keeps the wave alive when the cursor passes through gaps above the row. */
+    private readonly globalPointerMove = (event: MouseEvent) => this.onGlobalPointerMove(event);
+
+    /** Ends an active pointer gesture when the browser window loses focus. */
+    private readonly globalPointerEnd = () => this.endPointerGesture();
+
+    /** True while global pointer listeners are installed for the active hover gesture. */
+    private trackingPointerGlobally = false;
+
     /**
      * Size transition for icons:
      * - entering / leaving → eased ramp so the wave grows and settles smoothly;
@@ -142,19 +151,23 @@ export class ImsDock {
             this.destroyRef.onDestroy(() => {
                 media.removeEventListener('change', syncMotion);
                 window.removeEventListener('resize', onResize);
-                if (this.trackTimer !== null) {
-                    clearTimeout(this.trackTimer);
-                }
+                this.endPointerGesture();
             });
         });
     }
 
     onPointerEnter(event: MouseEvent): void {
+        if (this.pointer() !== null) {
+            this.startGlobalPointerTracking();
+            this.onPointerMove(event);
+            return;
+        }
         // Snapshot the rest frame now, while the dock is still at rest, so the pointer
         // and the resting centres share one coordinate frame for this whole gesture.
         this.measureRestingCenters();
         // Ramp the wave in smoothly, then switch to instant tracking once it settles.
         this.tracking.set(false);
+        this.startGlobalPointerTracking();
         this.onPointerMove(event);
         if (this.trackTimer !== null) {
             clearTimeout(this.trackTimer);
@@ -167,11 +180,49 @@ export class ImsDock {
         this.pointer.set(event.clientX - this.restAnchorLeft);
     }
 
-    onPointerLeave(): void {
+    onPointerLeave(event: MouseEvent): void {
+        if (this.isPointerInsideDockHoverZone(event)) {
+            return;
+        }
+        this.endPointerGesture();
+    }
+
+    private onGlobalPointerMove(event: MouseEvent): void {
+        if (this.pointer() === null) {
+            this.stopGlobalPointerTracking();
+            return;
+        }
+        if (this.isPointerInsideDockHoverZone(event)) {
+            this.onPointerMove(event);
+            return;
+        }
+        this.endPointerGesture();
+    }
+
+    private startGlobalPointerTracking(): void {
+        if (this.trackingPointerGlobally) {
+            return;
+        }
+        window.addEventListener('mousemove', this.globalPointerMove);
+        window.addEventListener('blur', this.globalPointerEnd);
+        this.trackingPointerGlobally = true;
+    }
+
+    private stopGlobalPointerTracking(): void {
+        if (!this.trackingPointerGlobally) {
+            return;
+        }
+        window.removeEventListener('mousemove', this.globalPointerMove);
+        window.removeEventListener('blur', this.globalPointerEnd);
+        this.trackingPointerGlobally = false;
+    }
+
+    private endPointerGesture(): void {
         if (this.trackTimer !== null) {
             clearTimeout(this.trackTimer);
             this.trackTimer = null;
         }
+        this.stopGlobalPointerTracking();
         this.tracking.set(false);
         this.pointer.set(null);
     }
@@ -186,7 +237,19 @@ export class ImsDock {
     }
 
     onItemBlur(): void {
-        this.pointer.set(null);
+        this.endPointerGesture();
+    }
+
+    private isPointerInsideDockHoverZone(event: MouseEvent): boolean {
+        const rect = this.row().nativeElement.getBoundingClientRect();
+        const iconOverflow = Math.max(0, this.maxSize() - this.baseSize());
+        const horizontalSlack = Math.max(0, this.gap() / 2);
+        return (
+            event.clientX >= rect.left - horizontalSlack &&
+            event.clientX <= rect.right + horizontalSlack &&
+            event.clientY >= rect.top - iconOverflow &&
+            event.clientY <= rect.bottom
+        );
     }
 
     /** Snapshots each icon's centre, and the anchor they're relative to, while at rest. */
