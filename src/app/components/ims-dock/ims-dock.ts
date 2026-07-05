@@ -237,6 +237,9 @@ export class ImsDock {
     }
 
     onItemBlur(): void {
+        if (this.trackingPointerGlobally) {
+            return;
+        }
         this.endPointerGesture();
     }
 
