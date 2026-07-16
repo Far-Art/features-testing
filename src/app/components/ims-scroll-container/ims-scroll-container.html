@@ -3,6 +3,10 @@
         class="ims-scroll-container__haze-layer"
         aria-hidden="true"
         [style.--ims-scroll-container-haze-size.px]="hazeSize()"
+        [style.--ims-scroll-container-inline-start-haze-offset.px]="startHazeOffset()"
+        [style.--ims-scroll-container-inline-end-haze-offset.px]="endHazeOffset()"
+        [style.--ims-scroll-container-block-start-haze-offset.px]="topHazeOffset()"
+        [style.--ims-scroll-container-block-end-haze-offset.px]="bottomHazeOffset()"
         [style.--ims-scroll-container-viewport-width.px]="viewportWidth()"
         [style.--ims-scroll-container-viewport-height.px]="viewportHeight()"
     >

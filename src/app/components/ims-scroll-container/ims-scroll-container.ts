@@ -46,6 +46,18 @@ export class ImsScrollContainer {
     /** Width/height in pixels of the edge haze. */
     readonly hazeSize = input(32, {transform: numberAttribute});
 
+    /** Pixel offset before the start-side haze begins. */
+    readonly startHazeOffset = input(0, {transform: numberAttribute});
+
+    /** Pixel offset before the end-side haze begins. */
+    readonly endHazeOffset = input(0, {transform: numberAttribute});
+
+    /** Pixel offset before the top haze begins. */
+    readonly topHazeOffset = input(0, {transform: numberAttribute});
+
+    /** Pixel offset before the bottom haze begins. */
+    readonly bottomHazeOffset = input(0, {transform: numberAttribute});
+
     /** Hides the visual edge haze and arrows while keeping scroll behavior unchanged. */
     readonly hideHaze = input(false, {transform: booleanAttribute});
 

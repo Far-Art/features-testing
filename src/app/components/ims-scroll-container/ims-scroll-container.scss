@@ -12,6 +12,10 @@
 
     --ims-scroll-container-haze-size: 32px;
     --ims-scroll-container-arrow-color: rgba(32, 51, 84, 0.24);
+    --ims-scroll-container-inline-start-haze-offset: 0px;
+    --ims-scroll-container-inline-end-haze-offset: 0px;
+    --ims-scroll-container-block-start-haze-offset: 0px;
+    --ims-scroll-container-block-end-haze-offset: 0px;
     --ims-scroll-container-viewport-width: 0px;
     --ims-scroll-container-viewport-height: 0px;
 
@@ -45,7 +49,7 @@
     }
 
     .ims-scroll-container__haze--inline-start {
-        inset-inline-start: 0;
+        inset-inline-start: var(--ims-scroll-container-inline-start-haze-offset);
         background: linear-gradient(
             to right,
             var(--ims-scroll-container-haze-color, var(--mat-sys-surface, #fff)),
@@ -59,7 +63,7 @@
     }
 
     .ims-scroll-container__haze--inline-end {
-        inset-inline-end: 0;
+        inset-inline-end: var(--ims-scroll-container-inline-end-haze-offset);
         background: linear-gradient(
             to left,
             var(--ims-scroll-container-haze-color, var(--mat-sys-surface, #fff)),
@@ -86,7 +90,7 @@
     }
 
     .ims-scroll-container__haze--block-start {
-        inset-block-start: 0;
+        inset-block-start: var(--ims-scroll-container-block-start-haze-offset);
         background: linear-gradient(
             to bottom,
             var(--ims-scroll-container-haze-color, var(--mat-sys-surface, #fff)),
@@ -100,7 +104,7 @@
     }
 
     .ims-scroll-container__haze--block-end {
-        inset-block-end: 0;
+        inset-block-end: var(--ims-scroll-container-block-end-haze-offset);
         background: linear-gradient(
             to top,
             var(--ims-scroll-container-haze-color, var(--mat-sys-surface, #fff)),
@@ -148,7 +152,6 @@
 
 .ims-scroll-container__content {
     position: relative;
-    width: max-content;
     min-width: 100%;
 
     .ims-scroll-container__sentinel {
