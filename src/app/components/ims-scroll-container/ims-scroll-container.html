@@ -1,27 +1,29 @@
-<div
-    class="ims-scroll-container__haze-layer"
-    aria-hidden="true"
-    [style.--ims-scroll-container-haze-size.px]="hazeSize()"
-    [style.--ims-scroll-container-viewport-width.px]="viewportWidth()"
-    [style.--ims-scroll-container-viewport-height.px]="viewportHeight()"
->
-    <span
-        class="ims-scroll-container__haze ims-scroll-container__haze--inline-start"
-        [class.ims-scroll-container__haze--visible]="inlineStartOverflow()"
-    ></span>
-    <span
-        class="ims-scroll-container__haze ims-scroll-container__haze--inline-end"
-        [class.ims-scroll-container__haze--visible]="inlineEndOverflow()"
-    ></span>
-    <span
-        class="ims-scroll-container__haze ims-scroll-container__haze--block-start"
-        [class.ims-scroll-container__haze--visible]="blockStartOverflow()"
-    ></span>
-    <span
-        class="ims-scroll-container__haze ims-scroll-container__haze--block-end"
-        [class.ims-scroll-container__haze--visible]="blockEndOverflow()"
-    ></span>
-</div>
+@if (!hideHaze()) {
+    <div
+        class="ims-scroll-container__haze-layer"
+        aria-hidden="true"
+        [style.--ims-scroll-container-haze-size.px]="hazeSize()"
+        [style.--ims-scroll-container-viewport-width.px]="viewportWidth()"
+        [style.--ims-scroll-container-viewport-height.px]="viewportHeight()"
+    >
+        <span
+            class="ims-scroll-container__haze ims-scroll-container__haze--inline-start"
+            [class.ims-scroll-container__haze--visible]="inlineStartOverflow()"
+        ></span>
+        <span
+            class="ims-scroll-container__haze ims-scroll-container__haze--inline-end"
+            [class.ims-scroll-container__haze--visible]="inlineEndOverflow()"
+        ></span>
+        <span
+            class="ims-scroll-container__haze ims-scroll-container__haze--block-start"
+            [class.ims-scroll-container__haze--visible]="blockStartOverflow()"
+        ></span>
+        <span
+            class="ims-scroll-container__haze ims-scroll-container__haze--block-end"
+            [class.ims-scroll-container__haze--visible]="blockEndOverflow()"
+        ></span>
+    </div>
+}
 
 <div class="ims-scroll-container__content">
     <span

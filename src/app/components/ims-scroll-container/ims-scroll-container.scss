@@ -4,6 +4,7 @@
     inset-block-start: 0;
     inset-inline-start: 0;
     --ims-scroll-container-haze-size: 32px;
+    --ims-scroll-container-arrow-color: rgba(32, 51, 84, 0.24);
     --ims-scroll-container-viewport-width: 0px;
     --ims-scroll-container-viewport-height: 0px;
     width: var(--ims-scroll-container-viewport-width);
@@ -85,6 +86,56 @@
 
 .ims-scroll-container__haze--visible {
     opacity: 1;
+}
+
+.ims-scroll-container__haze::after {
+    position: absolute;
+    content: '';
+    background: var(--ims-scroll-container-arrow-color);
+}
+
+.ims-scroll-container__haze--inline-start::after,
+.ims-scroll-container__haze--inline-end::after {
+    top: 50%;
+    width: 6px;
+    height: 18px;
+    transform: translateY(-50%);
+}
+
+.ims-scroll-container__haze--inline-start::after {
+    inset-inline-start: 8px;
+    clip-path: polygon(100% 0, 0 50%, 100% 100%);
+}
+
+.ims-scroll-container__haze--inline-end::after {
+    inset-inline-end: 8px;
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+:host-context([dir='rtl']) .ims-scroll-container__haze--inline-start::after {
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+:host-context([dir='rtl']) .ims-scroll-container__haze--inline-end::after {
+    clip-path: polygon(100% 0, 0 50%, 100% 100%);
+}
+
+.ims-scroll-container__haze--block-start::after,
+.ims-scroll-container__haze--block-end::after {
+    left: 50%;
+    width: 18px;
+    height: 6px;
+    transform: translateX(-50%);
+}
+
+.ims-scroll-container__haze--block-start::after {
+    top: 8px;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.ims-scroll-container__haze--block-end::after {
+    bottom: 8px;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
 }
 
 .ims-scroll-container__content {

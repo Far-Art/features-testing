@@ -46,6 +46,9 @@ export class ImsScrollContainer {
     /** Width/height in pixels of the edge haze. */
     readonly hazeSize = input(32, {transform: numberAttribute});
 
+    /** Hides the visual edge haze and arrows while keeping scroll behavior unchanged. */
+    readonly hideHaze = input(false, {transform: booleanAttribute});
+
     /** Accessible label for the scrollable region. */
     readonly ariaLabel = input<string | null>(null);
 
