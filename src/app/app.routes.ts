@@ -17,6 +17,13 @@ export const routes: Routes = [
             import('./pages/buttons-demo/buttons-demo').then((module) => module.ButtonsDemo)
     },
     {
+        path: 'scroll-container',
+        loadComponent: () =>
+            import('./pages/scroll-container-demo/scroll-container-demo').then(
+                (module) => module.ScrollContainerDemo
+            )
+    },
+    {
         path: 'datepicker',
         loadComponent: () =>
             import('./pages/datepicker-demo/datepicker-demo').then((module) => module.DatepickerDemo)

@@ -1,0 +1,108 @@
+<header class="page-heading">
+    <h1>מיכל גלילה</h1>
+    <p>דוגמאות ייעודיות לתוכן רחב, תוכן גבוה ותוכן שגולל בשני הכיוונים.</p>
+</header>
+
+<section class="scroll-demo">
+    <div class="scroll-demo__intro">
+        <h2>גלילה אופקית</h2>
+        <p>כרטיסים רחבים בתוך אזור צר. ההילה מופיעה בצדדים שבהם יש עוד תוכן.</p>
+    </div>
+
+    <ims-scroll-container
+        class="scroll-demo__horizontal-scroll"
+        axis="x"
+        overflow="auto"
+        ariaLabel="כרטיסים נגללים אופקית"
+    >
+        <div class="scroll-demo__horizontal-strip">
+            @for (item of horizontalItems; track item) {
+                <article class="scroll-demo__card">
+                    <span class="scroll-demo__card-index">{{ $index + 1 }}</span>
+                    <h3>{{ item }}</h3>
+                    <p>תוכן לדוגמה שמדגים גלילה אופקית בתוך wrapper.</p>
+                </article>
+            }
+        </div>
+    </ims-scroll-container>
+</section>
+
+<section class="scroll-demo scroll-demo--split">
+    <div class="scroll-demo__intro">
+        <h2>גלילה אנכית</h2>
+        <p>רשימה גבוהה עם גובה קבוע. ההילה מופיעה למעלה או למטה לפי מיקום הגלילה.</p>
+    </div>
+
+    <ims-scroll-container
+        class="scroll-demo__vertical-scroll"
+        overflow="auto"
+        ariaLabel="רשימת משימות נגללת אנכית"
+    >
+        <div class="scroll-demo__task-list">
+            @for (item of verticalItems; track item.title) {
+                <article class="scroll-demo__task">
+                    <h3>{{ item.title }}</h3>
+                    <p>{{ item.description }}</p>
+                </article>
+            }
+        </div>
+    </ims-scroll-container>
+</section>
+
+<section class="scroll-demo">
+    <div class="scroll-demo__intro">
+        <h2>גלילה בשני הכיוונים</h2>
+        <p>טבלה רחבה וגבוהה בתוך viewport מוגבל.</p>
+    </div>
+
+    <ims-scroll-container
+        class="scroll-demo__matrix-scroll"
+        axis="both"
+        overflow="auto"
+        ariaLabel="טבלת פרויקטים נגללת"
+    >
+        <table class="scroll-demo__matrix">
+            <thead>
+                <tr>
+                    @for (column of columns; track column) {
+                        <th scope="col">{{ column }}</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @for (row of rows; track row.name) {
+                    <tr>
+                        <td>{{ row.name }}</td>
+                        <td>{{ row.status }}</td>
+                        <td>{{ row.owner }}</td>
+                        <td>{{ row.priority }}</td>
+                        <td>{{ row.dueDate }}</td>
+                        <td>{{ row.region }}</td>
+                        <td>{{ row.budget }}</td>
+                        <td>{{ row.notes }}</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </ims-scroll-container>
+</section>
+
+<section class="scroll-demo">
+    <div class="scroll-demo__intro">
+        <h2>ללא גלילה</h2>
+        <p>אותו wrapper יכול גם לנעול גלילה כשצריך להסתיר תוכן שחורג מהמסגרת.</p>
+    </div>
+
+    <ims-scroll-container
+        class="scroll-demo__none-scroll"
+        axis="none"
+        overflow="auto"
+        ariaLabel="אזור ללא גלילה"
+    >
+        <div class="scroll-demo__wide-banner">
+            <span>תוכן רחב שממשיך מעבר למסגרת</span>
+            <span>אין פס גלילה ואין הילה</span>
+            <span>axis=&quot;none&quot;</span>
+        </div>
+    </ims-scroll-container>
+</section>

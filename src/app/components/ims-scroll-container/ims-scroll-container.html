@@ -1,0 +1,49 @@
+<div
+    class="ims-scroll-container__haze-layer"
+    aria-hidden="true"
+    [style.--ims-scroll-container-haze-size.px]="hazeSize()"
+    [style.--ims-scroll-container-viewport-width.px]="viewportWidth()"
+    [style.--ims-scroll-container-viewport-height.px]="viewportHeight()"
+>
+    <span
+        class="ims-scroll-container__haze ims-scroll-container__haze--inline-start"
+        [class.ims-scroll-container__haze--visible]="inlineStartOverflow()"
+    ></span>
+    <span
+        class="ims-scroll-container__haze ims-scroll-container__haze--inline-end"
+        [class.ims-scroll-container__haze--visible]="inlineEndOverflow()"
+    ></span>
+    <span
+        class="ims-scroll-container__haze ims-scroll-container__haze--block-start"
+        [class.ims-scroll-container__haze--visible]="blockStartOverflow()"
+    ></span>
+    <span
+        class="ims-scroll-container__haze ims-scroll-container__haze--block-end"
+        [class.ims-scroll-container__haze--visible]="blockEndOverflow()"
+    ></span>
+</div>
+
+<div class="ims-scroll-container__content">
+    <span
+        #inlineStartSentinel
+        class="ims-scroll-container__sentinel ims-scroll-container__sentinel--inline-start"
+        aria-hidden="true"
+    ></span>
+    <span
+        #inlineEndSentinel
+        class="ims-scroll-container__sentinel ims-scroll-container__sentinel--inline-end"
+        aria-hidden="true"
+    ></span>
+    <span
+        #blockStartSentinel
+        class="ims-scroll-container__sentinel ims-scroll-container__sentinel--block-start"
+        aria-hidden="true"
+    ></span>
+    <span
+        #blockEndSentinel
+        class="ims-scroll-container__sentinel ims-scroll-container__sentinel--block-end"
+        aria-hidden="true"
+    ></span>
+
+    <ng-content />
+</div>

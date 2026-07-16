@@ -1,0 +1,204 @@
+.page-heading {
+    margin-block-end: 1.5rem;
+}
+
+.page-heading h1,
+.page-heading p {
+    margin: 0;
+}
+
+.page-heading p {
+    margin-block-start: 0.5rem;
+    color: #52627d;
+}
+
+.scroll-demo {
+    display: grid;
+    gap: 18px;
+    margin-block-end: 28px;
+    padding: 24px;
+    border: 1px solid #dce4ef;
+    border-radius: 20px;
+    background: #f8fbff;
+    box-shadow: 0 16px 36px rgba(32, 51, 84, 0.08);
+}
+
+.scroll-demo--split {
+    grid-template-columns: minmax(14rem, 0.8fr) minmax(18rem, 1.2fr);
+    align-items: start;
+}
+
+.scroll-demo__intro {
+    display: grid;
+    gap: 6px;
+}
+
+.scroll-demo__intro h2,
+.scroll-demo__intro p {
+    margin: 0;
+}
+
+.scroll-demo__intro h2 {
+    color: #203354;
+    font-size: 1.2rem;
+}
+
+.scroll-demo__intro p {
+    max-width: 44rem;
+    color: #52627d;
+}
+
+.scroll-demo__horizontal-scroll,
+.scroll-demo__vertical-scroll,
+.scroll-demo__matrix-scroll {
+    --ims-scroll-container-haze-color: #f8fbff;
+    --ims-scroll-container-haze-size: 42px;
+}
+
+.scroll-demo__horizontal-scroll {
+    width: min(100%, 42rem);
+}
+
+.scroll-demo__horizontal-strip {
+    display: flex;
+    gap: 14px;
+    padding-block: 4px 12px;
+}
+
+.scroll-demo__card {
+    box-sizing: border-box;
+    flex: 0 0 14rem;
+    min-height: 8.25rem;
+    padding: 18px;
+    border: 1px solid #c9d7e8;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(32, 51, 84, 0.08);
+}
+
+.scroll-demo__card-index {
+    display: inline-grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: #e6f2ff;
+    color: #1769aa;
+    font-weight: 800;
+}
+
+.scroll-demo__card h3,
+.scroll-demo__card p {
+    margin: 0;
+}
+
+.scroll-demo__card h3 {
+    margin-block-start: 14px;
+    color: #203354;
+}
+
+.scroll-demo__card p {
+    margin-block-start: 8px;
+    color: #52627d;
+    line-height: 1.45;
+}
+
+.scroll-demo__vertical-scroll {
+    max-height: 22rem;
+}
+
+.scroll-demo__task-list {
+    display: grid;
+    gap: 10px;
+    padding: 12px;
+}
+
+.scroll-demo__task {
+    padding: 14px 16px;
+    border: 1px solid #e1e8f2;
+    border-radius: 8px;
+    background: #fbfdff;
+}
+
+.scroll-demo__task h3,
+.scroll-demo__task p {
+    margin: 0;
+}
+
+.scroll-demo__task h3 {
+    color: #203354;
+    font-size: 1rem;
+}
+
+.scroll-demo__task p {
+    margin-block-start: 4px;
+    color: #52627d;
+}
+
+.scroll-demo__matrix-scroll,
+.scroll-demo__none-scroll {
+    max-height: 22rem;
+}
+
+.scroll-demo__matrix {
+    width: 64rem;
+    border-collapse: collapse;
+    color: #203354;
+    background: #fff;
+}
+
+.scroll-demo__matrix th,
+.scroll-demo__matrix td {
+    min-width: 8rem;
+    padding: 12px 14px;
+    border-block-end: 1px solid #e1e8f2;
+    text-align: start;
+    white-space: nowrap;
+}
+
+.scroll-demo__matrix th {
+    position: sticky;
+    z-index: 2;
+    top: 0;
+    background: #edf6ff;
+    color: #174f8a;
+    font-weight: 800;
+}
+
+.scroll-demo__matrix tr:hover td {
+    background: #f8fbff;
+}
+
+.scroll-demo__none-scroll {
+    width: min(100%, 34rem);
+}
+
+.scroll-demo__wide-banner {
+    display: flex;
+    width: 56rem;
+    min-height: 5rem;
+    align-items: center;
+    gap: 18px;
+    padding: 18px;
+    background: linear-gradient(135deg, #e6f2ff, #f8fbff);
+    color: #203354;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.scroll-demo__wide-banner span {
+    padding: 10px 14px;
+    border: 1px solid #c9d7e8;
+    border-radius: 8px;
+    background: #fff;
+}
+
+@media (max-width: 760px) {
+    .scroll-demo {
+        padding: 18px;
+    }
+
+    .scroll-demo--split {
+        grid-template-columns: 1fr;
+    }
+}
