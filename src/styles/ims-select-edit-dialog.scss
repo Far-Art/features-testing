@@ -1,0 +1,238 @@
+.ims-select-edit-dialog {
+    --ims-p: var(--mat-sys-primary, #2563eb);
+    --ims-s: var(--mat-sys-surface-container-lowest, #fff);
+
+    display: block;
+    box-sizing: border-box;
+    width: min(560px, 92vw);
+    max-width: 92vw;
+    max-height: 85vh;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    background: var(--ims-s);
+    color: var(--mat-sys-on-surface, #1f2937);
+}
+
+.ims-select-edit-dialog__title {
+    margin: 0 0 0.75rem;
+    font-size: 1.05rem;
+    font-weight: 650;
+}
+
+.ims-select-edit-dialog__filter {
+    display: grid;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.ims-select-edit-dialog__filter-label {
+    color: color-mix(in oklch, currentColor 55%, transparent);
+    font-size: 0.8rem;
+}
+
+.ims-select-edit-dialog__filter input {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 2.1rem;
+    padding: 0.35rem 0.55rem;
+    border: 1px solid color-mix(in oklch, currentColor 20%, transparent);
+    border-radius: 0.375rem;
+    background: var(--ims-s);
+    color: inherit;
+    font: inherit;
+}
+
+.ims-select-edit-dialog__filter input:focus-visible {
+    outline: none;
+    border-color: var(--ims-p);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--ims-p) 22%, transparent);
+}
+
+.ims-select-edit-dialog__columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.ims-select-edit-dialog__column {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border: 1px solid color-mix(in oklch, currentColor 14%, transparent);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.ims-select-edit-dialog__column-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 0.65rem;
+    border-bottom: 1px solid color-mix(in oklch, currentColor 10%, transparent);
+    background: color-mix(in oklch, currentColor 4%, transparent);
+    font-size: 0.85rem;
+    font-weight: 650;
+}
+
+.ims-select-edit-dialog__column-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ims-select-edit-dialog__header-action {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: color-mix(in oklch, var(--ims-p) 82%, black);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.ims-select-edit-dialog__header-action:hover {
+    text-decoration: underline;
+}
+
+.ims-select-edit-dialog__header-action:disabled {
+    color: color-mix(in oklch, currentColor 45%, transparent);
+    cursor: not-allowed;
+    text-decoration: none;
+}
+
+.ims-select-edit-dialog__count {
+    min-width: 1.5rem;
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    background: color-mix(in oklch, var(--ims-p) 12%, transparent);
+    color: color-mix(in oklch, var(--ims-p) 82%, black);
+    font-size: 0.75rem;
+    text-align: center;
+}
+
+.ims-select-edit-dialog__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    height: 18rem;
+    padding: 0.35rem;
+    overflow-y: auto;
+}
+
+.ims-select-edit-dialog__row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.4rem;
+    border-radius: 0.375rem;
+    background: var(--ims-s);
+    transition: background-color 100ms ease;
+}
+
+.ims-select-edit-dialog__row:hover {
+    background: color-mix(in oklch, currentColor 6%, transparent);
+}
+
+.ims-select-edit-dialog__handle {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: color-mix(in oklch, currentColor 45%, transparent);
+    cursor: grab;
+}
+
+.ims-select-edit-dialog__handle:active {
+    cursor: grabbing;
+}
+
+.ims-select-edit-dialog__handle svg {
+    width: 1rem;
+    height: 1rem;
+    fill: currentColor;
+}
+
+.ims-select-edit-dialog__checkbox {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 1.1rem;
+    height: 1.1rem;
+    cursor: pointer;
+}
+
+.ims-select-edit-dialog__checkbox input {
+    width: 1rem;
+    height: 1rem;
+    margin: 0;
+    accent-color: var(--ims-p);
+}
+
+.ims-select-edit-dialog__label {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.ims-select-edit-dialog__empty {
+    margin: 0;
+    padding: 0.75rem 0.4rem;
+    color: color-mix(in oklch, currentColor 55%, transparent);
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+.ims-select-edit-dialog__row.cdk-drag-preview {
+    box-sizing: border-box;
+    border: 1px solid color-mix(in oklch, currentColor 14%, transparent);
+    border-radius: 0.375rem;
+    box-shadow: 0 8px 24px rgb(15 23 42 / 20%);
+}
+
+.ims-select-edit-dialog__row.cdk-drag-placeholder {
+    opacity: 0.35;
+}
+
+.ims-select-edit-dialog__list.cdk-drop-list-dragging .ims-select-edit-dialog__row:not(.cdk-drag-placeholder) {
+    transition: transform 150ms ease;
+}
+
+.ims-select-edit-dialog__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.ims-select-edit-dialog__button {
+    padding: 0.45rem 0.9rem;
+    border: 1px solid color-mix(in oklch, currentColor 20%, transparent);
+    border-radius: 0.5rem;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.ims-select-edit-dialog__button:hover {
+    background: color-mix(in oklch, currentColor 6%, transparent);
+}
+
+.ims-select-edit-dialog__button--primary {
+    border-color: var(--ims-p);
+    background: var(--ims-p);
+    color: white;
+}
+
+.ims-select-edit-dialog__button--primary:hover {
+    background: color-mix(in oklch, var(--ims-p) 88%, black);
+}
+
+@media (max-width: 480px) {
+    .ims-select-edit-dialog__columns {
+        grid-template-columns: 1fr;
+    }
+}

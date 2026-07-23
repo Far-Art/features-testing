@@ -23,10 +23,17 @@ import {
     viewChild
 } from '@angular/core';
 import {Directionality} from '@angular/cdk/bidi';
+import {Dialog} from '@angular/cdk/dialog';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
 import {runViewTransition} from '../../shared/view-transition';
 import {ImsOption} from './ims-option';
+import {
+    ImsSelectEditDialog,
+    ImsSelectEditDialogData,
+    ImsSelectEditDialogResult,
+    ImsSelectEditRow
+} from './ims-select-edit-dialog';
 import {
     IMS_SELECT_PARENT,
     ImsSelectCompareWith,
@@ -125,6 +132,7 @@ export class ImsSelect<T = unknown>
     private typeaheadResetTimer: ReturnType<typeof setTimeout> | null = null;
     readonly directionality = inject(Directionality);
     private readonly changeDetectorRef = inject(ChangeDetectorRef);
+    private readonly dialog = inject(Dialog);
 
     private readonly triggerButton = viewChild<ElementRef<HTMLButtonElement>>('triggerButton');
     private readonly filterField = viewChild<ElementRef<HTMLElement>>('filterField');
@@ -267,23 +275,10 @@ export class ImsSelect<T = unknown>
     readonly activeOption = computed(() => this.visibleOptions()[this.activeIndex()] ?? null);
     readonly activeOptionId = computed(() => this.activeOption()?.id ?? null);
 
-    readonly selectableVisibleOptions = computed(() =>
-        this.visibleOptions().filter((option) => !option.disabled())
+    /** Non-disabled options matching the current filter, regardless of view mode. Feeds the edit dialog. */
+    readonly editableOptions = computed(() =>
+        this.textFilteredOptions().filter((option) => !option.disabled())
     );
-
-    readonly visibleSelectedCount = computed(() =>
-        this.selectableVisibleOptions().filter((option) => this.isOptionSelected(option)).length
-    );
-
-    readonly bulkChecked = computed(() => {
-        const selectableCount = this.selectableVisibleOptions().length;
-        return selectableCount > 0 && this.visibleSelectedCount() === selectableCount;
-    });
-
-    readonly bulkMixed = computed(() => {
-        const selectedCount = this.visibleSelectedCount();
-        return selectedCount > 0 && selectedCount < this.selectableVisibleOptions().length;
-    });
 
     constructor() {
         super();
@@ -423,11 +418,44 @@ export class ImsSelect<T = unknown>
         this.activeIndex.set(-1);
     }
 
-    onBulkCheckboxChange(event: Event): void {
-        const target = event.target;
-        if (!(target instanceof HTMLInputElement)) return;
+    openEditDialog(): void {
+        if (this.disabled()) return;
 
-        this.setVisibleOptionsSelected(target.checked);
+        const checked: ImsSelectEditRow<T>[] = [];
+        const unchecked: ImsSelectEditRow<T>[] = [];
+
+        for (const option of this.editableOptions()) {
+            const optionValue = this.readOptionValue(option);
+            if (!optionValue.available) continue;
+
+            const row: ImsSelectEditRow<T> = {
+                id: option.id,
+                label: option.selectionLabel(),
+                value: optionValue.value
+            };
+
+            (this.isOptionSelected(option) ? checked : unchecked).push(row);
+        }
+
+        if (checked.length === 0 && unchecked.length === 0) return;
+
+        this.close(false);
+
+        const dialogRef = this.dialog.open<
+            ImsSelectEditDialogResult<T>,
+            ImsSelectEditDialogData<T>,
+            ImsSelectEditDialog<T>
+        >(ImsSelectEditDialog, {
+            direction: this.directionality.value,
+            minWidth: 'min(560px, 92vw)',
+            maxWidth: '92vw',
+            data: {checked, unchecked}
+        });
+
+        dialogRef.closed.subscribe((result) => {
+            if (result === undefined) return;
+            this.applyEditDialogResult([...checked, ...unchecked], result);
+        });
     }
 
     setViewMode(mode: ImsSelectViewMode): void {
@@ -792,32 +820,16 @@ export class ImsSelect<T = unknown>
         this.emitValue(nextValue);
     }
 
-    private setVisibleOptionsSelected(selected: boolean): void {
-        if (this.disabled() || !this.multiple()) return;
-
-        const visibleValues = this.selectableVisibleOptions()
-            .map((option) => this.readOptionValue(option))
-            .filter((optionValue): optionValue is {readonly available: true; readonly value: T} =>
-                optionValue.available
-            )
-            .map((optionValue) => optionValue.value);
+    private applyEditDialogResult(
+        rows: readonly ImsSelectEditRow<T>[],
+        checkedValues: ImsSelectEditDialogResult<T>
+    ): void {
         const selectedValues = this.selectedValues();
-        const nextValue = selected
-            ? [
-                ...selectedValues,
-                ...visibleValues.filter(
-                    (visibleValue) =>
-                        !selectedValues.some((selectedValue) =>
-                            this.valuesEqual(selectedValue, visibleValue)
-                        )
-                )
-            ]
-            : selectedValues.filter(
-                (selectedValue) =>
-                    !visibleValues.some((visibleValue) => this.valuesEqual(selectedValue, visibleValue))
-            );
+        const retainedValues = selectedValues.filter(
+            (selectedValue) => !rows.some((row) => this.valuesEqual(selectedValue, row.value))
+        );
 
-        this.emitValue(nextValue);
+        this.emitValue([...retainedValues, ...checkedValues]);
     }
 
     private emitValue(value: ImsSelectFormValue<T>): void {
