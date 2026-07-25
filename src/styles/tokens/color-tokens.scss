@@ -1,25 +1,49 @@
 :root {
     --ims-color-primary: #00005F; // brand color
 
-    --ims-color-primary-50: #ECECF6;
-    --ims-color-primary-100: #D7D7E8;
-    --ims-color-primary-150: #C1C1DB;
-    --ims-color-primary-200: #ACACCD;
-    --ims-color-primary-250: #9696BF;
-    --ims-color-primary-300: #8181B1;
-    --ims-color-primary-350: #6B6BA4;
-    --ims-color-primary-400: #565696;
-    --ims-color-primary-450: #404088;
-    --ims-color-primary-500: #2B2B7B;
-    --ims-color-primary-550: #15156D;
+    --ims-color-primary-50: #EAEAF2;
+    --ims-color-primary-100: #D5D5E4;
+    --ims-color-primary-150: #BFBFD7;
+    --ims-color-primary-200: #AAAACA;
+    --ims-color-primary-250: #9595BC;
+    --ims-color-primary-300: #8080AF;
+    --ims-color-primary-350: #6A6AA2;
+    --ims-color-primary-400: #555594;
+    --ims-color-primary-450: #404087;
+    --ims-color-primary-500: #2A2A7A;
+    --ims-color-primary-550: #15156C;
     --ims-color-primary-600: #00005F;
     --ims-color-primary-650: #000054;
-    --ims-color-primary-700: #000048;
+    --ims-color-primary-700: #000049;
     --ims-color-primary-750: #00003E;
-    --ims-color-primary-800: #000034;
-    --ims-color-primary-850: #00002A;
-    --ims-color-primary-900: #00001E;
+    --ims-color-primary-800: #000033;
+    --ims-color-primary-850: #000028;
+    --ims-color-primary-900: #00001D;
     --ims-color-primary-950: #000012;
+}
+
+:root {
+    --ims-color-secondary: #004E69;
+
+    --ims-color-secondary-50: #EAF0F3;
+    --ims-color-secondary-100: #D5E2E6;
+    --ims-color-secondary-150: #BFD3DA;
+    --ims-color-secondary-200: #AAC4CD;
+    --ims-color-secondary-250: #95B5C0;
+    --ims-color-secondary-300: #80A7B4;
+    --ims-color-secondary-350: #6A98A8;
+    --ims-color-secondary-400: #55899B;
+    --ims-color-secondary-450: #407A8F;
+    --ims-color-secondary-500: #2A6C82;
+    --ims-color-secondary-550: #155D76;
+    --ims-color-secondary-600: #004E69;
+    --ims-color-secondary-650: #00455D;
+    --ims-color-secondary-700: #003C51;
+    --ims-color-secondary-750: #003344;
+    --ims-color-secondary-800: #002A38;
+    --ims-color-secondary-850: #00212C;
+    --ims-color-secondary-900: #001820;
+    --ims-color-secondary-950: #000F14;
 }
 
 :root {
@@ -97,6 +121,7 @@
 :root {
     --ims-color-neutral: #5A5A68;
 
+    --ims-color-neutral-0: #FFFFFF;
     --ims-color-neutral-50: #F1F1F2;
     --ims-color-neutral-100: #E4E4E6;
     --ims-color-neutral-150: #D6D6D9;
