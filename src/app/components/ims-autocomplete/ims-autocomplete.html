@@ -107,20 +107,18 @@
     >
         @if (showToolbar()) {
             <aside #toolbarPanel class="ims-autocomplete__toolbar" aria-label="סרגל בחירה">
-                <label
-                    class="ims-autocomplete__bulk"
-                    imsLongPress
-                    imsLongPressVisual="circle"
+                <button
+                    type="button"
+                    class="ims-autocomplete__edit"
+                    aria-label="ערוך בחירה"
+                    [disabled]="disabled() || editableOptions().length === 0"
+                    (click)="openEditDialog()"
                 >
-                    <input
-                        type="checkbox"
-                        aria-label="בחר את כל האפשרויות המוצגות"
-                        [checked]="bulkChecked()"
-                        [indeterminate]="bulkMixed()"
-                        [disabled]="disabled() || selectableVisibleOptions().length === 0"
-                        (change)="onBulkCheckboxChange($event)"
-                    />
-                </label>
+                    <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                        <path d="M12.5 4.5 15.5 7.5 7 16H4v-3z" />
+                        <path d="M11 6 14 9" />
+                    </svg>
+                </button>
 
                 <div class="ims-autocomplete__segments" role="group" aria-label="אפשרויות מוצגות">
                     <button

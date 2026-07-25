@@ -14,6 +14,7 @@
             <span>בחירה מרובה ריאקטיבית</span>
             <ims-select
                 multiple
+                sortable
                 filter="auto"
                 toolbar="auto"
                 placeholder="בחר תיקים"
@@ -21,8 +22,8 @@
                 [formControl]="selectedBagsControl"
                 [compareWith]="compareBagById"
             >
-                @for (bag of bagOptions; track bag.id) {
-                    <ims-option [value]="bag" [selectionText]="bag.label">
+                @for (bag of bagOptions(); track bag.id) {
+                    <ims-option [value]="bag" [selectionText]="bag.label" [disabled]="!!bag.disabled">
                         {{ bag.label }} (+{{ bag.count }})
                     </ims-option>
                 }
@@ -32,13 +33,14 @@
         <label class="select-demo__field">
             <span>בחירה יחידה עם ngModel</span>
             <ims-select
+                sortable
                 filter="auto"
                 placeholder="בחר תיק"
                 ariaLabel="בחירה יחידה עם ngModel"
                 [(ngModel)]="selectedBagModel"
                 [compareWith]="compareBagById"
             >
-                @for (bag of bagOptions; track bag.id) {
+                @for (bag of bagOptions(); track bag.id) {
                     <ims-option [value]="bag" [selectionText]="bag.label">
                         {{ bag.label }} (+{{ bag.count }})
                     </ims-option>
@@ -122,4 +124,38 @@
             />
         </label>
     </div>
+</section>
+
+<section class="select-demo">
+    <div>
+        <h2>העברה בין שתי רשימות עצמאיות</h2>
+        <p>
+            שתי רשימות עצמאיות (לא רכיבי בחירה) שמעבירות פריטים ביניהן דרך אותו
+            דיאלוג העברה הכללי — לא צד "נבחר" וצד "לא נבחר" של בקרה אחת.
+        </p>
+    </div>
+
+    <div class="select-demo__grid">
+        <div class="select-demo__field">
+            <span>רשימת האזנה ({{ listeningPlaylist().length }})</span>
+            <ul class="playlist-demo-list">
+                @for (track of listeningPlaylist(); track track.id) {
+                    <li>{{ track.title }}</li>
+                }
+            </ul>
+        </div>
+
+        <div class="select-demo__field">
+            <span>ארכיון ({{ archivePlaylist().length }})</span>
+            <ul class="playlist-demo-list">
+                @for (track of archivePlaylist(); track track.id) {
+                    <li>{{ track.title }}</li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <button type="button" class="playlist-demo-transfer-button" (click)="openPlaylistTransfer()">
+        העבר בין הרשימות
+    </button>
 </section>

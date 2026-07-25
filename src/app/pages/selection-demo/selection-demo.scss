@@ -45,3 +45,30 @@
     color: #31445f;
     font-weight: 600;
 }
+
+.playlist-demo-list {
+    display: grid;
+    gap: 4px;
+    margin: 0;
+    padding: 10px 14px;
+    border: 1px solid #d8deea;
+    border-radius: 8px;
+    min-height: 6rem;
+    list-style: none;
+    color: #31445f;
+}
+
+.playlist-demo-transfer-button {
+    justify-self: start;
+    padding: 8px 14px;
+    border: 1px solid #c5cddd;
+    border-radius: 8px;
+    background: #f6f9ff;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.playlist-demo-transfer-button:hover {
+    background: #eaf1ff;
+}

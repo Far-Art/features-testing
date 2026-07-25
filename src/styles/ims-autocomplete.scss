@@ -222,19 +222,42 @@
     padding: 0.35rem;
 }
 
-.ims-autocomplete__bulk {
+.ims-autocomplete__edit {
     display: grid;
     place-items: center;
     width: 2rem;
     height: 2rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0.375rem;
+    background: transparent;
+    color: inherit;
+    font: inherit;
     cursor: pointer;
 }
 
-.ims-autocomplete__bulk input {
-    width: 1rem;
-    height: 1rem;
-    margin: 0;
-    accent-color: var(--ims-ac-p);
+.ims-autocomplete__edit svg {
+    width: 1.05rem;
+    height: 1.05rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.7;
+}
+
+.ims-autocomplete__edit:hover,
+.ims-autocomplete__edit:focus-visible {
+    background: color-mix(in oklch, var(--ims-ac-p) 12%, transparent);
+}
+
+.ims-autocomplete__edit:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+}
+
+.ims-autocomplete__edit:disabled:hover {
+    background: transparent;
 }
 
 .ims-autocomplete__segments {

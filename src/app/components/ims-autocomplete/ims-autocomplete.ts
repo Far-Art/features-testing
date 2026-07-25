@@ -30,6 +30,7 @@ import {isObservable, Subscription} from 'rxjs';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
 import {runViewTransition} from '../../shared/view-transition';
+import {ImsTransferDialogService, ImsTransferRow} from '../ims-transfer-dialog';
 import {
     ImsAutocompleteCompareWith,
     ImsAutocompleteHighlightPart,
@@ -41,7 +42,6 @@ import {
     ImsAutocompleteToolbarSide,
     ImsAutocompleteViewMode
 } from './ims-autocomplete.types';
-import {ImsLongPressDirective} from '../../ims-long-press.directive';
 
 interface ImsAutocompleteDisplayState {
     readonly text: string;
@@ -99,7 +99,7 @@ let nextAutocompleteId = 0;
 @Component({
     selector: 'ims-autocomplete',
     standalone: true,
-  imports: [CdkOverlayOrigin, CdkConnectedOverlay, CdkVirtualScrollViewport, CdkVirtualForOf, CdkFixedSizeVirtualScroll, ImsLongPressDirective, ImsTextTruncateDirective],
+  imports: [CdkOverlayOrigin, CdkConnectedOverlay, CdkVirtualScrollViewport, CdkVirtualForOf, CdkFixedSizeVirtualScroll, ImsTextTruncateDirective],
     templateUrl: './ims-autocomplete.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [provideValueAccessor(ImsAutocomplete)],
@@ -127,6 +127,7 @@ export class ImsAutocomplete<T = unknown>
     private asyncRequestId = 0;
     readonly directionality = inject(Directionality);
     private readonly changeDetectorRef = inject(ChangeDetectorRef);
+    private readonly transferDialog = inject(ImsTransferDialogService);
 
     private readonly origin = viewChild<ElementRef<HTMLElement>>('origin');
     private readonly singleInput = viewChild<ElementRef<HTMLInputElement>>('singleInput');
@@ -268,23 +269,10 @@ export class ImsAutocomplete<T = unknown>
         return activeIndex < 0 ? null : this.optionId(activeIndex);
     });
 
-    readonly selectableVisibleOptions = computed(() =>
-        this.visibleOptions().filter((option) => !option.disabled)
+    /** Non-disabled options matching the current filter, regardless of view mode. Feeds the edit dialog. */
+    readonly editableOptions = computed(() =>
+        this.filteredOptions().filter((option) => !option.disabled)
     );
-
-    readonly visibleSelectedCount = computed(() =>
-        this.selectableVisibleOptions().filter((option) => this.isSelected(option)).length
-    );
-
-    readonly bulkChecked = computed(() => {
-        const selectableCount = this.selectableVisibleOptions().length;
-        return selectableCount > 0 && this.visibleSelectedCount() === selectableCount;
-    });
-
-    readonly bulkMixed = computed(() => {
-        const selectedCount = this.visibleSelectedCount();
-        return selectedCount > 0 && selectedCount < this.selectableVisibleOptions().length;
-    });
 
     readonly listboxHeight = computed(() => {
         const optionsCount = this.visibleOptions().length;
@@ -497,11 +485,36 @@ export class ImsAutocomplete<T = unknown>
         this.activeIndex.set(this.findInitialActiveIndex(this.visibleOptions()));
     }
 
-    onBulkCheckboxChange(event: Event): void {
-        const target = event.target;
-        if (!(target instanceof HTMLInputElement)) return;
+    openEditDialog(): void {
+        if (this.disabled()) return;
 
-        this.setVisibleOptionsSelected(target.checked);
+        const checked: ImsTransferRow<T>[] = [];
+        const unchecked: ImsTransferRow<T>[] = [];
+
+        this.editableOptions().forEach((option, index) => {
+            const row: ImsTransferRow<T> = {
+                id: `ims-autocomplete-option-${index}`,
+                label: option.label,
+                value: option.value
+            };
+
+            (this.isSelected(option) ? checked : unchecked).push(row);
+        });
+
+        if (checked.length === 0 && unchecked.length === 0) return;
+
+        this.closePanel(false);
+
+        const dialogRef = this.transferDialog.open<T>({
+            start: {title: 'לא נבחרו', rows: unchecked},
+            end: {title: 'נבחרו', rows: checked},
+            dialogTitle: 'עריכת בחירה'
+        });
+
+        dialogRef.closed.subscribe((result) => {
+            if (result === undefined) return;
+            this.applyEditDialogResult([...checked, ...unchecked], result.end);
+        });
     }
 
     setViewMode(mode: ImsAutocompleteViewMode): void {
@@ -815,27 +828,16 @@ export class ImsAutocomplete<T = unknown>
         this.emitValue(nextValue);
     }
 
-    private setVisibleOptionsSelected(selected: boolean): void {
-        if (this.disabled() || !this.multiple()) return;
-
-        const visibleValues = this.selectableVisibleOptions().map((option) => option.value);
+    private applyEditDialogResult(
+        rows: readonly ImsTransferRow<T>[],
+        checkedValues: readonly T[]
+    ): void {
         const selectedValues = this.selectedValues();
-        const nextValue = selected
-            ? [
-                ...selectedValues,
-                ...visibleValues.filter(
-                    (visibleValue) =>
-                        !selectedValues.some((selectedValue) =>
-                            this.valuesEqual(selectedValue, visibleValue)
-                        )
-                )
-            ]
-            : selectedValues.filter(
-                (selectedValue) =>
-                    !visibleValues.some((visibleValue) => this.valuesEqual(selectedValue, visibleValue))
-            );
+        const retainedValues = selectedValues.filter(
+            (selectedValue) => !rows.some((row) => this.valuesEqual(selectedValue, row.value))
+        );
 
-        this.emitValue(nextValue);
+        this.emitValue([...retainedValues, ...checkedValues]);
     }
 
     private valuesEqual(first: T, second: T): boolean {

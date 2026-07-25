@@ -1,8 +1,9 @@
-import {Component, ChangeDetectionStrategy} from '@angular/core';
+import {Component, ChangeDetectionStrategy, inject, signal} from '@angular/core';
 import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {delay, of} from 'rxjs';
 import {ImsAutocomplete, ImsAutocompleteOption} from '../../components/ims-autocomplete';
 import {ImsOption, ImsSelect} from '../../components/ims-select';
+import {ImsTransferDialogService, ImsTransferRow} from '../../components/ims-transfer-dialog';
 
 interface SelectDemoBag {
     readonly id: number;
@@ -16,6 +17,11 @@ interface LargeAutocompleteRow {
     readonly customer: string;
     readonly policy: string;
     readonly region: string;
+}
+
+interface DemoTrack {
+    readonly id: number;
+    readonly title: string;
 }
 
 @Component({
@@ -32,7 +38,22 @@ interface LargeAutocompleteRow {
     styleUrl: './selection-demo.scss'
 })
 export class SelectionDemo {
-    readonly bagOptions: readonly SelectDemoBag[] = [
+    private readonly transferDialog = inject(ImsTransferDialogService);
+
+    readonly listeningPlaylist = signal<readonly DemoTrack[]>([
+        {id: 1, title: 'ליל קיץ'},
+        {id: 2, title: 'רחוב שקט'},
+        {id: 3, title: 'צלילי בוקר'},
+        {id: 4, title: 'מסע ארוך'},
+        {id: 5, title: 'רגע לפני'}
+    ]);
+    readonly archivePlaylist = signal<readonly DemoTrack[]>([
+        {id: 6, title: 'ימים ישנים'},
+        {id: 7, title: 'זיכרון רחוק'},
+        {id: 8, title: 'שיר נשכח'}
+    ]);
+
+    private readonly initialBagOptions: readonly SelectDemoBag[] = [
         {id: 1, label: 'מסמכים', count: 35},
         {id: 2, label: 'קבלות', count: 12},
         {id: 3, label: 'פוליסות', count: 8},
@@ -50,13 +71,20 @@ export class SelectionDemo {
         {id: 15, label: 'לוחות זמנים', count: 15},
         {id: 16, label: 'תיקים בארכיון', count: 3},
         {id: 17, label: 'ממתין לבדיקה', count: 10},
-        {id: 18, label: 'קטגוריית שמירה ארוכה', count: 5}
+        {id: 18, label: 'קטגוריית שמירה ארוכה', count: 5, disabled: true}
     ];
+    readonly bagOptions = signal<readonly SelectDemoBag[]>(this.initialBagOptions);
     readonly selectedBagsControl = new FormControl<readonly SelectDemoBag[]>(
-        [this.bagOptions[0], this.bagOptions[1], this.bagOptions[2], this.bagOptions[3], this.bagOptions[4]],
+        [
+            this.initialBagOptions[0],
+            this.initialBagOptions[1],
+            this.initialBagOptions[2],
+            this.initialBagOptions[3],
+            this.initialBagOptions[4]
+        ],
         {nonNullable: true}
     );
-    readonly bagAutocompleteOptions: readonly ImsAutocompleteOption<SelectDemoBag>[] = this.bagOptions.map((bag) => ({
+    readonly bagAutocompleteOptions: readonly ImsAutocompleteOption<SelectDemoBag>[] = this.initialBagOptions.map((bag) => ({
         value: bag,
         label: bag.label,
         disabled: bag.disabled
@@ -81,7 +109,7 @@ export class SelectionDemo {
     );
     readonly largeAutocompleteControl = new FormControl<LargeAutocompleteRow | string | null>(null);
     readonly serverAutocompleteControl = new FormControl<LargeAutocompleteRow | string | null>(null);
-    selectedBagModel: SelectDemoBag | null = this.bagOptions[0];
+    selectedBagModel: SelectDemoBag | null = this.initialBagOptions[0];
 
     readonly loadBagAutocompleteOptions = (query: string) => {
         const normalizedQuery = this.normalizeSearchText(query);
@@ -104,6 +132,24 @@ export class SelectionDemo {
 
         return of(options.slice(0, 100)).pipe(delay(2000));
     };
+
+    openPlaylistTransfer(): void {
+        const dialogRef = this.transferDialog.open<DemoTrack>({
+            start: {title: 'רשימת האזנה', rows: this.tracksToRows(this.listeningPlaylist())},
+            end: {title: 'ארכיון', rows: this.tracksToRows(this.archivePlaylist())},
+            dialogTitle: 'העברה בין רשימות'
+        });
+
+        dialogRef.closed.subscribe((result) => {
+            if (result === undefined) return;
+            this.listeningPlaylist.set(result.start);
+            this.archivePlaylist.set(result.end);
+        });
+    }
+
+    private tracksToRows(tracks: readonly DemoTrack[]): ImsTransferRow<DemoTrack>[] {
+        return tracks.map((track) => ({id: `track-${track.id}`, label: track.title, value: track}));
+    }
 
     readonly compareBagById = (first: unknown, second: unknown) => {
         if (this.isSelectDemoBag(first) && this.isSelectDemoBag(second)) {
