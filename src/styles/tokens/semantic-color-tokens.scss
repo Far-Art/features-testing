@@ -1,0 +1,22 @@
+:root {
+    --ims-color-surface: #FFFFFF;
+    --ims-color-surface-subtle: var(--ims-color-neutral-50);
+    --ims-color-surface-raised: #FFFFFF;
+    --ims-color-surface-disabled: var(--ims-color-neutral-100);
+
+    --ims-color-on-surface: var(--ims-color-neutral-900);
+    --ims-color-on-surface-muted: var(--ims-color-neutral-700);
+    --ims-color-on-surface-disabled: var(--ims-color-neutral-400);
+
+    --ims-color-border: var(--ims-color-neutral-400);
+    --ims-color-border-subtle: var(--ims-color-neutral-200);
+
+    --ims-color-interactive: var(--ims-color-primary-500);
+    --ims-color-interactive-strong: var(--ims-color-primary-600);
+    --ims-color-interactive-subtle: var(--ims-color-primary-50);
+    --ims-color-focus-ring: var(--ims-color-primary-200);
+
+    --ims-color-interactive-alt: var(--ims-color-secondary-500);
+    --ims-color-interactive-alt-strong: var(--ims-color-secondary-600);
+    --ims-color-interactive-alt-subtle: var(--ims-color-secondary-50);
+}
