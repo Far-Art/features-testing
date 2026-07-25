@@ -1,7 +1,11 @@
 import {Component, ChangeDetectionStrategy, inject, signal} from '@angular/core';
 import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {delay, of} from 'rxjs';
-import {ImsAutocomplete, ImsAutocompleteOption} from '../../components/ims-autocomplete';
+import {
+    ImsAutocomplete,
+    ImsAutocompleteAsync,
+    ImsAutocompleteOption
+} from '../../components/ims-autocomplete';
 import {ImsOption, ImsSelect} from '../../components/ims-select';
 import {ImsTransferDialogService, ImsTransferRow} from '../../components/ims-transfer-dialog';
 
@@ -31,7 +35,8 @@ interface DemoTrack {
         ReactiveFormsModule,
         ImsSelect,
         ImsOption,
-        ImsAutocomplete
+        ImsAutocomplete,
+        ImsAutocompleteAsync
     ],
     templateUrl: './selection-demo.html',
     changeDetection: ChangeDetectionStrategy.Eager,

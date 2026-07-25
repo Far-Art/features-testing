@@ -1,47 +1,13 @@
-import {
-    CdkConnectedOverlay,
-    CdkOverlayOrigin,
-    ConnectedOverlayPositionChange,
-    ConnectedPosition
-} from '@angular/cdk/overlay';
-import {
-    CdkFixedSizeVirtualScroll,
-    CdkVirtualForOf,
-    CdkVirtualScrollViewport
-} from '@angular/cdk/scrolling';
-import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    ElementRef,
-    OnDestroy,
-    booleanAttribute,
-    computed,
-    effect,
-    inject,
-    input,
-    numberAttribute,
-    signal,
-    viewChild
-} from '@angular/core';
+import {CdkConnectedOverlay, CdkOverlayOrigin, ConnectedOverlayPositionChange, ConnectedPosition} from '@angular/cdk/overlay';
+import {CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
+import {AfterViewInit, booleanAttribute, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, ElementRef, inject, input, numberAttribute, OnDestroy, signal, viewChild} from '@angular/core';
 import {Directionality} from '@angular/cdk/bidi';
-import {isObservable, Subscription} from 'rxjs';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
 import {runViewTransition} from '../../shared/view-transition';
 import {ImsTransferDialogService, ImsTransferRow} from '../ims-transfer-dialog';
-import {
-    ImsAutocompleteCompareWith,
-    ImsAutocompleteHighlightPart,
-    ImsAutocompleteOption,
-    ImsAutocompleteOptionsLoader,
-    ImsAutocompleteValue,
-    ImsAutocompleteSortMode,
-    ImsAutocompleteToolbarMode,
-    ImsAutocompleteToolbarSide,
-    ImsAutocompleteViewMode
-} from './ims-autocomplete.types';
+import {ImsAutocompleteCompareWith, ImsAutocompleteHighlightPart, ImsAutocompleteOption, ImsAutocompleteSortMode, ImsAutocompleteToolbarMode, ImsAutocompleteToolbarSide, ImsAutocompleteValue, ImsAutocompleteViewMode} from './ims-autocomplete.types';
+
 
 interface ImsAutocompleteDisplayState {
     readonly text: string;
@@ -99,7 +65,14 @@ let nextAutocompleteId = 0;
 @Component({
     selector: 'ims-autocomplete',
     standalone: true,
-  imports: [CdkOverlayOrigin, CdkConnectedOverlay, CdkVirtualScrollViewport, CdkVirtualForOf, CdkFixedSizeVirtualScroll, ImsTextTruncateDirective],
+    imports: [
+        CdkOverlayOrigin,
+        CdkConnectedOverlay,
+        CdkVirtualScrollViewport,
+        CdkVirtualForOf,
+        CdkFixedSizeVirtualScroll,
+        ImsTextTruncateDirective
+    ],
     templateUrl: './ims-autocomplete.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [provideValueAccessor(ImsAutocomplete)],
@@ -109,7 +82,7 @@ let nextAutocompleteId = 0;
 })
 /**
  * Form-compatible autocomplete supporting free text, strict option selection,
- * multiple values, asynchronous loading, and virtualized option rendering.
+ * multiple values, pluggable option sources, and virtualized option rendering.
  *
  * Single mode writes `T`, a free-text `string`, or `null` depending on
  * `strict`. Multiple mode writes a readonly `T[]` and always requires values
@@ -121,67 +94,31 @@ let nextAutocompleteId = 0;
 export class ImsAutocomplete<T = unknown>
     extends BasicValueAccessor<ImsAutocompleteValue<T>>
     implements AfterViewInit, OnDestroy {
-    private resizeObserver: ResizeObserver | null = null;
-    private measureFrame: ReturnType<typeof requestAnimationFrame> | null = null;
-    private optionsSubscription: Subscription | null = null;
-    private asyncRequestId = 0;
     readonly directionality = inject(Directionality);
-    private readonly changeDetectorRef = inject(ChangeDetectorRef);
-    private readonly transferDialog = inject(ImsTransferDialogService);
-
-    private readonly origin = viewChild<ElementRef<HTMLElement>>('origin');
-    private readonly singleInput = viewChild<ElementRef<HTMLInputElement>>('singleInput');
-    private readonly filterInput = viewChild<ElementRef<HTMLInputElement>>('filterInput');
-    private readonly menu = viewChild<ElementRef<HTMLElement>>('menu');
-    private readonly toolbarPanel = viewChild<ElementRef<HTMLElement>>('toolbarPanel');
-    private readonly valueRow = viewChild<ElementRef<HTMLElement>>('valueRow');
-    private readonly viewport = viewChild<CdkVirtualScrollViewport>('viewport');
-    private readonly measureTextElement = viewChild<ElementRef<HTMLElement>>('measureText');
-    private readonly measureBadgeElement = viewChild<ElementRef<HTMLElement>>('measureBadge');
-
-    /** Static options used when no `loadOptions` function is provided. */
+    /** Static options displayed and filtered by the component. */
     readonly options = input<readonly ImsAutocompleteOption<T>[]>([]);
-
     /** Enables multi-selection. Multi-select always requires choosing options from the list. */
     readonly multiple = input(false, {transform: booleanAttribute});
-
     /** Placeholder displayed in the input or trigger when empty. */
     readonly placeholder = input('חיפוש');
-
     /** Requires single-selection text to resolve to an option. Multi-select is always strict. */
     readonly strict = input(false, {transform: booleanAttribute});
-
-    /** Async option source called whenever the search query changes. */
-    readonly loadOptions = input<ImsAutocompleteOptionsLoader<T> | null>(null);
-
-    /** Delay in milliseconds before calling `loadOptions` after the query changes. */
-    readonly loadDebounceMs = input(0, {transform: numberAttribute});
-
     /** Sort mode for the visible option labels. `default` preserves source order. */
     readonly sort = input<ImsAutocompleteSortMode>('default');
-
     /** Controls whether the multi-select toolbar is shown: always, never, or above the auto threshold. */
     readonly toolbar = input<ImsAutocompleteToolbarMode>('off');
-
     /** Option count threshold used by `toolbar="auto"`. */
     readonly toolbarAutoMinOptions = input(15, {transform: numberAttribute});
-
     /** Fixed item height used by the CDK virtual scroll viewport. */
     readonly optionHeight = input(36, {transform: numberAttribute});
-
     /** Equality function for option values. Defaults to strict reference equality. */
     readonly compareWith = input<ImsAutocompleteCompareWith<T>>(defaultCompare);
-
     /** Accessible label for the single input or multi trigger. */
     readonly ariaLabel = input<string | null>(null, {alias: 'ariaLabel'});
-
     /** ID reference for one or more external labels. */
     readonly ariaLabelledby = input<string | null>(null, {alias: 'ariaLabelledby'});
-
     readonly query = signal('');
     readonly open = signal(false);
-    readonly loading = signal(false);
-    readonly asyncOptions = signal<readonly ImsAutocompleteOption<T>[]>([]);
     readonly viewMode = signal<ImsAutocompleteViewMode>('all');
     readonly activeIndex = signal(-1);
     readonly toolbarSide = signal<ImsAutocompleteToolbarSide>('right');
@@ -189,13 +126,10 @@ export class ImsAutocomplete<T = unknown>
     readonly listboxMinHeight = signal(0);
     readonly listboxMaxHeight = signal(LISTBOX_MAX_HEIGHT);
     readonly multiDisplay = signal<ImsAutocompleteDisplayState>(DEFAULT_DISPLAY);
-
     readonly autocompleteId = `ims-autocomplete-${nextAutocompleteId++}`;
     readonly listboxId = `${this.autocompleteId}-listbox`;
     readonly overlayPositions = OVERLAY_POSITIONS;
-
     readonly effectiveStrict = computed(() => this.multiple() || this.strict());
-
     readonly selectedValues = computed<readonly T[]>(() => {
         const currentValue = this.value();
         if (this.multiple()) {
@@ -208,19 +142,16 @@ export class ImsAutocomplete<T = unknown>
 
         return [currentValue as T];
     });
-
     readonly selectedLabels = computed(() =>
         this.selectedValues().map((selectedValue) => this.labelForValue(selectedValue))
     );
-
     readonly hasSelection = computed(() => {
         if (this.multiple()) return this.selectedValues().length > 0;
         const currentValue = this.value();
         return currentValue !== null && currentValue !== undefined && currentValue !== '';
     });
-
-    readonly sourceOptions = computed(() => this.loadOptions() ? this.asyncOptions() : this.options());
-
+    readonly sourceOptions = computed(() => this.getSourceOptions());
+    readonly loading = computed(() => this.isLoading());
     readonly showToolbar = computed(() => {
         if (!this.multiple()) return false;
 
@@ -229,7 +160,6 @@ export class ImsAutocomplete<T = unknown>
         if (mode === 'off') return false;
         return this.sourceOptions().length >= this.toolbarAutoMinOptions();
     });
-
     readonly filteredOptions = computed(() => {
         const query = this.normalizedQuery();
         let options = this.sourceOptions();
@@ -247,7 +177,6 @@ export class ImsAutocomplete<T = unknown>
 
         return options;
     });
-
     readonly visibleOptions = computed(() => this.optionsForViewMode(this.viewMode()));
     readonly viewOptionCounts = computed<Record<ImsAutocompleteViewMode, number>>(() => {
         const options = this.filteredOptions();
@@ -268,12 +197,10 @@ export class ImsAutocomplete<T = unknown>
         const activeIndex = this.activeIndex();
         return activeIndex < 0 ? null : this.optionId(activeIndex);
     });
-
     /** Non-disabled options matching the current filter, regardless of view mode. Feeds the edit dialog. */
     readonly editableOptions = computed(() =>
         this.filteredOptions().filter((option) => !option.disabled)
     );
-
     readonly listboxHeight = computed(() => {
         const optionsCount = this.visibleOptions().length;
         if (optionsCount === 0) return Math.max(this.listboxMinHeight(), this.optionHeight() + 16);
@@ -285,64 +212,22 @@ export class ImsAutocomplete<T = unknown>
 
         return Math.max(this.listboxMinHeight(), optionHeight);
     });
+    private resizeObserver: ResizeObserver | null = null;
+    private measureFrame: ReturnType<typeof requestAnimationFrame> | null = null;
+    private readonly changeDetectorRef = inject(ChangeDetectorRef);
+    private readonly transferDialog = inject(ImsTransferDialogService);
+    private readonly origin = viewChild<ElementRef<HTMLElement>>('origin');
+    private readonly singleInput = viewChild<ElementRef<HTMLInputElement>>('singleInput');
+    private readonly filterInput = viewChild<ElementRef<HTMLInputElement>>('filterInput');
+    private readonly menu = viewChild<ElementRef<HTMLElement>>('menu');
+    private readonly toolbarPanel = viewChild<ElementRef<HTMLElement>>('toolbarPanel');
+    private readonly valueRow = viewChild<ElementRef<HTMLElement>>('valueRow');
+    private readonly viewport = viewChild<CdkVirtualScrollViewport>('viewport');
+    private readonly measureTextElement = viewChild<ElementRef<HTMLElement>>('measureText');
+    private readonly measureBadgeElement = viewChild<ElementRef<HTMLElement>>('measureBadge');
 
     constructor() {
         super();
-
-        effect((onCleanup) => {
-            const loader = this.loadOptions();
-            const query = this.query();
-            const debounceMs = Math.max(0, this.loadDebounceMs());
-            const requestId = ++this.asyncRequestId;
-            let activeSubscription: Subscription | null = null;
-
-            this.clearOptionsSubscription();
-
-            if (!loader) {
-                this.loading.set(false);
-                this.asyncOptions.set([]);
-                return;
-            }
-
-            this.loading.set(true);
-            const timeoutId = window.setTimeout(() => {
-                if (requestId !== this.asyncRequestId) return;
-
-                let result: ReturnType<ImsAutocompleteOptionsLoader<T>>;
-                try {
-                    result = loader(query);
-                } catch {
-                    this.finishAsyncOptions(requestId);
-                    return;
-                }
-
-                if (isObservable(result)) {
-                    const subscription = result.subscribe({
-                        next: (options) => this.setAsyncOptions(requestId, options),
-                        error: () => {
-                            this.finishAsyncOptions(requestId);
-                            this.clearOptionsSubscription(activeSubscription);
-                        },
-                        complete: () => this.clearOptionsSubscription(activeSubscription)
-                    });
-                    activeSubscription = subscription;
-
-                    if (!subscription.closed && requestId === this.asyncRequestId) {
-                        this.optionsSubscription = subscription;
-                    }
-                    return;
-                }
-
-                Promise.resolve(result)
-                    .then((options) => this.setAsyncOptions(requestId, options))
-                    .catch(() => this.finishAsyncOptions(requestId));
-            }, debounceMs);
-
-            onCleanup(() => {
-                window.clearTimeout(timeoutId);
-                this.clearOptionsSubscription(activeSubscription);
-            });
-        });
 
         effect(() => {
             if (!this.open()) return;
@@ -399,8 +284,7 @@ export class ImsAutocomplete<T = unknown>
 
     ngOnDestroy(): void {
         this.resizeObserver?.disconnect();
-        this.asyncRequestId++;
-        this.clearOptionsSubscription();
+        this.destroyOptionsSource();
         if (this.measureFrame !== null) {
             cancelAnimationFrame(this.measureFrame);
         }
@@ -506,8 +390,14 @@ export class ImsAutocomplete<T = unknown>
         this.closePanel(false);
 
         const dialogRef = this.transferDialog.open<T>({
-            start: {title: 'לא נבחרו', rows: unchecked},
-            end: {title: 'נבחרו', rows: checked},
+            start: {
+                title: 'לא נבחרו',
+                rows: unchecked
+            },
+            end: {
+                title: 'נבחרו',
+                rows: checked
+            },
             dialogTitle: 'עריכת בחירה'
         });
 
@@ -635,27 +525,44 @@ export class ImsAutocomplete<T = unknown>
 
     highlightParts(label: string): readonly ImsAutocompleteHighlightPart[] {
         const terms = this.searchTerms();
-        if (terms.length === 0) return [{text: label, match: false}];
+        if (terms.length === 0) {
+            return [
+                {
+                    text: label,
+                    match: false
+                }
+            ];
+        }
 
         const labelLower = label.toLocaleLowerCase();
-        const ranges: {start: number; end: number}[] = [];
+        const ranges: { start: number; end: number }[] = [];
 
         for (const term of terms) {
             let matchIndex = labelLower.indexOf(term);
 
             while (matchIndex >= 0) {
-                ranges.push({start: matchIndex, end: matchIndex + term.length});
+                ranges.push({
+                    start: matchIndex,
+                    end: matchIndex + term.length
+                });
                 matchIndex = labelLower.indexOf(term, matchIndex + term.length);
             }
         }
 
-        if (ranges.length === 0) return [{text: label, match: false}];
+        if (ranges.length === 0) {
+            return [
+                {
+                    text: label,
+                    match: false
+                }
+            ];
+        }
 
         ranges.sort((first, second) => first.start - second.start || second.end - first.end);
 
         const parts: ImsAutocompleteHighlightPart[] = [];
         let cursor = 0;
-        let activeRange: {start: number; end: number} | null = null;
+        let activeRange: { start: number; end: number } | null = null;
 
         for (const range of ranges) {
             if (!activeRange) {
@@ -681,10 +588,30 @@ export class ImsAutocomplete<T = unknown>
             cursor = activeRange.end;
         }
 
-        if (cursor < label.length) parts.push({text: label.slice(cursor), match: false});
+        if (cursor < label.length) {
+            parts.push({
+                text: label.slice(cursor),
+                match: false
+            });
+        }
 
-        return parts.length ? parts : [{text: label, match: false}];
+        return parts.length ? parts : [
+            {
+                text: label,
+                match: false
+            }
+        ];
     }
+
+    protected getSourceOptions(): readonly ImsAutocompleteOption<T>[] {
+        return this.options();
+    }
+
+    protected isLoading(): boolean {
+        return false;
+    }
+
+    protected destroyOptionsSource(): void {}
 
     private normalizedQuery(): string {
         return this.normalizeSearchText(this.query());
@@ -708,13 +635,19 @@ export class ImsAutocomplete<T = unknown>
         label: string,
         parts: ImsAutocompleteHighlightPart[],
         cursor: number,
-        range: {start: number; end: number}
+        range: { start: number; end: number }
     ): void {
         if (range.start > cursor) {
-            parts.push({text: label.slice(cursor, range.start), match: false});
+            parts.push({
+                text: label.slice(cursor, range.start),
+                match: false
+            });
         }
 
-        parts.push({text: label.slice(range.start, range.end), match: true});
+        parts.push({
+            text: label.slice(range.start, range.end),
+            match: true
+        });
     }
 
     private isToolbarKeyboardEvent(event: KeyboardEvent): boolean {
@@ -738,27 +671,6 @@ export class ImsAutocomplete<T = unknown>
         }
 
         return options;
-    }
-
-    private setAsyncOptions(requestId: number, options: readonly ImsAutocompleteOption<T>[]): void {
-        if (requestId !== this.asyncRequestId) return;
-        this.asyncOptions.set(options);
-        this.loading.set(false);
-    }
-
-    private finishAsyncOptions(requestId: number): void {
-        if (requestId !== this.asyncRequestId) return;
-        this.asyncOptions.set([]);
-        this.loading.set(false);
-    }
-
-    private clearOptionsSubscription(subscription = this.optionsSubscription): void {
-        if (!subscription) return;
-
-        subscription.unsubscribe();
-        if (this.optionsSubscription === subscription) {
-            this.optionsSubscription = null;
-        }
     }
 
     private emitValue(value: ImsAutocompleteValue<T>): void {
@@ -1010,7 +922,11 @@ export class ImsAutocomplete<T = unknown>
         }
 
         if (labels.length === 1) {
-            this.multiDisplay.set({text: labels[0], overflowCount: 0, firstTruncated: false});
+            this.multiDisplay.set({
+                text: labels[0],
+                overflowCount: 0,
+                firstTruncated: false
+            });
             return;
         }
 
@@ -1039,7 +955,11 @@ export class ImsAutocomplete<T = unknown>
             const textWidth = this.measureTextWidth(text);
 
             if (textWidth + badgeWidth <= valueRowWidth) {
-                this.multiDisplay.set({text, overflowCount, firstTruncated: false});
+                this.multiDisplay.set({
+                    text,
+                    overflowCount,
+                    firstTruncated: false
+                });
                 return;
             }
         }
