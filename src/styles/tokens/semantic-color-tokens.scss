@@ -9,6 +9,8 @@
     --ims-color-surface-dialog: #FFFFFF;
     // Background for disabled editable controls.
     --ims-color-surface-input-disabled: var(--ims-color-neutral-100);
+    // Enabled-like background for disabled controls whose value must remain easy to read.
+    --ims-color-surface-input-readonly: var(--ims-color-surface-input);
 
     // Compatibility aliases for existing components.
     --ims-color-surface: var(--ims-color-surface-panel);
@@ -16,13 +18,16 @@
     --ims-color-surface-subtle: var(--ims-color-neutral-50);
     --ims-color-surface-raised: var(--ims-color-surface-dialog);
     --ims-color-surface-disabled: var(--ims-color-surface-input-disabled);
+    --ims-color-surface-readonly: var(--ims-color-surface-input-readonly);
 
     // Primary body/heading text on a surface.
-    --ims-color-on-surface: var(--ims-color-neutral-900);
+    --ims-color-on-surface: var(--ims-color-primary-800);
     // Secondary text on a surface: placeholders, helper text, labels, captions.
     --ims-color-on-surface-muted: var(--ims-color-neutral-700);
     // Text on a disabled control. Lower-contrast than muted — do not reuse muted for disabled state.
     --ims-color-on-surface-disabled: var(--ims-color-neutral-400);
+    // Enabled-like text for disabled controls whose value must remain easy to read.
+    --ims-color-on-surface-readonly: var(--ims-color-on-surface);
 
     // Default control border (inputs, buttons, cards).
     --ims-color-border: var(--ims-color-neutral-400);
