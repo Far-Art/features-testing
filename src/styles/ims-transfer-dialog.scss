@@ -1,7 +1,23 @@
-.ims-transfer-dialog {
-    --ims-p: var(--mat-sys-primary, #2563eb);
-    --ims-s: var(--mat-sys-surface-container-lowest, #fff);
+.ims-transfer-dialog,
+.ims-transfer-dialog__row.cdk-drag-preview {
+    --ims-transfer-accent: var(--ims-color-interactive);
+    --ims-transfer-accent-strong: var(--ims-color-interactive-strong);
+    --ims-transfer-accent-subtle: var(--ims-color-interactive-subtle);
+    --ims-transfer-accent-alt-strong: var(--ims-color-interactive-alt-strong);
+    --ims-transfer-accent-alt-subtle: var(--ims-color-interactive-alt-subtle);
+    --ims-transfer-on-accent: var(--ims-color-on-interactive);
+    --ims-transfer-focus-ring: var(--ims-color-focus-ring);
+    --ims-transfer-background-dialog: var(--ims-background-dialog);
+    --ims-transfer-background-panel: var(--ims-background-panel);
+    --ims-transfer-surface-subtle: var(--ims-color-surface-subtle);
+    --ims-transfer-text: var(--ims-color-on-surface);
+    --ims-transfer-text-muted: var(--ims-color-on-surface-muted);
+    --ims-transfer-text-disabled: var(--ims-color-on-surface-disabled);
+    --ims-transfer-border: var(--ims-color-border);
+    --ims-transfer-border-subtle: var(--ims-color-border-subtle);
+}
 
+.ims-transfer-dialog {
     display: block;
     box-sizing: border-box;
     width: min(560px, 92vw);
@@ -9,8 +25,8 @@
     max-height: 85vh;
     padding: 1rem;
     border-radius: 0.75rem;
-    background: var(--ims-s);
-    color: var(--mat-sys-on-surface, #1f2937);
+    background: var(--ims-transfer-background-dialog);
+    color: var(--ims-transfer-text);
 }
 
 .ims-transfer-dialog__title {
@@ -26,26 +42,15 @@
 }
 
 .ims-transfer-dialog__filter-label {
-    color: color-mix(in oklch, currentColor 55%, transparent);
+    color: var(--ims-transfer-text-muted);
     font-size: 0.8rem;
 }
 
 .ims-transfer-dialog__filter input {
-    box-sizing: border-box;
     width: 100%;
     min-height: 2.1rem;
     padding: 0.35rem 0.55rem;
-    border: 1px solid color-mix(in oklch, currentColor 20%, transparent);
     border-radius: 0.375rem;
-    background: var(--ims-s);
-    color: inherit;
-    font: inherit;
-}
-
-.ims-transfer-dialog__filter input:focus-visible {
-    outline: none;
-    border-color: var(--ims-p);
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--ims-p) 22%, transparent);
 }
 
 .ims-transfer-dialog__columns {
@@ -58,8 +63,9 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
-    border: 1px solid color-mix(in oklch, currentColor 14%, transparent);
+    border: 1px solid var(--ims-transfer-border-subtle);
     border-radius: 0.5rem;
+    background: var(--ims-transfer-background-panel);
     overflow: hidden;
 }
 
@@ -69,8 +75,8 @@
     justify-content: space-between;
     gap: 0.5rem;
     padding: 0.35rem 0.5rem 0.35rem 0.65rem;
-    border-bottom: 1px solid color-mix(in oklch, currentColor 10%, transparent);
-    background: color-mix(in oklch, currentColor 4%, transparent);
+    border-bottom: 1px solid var(--ims-transfer-border-subtle);
+    background: var(--ims-transfer-surface-subtle);
     font-size: 0.85rem;
     font-weight: 650;
 }
@@ -96,7 +102,7 @@
     border: 0;
     border-radius: 0.375rem;
     background: transparent;
-    color: color-mix(in oklch, var(--ims-p) 82%, black);
+    color: var(--ims-transfer-accent-strong);
     cursor: pointer;
 }
 
@@ -129,13 +135,18 @@
     transform: none;
 }
 
-.ims-transfer-dialog__header-action:hover,
+.ims-transfer-dialog__header-action:hover {
+    background: var(--ims-transfer-accent-subtle);
+}
+
 .ims-transfer-dialog__header-action:focus-visible {
-    background: color-mix(in oklch, var(--ims-p) 12%, transparent);
+    outline: none;
+    background: var(--ims-transfer-accent-subtle);
+    box-shadow: 0 0 0 3px var(--ims-transfer-focus-ring);
 }
 
 .ims-transfer-dialog__header-action:disabled {
-    color: color-mix(in oklch, currentColor 45%, transparent);
+    color: var(--ims-transfer-text-disabled);
     cursor: not-allowed;
 }
 
@@ -144,9 +155,9 @@
 }
 
 .ims-transfer-dialog__header-action--sort {
-    border: 1px solid color-mix(in oklch, currentColor 18%, transparent);
+    border: 1px solid var(--ims-transfer-border);
     border-radius: 999px;
-    color: color-mix(in oklch, currentColor 55%, transparent);
+    color: var(--ims-transfer-text-muted);
 }
 
 .ims-transfer-dialog__header-action--sort svg {
@@ -159,22 +170,22 @@
 
 .ims-transfer-dialog__header-action--sort:hover,
 .ims-transfer-dialog__header-action--sort:focus-visible {
-    background: color-mix(in oklch, currentColor 8%, transparent);
+    background: var(--ims-transfer-surface-subtle);
 }
 
 .ims-transfer-dialog__header-action--sort.ims-transfer-dialog__header-action--active {
-    border-color: color-mix(in oklch, var(--ims-p) 40%, transparent);
-    background: color-mix(in oklch, var(--ims-p) 10%, transparent);
-    color: color-mix(in oklch, var(--ims-p) 82%, black);
+    border-color: var(--ims-transfer-accent);
+    background: var(--ims-transfer-accent-subtle);
+    color: var(--ims-transfer-accent-strong);
 }
 
 .ims-transfer-dialog__header-action--sort.ims-transfer-dialog__header-action--active:hover,
 .ims-transfer-dialog__header-action--sort.ims-transfer-dialog__header-action--active:focus-visible {
-    background: color-mix(in oklch, var(--ims-p) 16%, transparent);
+    background: var(--ims-transfer-accent-alt-subtle);
 }
 
 .ims-transfer-dialog__header-action--sort:disabled {
-    border-color: color-mix(in oklch, currentColor 10%, transparent);
+    border-color: var(--ims-transfer-border-subtle);
 }
 
 .ims-transfer-dialog__count {
@@ -182,8 +193,8 @@
     min-width: 1.5rem;
     padding: 0.05rem 0.4rem;
     border-radius: 999px;
-    background: color-mix(in oklch, var(--ims-p) 12%, transparent);
-    color: color-mix(in oklch, var(--ims-p) 82%, black);
+    background: var(--ims-transfer-accent-alt-subtle);
+    color: var(--ims-transfer-accent-alt-strong);
     font-size: 0.75rem;
     text-align: center;
 }
@@ -203,9 +214,9 @@
     gap: 0.4rem;
     padding: 0.35rem 0.4rem;
     border-radius: 0.375rem;
-    background: var(--ims-s);
+    background: var(--ims-transfer-background-panel);
     cursor: grab;
-    transition: background-color 100ms ease;
+    transition: background 100ms ease;
 }
 
 .ims-transfer-dialog__row:active {
@@ -213,7 +224,7 @@
 }
 
 .ims-transfer-dialog__row:hover {
-    background: color-mix(in oklch, currentColor 6%, transparent);
+    background: var(--ims-transfer-surface-subtle);
 }
 
 .ims-transfer-dialog__row--disabled {
@@ -222,7 +233,7 @@
 }
 
 .ims-transfer-dialog__row--disabled:hover {
-    background: var(--ims-s);
+    background: var(--ims-transfer-background-panel);
 }
 
 .ims-transfer-dialog__handle {
@@ -231,7 +242,7 @@
     flex: 0 0 auto;
     width: 1.25rem;
     height: 1.25rem;
-    color: color-mix(in oklch, currentColor 45%, transparent);
+    color: var(--ims-transfer-text-muted);
 }
 
 .ims-transfer-dialog__handle svg {
@@ -253,7 +264,7 @@
     width: 1rem;
     height: 1rem;
     margin: 0;
-    accent-color: var(--ims-p);
+    accent-color: var(--ims-transfer-accent);
 }
 
 .ims-transfer-dialog__checkbox input:disabled {
@@ -269,16 +280,16 @@
 .ims-transfer-dialog__empty {
     margin: 0;
     padding: 0.75rem 0.4rem;
-    color: color-mix(in oklch, currentColor 55%, transparent);
+    color: var(--ims-transfer-text-muted);
     font-size: 0.85rem;
     text-align: center;
 }
 
 .ims-transfer-dialog__row.cdk-drag-preview {
     box-sizing: border-box;
-    background: var(--ims-s, #fff);
-    border: 1px solid color-mix(in oklch, currentColor 14%, transparent);
+    border: 1px solid var(--ims-transfer-border-subtle);
     border-radius: 0.375rem;
+    background: var(--ims-transfer-background-panel);
     box-shadow: 0 8px 24px rgb(15 23 42 / 20%);
 }
 
@@ -305,7 +316,7 @@
 
 .ims-transfer-dialog__button {
     padding: 0.45rem 0.9rem;
-    border: 1px solid color-mix(in oklch, currentColor 20%, transparent);
+    border: 1px solid var(--ims-transfer-border);
     border-radius: 0.5rem;
     background: transparent;
     color: inherit;
@@ -314,17 +325,23 @@
 }
 
 .ims-transfer-dialog__button:hover {
-    background: color-mix(in oklch, currentColor 6%, transparent);
+    background: var(--ims-transfer-surface-subtle);
+}
+
+.ims-transfer-dialog__button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--ims-transfer-focus-ring);
 }
 
 .ims-transfer-dialog__button--primary {
-    border-color: var(--ims-p);
-    background: var(--ims-p);
-    color: white;
+    border-color: var(--ims-transfer-accent);
+    background: var(--ims-transfer-accent);
+    color: var(--ims-transfer-on-accent);
 }
 
 .ims-transfer-dialog__button--primary:hover {
-    background: color-mix(in oklch, var(--ims-p) 88%, black);
+    border-color: var(--ims-transfer-accent-strong);
+    background: var(--ims-transfer-accent-strong);
 }
 
 @media (max-width: 480px) {

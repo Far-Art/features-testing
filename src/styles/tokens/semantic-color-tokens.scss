@@ -38,6 +38,8 @@
     --ims-color-interactive: var(--ims-color-primary-500);
     // Primary accent, higher contrast — text/icons sitting on top of an --interactive-subtle fill, hover/pressed states.
     --ims-color-interactive-strong: var(--ims-color-primary-600);
+    // Text and icons displayed on a solid interactive background.
+    --ims-color-on-interactive: #FFFFFF;
     // Primary accent, low-emphasis fill — selected row background, badge background, subtle highlight.
     --ims-color-interactive-subtle: var(--ims-color-primary-50);
     // Focus ring color for keyboard focus outlines (box-shadow halo around focused controls).
