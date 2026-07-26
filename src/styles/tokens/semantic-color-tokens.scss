@@ -29,6 +29,11 @@
     // Low-emphasis divider/border (list separators, disabled borders).
     --ims-color-border-subtle: var(--ims-color-neutral-200);
 
+    // Border and indicator color for invalid form controls.
+    --ims-color-invalid: var(--ims-color-danger-600);
+    // Focus halo for invalid form controls.
+    --ims-color-invalid-focus-ring: var(--ims-color-danger-200);
+
     // Primary accent: links, primary buttons, active/selected state, checked controls.
     --ims-color-interactive: var(--ims-color-primary-500);
     // Primary accent, higher contrast — text/icons sitting on top of an --interactive-subtle fill, hover/pressed states.
