@@ -103,7 +103,7 @@ let nextSelectId = 0;
     }
   ],
   host: {
-    class: 'ims-select-host'
+    class: 'ims-select-host ims-input-host'
   }
 })
 /**

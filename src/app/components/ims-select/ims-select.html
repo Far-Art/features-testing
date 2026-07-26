@@ -3,7 +3,8 @@
     cdkOverlayOrigin
     #overlayOrigin="cdkOverlayOrigin"
     type="button"
-    class="ims-select__trigger"
+    class="ims-input ims-select__trigger"
+    data-ims-main-control
     [imsTextTruncate]="multiple() ? selectedLabels().join(', ') : singleDisplayText()"
     imsTextTruncateTarget=".ims-select__value-text"
     imsTextTruncatePosition="bottom"
@@ -147,6 +148,7 @@
                     <span class="ims-select__filter-label">סינון</span>
                     <input
                         #filterInput
+                        class="ims-input"
                         type="text"
                         autocomplete="off"
                         [attr.id]="filterInputId"
