@@ -1,0 +1,8 @@
+:root {
+    // Complete background treatments. These may resolve to a solid color or a gradient.
+    // Use them with the background property rather than background-color.
+    --ims-background-page: var(--ims-color-surface-page);
+    --ims-background-panel: var(--ims-color-surface-panel);
+    --ims-background-input: var(--ims-color-surface-input);
+    --ims-background-dialog: var(--ims-color-surface-dialog);
+}

@@ -1,12 +1,21 @@
 :root {
-    // Base page/card background.
-    --ims-color-surface: #FFFFFF;
+    // Application/page background.
+    --ims-color-surface-page: var(--ims-color-neutral-50);
+    // Structural containers such as cards, side panels, and content sections.
+    --ims-color-surface-panel: #FFFFFF;
+    // Editable controls such as inputs, selects, and textareas.
+    --ims-color-surface-input: #FFFFFF;
+    // Modal and non-modal dialogs.
+    --ims-color-surface-dialog: #FFFFFF;
+    // Background for disabled editable controls.
+    --ims-color-surface-input-disabled: var(--ims-color-neutral-100);
+
+    // Compatibility aliases for existing components.
+    --ims-color-surface: var(--ims-color-surface-panel);
     // Faint fill for hovered rows, list headers, empty states — one step off the base surface.
     --ims-color-surface-subtle: var(--ims-color-neutral-50);
-    // Background for elements floating above the base surface (menus, overlays, dialogs, drag previews). Pair with a shadow/drop-shadow for separation.
-    --ims-color-surface-raised: #FFFFFF;
-    // Background for disabled inputs/controls.
-    --ims-color-surface-disabled: var(--ims-color-neutral-100);
+    --ims-color-surface-raised: var(--ims-color-surface-dialog);
+    --ims-color-surface-disabled: var(--ims-color-surface-input-disabled);
 
     // Primary body/heading text on a surface.
     --ims-color-on-surface: var(--ims-color-neutral-900);
@@ -29,10 +38,10 @@
     // Focus ring color for keyboard focus outlines (box-shadow halo around focused controls).
     --ims-color-focus-ring: var(--ims-color-primary-200);
 
-    // Secondary accent: use for duo-tone pairings alongside --interactive (e.g. hover states, a second badge/column identity) to avoid everything reading as one flat color.
-    --ims-color-interactive-alt: var(--ims-color-secondary-500);
-    // Secondary accent, higher contrast — counterpart to --interactive-strong for the alt hue.
-    --ims-color-interactive-alt-strong: var(--ims-color-secondary-600);
-    // Secondary accent, low-emphasis fill — counterpart to --interactive-subtle for the alt hue.
-    --ims-color-interactive-alt-subtle: var(--ims-color-secondary-50);
+    // Alternate accent from the stronger end of the primary palette for duo-tone pairings.
+    --ims-color-interactive-alt: var(--ims-color-primary-600);
+    // Higher-contrast alternate accent for text, icons, hover, and pressed states.
+    --ims-color-interactive-alt-strong: var(--ims-color-primary-700);
+    // More saturated alternate fill, distinct from the primary subtle fill.
+    --ims-color-interactive-alt-subtle: var(--ims-color-primary-100);
 }
