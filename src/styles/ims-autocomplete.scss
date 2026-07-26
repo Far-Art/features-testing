@@ -6,14 +6,10 @@
     --ims-ac-accent-2: var(--ims-color-interactive-alt);
     --ims-ac-accent-2-strong: var(--ims-color-interactive-alt-strong);
     --ims-ac-accent-2-soft: var(--ims-color-interactive-alt-subtle);
-    --ims-ac-focus-ring: var(--ims-color-focus-ring);
-    --ims-ac-surface: var(--ims-color-surface);
-    --ims-ac-surface-raised: var(--ims-color-surface-raised);
-    --ims-ac-surface-disabled: var(--ims-color-surface-disabled);
+    --ims-ac-background-panel: var(--ims-background-panel);
+    --ims-ac-background-dialog: var(--ims-background-dialog);
     --ims-ac-text: var(--ims-color-on-surface);
     --ims-ac-text-muted: var(--ims-color-on-surface-muted);
-    --ims-ac-text-disabled: var(--ims-color-on-surface-disabled);
-    --ims-ac-border: var(--ims-color-border);
     --ims-ac-border-subtle: var(--ims-color-border-subtle);
 
     color: var(--ims-ac-text);
@@ -33,16 +29,9 @@
 
 .ims-autocomplete__trigger,
 .ims-autocomplete__input {
-    box-sizing: border-box;
     width: 100%;
     min-width: 0;
-    min-height: 2.5rem;
-    border: 1px solid var(--ims-ac-border);
-    border-radius: 0.5rem;
-    background: var(--ims-ac-surface);
     color: inherit;
-    font: inherit;
-    transition: border-color 140ms ease;
 }
 
 .ims-autocomplete__trigger {
@@ -62,26 +51,6 @@
 .ims-autocomplete:dir(rtl) .ims-autocomplete__input {
     padding-right: 0.65rem;
     padding-left: 2.25rem;
-}
-
-.ims-autocomplete__trigger:hover {
-    border-color: var(--ims-ac-accent-2);
-}
-
-.ims-autocomplete__trigger:focus-visible,
-.ims-autocomplete__input:focus-visible,
-.ims-autocomplete__filter input:focus-visible {
-    outline: none;
-    border-color: var(--ims-ac-accent);
-    box-shadow: 0 0 0 3px var(--ims-ac-focus-ring);
-}
-
-.ims-autocomplete__trigger:disabled,
-.ims-autocomplete__input:disabled {
-    border-color: var(--ims-ac-border-subtle);
-    background: var(--ims-ac-surface-disabled);
-    color: var(--ims-ac-text-disabled);
-    cursor: not-allowed;
 }
 
 .ims-autocomplete__value-row {
@@ -180,12 +149,12 @@
     box-sizing: border-box;
     border: 1px solid var(--ims-ac-border-subtle);
     border-radius: 0.5rem;
-    background: var(--ims-ac-surface-raised);
     contain: layout style paint;
 }
 
 .ims-autocomplete__menu {
     overflow: hidden;
+    background: var(--ims-ac-background-dialog);
 }
 
 .ims-autocomplete__filter {
@@ -201,15 +170,11 @@
 }
 
 .ims-autocomplete__filter input {
-    box-sizing: border-box;
     width: 100%;
     min-height: 2rem;
     padding: 0.3rem 0.45rem;
-    border: 1px solid var(--ims-ac-border);
     border-radius: 0.375rem;
-    background: var(--ims-ac-surface);
     color: inherit;
-    font: inherit;
 }
 
 .ims-autocomplete__panel {
@@ -231,6 +196,7 @@
     justify-items: center;
     gap: 0.35rem;
     padding: 0.35rem;
+    background: var(--ims-ac-background-panel);
 }
 
 .ims-autocomplete__edit,

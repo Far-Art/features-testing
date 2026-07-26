@@ -77,7 +77,7 @@ let nextAutocompleteId = 0;
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [provideValueAccessor(ImsAutocomplete)],
     host: {
-        class: 'ims-autocomplete-host'
+        class: 'ims-autocomplete-host ims-input-host'
     }
 })
 /**

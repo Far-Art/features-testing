@@ -13,7 +13,8 @@
     @if (multiple()) {
         <button
             type="button"
-            class="ims-autocomplete__trigger"
+            class="ims-input ims-autocomplete__trigger"
+            data-ims-main-control
             [class.ims-autocomplete__trigger--open]="open()"
             [class.ims-autocomplete__trigger--empty]="!hasSelection()"
             [disabled]="disabled()"
@@ -57,7 +58,8 @@
         <input
             #singleInput
             type="text"
-            class="ims-autocomplete__input"
+            class="ims-input ims-autocomplete__input"
+            data-ims-main-control
             autocomplete="off"
             [disabled]="disabled()"
             [attr.id]="id()"
@@ -171,6 +173,7 @@
                     <input
                         #filterInput
                         type="text"
+                        class="ims-input"
                         autocomplete="off"
                         [attr.aria-controls]="listboxId"
                         [attr.aria-activedescendant]="activeOptionId()"
