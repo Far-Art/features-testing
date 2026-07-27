@@ -167,10 +167,10 @@ export class ImsSelect<T = unknown>
   readonly placeholder = input('בחר');
 
   /** Controls whether the filter input is shown: always, never, or above the auto threshold. */
-  readonly filter = input<ImsSelectFilterMode>('off');
+  readonly filter = input<ImsSelectFilterMode>('auto');
 
   /** Controls whether the multi-select toolbar is shown: always, never, or above the auto threshold. */
-  readonly toolbar = input<ImsSelectToolbarMode>('off');
+  readonly toolbar = input<ImsSelectToolbarMode>('auto');
 
   /** Option count threshold used by `filter="auto"` and `toolbar="auto"`. */
   readonly filterAutoMinOptions = input(15, {transform: numberAttribute});
