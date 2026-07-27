@@ -124,11 +124,8 @@ A native main label is automatically associated with a labelable control:
 
 - An explicit consumer-provided `for` is preserved.
 - Without `for`, the first owned labelable descendant receives a generated ID.
-- Supported targets are `button`, non-hidden `input`, `meter`, `output`,
-  `progress`, `select`, and `textarea`.
+- Supported targets are `button`, non-hidden `input`, `select`, and `textarea`.
 - Controls inside a nested `ims-form-field` are ignored.
-- The selected control receives `data-ims-main-control` so hover and focus can
-  update the main label color.
 
 The field watches projected child additions and removals. It does not observe
 attribute-only changes. Changing `for`, `id`, or `type` dynamically after
@@ -380,10 +377,9 @@ The main label reacts to the owned control:
 - Focus applies `--ims-form-accent` as the label color.
 - Disabled controls do not trigger these color states.
 
-For direct native controls, state is detected directly. For controls nested in a
-compound or custom component, the automatically associated native control is
-marked with `data-ims-main-control` so its state can propagate to the main
-label. Validation styling remains entirely consumer-owned.
+Control state is detected from owned native `button`, non-hidden `input`,
+`select`, and `textarea` descendants. Validation styling remains entirely
+consumer-owned.
 
 ## Styling Hooks
 

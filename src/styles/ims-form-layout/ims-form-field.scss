@@ -3,7 +3,7 @@ ims-form-field {
     --ims-form-accent: #1769aa;
 
     display: grid;
-    grid-template-columns: max-content max-content;
+    grid-template-columns: max-content minmax(0, 1fr);
     column-gap: var(--ims-form-field-gap);
     align-items: start;
     min-width: 0;
@@ -24,6 +24,7 @@ ims-form-field {
     > :not(label):not([imsFormFieldLabel]) {
         grid-column: var(--ims-form-value-grid-column, 2);
         min-width: 0;
+        box-sizing: border-box;
     }
 
     &:has(> ims-checkbox) {
@@ -39,10 +40,8 @@ ims-form-field {
         }
     }
 
-    &:has(:is(input, select, textarea, button, [data-ims-main-control]):not(:disabled):hover) >
-        :is(label, [imsFormFieldLabel]),
-    &:has(:is(input, select, textarea, button, [data-ims-main-control]):not(:disabled):focus) >
-        :is(label, [imsFormFieldLabel]) {
+    &:has(:is(input, select, textarea, button):not(:disabled):hover) > :is(label, [imsFormFieldLabel]),
+    &:has(:is(input, select, textarea, button):not(:disabled):focus) > :is(label, [imsFormFieldLabel]) {
         color: var(--ims-form-accent);
     }
 }
