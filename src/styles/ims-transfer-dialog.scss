@@ -1,22 +1,3 @@
-.ims-transfer-dialog,
-.ims-transfer-dialog__row.cdk-drag-preview {
-    --ims-transfer-accent: var(--ims-color-interactive);
-    --ims-transfer-accent-strong: var(--ims-color-interactive-strong);
-    --ims-transfer-accent-subtle: var(--ims-color-interactive-subtle);
-    --ims-transfer-accent-alt-strong: var(--ims-color-interactive-alt-strong);
-    --ims-transfer-accent-alt-subtle: var(--ims-color-interactive-alt-subtle);
-    --ims-transfer-on-accent: var(--ims-color-on-interactive);
-    --ims-transfer-focus-ring: var(--ims-color-focus-ring);
-    --ims-transfer-background-dialog: var(--ims-background-dialog);
-    --ims-transfer-background-panel: var(--ims-background-panel);
-    --ims-transfer-surface-subtle: var(--ims-color-surface-subtle);
-    --ims-transfer-text: var(--ims-color-on-surface);
-    --ims-transfer-text-muted: var(--ims-color-on-surface-muted);
-    --ims-transfer-text-disabled: var(--ims-color-on-surface-disabled);
-    --ims-transfer-border: var(--ims-color-border);
-    --ims-transfer-border-subtle: var(--ims-color-border-subtle);
-}
-
 .ims-transfer-dialog {
     display: block;
     box-sizing: border-box;
@@ -25,8 +6,8 @@
     max-height: 85vh;
     padding: 1rem;
     border-radius: 0.75rem;
-    background: var(--ims-transfer-background-dialog);
-    color: var(--ims-transfer-text);
+    background: var(--ims-background-dialog);
+    color: var(--ims-color-on-surface);
 }
 
 .ims-transfer-dialog__title {
@@ -42,7 +23,7 @@
 }
 
 .ims-transfer-dialog__filter-label {
-    color: var(--ims-transfer-text-muted);
+    color: var(--ims-color-on-surface-muted);
     font-size: 0.8rem;
 }
 
@@ -63,9 +44,9 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
-    border: 1px solid var(--ims-transfer-border-subtle);
+    border: 1px solid var(--ims-color-border-subtle);
     border-radius: 0.5rem;
-    background: var(--ims-transfer-background-panel);
+    background: var(--ims-background-panel);
     overflow: hidden;
 }
 
@@ -75,8 +56,8 @@
     justify-content: space-between;
     gap: 0.5rem;
     padding: 0.35rem 0.5rem 0.35rem 0.65rem;
-    border-bottom: 1px solid var(--ims-transfer-border-subtle);
-    background: var(--ims-transfer-surface-subtle);
+    border-bottom: 1px solid var(--ims-color-border-subtle);
+    background: var(--ims-color-surface-subtle);
     font-size: 0.85rem;
     font-weight: 650;
 }
@@ -102,7 +83,7 @@
     border: 0;
     border-radius: 0.375rem;
     background: transparent;
-    color: var(--ims-transfer-accent-strong);
+    color: var(--ims-color-interactive-strong);
     cursor: pointer;
 }
 
@@ -136,17 +117,17 @@
 }
 
 .ims-transfer-dialog__header-action:hover {
-    background: var(--ims-transfer-accent-subtle);
+    background: var(--ims-color-interactive-subtle);
 }
 
 .ims-transfer-dialog__header-action:focus-visible {
     outline: none;
-    background: var(--ims-transfer-accent-subtle);
-    box-shadow: 0 0 0 3px var(--ims-transfer-focus-ring);
+    background: var(--ims-color-interactive-subtle);
+    box-shadow: 0 0 0 3px var(--ims-color-focus-ring);
 }
 
 .ims-transfer-dialog__header-action:disabled {
-    color: var(--ims-transfer-text-disabled);
+    color: var(--ims-color-on-surface-disabled);
     cursor: not-allowed;
 }
 
@@ -155,9 +136,9 @@
 }
 
 .ims-transfer-dialog__header-action--sort {
-    border: 1px solid var(--ims-transfer-border);
+    border: 1px solid var(--ims-color-border);
     border-radius: 999px;
-    color: var(--ims-transfer-text-muted);
+    color: var(--ims-color-on-surface-muted);
 }
 
 .ims-transfer-dialog__header-action--sort svg {
@@ -170,22 +151,22 @@
 
 .ims-transfer-dialog__header-action--sort:hover,
 .ims-transfer-dialog__header-action--sort:focus-visible {
-    background: var(--ims-transfer-surface-subtle);
+    background: var(--ims-color-surface-subtle);
 }
 
 .ims-transfer-dialog__header-action--sort.ims-transfer-dialog__header-action--active {
-    border-color: var(--ims-transfer-accent);
-    background: var(--ims-transfer-accent-subtle);
-    color: var(--ims-transfer-accent-strong);
+    border-color: var(--ims-color-interactive);
+    background: var(--ims-color-interactive-subtle);
+    color: var(--ims-color-interactive-strong);
 }
 
 .ims-transfer-dialog__header-action--sort.ims-transfer-dialog__header-action--active:hover,
 .ims-transfer-dialog__header-action--sort.ims-transfer-dialog__header-action--active:focus-visible {
-    background: var(--ims-transfer-accent-alt-subtle);
+    background: var(--ims-color-interactive-alt-subtle);
 }
 
 .ims-transfer-dialog__header-action--sort:disabled {
-    border-color: var(--ims-transfer-border-subtle);
+    border-color: var(--ims-color-border-subtle);
 }
 
 .ims-transfer-dialog__count {
@@ -193,8 +174,8 @@
     min-width: 1.5rem;
     padding: 0.05rem 0.4rem;
     border-radius: 999px;
-    background: var(--ims-transfer-accent-alt-subtle);
-    color: var(--ims-transfer-accent-alt-strong);
+    background: var(--ims-color-interactive-alt-subtle);
+    color: var(--ims-color-interactive-alt-strong);
     font-size: 0.75rem;
     text-align: center;
 }
@@ -214,7 +195,7 @@
     gap: 0.4rem;
     padding: 0.35rem 0.4rem;
     border-radius: 0.375rem;
-    background: var(--ims-transfer-background-panel);
+    background: var(--ims-background-panel);
     cursor: grab;
     transition: background 100ms ease;
 }
@@ -224,7 +205,7 @@
 }
 
 .ims-transfer-dialog__row:hover {
-    background: var(--ims-transfer-surface-subtle);
+    background: var(--ims-color-surface-subtle);
 }
 
 .ims-transfer-dialog__row--disabled {
@@ -233,7 +214,7 @@
 }
 
 .ims-transfer-dialog__row--disabled:hover {
-    background: var(--ims-transfer-background-panel);
+    background: var(--ims-background-panel);
 }
 
 .ims-transfer-dialog__handle {
@@ -242,7 +223,7 @@
     flex: 0 0 auto;
     width: 1.25rem;
     height: 1.25rem;
-    color: var(--ims-transfer-text-muted);
+    color: var(--ims-color-on-surface-muted);
 }
 
 .ims-transfer-dialog__handle svg {
@@ -264,7 +245,7 @@
     width: 1rem;
     height: 1rem;
     margin: 0;
-    accent-color: var(--ims-transfer-accent);
+    accent-color: var(--ims-color-interactive);
 }
 
 .ims-transfer-dialog__checkbox input:disabled {
@@ -280,16 +261,16 @@
 .ims-transfer-dialog__empty {
     margin: 0;
     padding: 0.75rem 0.4rem;
-    color: var(--ims-transfer-text-muted);
+    color: var(--ims-color-on-surface-muted);
     font-size: 0.85rem;
     text-align: center;
 }
 
 .ims-transfer-dialog__row.cdk-drag-preview {
     box-sizing: border-box;
-    border: 1px solid var(--ims-transfer-border-subtle);
+    border: 1px solid var(--ims-color-border-subtle);
     border-radius: 0.375rem;
-    background: var(--ims-transfer-background-panel);
+    background: var(--ims-background-panel);
     box-shadow: 0 8px 24px rgb(15 23 42 / 20%);
 }
 
@@ -316,7 +297,7 @@
 
 .ims-transfer-dialog__button {
     padding: 0.45rem 0.9rem;
-    border: 1px solid var(--ims-transfer-border);
+    border: 1px solid var(--ims-color-border);
     border-radius: 0.5rem;
     background: transparent;
     color: inherit;
@@ -325,23 +306,23 @@
 }
 
 .ims-transfer-dialog__button:hover {
-    background: var(--ims-transfer-surface-subtle);
+    background: var(--ims-color-surface-subtle);
 }
 
 .ims-transfer-dialog__button:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px var(--ims-transfer-focus-ring);
+    box-shadow: 0 0 0 3px var(--ims-color-focus-ring);
 }
 
 .ims-transfer-dialog__button--primary {
-    border-color: var(--ims-transfer-accent);
-    background: var(--ims-transfer-accent);
-    color: var(--ims-transfer-on-accent);
+    border-color: var(--ims-color-interactive);
+    background: var(--ims-color-interactive);
+    color: var(--ims-color-on-interactive);
 }
 
 .ims-transfer-dialog__button--primary:hover {
-    border-color: var(--ims-transfer-accent-strong);
-    background: var(--ims-transfer-accent-strong);
+    border-color: var(--ims-color-interactive-strong);
+    background: var(--ims-color-interactive-strong);
 }
 
 @media (max-width: 480px) {

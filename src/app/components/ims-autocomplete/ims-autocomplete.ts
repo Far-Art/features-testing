@@ -6,8 +6,9 @@ import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value
 import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
 import {runViewTransition} from '../../shared/view-transition';
 import {ImsTransferDialogService, ImsTransferRow} from '../ims-transfer-dialog';
-import {ImsAutocompleteCompareWith, ImsAutocompleteHighlightPart, ImsAutocompleteOption, ImsAutocompleteSortMode, ImsAutocompleteToolbarMode, ImsAutocompleteToolbarSide, ImsAutocompleteValue, ImsAutocompleteViewMode} from './ims-autocomplete.types';
+import {ImsAutocompleteActivationSource, ImsAutocompleteCompareWith, ImsAutocompleteHighlightPart, ImsAutocompleteOption, ImsAutocompleteSortMode, ImsAutocompleteToolbarMode, ImsAutocompleteToolbarSide, ImsAutocompleteValue, ImsAutocompleteViewMode} from './ims-autocomplete.types';
 
+type ImsAutocompleteOverlaySide = 'above' | 'below';
 
 interface ImsAutocompleteDisplayState {
     readonly text: string;
@@ -62,6 +63,10 @@ const TRIGGER_ITEM_GAP = 8;
 
 let nextAutocompleteId = 0;
 
+const optionalBooleanAttribute = (
+    value: boolean | string | null | undefined
+): boolean | null => value === null || value === undefined ? null : booleanAttribute(value);
+
 @Component({
     selector: 'ims-autocomplete',
     standalone: true,
@@ -99,6 +104,17 @@ export class ImsAutocomplete<T = unknown>
     readonly options = input<readonly ImsAutocompleteOption<T>[]>([]);
     /** Enables multi-selection. Multi-select always requires choosing options from the list. */
     readonly multiple = input(false, {transform: booleanAttribute});
+    /**
+     * Allows the options panel to open for review while the control is disabled.
+     * Defaults to enabled in multiple mode and disabled in single mode.
+     */
+    readonly allowOpenWhenDisabledInput = input<
+        boolean | null,
+        boolean | string | null | undefined
+    >(
+        null,
+        {alias: 'allowOpenWhenDisabled', transform: optionalBooleanAttribute}
+    );
     /** Placeholder displayed in the input or trigger when empty. */
     readonly placeholder = input('חיפוש');
     /** Requires single-selection text to resolve to an option. Multi-select is always strict. */
@@ -129,6 +145,12 @@ export class ImsAutocomplete<T = unknown>
     readonly autocompleteId = `ims-autocomplete-${nextAutocompleteId++}`;
     readonly listboxId = `${this.autocompleteId}-listbox`;
     readonly overlayPositions = OVERLAY_POSITIONS;
+    readonly allowOpenWhenDisabled = computed(() =>
+        this.allowOpenWhenDisabledInput() ?? this.multiple()
+    );
+    readonly readonlyMode = computed(() =>
+        this.disabled() && this.allowOpenWhenDisabled()
+    );
     readonly effectiveStrict = computed(() => this.multiple() || this.strict());
     readonly selectedValues = computed<readonly T[]>(() => {
         const currentValue = this.value();
@@ -214,6 +236,7 @@ export class ImsAutocomplete<T = unknown>
     });
     private resizeObserver: ResizeObserver | null = null;
     private measureFrame: ReturnType<typeof requestAnimationFrame> | null = null;
+    private overlaySide: ImsAutocompleteOverlaySide | undefined;
     private readonly changeDetectorRef = inject(ChangeDetectorRef);
     private readonly transferDialog = inject(ImsTransferDialogService);
     private readonly origin = viewChild<ElementRef<HTMLElement>>('origin');
@@ -228,6 +251,12 @@ export class ImsAutocomplete<T = unknown>
 
     constructor() {
         super();
+
+        effect(() => {
+            if (this.disabled() && !this.allowOpenWhenDisabled() && this.open()) {
+                this.closePanel(false);
+            }
+        });
 
         effect(() => {
             if (!this.open()) return;
@@ -291,7 +320,8 @@ export class ImsAutocomplete<T = unknown>
     }
 
     openPanel(): void {
-        if (this.disabled() || this.open()) return;
+        if ((this.disabled() && !this.allowOpenWhenDisabled()) || this.open()) return;
+        this.overlaySide = undefined;
         this.updatePanelGeometry();
         this.activeIndex.set(this.findInitialActiveIndex(this.visibleOptions()));
         this.open.set(true);
@@ -305,7 +335,7 @@ export class ImsAutocomplete<T = unknown>
         this.listboxMinHeight.set(0);
         this.activeIndex.set(-1);
 
-        if (commitText && !this.multiple()) {
+        if (commitText && !this.multiple() && !this.disabled()) {
             this.commitSingleInput();
         }
 
@@ -338,7 +368,8 @@ export class ImsAutocomplete<T = unknown>
     }
 
     onOverlayPositionChange(event: ConnectedOverlayPositionChange): void {
-        this.updateListboxMaxHeight(event.connectionPair.originY === 'top' ? 'above' : 'below');
+        this.overlaySide = event.connectionPair.originY === 'top' ? 'above' : 'below';
+        this.updateListboxMaxHeight(this.overlaySide);
         this.updateToolbarSide();
     }
 
@@ -349,6 +380,8 @@ export class ImsAutocomplete<T = unknown>
     }
 
     onSingleInput(event: Event): void {
+        if (this.disabled()) return;
+
         const target = event.target;
         if (!(target instanceof HTMLInputElement)) return;
 
@@ -434,14 +467,20 @@ export class ImsAutocomplete<T = unknown>
     onSingleBlur(): void {
         queueMicrotask(() => {
             if (!this.open()) {
-                this.commitSingleInput();
+                if (!this.disabled()) {
+                    this.commitSingleInput();
+                }
                 this.markAsTouched();
             }
         });
     }
 
     onKeydown(event: KeyboardEvent): void {
-        if (this.disabled()) return;
+        if (this.disabled()) {
+            if (!this.allowOpenWhenDisabled()) return;
+            this.onReadonlyKeydown(event);
+            return;
+        }
 
         if (this.isToolbarKeyboardEvent(event) && event.key !== 'Escape' && event.key !== 'Tab') {
             return;
@@ -489,6 +528,43 @@ export class ImsAutocomplete<T = unknown>
         }
     }
 
+    private onReadonlyKeydown(event: KeyboardEvent): void {
+        switch (event.key) {
+            case 'ArrowDown':
+                event.preventDefault();
+                this.openPanel();
+                this.moveActiveOption(1);
+                break;
+            case 'ArrowUp':
+                event.preventDefault();
+                this.openPanel();
+                this.moveActiveOption(-1);
+                break;
+            case 'Home':
+                if (this.open() && !(event.target instanceof HTMLInputElement)) {
+                    event.preventDefault();
+                    this.moveToBoundary('first');
+                }
+                break;
+            case 'End':
+                if (this.open() && !(event.target instanceof HTMLInputElement)) {
+                    event.preventDefault();
+                    this.moveToBoundary('last');
+                }
+                break;
+            case 'Escape':
+                if (this.open()) {
+                    event.preventDefault();
+                    this.closePanel(false);
+                    this.focusOrigin();
+                }
+                break;
+            case 'Tab':
+                this.closePanel(false);
+                break;
+        }
+    }
+
     selectOption(option: ImsAutocompleteOption<T>): void {
         if (this.disabled() || option.disabled) return;
 
@@ -511,7 +587,12 @@ export class ImsAutocomplete<T = unknown>
         return this.selectedValues().some((value) => this.valuesEqual(value, option.value));
     }
 
-    activateOption(option: ImsAutocompleteOption<T>): void {
+    activateOption(
+        option: ImsAutocompleteOption<T>,
+        source: ImsAutocompleteActivationSource = 'selection'
+    ): void {
+        if (source === 'pointer' && this.readonlyMode()) return;
+
         const index = this.visibleOptions().findIndex((visibleOption) => visibleOption === option);
         if (index < 0 || option.disabled) return;
         this.activeIndex.set(index);
@@ -812,7 +893,7 @@ export class ImsAutocomplete<T = unknown>
         if (!originRect) return;
 
         this.panelWidth.set(originRect.width);
-        this.updateListboxMaxHeight();
+        this.updateListboxMaxHeight(this.overlaySide);
         this.updateToolbarSide(originRect);
     }
 
@@ -839,7 +920,7 @@ export class ImsAutocomplete<T = unknown>
         }
     }
 
-    private updateListboxMaxHeight(preferredSide?: 'above' | 'below'): void {
+    private updateListboxMaxHeight(preferredSide?: ImsAutocompleteOverlaySide): void {
         const originRect = this.origin()?.nativeElement.getBoundingClientRect();
         if (!originRect) return;
 

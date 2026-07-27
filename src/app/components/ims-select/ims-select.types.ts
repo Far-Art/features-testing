@@ -4,6 +4,7 @@ export type ImsSelectFilterMode = 'on' | 'off' | 'auto';
 export type ImsSelectToolbarMode = 'on' | 'off' | 'auto';
 export type ImsSelectViewMode = 'all' | 'selected' | 'unselected';
 export type ImsSelectToolbarSide = 'left' | 'right';
+export type ImsSelectActivationSource = 'selection' | 'pointer';
 export type ImsSelectCompareWith<T> = (first: T, second: T) => boolean;
 
 export interface ImsSelectOptionLike<T = unknown> {
@@ -24,7 +25,10 @@ export interface ImsSelectParent<T = unknown> {
     isOptionActive(option: ImsSelectOptionLike<T>): boolean;
     isOptionVisible(option: ImsSelectOptionLike<T>): boolean;
     selectOption(option: ImsSelectOptionLike<T>, event?: Event): void;
-    activateOption(option: ImsSelectOptionLike<T>): void;
+    activateOption(
+        option: ImsSelectOptionLike<T>,
+        source?: ImsSelectActivationSource
+    ): void;
 }
 
 export const IMS_SELECT_PARENT = new InjectionToken<ImsSelectParent>('IMS_SELECT_PARENT');

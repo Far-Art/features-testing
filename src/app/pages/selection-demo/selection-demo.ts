@@ -89,6 +89,21 @@ export class SelectionDemo {
         ],
         {nonNullable: true}
     );
+    readonly readonlyMultiSelectControl = new FormControl<readonly SelectDemoBag[]>(
+        {
+            value: [this.initialBagOptions[0], this.initialBagOptions[2]],
+            disabled: true
+        },
+        {nonNullable: true}
+    );
+    readonly disabledSingleSelectControl = new FormControl<SelectDemoBag | null>({
+        value: this.initialBagOptions[1],
+        disabled: true
+    });
+    readonly readonlySingleSelectControl = new FormControl<SelectDemoBag | null>({
+        value: this.initialBagOptions[1],
+        disabled: true
+    });
     readonly bagAutocompleteOptions: readonly ImsAutocompleteOption<SelectDemoBag>[] = this.initialBagOptions.map((bag) => ({
         value: bag,
         label: bag.label,
@@ -98,6 +113,23 @@ export class SelectionDemo {
     readonly autocompleteMultiControl = new FormControl<readonly SelectDemoBag[]>([], {
         nonNullable: true
     });
+    readonly readonlyMultiAutocompleteControl = new FormControl<readonly SelectDemoBag[]>(
+        {
+            value: [this.initialBagOptions[0], this.initialBagOptions[2]],
+            disabled: true
+        },
+        {nonNullable: true}
+    );
+    readonly disabledSingleAutocompleteControl =
+        new FormControl<SelectDemoBag | string | null>({
+            value: this.initialBagOptions[1],
+            disabled: true
+        });
+    readonly readonlySingleAutocompleteControl =
+        new FormControl<SelectDemoBag | string | null>({
+            value: this.initialBagOptions[1],
+            disabled: true
+        });
     readonly largeAutocompleteOptions: readonly ImsAutocompleteOption<LargeAutocompleteRow>[] = Array.from(
         {length: 100_000},
         (_, index) => {

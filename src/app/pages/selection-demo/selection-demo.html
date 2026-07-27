@@ -52,6 +52,70 @@
 
 <section class="select-demo">
     <div>
+        <h2>בחירה מושבתת במצב צפייה בלבד</h2>
+        <p>
+            בחירה מרובה נפתחת כברירת מחדל גם כשהפקד מושבת. בבחירה יחידה ברירת
+            המחדל היא לא להיפתח, וניתן לאפשר זאת באמצעות
+            <code>allowOpenWhenDisabled</code>. בשני המקרים לא ניתן לשנות את הערך.
+        </p>
+    </div>
+
+    <div class="select-demo__grid">
+        <label class="select-demo__field">
+            <span>בחירה מרובה מושבתת — ברירת מחדל</span>
+            <ims-select
+                multiple
+                filter="auto"
+                toolbar="auto"
+                ariaLabel="בחירה מרובה מושבתת לצפייה בלבד"
+                [formControl]="readonlyMultiSelectControl"
+                [compareWith]="compareBagById"
+            >
+                @for (bag of bagOptions(); track bag.id) {
+                    <ims-option [value]="bag" [selectionText]="bag.label" [disabled]="!!bag.disabled">
+                        {{ bag.label }} (+{{ bag.count }})
+                    </ims-option>
+                }
+            </ims-select>
+        </label>
+
+        <label class="select-demo__field">
+            <span>בחירה יחידה מושבתת — ברירת מחדל</span>
+            <ims-select
+                filter="auto"
+                ariaLabel="בחירה יחידה מושבתת"
+                [formControl]="disabledSingleSelectControl"
+                [compareWith]="compareBagById"
+            >
+                @for (bag of bagOptions(); track bag.id) {
+                    <ims-option [value]="bag" [selectionText]="bag.label" [disabled]="!!bag.disabled">
+                        {{ bag.label }} (+{{ bag.count }})
+                    </ims-option>
+                }
+            </ims-select>
+        </label>
+
+        <label class="select-demo__field">
+            <span>בחירה יחידה מושבתת — פתיחה הופעלה</span>
+            <ims-select
+                allowOpenWhenDisabled
+                filter="auto"
+                ariaLabel="בחירה יחידה מושבתת לצפייה בלבד"
+                [formControl]="readonlySingleSelectControl"
+                [compareWith]="compareBagById"
+            >
+                @for (bag of bagOptions(); track bag.id) {
+                    <ims-option [value]="bag" [selectionText]="bag.label" [disabled]="!!bag.disabled">
+                        {{ bag.label }} (+{{ bag.count }})
+                    </ims-option>
+                }
+            </ims-select>
+        </label>
+    </div>
+</section>
+
+<section class="select-demo">
+    <div>
         <h2>רכיב השלמה אוטומטית</h2>
         <p>אפשרויות מתוך רשימה עם הדגשת התאמות, גלילה וירטואלית, טעינה אסינכרונית, מיון ובחירה מרובה מחייבת.</p>
     </div>
@@ -79,6 +143,54 @@
                 toolbar="auto"
                 [loadOptions]="loadBagAutocompleteOptions"
                 [formControl]="autocompleteMultiControl"
+                [compareWith]="compareBagById"
+            />
+        </label>
+    </div>
+</section>
+
+<section class="select-demo">
+    <div>
+        <h2>השלמה אוטומטית מושבתת במצב צפייה בלבד</h2>
+        <p>
+            השלמה מרובה נפתחת לצפייה כברירת מחדל. השלמה יחידה נשארת סגורה כברירת
+            מחדל, וניתן לאפשר את פתיחתה באמצעות
+            <code>allowOpenWhenDisabled</code>.
+        </p>
+    </div>
+
+    <div class="select-demo__grid">
+        <label class="select-demo__field">
+            <span>השלמה מרובה מושבתת — ברירת מחדל</span>
+            <ims-autocomplete
+                multiple
+                toolbar="auto"
+                ariaLabel="השלמה מרובה מושבתת לצפייה בלבד"
+                [options]="bagAutocompleteOptions"
+                [formControl]="readonlyMultiAutocompleteControl"
+                [compareWith]="compareBagById"
+            />
+        </label>
+
+        <label class="select-demo__field">
+            <span>השלמה יחידה מושבתת — ברירת מחדל</span>
+            <ims-autocomplete
+                strict
+                ariaLabel="השלמה יחידה מושבתת"
+                [options]="bagAutocompleteOptions"
+                [formControl]="disabledSingleAutocompleteControl"
+                [compareWith]="compareBagById"
+            />
+        </label>
+
+        <label class="select-demo__field">
+            <span>השלמה יחידה מושבתת — פתיחה הופעלה</span>
+            <ims-autocomplete
+                strict
+                allowOpenWhenDisabled
+                ariaLabel="השלמה יחידה מושבתת לצפייה בלבד"
+                [options]="bagAutocompleteOptions"
+                [formControl]="readonlySingleAutocompleteControl"
                 [compareWith]="compareBagById"
             />
         </label>

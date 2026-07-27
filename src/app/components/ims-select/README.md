@@ -52,6 +52,11 @@ depend on Angular CDK overlay and bidi.
 and `toolbar` each accept `'on' | 'off' | 'auto'`, where `'auto'` activates
 once `options().length >= filterAutoMinOptions()` (default `15`).
 
+`allowOpenWhenDisabled` allows a disabled select to open in readonly mode so
+its options can be reviewed without changing the value. When the input is not
+set, it defaults to `true` in multiple mode and `false` in single-select mode.
+Set it explicitly to override either default.
+
 ## Multi-Select Toolbar
 
 When `multiple()` and `showToolbar()` are true, an `aside` renders next to the

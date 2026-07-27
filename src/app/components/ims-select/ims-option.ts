@@ -95,7 +95,7 @@ export class ImsOption<T = unknown> implements AfterViewInit, OnDestroy, ImsSele
 
     handleMouseenter(): void {
         if (this.disabled()) return;
-        this.parent?.activateOption(this);
+        this.parent?.activateOption(this, 'pointer');
     }
 
     scrollIntoView(): void {

@@ -28,6 +28,12 @@
     cursor: not-allowed;
 }
 
+.ims-readonly {
+    --ims-input-disabled-border: var(--ims-color-border);
+    --ims-input-disabled-background: var(--ims-color-surface-input-readonly);
+    --ims-input-disabled-color: var(--ims-color-on-surface-readonly);
+}
+
 // Angular applies ng-invalid directly to native controls and to form-compatible
 // component hosts. Components identify their visual control with data-ims-main-control.
 .ims-input.ng-invalid:not(:disabled),

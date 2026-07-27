@@ -30,6 +30,7 @@ import {ImsOption} from './ims-option';
 import {ImsTransferDialogService, ImsTransferRow} from '../ims-transfer-dialog';
 import {
   IMS_SELECT_PARENT,
+  ImsSelectActivationSource,
   ImsSelectCompareWith,
   ImsSelectFilterMode,
   ImsSelectFilterPredicate,
@@ -41,6 +42,7 @@ import {
 } from './ims-select.types';
 
 type ImsSelectFormValue<T> = T | readonly T[] | null | undefined;
+type ImsSelectOverlaySide = 'above' | 'below';
 
 interface ImsSelectDisplayState {
   readonly text: string;
@@ -89,6 +91,10 @@ const TYPEAHEAD_RESET_MS = 700;
 
 let nextSelectId = 0;
 
+const optionalBooleanAttribute = (
+  value: boolean | string | null | undefined
+): boolean | null => value === null || value === undefined ? null : booleanAttribute(value);
+
 @Component({
   selector: 'ims-select',
   standalone: true,
@@ -122,6 +128,7 @@ export class ImsSelect<T = unknown>
   implements AfterViewInit, OnDestroy, ImsSelectParent<T> {
   private resizeObserver: ResizeObserver | null = null;
   private measureFrame: ReturnType<typeof requestAnimationFrame> | null = null;
+  private overlaySide: ImsSelectOverlaySide | undefined;
   private typeaheadQuery = '';
   private typeaheadResetTimer: ReturnType<typeof setTimeout> | null = null;
   readonly directionality = inject(Directionality);
@@ -143,6 +150,18 @@ export class ImsSelect<T = unknown>
 
   /** Enables multi-selection. Multi-select writes a readonly array of selected values. */
   readonly multiple = input(false, {transform: booleanAttribute});
+
+  /**
+   * Allows the dropdown to be opened for review while the control is disabled.
+   * Defaults to enabled in multiple mode and disabled in single-select mode.
+   */
+  readonly allowOpenWhenDisabledInput = input<
+    boolean | null,
+    boolean | string | null | undefined
+  >(
+    null,
+    {alias: 'allowOpenWhenDisabled', transform: optionalBooleanAttribute}
+  );
 
   /** Text displayed in the trigger when no value is selected. */
   readonly placeholder = input('בחר');
@@ -180,6 +199,13 @@ export class ImsSelect<T = unknown>
   readonly listboxMinHeight = signal(0);
   readonly listboxMaxHeight = signal(LISTBOX_MAX_HEIGHT);
   readonly multiDisplay = signal<ImsSelectDisplayState>(DEFAULT_DISPLAY);
+
+  readonly allowOpenWhenDisabled = computed(() =>
+    this.allowOpenWhenDisabledInput() ?? this.multiple()
+  );
+  readonly readonlyMode = computed(() =>
+    this.disabled() && this.allowOpenWhenDisabled()
+  );
 
   readonly selectId = `ims-select-${nextSelectId++}`;
   readonly listboxId = `${this.selectId}-listbox`;
@@ -278,7 +304,7 @@ export class ImsSelect<T = unknown>
     super();
 
     effect(() => {
-      if (this.disabled() && this.open()) {
+      if (this.disabled() && !this.allowOpenWhenDisabled() && this.open()) {
         this.close(false);
       }
     });
@@ -336,7 +362,7 @@ export class ImsSelect<T = unknown>
   }
 
   togglePanel(): void {
-    if (this.disabled()) return;
+    if (this.disabled() && !this.allowOpenWhenDisabled()) return;
 
     if (this.open()) {
       this.close(true);
@@ -347,8 +373,9 @@ export class ImsSelect<T = unknown>
   }
 
   openPanel(): void {
-    if (this.disabled() || this.open()) return;
+    if ((this.disabled() && !this.allowOpenWhenDisabled()) || this.open()) return;
 
+    this.overlaySide = undefined;
     this.updatePanelGeometry();
     this.setInitialActiveOption();
     this.open.set(true);
@@ -372,7 +399,6 @@ export class ImsSelect<T = unknown>
   onOverlayAttached(): void {
     queueMicrotask(() => {
       this.updatePanelGeometry();
-      this.updateListboxMaxHeight();
       this.updateToolbarSide();
       this.captureListboxHeight();
       this.setInitialActiveOption();
@@ -388,7 +414,8 @@ export class ImsSelect<T = unknown>
   }
 
   onOverlayPositionChange(event: ConnectedOverlayPositionChange): void {
-    this.updateListboxMaxHeight(event.connectionPair.originY === 'top' ? 'above' : 'below');
+    this.overlaySide = event.connectionPair.originY === 'top' ? 'above' : 'below';
+    this.updateListboxMaxHeight(this.overlaySide);
     this.updateToolbarSide();
   }
 
@@ -481,7 +508,12 @@ export class ImsSelect<T = unknown>
     return this.visibleOptions().some((visibleOption) => visibleOption === option);
   }
 
-  activateOption(option: ImsSelectOptionLike<T>): void {
+  activateOption(
+    option: ImsSelectOptionLike<T>,
+    source: ImsSelectActivationSource = 'selection'
+  ): void {
+    if (source === 'pointer' && this.readonlyMode()) return;
+
     const index = this.visibleOptions().findIndex((visibleOption) => visibleOption === option);
     if (index < 0 || option.disabled()) return;
     this.activeIndex.set(index);
@@ -507,7 +539,11 @@ export class ImsSelect<T = unknown>
   }
 
   onTriggerKeydown(event: KeyboardEvent): void {
-    if (this.disabled()) return;
+    if (this.disabled()) {
+      if (!this.allowOpenWhenDisabled()) return;
+      this.onReadonlyTriggerKeydown(event);
+      return;
+    }
 
     if (!this.open() && !this.multiple() && this.handleClosedSingleKeydown(event)) {
       return;
@@ -537,6 +573,30 @@ export class ImsSelect<T = unknown>
           this.openPanel();
         } else {
           this.selectActiveOption();
+        }
+        break;
+      case 'Escape':
+        if (this.open()) {
+          event.preventDefault();
+          this.close(true);
+        }
+        break;
+    }
+  }
+
+  private onReadonlyTriggerKeydown(event: KeyboardEvent): void {
+    switch (event.key) {
+      case 'ArrowDown':
+      case 'ArrowUp':
+      case 'Enter':
+      case ' ':
+        event.preventDefault();
+        if (!this.open()) {
+          this.openPanel();
+        } else if (event.key === 'ArrowDown') {
+          this.moveActiveOption(1);
+        } else if (event.key === 'ArrowUp') {
+          this.moveActiveOption(-1);
         }
         break;
       case 'Escape':
@@ -883,7 +943,7 @@ export class ImsSelect<T = unknown>
     if (!triggerRect) return;
 
     this.panelMinWidth.set(triggerRect.width);
-    this.updateListboxMaxHeight();
+    this.updateListboxMaxHeight(this.overlaySide);
     this.updateToolbarSide(triggerRect);
   }
 
@@ -910,7 +970,7 @@ export class ImsSelect<T = unknown>
     }
   }
 
-  private updateListboxMaxHeight(preferredSide?: 'above' | 'below'): void {
+  private updateListboxMaxHeight(preferredSide?: ImsSelectOverlaySide): void {
     const triggerRect = this.triggerButton()?.nativeElement.getBoundingClientRect();
     if (!triggerRect) return;
 
