@@ -109,7 +109,7 @@ const optionalBooleanAttribute = (
     }
   ],
   host: {
-    class: 'ims-select-host ims-input-host'
+    class: 'ims-select-host'
   }
 })
 /**

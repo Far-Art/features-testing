@@ -15,6 +15,15 @@
     cursor: pointer;
 }
 
+.ims-select-host.ng-invalid .ims-select__trigger:not(:disabled) {
+    border-color: var(--ims-input-invalid-border, var(--ims-color-invalid));
+}
+
+.ims-select-host.ng-invalid .ims-select__trigger:focus-visible {
+    box-shadow: 0 0 0 3px
+        var(--ims-input-invalid-focus-ring, var(--ims-color-invalid-focus-ring));
+}
+
 .ims-select__trigger--readonly {
     border-color: var(--ims-input-disabled-border, var(--ims-color-border-subtle));
     background: var(--ims-input-disabled-background, var(--ims-color-surface-input-disabled));

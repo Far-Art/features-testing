@@ -39,7 +39,7 @@ import {
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [provideValueAccessor(ImsAutocompleteAsync)],
     host: {
-        class: 'ims-autocomplete-host ims-input-host'
+        class: 'ims-autocomplete-host'
     }
 })
 /**

@@ -82,7 +82,7 @@ const optionalBooleanAttribute = (
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [provideValueAccessor(ImsAutocomplete)],
     host: {
-        class: 'ims-autocomplete-host ims-input-host'
+        class: 'ims-autocomplete-host'
     }
 })
 /**

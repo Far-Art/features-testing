@@ -14,7 +14,6 @@
         <button
             type="button"
             class="ims-input ims-autocomplete__trigger"
-            data-ims-main-control
             [class.ims-autocomplete__trigger--open]="open()"
             [class.ims-autocomplete__trigger--empty]="!hasSelection()"
             [class.ims-autocomplete__trigger--readonly]="readonlyMode()"
@@ -61,7 +60,6 @@
             #singleInput
             type="text"
             class="ims-input ims-autocomplete__input"
-            data-ims-main-control
             autocomplete="off"
             [class.ims-autocomplete__input--readonly]="readonlyMode()"
             [disabled]="disabled() && !allowOpenWhenDisabled()"
