@@ -34,6 +34,11 @@ export const routes: Routes = [
             import('./pages/snackbar-demo/snackbar-demo').then((module) => module.SnackbarDemo)
     },
     {
+        path: 'dialog',
+        loadComponent: () =>
+            import('./pages/dialog-demo/dialog-demo').then((module) => module.DialogDemo)
+    },
+    {
         path: 'dock',
         loadComponent: () =>
             import('./pages/dock-demo/dock-demo').then((module) => module.DockDemo)

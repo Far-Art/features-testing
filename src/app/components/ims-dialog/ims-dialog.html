@@ -1,0 +1,58 @@
+<div
+  class="ims-dialog__surface"
+  [class.ims-dialog__surface--ready]="ready()"
+  cdkDrag
+  cdkDragRootElement=".cdk-overlay-pane"
+  cdkDragBoundary="body"
+>
+  @if (!sections.hasTitle() && (config.title || config.icon)) {
+    <ims-dialog-title [generated]="true" [icon]="config.icon">
+      {{ config.title }}
+    </ims-dialog-title>
+  } @else if (!sections.hasTitle()) {
+    <div class="ims-dialog__grabber" cdkDragHandle aria-hidden="true"></div>
+  }
+
+  <button type="button" class="ims-dialog__close" aria-label="Close dialog" (click)="close()">
+    <span class="material-icons" aria-hidden="true">close</span>
+  </button>
+
+  @if (config.component) {
+    <ims-dialog-content
+      class="ims-dialog__component-content"
+      [class.ims-dialog__component-content--projecting]="sections.hasContent()"
+      [generated]="true"
+    >
+      <ng-container *ngComponentOutlet="config.component" />
+    </ims-dialog-content>
+  }
+
+  @if (!sections.hasActions() && config.mode === 'confirmation') {
+    <ims-dialog-actions [generated]="true">
+      <button
+        type="button"
+        class="ims-dialog__button ims-dialog__button--secondary"
+        (click)="reject()"
+      >
+        {{ config.confirmationLabels?.no }}
+      </button>
+      <button
+        type="button"
+        class="ims-dialog__button ims-dialog__button--primary"
+        (click)="confirm()"
+      >
+        {{ config.confirmationLabels?.yes }}
+      </button>
+    </ims-dialog-actions>
+  } @else if (!sections.hasActions() && config.mode === 'readonly') {
+    <ims-dialog-actions [generated]="true">
+      <button
+        type="button"
+        class="ims-dialog__button ims-dialog__button--primary"
+        (click)="close()"
+      >
+        Close
+      </button>
+    </ims-dialog-actions>
+  }
+</div>

@@ -439,6 +439,6 @@ function buildColumnTemplate(
         {length: columnCount},
         (_, index) => index < columnCount - 1
             ? 'max-content max-content minmax(var(--ims-form-column-gap, 0), 1fr)'
-            : 'max-content max-content'
+            : 'auto auto'
     ).join(' ');
 }

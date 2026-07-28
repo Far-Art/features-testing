@@ -1,0 +1,136 @@
+<div class="dialog-demo-page">
+  <header class="dialog-demo-hero">
+    <div class="dialog-demo-hero__copy">
+      <span class="dialog-demo-hero__eyebrow">CDK interaction lab · 05</span>
+      <h1>Dialogs with composable chrome.</h1>
+      <p>
+        Exercise generated titles and actions, custom projected sections, merged data, typed
+        results, severity treatments, and body-constrained dragging.
+      </p>
+    </div>
+  </header>
+
+  <section class="dialog-demo-grid" aria-label="Dialog scenarios">
+    <article class="dialog-demo-card dialog-demo-card--danger">
+      <div class="dialog-demo-card__index">01</div>
+      <div class="dialog-demo-card__body">
+        <span class="dialog-demo-card__tag">Generated chrome</span>
+        <h2>Boolean confirmation</h2>
+        <p>
+          No content component is required. Title, icon, and Yes/No actions are produced by the
+          builder; every dismissal path resolves to a boolean.
+        </p>
+        <code>.danger().asConfirmation('yes_no')</code>
+      </div>
+      <button type="button" (click)="openConfirmation()">Open confirmation</button>
+    </article>
+
+    <article class="dialog-demo-card dialog-demo-card--info">
+      <div class="dialog-demo-card__index">02</div>
+      <div class="dialog-demo-card__body">
+        <span class="dialog-demo-card__tag">Data contract</span>
+        <h2>Auto-wrap + merge</h2>
+        <p>
+          An unstructured component is wrapped in dialog content. CDK config data and builder data
+          are shallow-merged with builder keys taking precedence.
+        </p>
+        <code>.config(&#123; data &#125;).data(payload)</code>
+      </div>
+      <button type="button" (click)="openMergedData()">Inspect merged data</button>
+    </article>
+
+    <article class="dialog-demo-card dialog-demo-card--success">
+      <div class="dialog-demo-card__index">03</div>
+      <div class="dialog-demo-card__body">
+        <span class="dialog-demo-card__tag">Full projection</span>
+        <h2>Component-owned layout</h2>
+        <p>
+          The supplied component owns title, toolbar, content, and actions. It closes through
+          <code>ImsDialogRef</code> with a typed result.
+        </p>
+        <code>&lt;ims-dialog-content&gt;…</code>
+      </div>
+      <button type="button" (click)="openCustomLayout()">Edit profile</button>
+    </article>
+
+    <article class="dialog-demo-card dialog-demo-card--warning">
+      <div class="dialog-demo-card__index">04</div>
+      <div class="dialog-demo-card__body">
+        <span class="dialog-demo-card__tag">Hybrid composition</span>
+        <h2>Projected body, generated actions</h2>
+        <p>
+          The component contributes only content while the builder supplies title, icon, custom
+          confirmation labels, and boolean result mapping.
+        </p>
+        <code>&#123; yes: 'Deploy', no: 'Review' &#125;</code>
+      </div>
+      <button type="button" (click)="openHybridConfirmation()">Review deployment</button>
+    </article>
+
+    <article class="dialog-demo-card dialog-demo-card--info">
+      <div class="dialog-demo-card__index">05</div>
+      <div class="dialog-demo-card__body">
+        <span class="dialog-demo-card__tag">Toolbar row</span>
+        <h2>Title, then tools</h2>
+        <p>
+          A projected <code>ims-dialog-toolbar</code> spans the row beneath the title. Its view and
+          refresh controls update the content without displacing the header close button.
+        </p>
+        <code>&lt;ims-dialog-toolbar&gt;…</code>
+      </div>
+      <button type="button" (click)="openToolbarDemo()">Explore toolbar</button>
+    </article>
+  </section>
+
+  <section class="dialog-demo-severity">
+    <div>
+      <span class="dialog-demo-severity__eyebrow">Visual matrix</span>
+      <h2>One contract, four levels of intent.</h2>
+      <p>
+        Each sample uses the same generated read-only layout. Drag the title and try to move the
+        dialog beyond the viewport edge.
+      </p>
+    </div>
+
+    <div class="dialog-demo-severity__actions">
+      <button
+        type="button"
+        class="dialog-demo-severity__button dialog-demo-severity__button--info"
+        (click)="openSeverity('info')"
+      >
+        <span class="material-icons" aria-hidden="true">info</span>
+        Info
+      </button>
+      <button
+        type="button"
+        class="dialog-demo-severity__button dialog-demo-severity__button--success"
+        (click)="openSeverity('success')"
+      >
+        <span class="material-icons" aria-hidden="true">check_circle</span>
+        Success
+      </button>
+      <button
+        type="button"
+        class="dialog-demo-severity__button dialog-demo-severity__button--warning"
+        (click)="openSeverity('warning')"
+      >
+        <span class="material-icons" aria-hidden="true">warning</span>
+        Warning
+      </button>
+      <button
+        type="button"
+        class="dialog-demo-severity__button dialog-demo-severity__button--danger"
+        (click)="openSeverity('danger')"
+      >
+        <span class="material-icons" aria-hidden="true">error</span>
+        Danger
+      </button>
+    </div>
+  </section>
+
+  <aside class="dialog-demo-console" aria-live="polite">
+    <span class="dialog-demo-console__status" aria-hidden="true"></span>
+    <strong>Last dialog event</strong>
+    <span>{{ lastEvent() }}</span>
+  </aside>
+</div>
