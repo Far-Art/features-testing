@@ -25,8 +25,9 @@
 
 .ims-autocomplete-host.ng-invalid
     :is(.ims-autocomplete__trigger, .ims-autocomplete__input):focus-visible {
-    box-shadow: 0 0 0 3px
-        var(--ims-input-invalid-focus-ring, var(--ims-color-invalid-focus-ring));
+    box-shadow:
+        0 0 0 3px var(--ims-input-invalid-focus-ring, var(--ims-color-invalid-focus-ring)),
+        var(--ims-input-field-shadow);
 }
 
 .ims-autocomplete__trigger {

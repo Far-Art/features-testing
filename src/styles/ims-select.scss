@@ -20,8 +20,9 @@
 }
 
 .ims-select-host.ng-invalid .ims-select__trigger:focus-visible {
-    box-shadow: 0 0 0 3px
-        var(--ims-input-invalid-focus-ring, var(--ims-color-invalid-focus-ring));
+    box-shadow:
+        0 0 0 3px var(--ims-input-invalid-focus-ring, var(--ims-color-invalid-focus-ring)),
+        var(--ims-input-field-shadow);
 }
 
 .ims-select__trigger--readonly {
@@ -115,6 +116,11 @@
     );
 }
 
+.ims-select__overlay[tabindex="-1"]:focus,
+.ims-select__listbox[tabindex="-1"]:focus {
+    outline: none;
+}
+
 .ims-select__overlay--toolbar-left .ims-select__toolbar {
     right: calc(100% + 0.5rem);
 }
@@ -161,8 +167,8 @@
     contain: layout style;
     overflow-x: hidden;
     overflow-y: auto;
-    padding: 0.25rem;
-    scrollbar-gutter: stable;
+    padding: 0.6rem 0;
+    scrollbar-gutter: stable both-edges;
     view-transition-name: ims-select-options-view;
 }
 

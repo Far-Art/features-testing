@@ -1,4 +1,6 @@
- .ims-input {
+.ims-input {
+    --ims-input-field-shadow: 0 1px 3px rgb(0 0 0 / 8%);
+
     box-sizing: border-box;
     min-width: 0;
     min-height: var(--ims-input-min-height, 2.5rem);
@@ -8,6 +10,7 @@
     background: var(--ims-input-background, var(--ims-background-input));
     color: var(--ims-input-color, var(--ims-color-on-surface));
     font: inherit;
+    box-shadow: var(--ims-input-field-shadow);
     transition: border-color 140ms ease, box-shadow 140ms ease;
 }
 
@@ -18,7 +21,9 @@
 .ims-input:focus-visible {
     outline: none;
     border-color: var(--ims-input-focus-border, var(--ims-color-interactive));
-    box-shadow: 0 0 0 3px var(--ims-input-focus-ring, var(--ims-color-focus-ring));
+    box-shadow:
+        0 0 0 3px var(--ims-input-focus-ring, var(--ims-color-focus-ring)),
+        var(--ims-input-field-shadow);
 }
 
 .ims-input:disabled {
@@ -39,6 +44,7 @@
 }
 
 .ims-input.ng-invalid:focus-visible {
-    box-shadow: 0 0 0 3px
-        var(--ims-input-invalid-focus-ring, var(--ims-color-invalid-focus-ring));
+    box-shadow:
+        0 0 0 3px var(--ims-input-invalid-focus-ring, var(--ims-color-invalid-focus-ring)),
+        var(--ims-input-field-shadow);
 }
