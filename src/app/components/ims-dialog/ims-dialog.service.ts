@@ -5,7 +5,7 @@ import { DOCUMENT } from '@angular/common';
 import { Injectable, Type, inject } from '@angular/core';
 import { ImsDialogBuilder, ImsDialogBuilderHost } from './ims-dialog-builder';
 import { ImsDialogRef } from './ims-dialog-ref';
-import { ImsDialog } from './ims-dialog';
+import { ImsDialogShell } from './ims-dialog-shell';
 import {
   IMS_DIALOG_CONFIG,
   IMS_DIALOG_DATA,
@@ -70,12 +70,12 @@ export class ImsDialogService implements ImsDialogBuilderHost {
     };
     const callerConfig = options.config as unknown as DialogConfig<
       unknown,
-      DialogRef<unknown, ImsDialog>
+      DialogRef<unknown, ImsDialogShell>
     >;
     const callerProviders = callerConfig.providers;
     let imsDialogRef: ImsDialogRef<unknown> | null = null;
 
-    const config: DialogConfig<unknown, DialogRef<unknown, ImsDialog>> = {
+    const config: DialogConfig<unknown, DialogRef<unknown, ImsDialogShell>> = {
       ...callerConfig,
       width: callerConfig.width ?? 'min(42rem, calc(100vw - 2rem))',
       maxWidth: insideSize
@@ -132,7 +132,7 @@ export class ImsDialogService implements ImsDialogBuilderHost {
       },
     };
 
-    const cdkDialogRef = this.dialog.open<unknown, unknown, ImsDialog>(ImsDialog, config);
+    const cdkDialogRef = this.dialog.open<unknown, unknown, ImsDialogShell>(ImsDialogShell, config);
 
     return imsDialogRef ?? new ImsDialogRef(cdkDialogRef, options.mode === 'confirmation');
   }

@@ -101,7 +101,7 @@ severity:
 | `warning` | `warning`      |
 | `danger`  | `error`        |
 
-The repository already loads the Material Icons ligature font.
+The dialog and its demo use the Material Symbols Outlined ligature font.
 
 ### `inside(className)`
 
@@ -305,6 +305,31 @@ dialogRef.closed;
 For normal dialogs, the builder returns `ImsDialogRef<Result | undefined>`.
 For confirmation dialogs, it returns `ImsDialogRef<boolean>`.
 
+## `ImsAbstractDialog`
+
+Dialog content components can extend `ImsAbstractDialog<Data, Result>` to gain
+typed access to `dialogData`, `dialogRef`, and a forwarding
+`closeDialog(result?)`
+method:
+
+```ts
+@Component({
+  standalone: true,
+  template: `
+    <p>{{ dialogData.name }}</p>
+    <button type="button" (click)="closeDialog({ saved: true })">Save</button>
+  `,
+})
+export class EditorDialog extends ImsAbstractDialog<
+  { name: string },
+  { saved: boolean } | undefined
+> {}
+```
+
+The abstract directive is intended only for inheritance and has no selector or
+rendered host element. Components can still inject `IMS_DIALOG_DATA` and
+`ImsDialogRef` directly when inheritance is not appropriate.
+
 ## Dragging and boundaries
 
 Viewport dialogs use the fixed CDK overlay container as their drag boundary:
@@ -378,8 +403,9 @@ For custom-title-only dialogs, callers should provide the appropriate
 - `ims-dialog.service.ts`: CDK integration, data merging, providers, and
   severity entrypoints.
 - `ims-dialog-builder.ts`: fluent builder and result typing.
+- `ims-abstract-dialog.ts`: injectable base directive for dialog components.
 - `ims-dialog-ref.ts`: dedicated close reference and confirmation mapping.
-- `ims-dialog.ts` / `ims-dialog.html`: internal shell.
+- `ims-dialog-shell.ts` / `ims-dialog-shell.html`: private internal shell.
 - `ims-dialog-section.ts`: the four supporting components.
 - `ims-dialog-section-registry.ts`: custom-section registration.
 - `ims-dialog.types.ts`: public types, tokens, and label resolution.

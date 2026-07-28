@@ -13,7 +13,7 @@ import { IMS_DIALOG_CONFIG, ImsDialogRuntimeConfig } from './ims-dialog.types';
  * `ImsDialogRef`; this component exposes no Angular inputs or outputs.
  */
 @Component({
-  selector: 'ims-dialog',
+  selector: 'ims-dialog-shell',
   standalone: true,
   imports: [
     CdkDrag,
@@ -24,7 +24,7 @@ import { IMS_DIALOG_CONFIG, ImsDialogRuntimeConfig } from './ims-dialog.types';
     NgComponentOutlet,
   ],
   providers: [ImsDialogSectionRegistry],
-  templateUrl: './ims-dialog.html',
+  templateUrl: './ims-dialog-shell.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'ims-dialog',
@@ -38,7 +38,7 @@ import { IMS_DIALOG_CONFIG, ImsDialogRuntimeConfig } from './ims-dialog.types';
     '[class.ims-dialog--ready]': 'ready()',
   },
 })
-export class ImsDialog {
+export class ImsDialogShell {
   readonly config = inject(IMS_DIALOG_CONFIG) as ImsDialogRuntimeConfig;
   readonly dialogRef = inject(ImsDialogRef);
   readonly sections = inject(ImsDialogSectionRegistry);

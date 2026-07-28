@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
 import {
   IMS_DIALOG_DATA,
+  ImsAbstractDialog,
   ImsDialogActions,
   ImsDialogContent,
-  ImsDialogRef,
   ImsDialogService,
   ImsDialogSeverity,
   ImsDialogTitle,
@@ -254,13 +254,12 @@ export class DialogMergeContent {
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DialogProfileContent {
-  readonly data = inject(IMS_DIALOG_DATA) as ProfileDialogData;
-  readonly displayName = signal(this.data.account);
-
-  private readonly dialogRef = inject(ImsDialogRef) as ImsDialogRef<
-    ProfileDialogResult | undefined
-  >;
+export class DialogProfileContent extends ImsAbstractDialog<
+  ProfileDialogData,
+  ProfileDialogResult | undefined
+> {
+  readonly data = this.dialogData;
+  readonly displayName = signal(this.dialogData.account);
 
   updateDisplayName(event: Event): void {
     const target = event.target;
@@ -270,14 +269,14 @@ export class DialogProfileContent {
   }
 
   save(): void {
-    this.dialogRef.close({
+    this.closeDialog({
       status: 'saved',
       displayName: this.displayName().trim() || this.data.account,
     });
   }
 
   cancel(): void {
-    this.dialogRef.close();
+    this.closeDialog();
   }
 }
 
@@ -288,7 +287,7 @@ export class DialogProfileContent {
   template: `
     <ims-dialog-content>
       <div class="risk-dialog-demo">
-        <span class="material-icons" aria-hidden="true">rocket_launch</span>
+        <span class="material-symbols-outlined" aria-hidden="true">rocket_launch</span>
         <div>
           <strong>{{ data.deployments }} deployments are waiting</strong>
           <p>
@@ -307,7 +306,7 @@ export class DialogProfileContent {
       gap: 0.875rem;
     }
 
-    .risk-dialog-demo > .material-icons {
+    .risk-dialog-demo > .material-symbols-outlined {
       display: grid;
       place-items: center;
       flex: 0 0 auto;
@@ -349,7 +348,7 @@ export class DialogRiskContent {
         [attr.aria-pressed]="view() === 'summary'"
         (click)="view.set('summary')"
       >
-        <span class="material-icons" aria-hidden="true">view_agenda</span>
+        <span class="material-symbols-outlined" aria-hidden="true">view_agenda</span>
         Summary
       </button>
       <button
@@ -359,7 +358,7 @@ export class DialogRiskContent {
         [attr.aria-pressed]="view() === 'activity'"
         (click)="view.set('activity')"
       >
-        <span class="material-icons" aria-hidden="true">history</span>
+        <span class="material-symbols-outlined" aria-hidden="true">history</span>
         Activity
       </button>
       <span class="toolbar-dialog-demo__spacer"></span>
@@ -369,7 +368,7 @@ export class DialogRiskContent {
         aria-label="Refresh current view"
         (click)="refreshCount.update((count) => count + 1)"
       >
-        <span class="material-icons" aria-hidden="true">refresh</span>
+        <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
       </button>
     </ims-dialog-toolbar>
 
@@ -419,8 +418,8 @@ export class DialogRiskContent {
       font-weight: 650;
     }
 
-    .toolbar-dialog-demo__tab > .material-icons,
-    .toolbar-dialog-demo__refresh > .material-icons {
+    .toolbar-dialog-demo__tab > .material-symbols-outlined,
+    .toolbar-dialog-demo__refresh > .material-symbols-outlined {
       font-size: 1.125rem;
     }
 
@@ -498,7 +497,7 @@ export class DialogToolbarContent {
   template: `
     <ims-dialog-content>
       <div class="inside-dialog-demo">
-        <span class="material-icons" aria-hidden="true">select_all</span>
+        <span class="material-symbols-outlined" aria-hidden="true">select_all</span>
         <div>
           <strong>Bound to this workspace</strong>
           <p>
@@ -516,7 +515,7 @@ export class DialogToolbarContent {
       gap: 0.875rem;
     }
 
-    .inside-dialog-demo > .material-icons {
+    .inside-dialog-demo > .material-symbols-outlined {
       display: grid;
       place-items: center;
       flex: 0 0 auto;
