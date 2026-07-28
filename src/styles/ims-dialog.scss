@@ -199,24 +199,33 @@ ims-dialog-shell.ims-dialog {
 }
 
 .ims-dialog-content {
-  display: block;
+  display: flex;
+  flex-direction: column;
   box-sizing: border-box;
   grid-area: content;
   min-width: 0;
   min-height: 0;
   height: 100%;
   padding: 1.25rem;
-  overflow: auto;
+  overflow: hidden;
   border-block-start: 1px solid var(--ims-color-border-subtle);
-  overscroll-behavior: contain;
   color: var(--ims-color-on-surface);
+}
+
+.ims-dialog-content__scroll {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .ims-dialog__component-content--projecting {
   display: contents;
 }
 
-.ims-dialog__component-content--projecting > * {
+.ims-dialog__component-content--projecting > .ims-dialog-content__scroll,
+.ims-dialog__component-content--projecting > .ims-dialog-content__scroll > * {
   display: contents;
 }
 

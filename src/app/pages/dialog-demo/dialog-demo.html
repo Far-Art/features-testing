@@ -1,7 +1,7 @@
 <div class="dialog-demo-page">
   <header class="dialog-demo-hero">
     <div class="dialog-demo-hero__copy">
-      <span class="dialog-demo-hero__eyebrow">CDK interaction lab · 06</span>
+      <span class="dialog-demo-hero__eyebrow">CDK interaction lab · 07</span>
       <h1>Dialogs with composable chrome.</h1>
       <p>
         Exercise generated titles and actions, custom projected sections, merged data, typed
@@ -79,6 +79,21 @@
         <code>&lt;ims-dialog-toolbar&gt;…</code>
       </div>
       <button type="button" (click)="openToolbarDemo()">Explore toolbar</button>
+    </article>
+
+    <article class="dialog-demo-card dialog-demo-card--success">
+      <div class="dialog-demo-card__index">06</div>
+      <div class="dialog-demo-card__body">
+        <span class="dialog-demo-card__tag">Overflow contract</span>
+        <h2>Long, scrollable content</h2>
+        <p>
+          A fixed-height dialog renders a long <code>string[]</code>. Only
+          <code>ims-dialog-content</code> scrolls while the generated title and Close action remain
+          fixed.
+        </p>
+        <code>.info(longContent).config(&#123; height: '30rem' &#125;)</code>
+      </div>
+      <button type="button" (click)="openLongContent()">Test content scroll</button>
     </article>
   </section>
 

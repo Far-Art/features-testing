@@ -109,7 +109,7 @@ severity:
 | `warning` | `warning`      |
 | `danger`  | `error`        |
 
-The dialog and its demo use the Material Symbols Outlined ligature font.
+The dialog and its demo use the Material Symbols Sharp ligature font.
 
 ### `inside(className)`
 
@@ -255,6 +255,11 @@ and composes the final layout without recreating that component.
    row.
 6. Multiple custom sections of the same type are allowed, although normal
    usage should provide at most one title, content section, and action section.
+
+`ims-dialog-content` keeps padding on its host and places projected content in
+an internal `.ims-dialog-content__scroll` wrapper. The wrapper owns
+`overflow-y: auto`, keeping scrolling content clipped away from the fixed
+padding gutter.
 
 For hybrid dialogs, a component can provide only the sections it owns:
 

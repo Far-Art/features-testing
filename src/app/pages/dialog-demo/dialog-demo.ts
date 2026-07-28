@@ -31,6 +31,21 @@ interface RiskDialogData {
   readonly deployments: number;
 }
 
+const LONG_DIALOG_CONTENT: string[] = [
+  'The content region owns all overflow while the dialog title, toolbar, and actions remain fixed in their intrinsic grid rows.',
+  'This paragraph begins a deliberately long release summary used to verify scrolling with an explicit dialog height.',
+  'Workspace policies now preserve reviewer assignments when a draft is duplicated across environments.',
+  'Validation messages include the affected field path and keep their original order after asynchronous checks finish.',
+  'Local dialogs continue following their boundary element when the document scrolls and never render a backdrop.',
+  'Confirmation dialogs map every empty or negative dismissal path to false while affirmative actions resolve to true.',
+  'Builder data and CDK configuration data are shallow-merged, with values supplied through data() taking precedence.',
+  'Projected title, toolbar, content, and action sections suppress only the generated sections that they replace.',
+  'Material Symbols use explicit optical sizing and weight settings so dialog chrome remains visually consistent.',
+  'The overlay pane is available from ImsDialogRef.panelElement for scoped measurement and observation.',
+  'Read-only mode can follow a boolean signal and update its generated chrome without reopening the dialog.',
+  'If this final paragraph is visible, the content viewport reached the end without moving the title or Close action.',
+];
+
 @Component({
   selector: 'app-dialog-merge-content',
   standalone: true,
@@ -545,7 +560,7 @@ export class DialogInsideContent {}
   standalone: true,
   template: `
     <div class="dialog-demo-inside__copy">
-      <span class="dialog-demo-inside__eyebrow">Scoped overlay · 06</span>
+      <span class="dialog-demo-inside__eyebrow">Scoped overlay · 07</span>
       <h2 id="dialog-demo-inside-title">A dialog with a smaller world.</h2>
       <p>
         The builder resolves this dashed workspace by class name, centers the dialog within it,
@@ -705,6 +720,24 @@ export class DialogDemo {
 
     ref.closed.subscribe(() => {
       this.lastEvent.set('Toolbar dialog closed.');
+    });
+  }
+
+  openLongContent(): void {
+    const ref = this.dialog
+      .info(LONG_DIALOG_CONTENT)
+      .title('Scrollable release notes')
+      .withIcon('article')
+      .config({
+        direction: 'ltr',
+        width: 'min(36rem, calc(100vw - 2rem))',
+        height: 'min(30rem, calc(100vh - 2rem))',
+      })
+      .asReadonly()
+      .open();
+
+    ref.closed.subscribe(() => {
+      this.lastEvent.set('Long-content dialog closed.');
     });
   }
 
