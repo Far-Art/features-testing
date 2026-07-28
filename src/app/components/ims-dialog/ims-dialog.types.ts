@@ -1,8 +1,11 @@
 import { DialogConfig } from '@angular/cdk/dialog';
-import { InjectionToken, Type } from '@angular/core';
+import { ComponentType } from '@angular/cdk/portal';
+import { InjectionToken, Signal } from '@angular/core';
 
 export type ImsDialogSeverity = 'info' | 'success' | 'warning' | 'danger';
 export type ImsDialogMode = 'standard' | 'confirmation' | 'readonly';
+/** Component or text content accepted by dialog service severity methods. */
+export type ImsDialogContentType<C = unknown> = ComponentType<C> | string[] | string;
 export type ImsDialogConfirmationLabels =
   'yes_no' | 'approve_cancel' | { readonly yes: string; readonly no: string };
 
@@ -14,7 +17,8 @@ export interface ImsDialogResolvedConfirmationLabels {
 export interface ImsDialogRuntimeConfig<D = unknown> {
   readonly severity: ImsDialogSeverity;
   readonly mode: ImsDialogMode;
-  readonly component: Type<unknown> | null;
+  readonly readonlySignal: Signal<boolean> | null;
+  readonly component: ImsDialogContentType<unknown> | null;
   readonly title: string;
   readonly icon: string | null;
   readonly confirmationLabels: ImsDialogResolvedConfirmationLabels | null;
@@ -26,11 +30,12 @@ export interface ImsDialogRuntimeConfig<D = unknown> {
 
 export interface ImsDialogOpenOptions {
   readonly severity: ImsDialogSeverity;
-  readonly component: Type<unknown> | null;
+  readonly component: ImsDialogContentType<unknown> | null;
   readonly title: string;
   readonly iconRequested: boolean;
   readonly iconName: string | null;
   readonly mode: ImsDialogMode;
+  readonly readonlySignal: Signal<boolean> | null;
   readonly confirmationLabels: ImsDialogConfirmationLabels | null;
   readonly data: unknown;
   readonly hasData: boolean;

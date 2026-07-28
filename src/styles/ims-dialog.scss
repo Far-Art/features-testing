@@ -220,6 +220,16 @@ ims-dialog-shell.ims-dialog {
   display: contents;
 }
 
+.ims-dialog__text-content {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.ims-dialog__text-content p {
+  margin: 0;
+  line-height: 1.6;
+}
+
 .ims-dialog-actions {
   display: flex;
   grid-area: actions;

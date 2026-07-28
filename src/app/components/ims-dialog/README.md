@@ -54,7 +54,15 @@ dialog.warning(component?);
 dialog.danger(component?);
 ```
 
-Each method returns an `ImsDialogBuilder`.
+Each method accepts `ImsDialogContentType<C>` and returns an
+`ImsDialogBuilder`. Content can be a component type, a string, or an array of
+strings:
+
+```ts
+dialog.info(DetailsComponent);
+dialog.info('The operation completed.');
+dialog.warning(['The current draft has unsaved changes.', 'Continue anyway?']);
+```
 
 ### `data(value)`
 
@@ -146,13 +154,25 @@ The `closed` observable always emits a boolean:
 - Escape, backdrop click, or `close()` without a value: `false`
 - A custom confirmation action is converted with normal boolean coercion.
 
-### `asReadonly()`
+### `asReadonly(state?)`
 
 Generates a Close action when the supplied component has no
 `ims-dialog-actions`.
 
 Read-only mode controls generated dialog chrome only. It does not disable form
 controls or block interaction inside caller content.
+
+An optional `Signal<boolean>` makes the shell state reactive:
+
+```ts
+readonly readonlyState = signal(true);
+
+dialog.info(EditorComponent).asReadonly(this.readonlyState).open();
+```
+
+While the signal is `true`, the read-only host class and generated Close action
+are active. While it is `false`, both are removed. Component-provided actions
+continue to take precedence.
 
 Confirmation and read-only modes are mutually exclusive. Combining them throws
 an error.

@@ -1,6 +1,6 @@
 import { NgComponentOutlet } from '@angular/common';
 import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Type, computed, inject, signal } from '@angular/core';
 import { ImsDialogRef } from './ims-dialog-ref';
 import { ImsDialogActions, ImsDialogContent, ImsDialogTitle } from './ims-dialog-section';
 import { ImsDialogSectionRegistry } from './ims-dialog-section-registry';
@@ -34,7 +34,7 @@ import { IMS_DIALOG_CONFIG, ImsDialogRuntimeConfig } from './ims-dialog.types';
     '[class.ims-dialog--warning]': 'config.severity === "warning"',
     '[class.ims-dialog--danger]': 'config.severity === "danger"',
     '[class.ims-dialog--confirmation]': 'config.mode === "confirmation"',
-    '[class.ims-dialog--readonly]': 'config.mode === "readonly"',
+    '[class.ims-dialog--readonly]': 'readonlyMode()',
     '[class.ims-dialog--ready]': 'ready()',
   },
 })
@@ -43,6 +43,22 @@ export class ImsDialogShell {
   readonly dialogRef = inject(ImsDialogRef);
   readonly sections = inject(ImsDialogSectionRegistry);
   readonly ready = signal(false);
+  readonly readonlyMode = computed(
+    () => this.config.mode === 'readonly' && (this.config.readonlySignal?.() ?? true),
+  );
+  readonly componentType = computed(() => {
+    const content = this.config.component;
+    return typeof content === 'function' ? (content as Type<unknown>) : null;
+  });
+  readonly textContent = computed(() => {
+    const content = this.config.component;
+
+    if (typeof content === 'string') {
+      return [content];
+    }
+
+    return Array.isArray(content) ? content : [];
+  });
 
   constructor() {
     queueMicrotask(() => {

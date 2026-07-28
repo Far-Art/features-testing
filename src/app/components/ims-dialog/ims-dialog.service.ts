@@ -2,13 +2,14 @@ import { Dialog, DialogConfig, DialogRef } from '@angular/cdk/dialog';
 import { Directionality } from '@angular/cdk/bidi';
 import { Overlay } from '@angular/cdk/overlay';
 import { DOCUMENT } from '@angular/common';
-import { Injectable, Type, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ImsDialogBuilder, ImsDialogBuilderHost } from './ims-dialog-builder';
 import { ImsDialogRef } from './ims-dialog-ref';
 import { ImsDialogShell } from './ims-dialog-shell';
 import {
   IMS_DIALOG_CONFIG,
   IMS_DIALOG_DATA,
+  ImsDialogContentType,
   ImsDialogOpenOptions,
   ImsDialogRuntimeConfig,
   ImsDialogSeverity,
@@ -29,19 +30,19 @@ export class ImsDialogService implements ImsDialogBuilderHost {
   private readonly overlay = inject(Overlay);
   private readonly document = inject(DOCUMENT);
 
-  info<C = unknown>(component: Type<C> | null = null): ImsDialogBuilder<C> {
+  info<C = unknown>(component: ImsDialogContentType<C> | null = null): ImsDialogBuilder<C> {
     return this.createBuilder(component, 'info');
   }
 
-  success<C = unknown>(component: Type<C> | null = null): ImsDialogBuilder<C> {
+  success<C = unknown>(component: ImsDialogContentType<C> | null = null): ImsDialogBuilder<C> {
     return this.createBuilder(component, 'success');
   }
 
-  warning<C = unknown>(component: Type<C> | null = null): ImsDialogBuilder<C> {
+  warning<C = unknown>(component: ImsDialogContentType<C> | null = null): ImsDialogBuilder<C> {
     return this.createBuilder(component, 'warning');
   }
 
-  danger<C = unknown>(component: Type<C> | null = null): ImsDialogBuilder<C> {
+  danger<C = unknown>(component: ImsDialogContentType<C> | null = null): ImsDialogBuilder<C> {
     return this.createBuilder(component, 'danger');
   }
 
@@ -57,6 +58,7 @@ export class ImsDialogService implements ImsDialogBuilderHost {
     const runtimeConfig: ImsDialogRuntimeConfig = {
       severity: options.severity,
       mode: options.mode,
+      readonlySignal: options.readonlySignal,
       component: options.component,
       title: options.title,
       icon: options.iconRequested ? (options.iconName ?? DEFAULT_ICONS[options.severity]) : null,
@@ -178,7 +180,7 @@ export class ImsDialogService implements ImsDialogBuilderHost {
   }
 
   private createBuilder<C>(
-    component: Type<C> | null,
+    component: ImsDialogContentType<C> | null,
     severity: ImsDialogSeverity,
   ): ImsDialogBuilder<C> {
     return new ImsDialogBuilder(this, component, severity);

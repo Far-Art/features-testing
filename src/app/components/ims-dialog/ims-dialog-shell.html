@@ -18,39 +18,36 @@
     <span class="material-symbols-sharp" aria-hidden="true">close</span>
   </button>
 
-  @if (config.component) {
+  @if (config.component !== null) {
     <ims-dialog-content
       class="ims-dialog__component-content"
-      [class.ims-dialog__component-content--projecting]="sections.hasContent()"
+      [class.ims-dialog__component-content--projecting]="componentType() && sections.hasContent()"
       [generated]="true"
     >
-      <ng-container *ngComponentOutlet="config.component" />
+      @if (componentType(); as component) {
+        <ng-container *ngComponentOutlet="component" />
+      } @else {
+        <div class="ims-dialog__text-content">
+          @for (text of textContent(); track $index) {
+            <p>{{ text }}</p>
+          }
+        </div>
+      }
     </ims-dialog-content>
   }
 
   @if (!sections.hasActions() && config.mode === 'confirmation') {
     <ims-dialog-actions [generated]="true">
-      <button
-        type="button"
-        (click)="reject()"
-      >
+      <button type="button" (click)="reject()">
         {{ config.confirmationLabels?.no }}
       </button>
-      <button
-        type="button"
-        (click)="confirm()"
-      >
+      <button type="button" (click)="confirm()">
         {{ config.confirmationLabels?.yes }}
       </button>
     </ims-dialog-actions>
-  } @else if (!sections.hasActions() && config.mode === 'readonly') {
+  } @else if (!sections.hasActions() && readonlyMode()) {
     <ims-dialog-actions [generated]="true">
-      <button
-        type="button"
-        (click)="close()"
-      >
-        סגור
-      </button>
+      <button type="button" (click)="close()">סגור</button>
     </ims-dialog-actions>
   }
 </div>

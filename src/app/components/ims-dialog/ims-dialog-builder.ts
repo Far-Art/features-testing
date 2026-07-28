@@ -1,8 +1,9 @@
 import { DialogConfig } from '@angular/cdk/dialog';
-import { Type } from '@angular/core';
+import { Signal } from '@angular/core';
 import { ImsDialogRef } from './ims-dialog-ref';
 import {
   ImsDialogConfirmationLabels,
+  ImsDialogContentType,
   ImsDialogMode,
   ImsDialogOpenOptions,
   ImsDialogSeverity,
@@ -27,12 +28,13 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
   private hasIcon = false;
   private materialIconName: string | null = null;
   private dialogMode: ImsDialogMode = 'standard';
+  private readonlySignal: Signal<boolean> | null = null;
   private labels: ImsDialogConfirmationLabels | null = null;
   private insideClassName: string | null = null;
 
   constructor(
     private readonly host: ImsDialogBuilderHost,
-    private readonly component: Type<C> | null,
+    private readonly component: ImsDialogContentType<C> | null,
     private readonly severity: ImsDialogSeverity,
   ) {}
 
@@ -135,14 +137,17 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
    *
    * A Close action is generated when the supplied component does not render
    * `ims-dialog-actions`. This mode does not disable controls inside caller
-   * content.
+   * content. When a signal is provided, generated read-only chrome follows its
+   * current boolean value.
    *
+   * @param state Optional signal controlling whether read-only mode is active.
    * @returns This builder for continued chaining.
    * @throws Error when confirmation mode was already selected.
    */
-  asReadonly(): ImsDialogBuilder<C, Confirmation> {
+  asReadonly(state?: Signal<boolean>): ImsDialogBuilder<C, Confirmation> {
     this.assertModeAvailable('readonly');
     this.dialogMode = 'readonly';
+    this.readonlySignal = state ?? null;
     return this;
   }
 
@@ -163,6 +168,7 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
       iconRequested: this.hasIcon,
       iconName: this.materialIconName,
       mode: this.dialogMode,
+      readonlySignal: this.readonlySignal,
       confirmationLabels: this.labels,
       data: this.customData,
       hasData: this.hasCustomData,
