@@ -57,7 +57,7 @@ abstract class ImsDialogSectionBase implements OnInit, OnDestroy {
   template: `
     <div class="ims-dialog-title__inner" cdkDragHandle>
       @if (icon()) {
-        <span class="ims-dialog-title__icon material-symbols-outlined" aria-hidden="true">
+        <span class="ims-dialog-title__icon material-symbols-sharp" aria-hidden="true">
           {{ icon() }}
         </span>
       }

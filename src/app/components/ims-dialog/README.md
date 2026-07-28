@@ -300,7 +300,12 @@ The reference exposes:
 ```ts
 dialogRef.close(result?);
 dialogRef.closed;
+dialogRef.panelElement;
 ```
+
+`panelElement` is the `.cdk-overlay-pane` HTML element containing the dialog
+shell. It can be used for scoped measurements, observation, or imperative
+access when configuration and component bindings are insufficient.
 
 For normal dialogs, the builder returns `ImsDialogRef<Result | undefined>`.
 For confirmation dialogs, it returns `ImsDialogRef<boolean>`.

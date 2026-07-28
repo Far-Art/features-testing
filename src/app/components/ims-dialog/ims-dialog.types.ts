@@ -46,11 +46,11 @@ export function resolveConfirmationLabels(
   labels: ImsDialogConfirmationLabels,
 ): ImsDialogResolvedConfirmationLabels {
   if (labels === 'yes_no') {
-    return { yes: 'Yes', no: 'No' };
+    return { yes: 'כן', no: 'לא' };
   }
 
   if (labels === 'approve_cancel') {
-    return { yes: 'Approve', no: 'Cancel' };
+    return { yes: 'אשר', no: 'בטל' };
   }
 
   return labels;

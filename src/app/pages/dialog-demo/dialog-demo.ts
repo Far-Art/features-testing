@@ -287,7 +287,7 @@ export class DialogProfileContent extends ImsAbstractDialog<
   template: `
     <ims-dialog-content>
       <div class="risk-dialog-demo">
-        <span class="material-symbols-outlined" aria-hidden="true">rocket_launch</span>
+        <span class="material-symbols-sharp" aria-hidden="true">rocket_launch</span>
         <div>
           <strong>{{ data.deployments }} deployments are waiting</strong>
           <p>
@@ -306,7 +306,7 @@ export class DialogProfileContent extends ImsAbstractDialog<
       gap: 0.875rem;
     }
 
-    .risk-dialog-demo > .material-symbols-outlined {
+    .risk-dialog-demo > .material-symbols-sharp {
       display: grid;
       place-items: center;
       flex: 0 0 auto;
@@ -348,7 +348,7 @@ export class DialogRiskContent {
         [attr.aria-pressed]="view() === 'summary'"
         (click)="view.set('summary')"
       >
-        <span class="material-symbols-outlined" aria-hidden="true">view_agenda</span>
+        <span class="material-symbols-sharp" aria-hidden="true">view_agenda</span>
         Summary
       </button>
       <button
@@ -358,7 +358,7 @@ export class DialogRiskContent {
         [attr.aria-pressed]="view() === 'activity'"
         (click)="view.set('activity')"
       >
-        <span class="material-symbols-outlined" aria-hidden="true">history</span>
+        <span class="material-symbols-sharp" aria-hidden="true">history</span>
         Activity
       </button>
       <span class="toolbar-dialog-demo__spacer"></span>
@@ -368,7 +368,7 @@ export class DialogRiskContent {
         aria-label="Refresh current view"
         (click)="refreshCount.update((count) => count + 1)"
       >
-        <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
+        <span class="material-symbols-sharp" aria-hidden="true">refresh</span>
       </button>
     </ims-dialog-toolbar>
 
@@ -418,8 +418,8 @@ export class DialogRiskContent {
       font-weight: 650;
     }
 
-    .toolbar-dialog-demo__tab > .material-symbols-outlined,
-    .toolbar-dialog-demo__refresh > .material-symbols-outlined {
+    .toolbar-dialog-demo__tab > .material-symbols-sharp,
+    .toolbar-dialog-demo__refresh > .material-symbols-sharp {
       font-size: 1.125rem;
     }
 
@@ -497,7 +497,7 @@ export class DialogToolbarContent {
   template: `
     <ims-dialog-content>
       <div class="inside-dialog-demo">
-        <span class="material-symbols-outlined" aria-hidden="true">select_all</span>
+        <span class="material-symbols-sharp" aria-hidden="true">select_all</span>
         <div>
           <strong>Bound to this workspace</strong>
           <p>
@@ -515,7 +515,7 @@ export class DialogToolbarContent {
       gap: 0.875rem;
     }
 
-    .inside-dialog-demo > .material-symbols-outlined {
+    .inside-dialog-demo > .material-symbols-sharp {
       display: grid;
       place-items: center;
       flex: 0 0 auto;
@@ -696,7 +696,11 @@ export class DialogDemo {
   openToolbarDemo(): void {
     const ref = this.dialog
       .info(DialogToolbarContent)
-      .config({ direction: 'ltr', width: 'min(40rem, calc(100vw - 2rem))' })
+      .config({
+        direction: 'ltr',
+        width: 'min(40rem, calc(100vw - 2rem))',
+        height: 'min(30rem, calc(100vh - 2rem))',
+      })
       .open();
 
     ref.closed.subscribe(() => {

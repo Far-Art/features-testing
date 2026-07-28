@@ -15,7 +15,7 @@
   }
 
   <button type="button" class="ims-dialog__close" aria-label="Close dialog" (click)="close()">
-    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+    <span class="material-symbols-sharp" aria-hidden="true">close</span>
   </button>
 
   @if (config.component) {
@@ -32,14 +32,12 @@
     <ims-dialog-actions [generated]="true">
       <button
         type="button"
-        class="ims-dialog__button ims-dialog__button--secondary"
         (click)="reject()"
       >
         {{ config.confirmationLabels?.no }}
       </button>
       <button
         type="button"
-        class="ims-dialog__button ims-dialog__button--primary"
         (click)="confirm()"
       >
         {{ config.confirmationLabels?.yes }}
@@ -49,10 +47,9 @@
     <ims-dialog-actions [generated]="true">
       <button
         type="button"
-        class="ims-dialog__button ims-dialog__button--primary"
         (click)="close()"
       >
-        Close
+        סגור
       </button>
     </ims-dialog-actions>
   }
