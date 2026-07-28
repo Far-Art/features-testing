@@ -20,6 +20,8 @@ export interface ImsDialogRuntimeConfig<D = unknown> {
   readonly confirmationLabels: ImsDialogResolvedConfirmationLabels | null;
   readonly data: D;
   readonly direction: 'ltr' | 'rtl';
+  readonly dragBoundary: HTMLElement | string;
+  readonly maxSurfaceHeight: number | null;
 }
 
 export interface ImsDialogOpenOptions {
@@ -32,6 +34,7 @@ export interface ImsDialogOpenOptions {
   readonly confirmationLabels: ImsDialogConfirmationLabels | null;
   readonly data: unknown;
   readonly hasData: boolean;
+  readonly insideClassName: string | null;
   readonly config: DialogConfig<unknown>;
 }
 

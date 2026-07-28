@@ -1,11 +1,11 @@
 <div class="dialog-demo-page">
   <header class="dialog-demo-hero">
     <div class="dialog-demo-hero__copy">
-      <span class="dialog-demo-hero__eyebrow">CDK interaction lab · 05</span>
+      <span class="dialog-demo-hero__eyebrow">CDK interaction lab · 06</span>
       <h1>Dialogs with composable chrome.</h1>
       <p>
         Exercise generated titles and actions, custom projected sections, merged data, typed
-        results, severity treatments, and body-constrained dragging.
+        results, severity treatments, and viewport- or element-constrained dragging.
       </p>
     </div>
   </header>
@@ -81,6 +81,8 @@
       <button type="button" (click)="openToolbarDemo()">Explore toolbar</button>
     </article>
   </section>
+
+  <app-dialog-inside-playground (dialogClosed)="lastEvent.set($event)" />
 
   <section class="dialog-demo-severity">
     <div>

@@ -1,9 +1,10 @@
 <div
   class="ims-dialog__surface"
   [class.ims-dialog__surface--ready]="ready()"
+  [style.max-height.px]="config.maxSurfaceHeight"
   cdkDrag
   cdkDragRootElement=".cdk-overlay-pane"
-  cdkDragBoundary="body"
+  [cdkDragBoundary]="config.dragBoundary"
 >
   @if (!sections.hasTitle() && (config.title || config.icon)) {
     <ims-dialog-title [generated]="true" [icon]="config.icon">

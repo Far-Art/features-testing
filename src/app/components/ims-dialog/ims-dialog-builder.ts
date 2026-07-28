@@ -28,6 +28,7 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
   private materialIconName: string | null = null;
   private dialogMode: ImsDialogMode = 'standard';
   private labels: ImsDialogConfirmationLabels | null = null;
+  private insideClassName: string | null = null;
 
   constructor(
     private readonly host: ImsDialogBuilderHost,
@@ -97,6 +98,21 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
   }
 
   /**
+   * Opens the dialog inside an element instead of the viewport.
+   *
+   * The first element inside `body` with the provided class becomes both the
+   * initial positioning origin and the drag boundary. Inside dialogs open
+   * without a backdrop and follow their boundary when the page scrolls.
+   *
+   * @param className A single class name without a leading period.
+   * @returns This builder for continued chaining.
+   */
+  inside(className: string): ImsDialogBuilder<C, Confirmation> {
+    this.insideClassName = className.trim();
+    return this;
+  }
+
+  /**
    * Configures the dialog as a boolean confirmation.
    *
    * Generated affirmative and negative actions are added unless the supplied
@@ -150,6 +166,7 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
       confirmationLabels: this.labels,
       data: this.customData,
       hasData: this.hasCustomData,
+      insideClassName: this.insideClassName,
       config: this.dialogConfig,
     }) as Confirmation extends true ? ImsDialogRef<boolean> : ImsDialogRef<R | undefined>;
   }

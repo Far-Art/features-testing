@@ -1,0 +1,91 @@
+:host {
+  display: grid;
+  grid-template-columns: minmax(15rem, 0.7fr) minmax(28rem, 1.3fr);
+  gap: 1.25rem;
+  margin-block-end: 1.25rem;
+  padding: 1.25rem;
+  border: 1px solid #dce5ef;
+  border-radius: 1.25rem;
+  background: #fff;
+}
+
+.dialog-demo-inside__copy {
+  align-self: center;
+  padding: 1rem;
+}
+
+.dialog-demo-inside__eyebrow,
+.dialog-demo-inside__boundary-label {
+  color: #1769aa;
+  font:
+    800 0.7rem ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+h2 {
+  margin: 0.5rem 0 0.625rem;
+  font:
+    500 2rem/1.1 Georgia,
+    'Times New Roman',
+    serif;
+}
+
+p {
+  margin: 0;
+  color: #5a687d;
+  line-height: 1.6;
+}
+
+code {
+  display: block;
+  margin-block-start: 1rem;
+  color: #1769aa;
+  font-size: 0.75rem;
+}
+
+.dialog-demo-inside-boundary {
+  position: relative;
+  min-height: 25rem;
+  overflow: hidden;
+  border: 1px dashed #53b5ff;
+  border-radius: 1rem;
+  background:
+    linear-gradient(rgb(23 105 170 / 6%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(23 105 170 / 6%) 1px, transparent 1px), #f5faff;
+  background-size: 1.5rem 1.5rem;
+}
+
+.dialog-demo-inside__boundary-label {
+  position: absolute;
+  inset-block-start: 1rem;
+  inset-inline-start: 1rem;
+}
+
+.dialog-demo-inside-boundary > button {
+  position: absolute;
+  inset-block-end: 1rem;
+  inset-inline-start: 1rem;
+  padding: 0.65rem 1rem;
+  border: 1px solid #1769aa;
+  border-radius: 0.625rem;
+  background: #eef6ff;
+  color: #1769aa;
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.dialog-demo-inside-boundary > button:focus-visible {
+  outline: 3px solid rgb(23 105 170 / 24%);
+  outline-offset: 3px;
+}
+
+@media (max-width: 54rem) {
+  :host {
+    grid-template-columns: 1fr;
+  }
+}

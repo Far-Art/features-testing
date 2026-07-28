@@ -103,6 +103,29 @@ severity:
 
 The repository already loads the Material Icons ligature font.
 
+### `inside(className)`
+
+Opens the dialog relative to the first element inside `body` with the supplied
+class name. Pass a single class name without the leading period.
+
+```ts
+dialog.info(EditorComponent).title('Workspace editor').inside('policy-workspace').open();
+```
+
+An inside-boundary dialog:
+
+- Opens at the center of the matching element instead of the viewport.
+- Uses that element as its drag boundary.
+- Is capped to the boundary dimensions with a 1rem inset.
+- Opens without a backdrop.
+- Repositions with the boundary when the page scrolls.
+
+The inside placement and no-backdrop behavior take precedence over
+`config.positionStrategy` and `config.hasBackdrop`. If the class name is
+invalid, no matching HTML element exists, or the boundary has no visible area,
+an error is logged to the console and the dialog falls back to the normal
+viewport-centered `.cdk-overlay-container` boundary.
+
 ### `asConfirmation(labels)`
 
 Changes the dialog to confirmation mode and returns a boolean result.
@@ -284,14 +307,15 @@ For confirmation dialogs, it returns `ImsDialogRef<boolean>`.
 
 ## Dragging and boundaries
 
-The dialog surface uses `cdkDrag` with:
+Viewport dialogs use the fixed CDK overlay container as their drag boundary:
 
 ```html
-cdkDragRootElement=".cdk-overlay-pane" cdkDragBoundary="body"
+cdkDragRootElement=".cdk-overlay-pane" cdkDragBoundary=".cdk-overlay-container"
 ```
 
-This moves the complete overlay pane and prevents the dialog from escaping the
-document body.
+This moves the complete overlay pane and prevents document scrolling from
+shrinking the available viewport boundary. Inside-boundary dialogs instead
+pass their resolved HTML element directly to `cdkDragBoundary`.
 
 - `ims-dialog-title` is the primary drag handle.
 - When no title exists, the shell renders a small fallback grab region.
@@ -333,6 +357,7 @@ Unless overridden through `config()`:
   maxWidth: 'calc(100vw - 2rem)',
   maxHeight: 'calc(100vh - 2rem)',
   scrollStrategy: overlay.scrollStrategies.noop(),
+  hasBackdrop: true,
   direction: directionality.value,
   role: confirmation ? 'alertdialog' : 'dialog'
 }

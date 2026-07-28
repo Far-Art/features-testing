@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
 import {
   IMS_DIALOG_DATA,
   ImsDialogActions,
@@ -492,8 +492,108 @@ export class DialogToolbarContent {
 }
 
 @Component({
+  selector: 'app-dialog-inside-content',
+  standalone: true,
+  imports: [ImsDialogContent],
+  template: `
+    <ims-dialog-content>
+      <div class="inside-dialog-demo">
+        <span class="material-icons" aria-hidden="true">select_all</span>
+        <div>
+          <strong>Bound to this workspace</strong>
+          <p>
+            Drag the title toward every edge. The dialog stays inside the dashed area and the page
+            remains interactive because no backdrop is rendered.
+          </p>
+        </div>
+      </div>
+    </ims-dialog-content>
+  `,
+  styles: `
+    .inside-dialog-demo {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.875rem;
+    }
+
+    .inside-dialog-demo > .material-icons {
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.75rem;
+      background: var(--ims-color-interactive-subtle);
+      color: var(--ims-color-interactive-strong);
+    }
+
+    .inside-dialog-demo strong {
+      color: var(--ims-color-on-surface);
+    }
+
+    .inside-dialog-demo p {
+      margin: 0.375rem 0 0;
+      color: var(--ims-color-on-surface-muted);
+      line-height: 1.55;
+    }
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class DialogInsideContent {}
+
+@Component({
+  selector: 'app-dialog-inside-playground',
+  standalone: true,
+  template: `
+    <div class="dialog-demo-inside__copy">
+      <span class="dialog-demo-inside__eyebrow">Scoped overlay · 06</span>
+      <h2 id="dialog-demo-inside-title">A dialog with a smaller world.</h2>
+      <p>
+        The builder resolves this dashed workspace by class name, centers the dialog within it,
+        removes the backdrop, and uses the element itself as the drag boundary.
+      </p>
+      <code>.inside('dialog-demo-inside-boundary')</code>
+    </div>
+
+    <div class="dialog-demo-inside-boundary">
+      <span class="dialog-demo-inside__boundary-label">Active drag boundary</span>
+      <button type="button" (click)="open()">Open inside this area</button>
+    </div>
+  `,
+  styleUrl: './dialog-inside-demo.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: 'dialog-demo-inside',
+    role: 'region',
+    'aria-labelledby': 'dialog-demo-inside-title',
+  },
+})
+export class DialogInsidePlayground {
+  /** Emits the event-console message after the inside-boundary dialog closes. */
+  readonly dialogClosed = output<string>();
+
+  private readonly dialog = inject(ImsDialogService);
+
+  open(): void {
+    const ref = this.dialog
+      .info(DialogInsideContent)
+      .title('Inside the workspace')
+      .withIcon('picture_in_picture')
+      .inside('dialog-demo-inside-boundary')
+      .config({ direction: 'ltr', width: 'min(28rem, calc(100vw - 2rem))' })
+      .asReadonly()
+      .open();
+
+    ref.closed.subscribe(() => {
+      this.dialogClosed.emit('Inside-boundary dialog closed.');
+    });
+  }
+}
+
+@Component({
   selector: 'app-dialog-demo',
   standalone: true,
+  imports: [DialogInsidePlayground],
   templateUrl: './dialog-demo.html',
   styleUrl: './dialog-demo.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

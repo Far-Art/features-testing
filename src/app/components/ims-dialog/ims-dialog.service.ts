@@ -1,6 +1,7 @@
 import { Dialog, DialogConfig, DialogRef } from '@angular/cdk/dialog';
 import { Directionality } from '@angular/cdk/bidi';
 import { Overlay } from '@angular/cdk/overlay';
+import { DOCUMENT } from '@angular/common';
 import { Injectable, Type, inject } from '@angular/core';
 import { ImsDialogBuilder, ImsDialogBuilderHost } from './ims-dialog-builder';
 import { ImsDialogRef } from './ims-dialog-ref';
@@ -26,6 +27,7 @@ export class ImsDialogService implements ImsDialogBuilderHost {
   private readonly dialog = inject(Dialog);
   private readonly directionality = inject(Directionality);
   private readonly overlay = inject(Overlay);
+  private readonly document = inject(DOCUMENT);
 
   info<C = unknown>(component: Type<C> | null = null): ImsDialogBuilder<C> {
     return this.createBuilder(component, 'info');
@@ -46,6 +48,12 @@ export class ImsDialogService implements ImsDialogBuilderHost {
   openFromBuilder(options: ImsDialogOpenOptions): ImsDialogRef<unknown> {
     const mergedData = mergeDialogData(options.config.data, options.data, options.hasData);
     const direction = options.config.direction ?? this.directionality.value;
+    const requestedInsideBoundary =
+      options.insideClassName !== null ? this.resolveInsideBoundary(options.insideClassName) : null;
+    const insideSize = requestedInsideBoundary
+      ? this.measureInsideBoundary(requestedInsideBoundary)
+      : null;
+    const insideBoundary = insideSize ? requestedInsideBoundary : null;
     const runtimeConfig: ImsDialogRuntimeConfig = {
       severity: options.severity,
       mode: options.mode,
@@ -57,6 +65,8 @@ export class ImsDialogService implements ImsDialogBuilderHost {
         : null,
       data: mergedData,
       direction,
+      dragBoundary: insideBoundary ?? '.cdk-overlay-container',
+      maxSurfaceHeight: insideSize?.height ?? null,
     };
     const callerConfig = options.config as unknown as DialogConfig<
       unknown,
@@ -68,15 +78,41 @@ export class ImsDialogService implements ImsDialogBuilderHost {
     const config: DialogConfig<unknown, DialogRef<unknown, ImsDialog>> = {
       ...callerConfig,
       width: callerConfig.width ?? 'min(42rem, calc(100vw - 2rem))',
-      maxWidth: callerConfig.maxWidth ?? 'calc(100vw - 2rem)',
-      maxHeight: callerConfig.maxHeight ?? 'calc(100vh - 2rem)',
-      scrollStrategy: callerConfig.scrollStrategy ?? this.overlay.scrollStrategies.noop(),
+      maxWidth: insideSize
+        ? `${insideSize.width}px`
+        : (callerConfig.maxWidth ?? 'calc(100vw - 2rem)'),
+      maxHeight: insideSize
+        ? `${insideSize.height}px`
+        : (callerConfig.maxHeight ?? 'calc(100vh - 2rem)'),
+      positionStrategy: insideBoundary
+        ? this.overlay
+            .position()
+            .flexibleConnectedTo(insideBoundary)
+            .withPositions([
+              {
+                originX: 'center',
+                originY: 'center',
+                overlayX: 'center',
+                overlayY: 'center',
+              },
+            ])
+            .withFlexibleDimensions(false)
+            .withPush(false)
+            .withLockedPosition()
+        : callerConfig.positionStrategy,
+      scrollStrategy:
+        callerConfig.scrollStrategy ??
+        (insideBoundary
+          ? this.overlay.scrollStrategies.reposition()
+          : this.overlay.scrollStrategies.noop()),
+      hasBackdrop: insideBoundary ? false : (callerConfig.hasBackdrop ?? true),
       direction,
       role: callerConfig.role ?? (options.mode === 'confirmation' ? 'alertdialog' : 'dialog'),
       ariaLabel: callerConfig.ariaLabel ?? (options.title || null),
       panelClass: [
         'ims-dialog-overlay',
         `ims-dialog-overlay--${options.severity}`,
+        ...(insideBoundary ? ['ims-dialog-overlay--inside'] : []),
         ...normalizePanelClass(callerConfig.panelClass),
       ],
       data: mergedData,
@@ -99,6 +135,46 @@ export class ImsDialogService implements ImsDialogBuilderHost {
     const cdkDialogRef = this.dialog.open<unknown, unknown, ImsDialog>(ImsDialog, config);
 
     return imsDialogRef ?? new ImsDialogRef(cdkDialogRef, options.mode === 'confirmation');
+  }
+
+  private resolveInsideBoundary(className: string): HTMLElement | null {
+    if (!className || /\s/.test(className)) {
+      console.error(
+        'Dialog inside boundary must be a single class name. Falling back to the viewport boundary.',
+      );
+      return null;
+    }
+
+    const element = this.document.body.getElementsByClassName(className).item(0);
+    const htmlElementType = this.document.defaultView?.HTMLElement;
+
+    if (!element || !htmlElementType || !(element instanceof htmlElementType)) {
+      console.error(
+        `Dialog inside boundary ".${className}" was not found inside body. Falling back to the viewport boundary.`,
+      );
+      return null;
+    }
+
+    return element;
+  }
+
+  private measureInsideBoundary(boundary: HTMLElement): { width: number; height: number } | null {
+    const { width, height } = boundary.getBoundingClientRect();
+    const inset = 16;
+    const availableWidth = Math.floor(width - inset * 2);
+    const availableHeight = Math.floor(height - inset * 2);
+
+    if (availableWidth <= 0 || availableHeight <= 0) {
+      console.error(
+        'Dialog inside boundary must have a visible width and height. Falling back to the viewport boundary.',
+      );
+      return null;
+    }
+
+    return {
+      width: availableWidth,
+      height: availableHeight,
+    };
   }
 
   private createBuilder<C>(
