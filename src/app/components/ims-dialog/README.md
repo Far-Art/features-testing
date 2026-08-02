@@ -245,8 +245,8 @@ and composes the final layout without recreating that component.
 
 1. If no `ims-dialog-content` is supplied, the entire component is wrapped in a
    generated content section.
-2. If `ims-dialog-content` is supplied, the internal wrapper is flattened and
-   the supplied sections occupy their dialog layout areas.
+2. If `ims-dialog-content` is supplied, the generated content host and supplied
+   component are flattened so its sections occupy their dialog layout areas.
 3. A custom title suppresses the builder-generated title and icon.
 4. A custom actions section suppresses generated confirmation or read-only
    actions.
@@ -256,10 +256,11 @@ and composes the final layout without recreating that component.
 6. Multiple custom sections of the same type are allowed, although normal
    usage should provide at most one title, content section, and action section.
 
-`ims-dialog-content` keeps padding on its host and places projected content in
-an internal `.ims-dialog-content__scroll` wrapper. The wrapper owns
-`overflow-y: auto`, keeping scrolling content clipped away from the fixed
-padding gutter.
+`ims-dialog-content` owns `overflow-y: auto` directly, so its projected content
+scrolls without an additional wrapper element. Its top gutter is a scrolling
+spacer rather than container padding, allowing sticky descendants to reach the
+content viewport's top edge after the gutter scrolls away. Override
+`--ims-dialog-content-padding` to adjust the shared gutter size.
 
 For hybrid dialogs, a component can provide only the sections it owns:
 

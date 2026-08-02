@@ -9,6 +9,7 @@ import {
   ImsDialogTitle,
   ImsDialogToolbar,
 } from '../../components/ims-dialog';
+import { ImsGrid, ImsGridCell, ImsGridRow } from '../../components/ims-grid';
 
 interface MergeDialogData {
   readonly fromConfig: string;
@@ -506,6 +507,99 @@ export class DialogToolbarContent {
 }
 
 @Component({
+  selector: 'app-dialog-grid-content',
+  standalone: true,
+  imports: [ImsDialogContent, ImsGrid, ImsGridCell, ImsGridRow],
+  template: `
+    <ims-dialog-content>
+      <div class="dialog-grid-demo__intro">
+        <strong>Sticky grid header test</strong>
+        <p>Scroll this dialog body. The column header should remain pinned to its top edge.</p>
+      </div>
+
+      <ims-grid appearance="styled" columnGap="16" rowGap="0">
+        <ims-grid-header>
+          <ims-grid-cell width="5rem">ID</ims-grid-cell>
+          <ims-grid-cell minWidth="12rem">Policy holder</ims-grid-cell>
+          <ims-grid-cell width="8rem">Status</ims-grid-cell>
+          <ims-grid-cell width="8rem">Premium</ims-grid-cell>
+        </ims-grid-header>
+
+        @for (row of rows; track row.id) {
+          <ims-grid-row>
+            <ims-grid-cell>{{ row.id }}</ims-grid-cell>
+            <ims-grid-cell>{{ row.holder }}</ims-grid-cell>
+            <ims-grid-cell>
+              <span class="dialog-grid-demo__status">{{ row.status }}</span>
+            </ims-grid-cell>
+            <ims-grid-cell>{{ row.premium }}</ims-grid-cell>
+          </ims-grid-row>
+        }
+      </ims-grid>
+    </ims-dialog-content>
+  `,
+  styles: `
+    .dialog-grid-demo__intro {
+      margin-block-end: 1rem;
+    }
+
+    .dialog-grid-demo__intro strong {
+      color: var(--ims-color-on-surface);
+      font-size: 1.05rem;
+    }
+
+    .dialog-grid-demo__intro p {
+      margin: 0.375rem 0 0;
+      color: var(--ims-color-on-surface-muted);
+      line-height: 1.5;
+    }
+
+    ims-grid-header {
+      position: sticky;
+      z-index: 1;
+      top: 0;
+      min-height: 3rem;
+      padding-block: 0.75rem;
+      border-bottom: 1px solid var(--ims-color-border-subtle);
+      background: var(--ims-color-surface-subtle);
+      box-shadow: 0 0.35rem 0.75rem rgb(22 35 58 / 10%);
+    }
+
+    ims-grid-row {
+      min-height: 3rem;
+      padding-block: 0.65rem;
+      border-bottom: 1px solid var(--ims-color-border-subtle);
+    }
+
+    ims-grid-row:last-child {
+      border-bottom: 0;
+    }
+
+    ims-grid-cell {
+      padding-inline: 0.75rem;
+    }
+
+    .dialog-grid-demo__status {
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      background: var(--ims-color-interactive-subtle);
+      color: var(--ims-color-interactive-strong);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class DialogGridContent {
+  readonly rows = Array.from({ length: 32 }, (_, index) => ({
+    id: `P-${String(index + 1).padStart(3, '0')}`,
+    holder: ['Avery Morgan', 'Noah Williams', 'Maya Cohen', 'Liam Bennett'][index % 4],
+    status: index % 5 === 0 ? 'Review' : 'Active',
+    premium: `$${(86 + index * 7).toLocaleString()}`,
+  }));
+}
+
+@Component({
   selector: 'app-dialog-inside-content',
   standalone: true,
   imports: [ImsDialogContent],
@@ -738,6 +832,24 @@ export class DialogDemo {
 
     ref.closed.subscribe(() => {
       this.lastEvent.set('Long-content dialog closed.');
+    });
+  }
+
+  openGridContent(): void {
+    const ref = this.dialog
+      .info(DialogGridContent)
+      .title('Policies grid')
+      .withIcon('table_view')
+      .config({
+        direction: 'ltr',
+        width: 'min(52rem, calc(100vw - 2rem))',
+        height: 'min(34rem, calc(100vh - 2rem))',
+      })
+      .asReadonly()
+      .open();
+
+    ref.closed.subscribe(() => {
+      this.lastEvent.set('Sticky-header grid dialog closed.');
     });
   }
 

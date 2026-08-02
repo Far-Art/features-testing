@@ -106,18 +106,13 @@ export class ImsDialogToolbar extends ImsDialogSectionBase {
  * Projects the primary, scrollable dialog body.
  *
  * When omitted, the shell wraps the complete supplied component in a generated
- * content section. Projected content scrolls inside an internal wrapper so the
- * host padding remains a fixed, clipped gutter. This component has no public
- * inputs or Angular outputs.
+ * content section. The content host owns scrolling directly. This component
+ * has no public inputs or Angular outputs.
  */
 @Component({
   selector: 'ims-dialog-content',
   standalone: true,
-  template: `
-    <div class="ims-dialog-content__scroll">
-      <ng-content />
-    </div>
-  `,
+  template: `<ng-content />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'ims-dialog-content',

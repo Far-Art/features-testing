@@ -95,6 +95,20 @@
       </div>
       <button type="button" (click)="openLongContent()">Test content scroll</button>
     </article>
+
+    <article class="dialog-demo-card dialog-demo-card--info">
+      <div class="dialog-demo-card__index">07</div>
+      <div class="dialog-demo-card__body">
+        <span class="dialog-demo-card__tag">Sticky descendant</span>
+        <h2>Grid header in dialog content</h2>
+        <p>
+          A styled <code>ims-grid</code> renders enough rows to overflow the dialog content. Its
+          header should remain pinned while the content host scrolls.
+        </p>
+        <code>ims-grid-header &#123; position: sticky &#125;</code>
+      </div>
+      <button type="button" (click)="openGridContent()">Test sticky grid header</button>
+    </article>
   </section>
 
   <app-dialog-inside-playground (dialogClosed)="lastEvent.set($event)" />

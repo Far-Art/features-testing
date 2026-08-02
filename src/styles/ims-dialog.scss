@@ -199,6 +199,8 @@ ims-dialog-shell.ims-dialog {
 }
 
 .ims-dialog-content {
+  --ims-dialog-content-padding: 1.25rem;
+
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -206,26 +208,24 @@ ims-dialog-shell.ims-dialog {
   min-width: 0;
   min-height: 0;
   height: 100%;
-  padding: 1.25rem;
-  overflow: hidden;
+  padding: 0 var(--ims-dialog-content-padding) var(--ims-dialog-content-padding);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border-block-start: 1px solid var(--ims-color-border-subtle);
   color: var(--ims-color-on-surface);
 }
 
-.ims-dialog-content__scroll {
-  flex: 1 1 auto;
-  min-width: 0;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+// Scrollable top spacer that behaves like padding without offsetting sticky descendants.
+.ims-dialog-content::before {
+  content: '';
+  flex: 0 0 var(--ims-dialog-content-padding);
 }
 
 .ims-dialog__component-content--projecting {
   display: contents;
 }
 
-.ims-dialog__component-content--projecting > .ims-dialog-content__scroll,
-.ims-dialog__component-content--projecting > .ims-dialog-content__scroll > * {
+.ims-dialog__component-content--projecting > * {
   display: contents;
 }
 
@@ -247,7 +247,7 @@ ims-dialog-shell.ims-dialog {
   justify-content: flex-end;
   gap: 0.625rem;
   min-height: 2rem;
-  padding: 0.75rem 1.25rem 1rem;
+  padding: 0.5rem 1rem 0.65rem;
   border-block-start: 1px solid var(--ims-color-border-subtle);
   background: linear-gradient(
     180deg,
