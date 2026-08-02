@@ -59,8 +59,12 @@ export class ImsTransferDialog<T> extends ImsAbstractDialog<
     readonly startSort = signal<ImsTransferSortDirection | null>(null);
     readonly endSort = signal<ImsTransferSortDirection | null>(null);
 
-    readonly filteredStartRows = computed(() => this.filterRows(this.startRows()));
-    readonly filteredEndRows = computed(() => this.filterRows(this.endRows()));
+    readonly filteredStartRows = computed(() =>
+        this.filterRows(this.sortedRows(this.startRows(), this.startSort()))
+    );
+    readonly filteredEndRows = computed(() =>
+        this.filterRows(this.sortedRows(this.endRows(), this.endSort()))
+    );
 
     onFilterInput(event: Event): void {
         const target = event.target;
@@ -75,7 +79,7 @@ export class ImsTransferDialog<T> extends ImsAbstractDialog<
 
         this.startRows.update((rows) => rows.filter((candidate) => candidate !== row));
         this.endRows.update((rows) => {
-            const next = rows.slice();
+            const next = index === undefined ? rows.slice() : this.sortedRows(rows, this.endSort());
             next.splice(index ?? next.length, 0, row);
             return next;
         });
@@ -88,25 +92,21 @@ export class ImsTransferDialog<T> extends ImsAbstractDialog<
 
         this.endRows.update((rows) => rows.filter((candidate) => candidate !== row));
         this.startRows.update((rows) => {
-            const next = rows.slice();
+            const next = index === undefined ? rows.slice() : this.sortedRows(rows, this.startSort());
             next.splice(index ?? next.length, 0, row);
             return next;
         });
         if (index !== undefined) this.startSort.set(null);
     }
 
-    /** Sorts the start column by label, toggling between ascending and descending on repeated clicks. */
+    /** Cycles the start column through Material's ascending, descending, and cleared states. */
     toggleStartSort(): void {
-        const direction: ImsTransferSortDirection = this.startSort() === 'asc' ? 'desc' : 'asc';
-        this.startSort.set(direction);
-        this.startRows.update((rows) => this.sortRows(rows, direction));
+        this.startSort.update((direction) => this.nextSortDirection(direction));
     }
 
-    /** Sorts the end column by label, toggling between ascending and descending on repeated clicks. */
+    /** Cycles the end column through Material's ascending, descending, and cleared states. */
     toggleEndSort(): void {
-        const direction: ImsTransferSortDirection = this.endSort() === 'asc' ? 'desc' : 'asc';
-        this.endSort.set(direction);
-        this.endRows.update((rows) => this.sortRows(rows, direction));
+        this.endSort.update((direction) => this.nextSortDirection(direction));
     }
 
     /** Moves every non-disabled row currently visible (respecting the filter) from start to end. */
@@ -160,8 +160,8 @@ export class ImsTransferDialog<T> extends ImsAbstractDialog<
 
     confirm(): void {
         this.dialogRef.close({
-            start: this.startRows().map((row) => row.value),
-            end: this.endRows().map((row) => row.value)
+            start: this.sortedRows(this.startRows(), this.startSort()).map((row) => row.value),
+            end: this.sortedRows(this.endRows(), this.endSort()).map((row) => row.value)
         });
     }
 
@@ -174,23 +174,33 @@ export class ImsTransferDialog<T> extends ImsAbstractDialog<
 
         const isEndColumn = containerId === this.endListId;
         const rowsSignal = isEndColumn ? this.endRows : this.startRows;
+        const sortSignal = isEndColumn ? this.endSort : this.startSort;
         rowsSignal.update((rows) => {
-            const next = rows.slice();
+            const next = this.sortedRows(rows, sortSignal());
             moveItemInArray(next, previousIndex, currentIndex);
             return next;
         });
-        (isEndColumn ? this.endSort : this.startSort).set(null);
+        sortSignal.set(null);
     }
 
-    private sortRows(
+    private sortedRows(
         rows: readonly ImsTransferRow<T>[],
-        direction: ImsTransferSortDirection
+        direction: ImsTransferSortDirection | null
     ): ImsTransferRow<T>[] {
+        if (direction === null) return rows.slice();
+
         const sorted = rows
             .slice()
             .sort((first, second) => first.label.localeCompare(second.label, undefined, {numeric: true}));
 
         return direction === 'asc' ? sorted : sorted.reverse();
+    }
+
+    private nextSortDirection(
+        direction: ImsTransferSortDirection | null
+    ): ImsTransferSortDirection | null {
+        if (direction === null) return 'asc';
+        return direction === 'asc' ? 'desc' : null;
     }
 
     private filterRows(rows: readonly ImsTransferRow<T>[]): ImsTransferRow<T>[] {
