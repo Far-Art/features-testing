@@ -1,6 +1,10 @@
-import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
-import {DIALOG_DATA, DialogRef} from '@angular/cdk/dialog';
+import {ChangeDetectionStrategy, Component, computed, signal} from '@angular/core';
 import {CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
+import {
+    ImsAbstractDialog,
+    ImsDialogActions,
+    ImsDialogContent
+} from '../ims-dialog';
 import {ImsTransferDialogData, ImsTransferDialogResult, ImsTransferRow} from './ims-transfer-dialog.types';
 
 export type ImsTransferSortDirection = 'asc' | 'desc';
@@ -10,7 +14,7 @@ let nextDialogInstanceId = 0;
 @Component({
     selector: 'ims-transfer-dialog',
     standalone: true,
-    imports: [CdkDropList, CdkDrag],
+    imports: [CdkDropList, CdkDrag, ImsDialogActions, ImsDialogContent],
     templateUrl: './ims-transfer-dialog.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
@@ -36,15 +40,16 @@ let nextDialogInstanceId = 0;
  * items between two independent sources" (caller consumes and re-applies
  * both sides) equally well.
  */
-export class ImsTransferDialog<T> {
-    private readonly dialogRef = inject(DialogRef<ImsTransferDialogResult<T>, ImsTransferDialog<T>>);
-    private readonly data = inject<ImsTransferDialogData<T>>(DIALOG_DATA);
+export class ImsTransferDialog<T> extends ImsAbstractDialog<
+    ImsTransferDialogData<T>,
+    ImsTransferDialogResult<T>
+> {
+    private readonly data = this.dialogData;
 
     private readonly instanceId = nextDialogInstanceId++;
     readonly startListId = `ims-transfer-start-${this.instanceId}`;
     readonly endListId = `ims-transfer-end-${this.instanceId}`;
 
-    readonly dialogTitle = this.data.dialogTitle ?? null;
     readonly startTitle = this.data.start.title;
     readonly endTitle = this.data.end.title;
 

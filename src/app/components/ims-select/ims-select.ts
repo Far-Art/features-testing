@@ -27,7 +27,12 @@ import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value
 import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
 import {runViewTransition} from '../../shared/view-transition';
 import {ImsOption} from './ims-option';
-import {ImsTransferDialogService, ImsTransferRow} from '../ims-transfer-dialog';
+import {ImsDialogService} from '../ims-dialog';
+import {
+  ImsTransferDialog,
+  ImsTransferDialogResult,
+  ImsTransferRow
+} from '../ims-transfer-dialog';
 import {
   IMS_SELECT_PARENT,
   ImsSelectActivationSource,
@@ -133,7 +138,7 @@ export class ImsSelect<T = unknown>
   private typeaheadResetTimer: ReturnType<typeof setTimeout> | null = null;
   readonly directionality = inject(Directionality);
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
-  private readonly transferDialog = inject(ImsTransferDialogService);
+  private readonly dialog = inject(ImsDialogService);
 
   private readonly triggerButton = viewChild<ElementRef<HTMLButtonElement>>('triggerButton');
   private readonly filterField = viewChild<ElementRef<HTMLElement>>('filterField');
@@ -462,11 +467,18 @@ export class ImsSelect<T = unknown>
 
     this.close(false);
 
-    const dialogRef = this.transferDialog.open<T>({
-      start: {title: 'לא נבחרו', rows: unchecked},
-      end: {title: 'נבחרו', rows: checked},
-      dialogTitle: 'עריכת בחירה'
-    });
+    const dialogRef = this.dialog
+      .info(ImsTransferDialog)
+      .title('עריכת בחירה')
+      .data({
+        start: {title: 'לא נבחרו', rows: unchecked},
+        end: {title: 'נבחרו', rows: checked}
+      })
+      .config({
+        minWidth: 'min(560px, 92vw)',
+        maxWidth: '92vw'
+      })
+      .open<ImsTransferDialogResult<T>>();
 
     dialogRef.closed.subscribe((result) => {
       if (result === undefined) return;

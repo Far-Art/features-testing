@@ -1,19 +1,5 @@
 .ims-transfer-dialog {
-    display: block;
-    box-sizing: border-box;
-    width: min(560px, 92vw);
-    max-width: 92vw;
-    max-height: 85vh;
-    padding: 1rem;
-    border-radius: 0.75rem;
-    background: var(--ims-background-dialog);
-    color: var(--ims-color-on-surface);
-}
-
-.ims-transfer-dialog__title {
-    margin: 0 0 0.75rem;
-    font-size: 1.05rem;
-    font-weight: 650;
+    display: contents;
 }
 
 .ims-transfer-dialog__filter {
@@ -283,11 +269,7 @@
 }
 
 .ims-transfer-dialog__actions {
-    display: flex;
-    align-items: center;
     justify-content: space-between;
-    gap: 0.5rem;
-    margin-top: 1rem;
 }
 
 .ims-transfer-dialog__actions-group {

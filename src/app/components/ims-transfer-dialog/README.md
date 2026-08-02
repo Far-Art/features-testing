@@ -30,12 +30,13 @@ The dialog never needs to know which scenario it's in.
 
 - `ims-transfer-dialog.types.ts`: `ImsTransferRow`, `ImsTransferColumn`,
   `ImsTransferDialogData`, `ImsTransferDialogResult`.
-- `ims-transfer-dialog.ts`: the dialog component (signals, filter, move/drop
-  logic, reset, confirm/cancel).
-- `ims-transfer-dialog.html`: two `cdkDropList` columns, filter input, footer.
+- `ims-transfer-dialog.ts`: the IMS-dialog content component (signals, filter,
+  move/drop logic, reset, confirm/cancel).
+- `ims-transfer-dialog.html`: `ims-dialog-content` and `ims-dialog-actions`
+  sections containing the two `cdkDropList` columns and footer.
 - `ims-transfer-dialog.service.ts`: `ImsTransferDialogService` — the facade
-  callers actually inject (`open(data)`), wraps `Dialog.open()` with default
-  sizing and `direction` sourced from `Directionality`.
+  callers can inject (`open(data)`); it delegates to `ImsDialogService` with
+  the transfer dialog's default title and sizing.
 - `index.ts`: public exports (component, service, all types).
 - `src/styles/ims-transfer-dialog.scss`: global styles (see "Styling" below).
 - Consumers: `src/app/components/ims-select/ims-select.ts`,

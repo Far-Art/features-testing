@@ -5,7 +5,8 @@ import {Directionality} from '@angular/cdk/bidi';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
 import {runViewTransition} from '../../shared/view-transition';
-import {ImsTransferDialogService, ImsTransferRow} from '../ims-transfer-dialog';
+import {ImsDialogService} from '../ims-dialog';
+import {ImsTransferDialog, ImsTransferDialogResult, ImsTransferRow} from '../ims-transfer-dialog';
 import {ImsAutocompleteActivationSource, ImsAutocompleteCompareWith, ImsAutocompleteHighlightPart, ImsAutocompleteOption, ImsAutocompleteSortMode, ImsAutocompleteToolbarMode, ImsAutocompleteToolbarSide, ImsAutocompleteValue, ImsAutocompleteViewMode} from './ims-autocomplete.types';
 
 type ImsAutocompleteOverlaySide = 'above' | 'below';
@@ -238,7 +239,7 @@ export class ImsAutocomplete<T = unknown>
     private measureFrame: ReturnType<typeof requestAnimationFrame> | null = null;
     private overlaySide: ImsAutocompleteOverlaySide | undefined;
     private readonly changeDetectorRef = inject(ChangeDetectorRef);
-    private readonly transferDialog = inject(ImsTransferDialogService);
+    private readonly dialog = inject(ImsDialogService);
     private readonly origin = viewChild<ElementRef<HTMLElement>>('origin');
     private readonly singleInput = viewChild<ElementRef<HTMLInputElement>>('singleInput');
     private readonly filterInput = viewChild<ElementRef<HTMLInputElement>>('filterInput');
@@ -422,17 +423,24 @@ export class ImsAutocomplete<T = unknown>
 
         this.closePanel(false);
 
-        const dialogRef = this.transferDialog.open<T>({
-            start: {
-                title: 'לא נבחרו',
-                rows: unchecked
-            },
-            end: {
-                title: 'נבחרו',
-                rows: checked
-            },
-            dialogTitle: 'עריכת בחירה'
-        });
+        const dialogRef = this.dialog
+            .info(ImsTransferDialog)
+            .title('עריכת בחירה')
+            .data({
+                start: {
+                    title: 'לא נבחרו',
+                    rows: unchecked
+                },
+                end: {
+                    title: 'נבחרו',
+                    rows: checked
+                }
+            })
+            .config({
+                minWidth: 'min(560px, 92vw)',
+                maxWidth: '92vw'
+            })
+            .open<ImsTransferDialogResult<T>>();
 
         dialogRef.closed.subscribe((result) => {
             if (result === undefined) return;

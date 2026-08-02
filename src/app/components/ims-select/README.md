@@ -22,7 +22,7 @@ of the component contract unless a requested change explicitly replaces it.
   `toolbar="auto"`.
 
 The toolbar pen icon opens `../ims-transfer-dialog`'s shared `ImsTransferDialog`
-via `ImsTransferDialogService` — see that component's own README for the full
+via `ImsDialogService` — see that component's own README for the full
 dual-list dialog contract (filter, drag-and-drop, bulk-move, disabled rows,
 reset, etc.). `ims-select` doesn't own the dialog anymore; it's just a caller.
 
@@ -83,10 +83,10 @@ regardless of what happens in the dialog.
    `editableOptions()`.
 2. Closes the select's own overlay (`this.close(false)`) before opening the
    dialog, so the popover doesn't linger, covered, behind the modal.
-3. Calls `this.transferDialog.open({start: {title: 'לא נבחרו', rows: unchecked}, end: {title: 'נבחרו', rows: checked}, dialogTitle: 'עריכת בחירה'})`
-   (`ImsTransferDialogService` — see `../ims-transfer-dialog/README.md`). The
-   service sources `direction` from `Directionality` itself, so `ims-select`
-   doesn't pass it explicitly.
+3. Opens `ImsTransferDialog` through the fluent `ImsDialogService`, supplies
+   the two columns with `.data()`, and lets the IMS dialog shell render the
+   title. The service sources `direction` from `Directionality` itself, so
+   `ims-select` doesn't pass it explicitly.
 4. On `dialogRef.closed`, a result of `undefined` (cancel, backdrop click,
    Escape) is a no-op. Otherwise `applyEditDialogResult(rows, result.end)`
    merges only the **end** column's final values back with any

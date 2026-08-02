@@ -1,7 +1,4 @@
-@if (dialogTitle) {
-    <h2 class="ims-transfer-dialog__title">{{ dialogTitle }}</h2>
-}
-
+<ims-dialog-content>
 <label class="ims-transfer-dialog__filter">
     <span class="ims-transfer-dialog__filter-label">סינון</span>
     <input
@@ -173,8 +170,9 @@
         </div>
     </section>
 </div>
+</ims-dialog-content>
 
-<div class="ims-transfer-dialog__actions">
+<ims-dialog-actions class="ims-transfer-dialog__actions">
     <button type="button" class="ims-transfer-dialog__button" (click)="reset()">אפס</button>
     <div class="ims-transfer-dialog__actions-group">
         <button type="button" class="ims-transfer-dialog__button" (click)="cancel()">ביטול</button>
@@ -186,4 +184,4 @@
             אישור
         </button>
     </div>
-</div>
+</ims-dialog-actions>
