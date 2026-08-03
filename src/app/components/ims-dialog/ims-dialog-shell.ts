@@ -41,7 +41,7 @@ type ImsDialogMessageStyle = 'danger' | 'info' | 'warning';
     '[class.ims-dialog--success]': 'effectiveSeverity === "success"',
     '[class.ims-dialog--warning]': 'effectiveSeverity === "warning"',
     '[class.ims-dialog--danger]': 'effectiveSeverity === "danger"',
-    '[class.ims-dialog--confirmation]': 'config.mode === "confirmation"',
+    '[class.ims-dialog--confirmation]': 'confirmationMode && !readonlyMode()',
     '[class.ims-dialog--readonly]': 'readonlyMode()',
     '[class.ims-dialog--ready]': 'ready()',
   },
@@ -51,8 +51,12 @@ export class ImsDialogShell {
   readonly dialogRef = inject(ImsDialogRef);
   readonly sections = inject(ImsDialogSectionRegistry);
   readonly ready = signal(false);
+  readonly confirmationMode =
+    this.config.mode === 'confirmation' || this.config.mode === 'confirmation-readonly';
   readonly readonlyMode = computed(
-    () => this.config.mode === 'readonly' && (this.config.readonlySignal?.() ?? true),
+    () =>
+      (this.config.mode === 'readonly' || this.config.mode === 'confirmation-readonly') &&
+      (this.config.readonlySignal?.() ?? true),
   );
   readonly contentComponentType = (() => {
     const content = this.config.content;

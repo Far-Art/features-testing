@@ -901,6 +901,32 @@ export class DialogDemo {
     });
   }
 
+  openTimedReadonlyConfirmation(): void {
+    const readonlyState = signal(false);
+    const readonlyTimer = window.setTimeout(() => readonlyState.set(true), 2_000);
+    const confirmationTimer = window.setTimeout(() => readonlyState.set(false), 4_000);
+    const ref = this.dialog
+      .warning(
+        'This dialog starts with confirmation actions. After two seconds readonly takes over and shows Close; after another two seconds confirmation returns.',
+      )
+      .title('Reactive confirmation state')
+      .withIcon('timer')
+      .config({ direction: 'ltr', width: 'min(38rem, calc(100vw - 2rem))' })
+      .asConfirmation({ yes: 'Approve', no: 'Reject' })
+      .asReadonly(readonlyState)
+      .open();
+
+    ref.closed.subscribe((confirmed) => {
+      window.clearTimeout(readonlyTimer);
+      window.clearTimeout(confirmationTimer);
+      this.lastEvent.set(
+        confirmed
+          ? 'Timed confirmation approved.'
+          : 'Timed confirmation rejected or closed while readonly.',
+      );
+    });
+  }
+
   openSeverity(severity: ImsDialogSeverity): void {
     const labels: Record<ImsDialogSeverity, string> = {
       info: 'Information dialog',

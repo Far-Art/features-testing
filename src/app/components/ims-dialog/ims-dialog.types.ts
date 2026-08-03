@@ -3,7 +3,7 @@ import { ComponentType } from '@angular/cdk/portal';
 import { InjectionToken, Signal } from '@angular/core';
 
 export type ImsDialogSeverity = 'info' | 'success' | 'warning' | 'danger';
-export type ImsDialogMode = 'standard' | 'confirmation' | 'readonly';
+export type ImsDialogMode = 'standard' | 'confirmation' | 'readonly' | 'confirmation-readonly';
 /** Structured, component, message, or text content accepted by dialog severity methods. */
 export type ImsDialogContentType<C = unknown> =
   | ComponentType<C>

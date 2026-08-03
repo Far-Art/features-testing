@@ -188,6 +188,9 @@ asConfirmation({ yes: 'Deploy now', no: 'Review first' });
 If the supplied component has no `ims-dialog-actions`, the shell generates the
 two confirmation buttons.
 
+Confirmation can be combined with `asReadonly()`. It remains a boolean result
+contract even while readonly temporarily replaces its generated actions.
+
 The `closed` observable always emits a boolean:
 
 - Affirmative action: `true`
@@ -242,8 +245,19 @@ are active and the dialog content receives the readonly provider. While it is
 `false`, both are removed. Component-provided actions continue to take
 precedence.
 
-Confirmation and read-only modes are mutually exclusive. Combining them throws
-an error.
+When combined with confirmation, readonly has presentation priority. A `true`
+readonly signal hides the generated confirmation buttons and shows Close. A
+`false` signal restores the confirmation buttons without reopening the dialog:
+
+```ts
+readonly readonlyState = signal(false);
+
+dialog
+  .warning('Review the operation before continuing.')
+  .asConfirmation({ yes: 'Approve', no: 'Reject' })
+  .asReadonly(this.readonlyState)
+  .open();
+```
 
 ### `open<Result>()`
 

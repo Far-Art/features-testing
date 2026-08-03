@@ -123,11 +123,11 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
    *
    * @param labels Built-in label set or custom affirmative/negative labels.
    * @returns This builder narrowed to a boolean confirmation result.
-   * @throws Error when read-only mode was already selected.
    */
   asConfirmation(labels: ImsDialogConfirmationLabels): ImsDialogBuilder<C, true> {
-    this.assertModeAvailable('confirmation');
-    this.dialogMode = 'confirmation';
+    this.dialogMode = this.dialogMode === 'readonly' || this.dialogMode === 'confirmation-readonly'
+      ? 'confirmation-readonly'
+      : 'confirmation';
     this.labels = labels;
     return this as unknown as ImsDialogBuilder<C, true>;
   }
@@ -143,11 +143,12 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
    *
    * @param state Optional signal controlling whether read-only mode is active.
    * @returns This builder for continued chaining.
-   * @throws Error when confirmation mode was already selected.
    */
   asReadonly(state?: Signal<boolean>): ImsDialogBuilder<C, Confirmation> {
-    this.assertModeAvailable('readonly');
-    this.dialogMode = 'readonly';
+    this.dialogMode =
+      this.dialogMode === 'confirmation' || this.dialogMode === 'confirmation-readonly'
+        ? 'confirmation-readonly'
+        : 'readonly';
     this.readonlySignal = state ?? null;
     return this;
   }
@@ -178,14 +179,4 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
     }) as Confirmation extends true ? ImsDialogRef<boolean> : ImsDialogRef<R | undefined>;
   }
 
-  /**
-   * Ensures generated dialog modes cannot conflict.
-   *
-   * @param nextMode Mode requested by the current builder operation.
-   */
-  private assertModeAvailable(nextMode: Exclude<ImsDialogMode, 'standard'>): void {
-    if (this.dialogMode !== 'standard' && this.dialogMode !== nextMode) {
-      throw new Error(`Dialog mode "${nextMode}" cannot be combined with "${this.dialogMode}".`);
-    }
-  }
 }

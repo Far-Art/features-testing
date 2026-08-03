@@ -47,6 +47,7 @@ export class ImsDialogService implements ImsDialogBuilderHost {
   }
 
   openFromBuilder(options: ImsDialogOpenOptions): ImsDialogRef<unknown> {
+    const confirmationMode = isConfirmationMode(options.mode);
     const mergedData = mergeDialogData(options.config.data, options.data, options.hasData);
     const direction = options.config.direction ?? this.directionality.value;
     const requestedInsideBoundary =
@@ -109,7 +110,7 @@ export class ImsDialogService implements ImsDialogBuilderHost {
           : this.overlay.scrollStrategies.noop()),
       hasBackdrop: insideBoundary ? false : (callerConfig.hasBackdrop ?? true),
       direction,
-      role: callerConfig.role ?? (options.mode === 'confirmation' ? 'alertdialog' : 'dialog'),
+      role: callerConfig.role ?? (confirmationMode ? 'alertdialog' : 'dialog'),
       ariaLabel: callerConfig.ariaLabel ?? (options.title || null),
       panelClass: [
         'ims-dialog-overlay',
@@ -123,7 +124,7 @@ export class ImsDialogService implements ImsDialogBuilderHost {
           typeof callerProviders === 'function'
             ? callerProviders(dialogRef, dialogConfig, container)
             : (callerProviders ?? []);
-        imsDialogRef = new ImsDialogRef(dialogRef, options.mode === 'confirmation');
+        imsDialogRef = new ImsDialogRef(dialogRef, confirmationMode);
 
         return [
           ...resolvedCallerProviders,
@@ -136,7 +137,7 @@ export class ImsDialogService implements ImsDialogBuilderHost {
 
     const cdkDialogRef = this.dialog.open<unknown, unknown, ImsDialogShell>(ImsDialogShell, config);
 
-    return imsDialogRef ?? new ImsDialogRef(cdkDialogRef, options.mode === 'confirmation');
+    return imsDialogRef ?? new ImsDialogRef(cdkDialogRef, confirmationMode);
   }
 
   private resolveInsideBoundary(className: string): HTMLElement | null {
@@ -220,4 +221,8 @@ function normalizePanelClass(panelClass: DialogConfig['panelClass']): string[] {
   }
 
   return Array.isArray(panelClass) ? panelClass : [panelClass];
+}
+
+function isConfirmationMode(mode: ImsDialogOpenOptions['mode']): boolean {
+  return mode === 'confirmation' || mode === 'confirmation-readonly';
 }

@@ -140,6 +140,20 @@
       </div>
       <button type="button" (click)="openMessageList()">Show sorted messages</button>
     </article>
+
+    <article class="dialog-demo-card dialog-demo-card--warning">
+      <div class="dialog-demo-card__index">10</div>
+      <div class="dialog-demo-card__body">
+        <span class="dialog-demo-card__tag">Reactive mode override</span>
+        <h2>Confirmation ↔ readonly</h2>
+        <p>
+          The dialog begins with Approve and Reject. A timeout enables readonly after two seconds,
+          replacing them with Close, then restores confirmation two seconds later.
+        </p>
+        <code>.asConfirmation(labels).asReadonly(signal)</code>
+      </div>
+      <button type="button" (click)="openTimedReadonlyConfirmation()">Watch actions switch</button>
+    </article>
   </section>
 
   <app-dialog-inside-playground (dialogClosed)="lastEvent.set($event)" />
