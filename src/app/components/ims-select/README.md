@@ -57,6 +57,11 @@ its options can be reviewed without changing the value. When the input is not
 set, it defaults to `true` in multiple mode and `false` in single-select mode.
 Set it explicitly to override either default.
 
+`ims-select` also consumes the nearest `ReadonlyDirective` provider. Applying
+`[ims-readonly]` to the select or an ancestor blocks value changes using the
+same readonly behavior; `allowOpenWhenDisabled` can still be used to allow
+reviewing the options.
+
 ## Multi-Select Toolbar
 
 When `multiple()` and `showToolbar()` are true, an `aside` renders next to the

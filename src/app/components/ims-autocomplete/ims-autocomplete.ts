@@ -1,12 +1,12 @@
 import {CdkConnectedOverlay, CdkOverlayOrigin, ConnectedOverlayPositionChange, ConnectedPosition} from '@angular/cdk/overlay';
 import {CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
-import {AfterViewInit, booleanAttribute, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, ElementRef, inject, input, numberAttribute, OnDestroy, signal, viewChild} from '@angular/core';
+import {AfterViewInit, booleanAttribute, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, ElementRef, inject, input, numberAttribute, OnDestroy, Signal, signal, viewChild} from '@angular/core';
 import {Directionality} from '@angular/cdk/bidi';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
+import {ReadonlyDirective} from '../../shared/readonly.directive';
 import {runViewTransition} from '../../shared/view-transition';
-import {ImsDialogService} from '../ims-dialog';
-import {ImsTransferDialog, ImsTransferDialogResult, ImsTransferRow} from '../ims-transfer-dialog';
+import {ImsTransferDialogService, ImsTransferRow} from '../ims-transfer-dialog';
 import {ImsAutocompleteActivationSource, ImsAutocompleteCompareWith, ImsAutocompleteHighlightPart, ImsAutocompleteOption, ImsAutocompleteSortMode, ImsAutocompleteToolbarMode, ImsAutocompleteToolbarSide, ImsAutocompleteValue, ImsAutocompleteViewMode} from './ims-autocomplete.types';
 
 type ImsAutocompleteOverlaySide = 'above' | 'below';
@@ -149,8 +149,10 @@ export class ImsAutocomplete<T = unknown>
     readonly allowOpenWhenDisabled = computed(() =>
         this.allowOpenWhenDisabledInput() ?? this.multiple()
     );
+    /** True when disabled directly, by a form, or by an ancestor readonly provider. */
+    readonly interactionDisabled = computed(() => this.disabled() || this.inheritedReadonly());
     readonly readonlyMode = computed(() =>
-        this.disabled() && this.allowOpenWhenDisabled()
+        this.interactionDisabled() && this.allowOpenWhenDisabled()
     );
     readonly effectiveStrict = computed(() => this.multiple() || this.strict());
     readonly selectedValues = computed<readonly T[]>(() => {
@@ -239,7 +241,8 @@ export class ImsAutocomplete<T = unknown>
     private measureFrame: ReturnType<typeof requestAnimationFrame> | null = null;
     private overlaySide: ImsAutocompleteOverlaySide | undefined;
     private readonly changeDetectorRef = inject(ChangeDetectorRef);
-    private readonly dialog = inject(ImsDialogService);
+    private readonly transferDialog = inject(ImsTransferDialogService);
+    private readonly inheritedReadonly: Signal<boolean> = ReadonlyDirective.injectSignal();
     private readonly origin = viewChild<ElementRef<HTMLElement>>('origin');
     private readonly singleInput = viewChild<ElementRef<HTMLInputElement>>('singleInput');
     private readonly filterInput = viewChild<ElementRef<HTMLInputElement>>('filterInput');
@@ -254,7 +257,7 @@ export class ImsAutocomplete<T = unknown>
         super();
 
         effect(() => {
-            if (this.disabled() && !this.allowOpenWhenDisabled() && this.open()) {
+            if (this.interactionDisabled() && !this.allowOpenWhenDisabled() && this.open()) {
                 this.closePanel(false);
             }
         });
@@ -321,7 +324,7 @@ export class ImsAutocomplete<T = unknown>
     }
 
     openPanel(): void {
-        if ((this.disabled() && !this.allowOpenWhenDisabled()) || this.open()) return;
+        if ((this.interactionDisabled() && !this.allowOpenWhenDisabled()) || this.open()) return;
         this.overlaySide = undefined;
         this.updatePanelGeometry();
         this.activeIndex.set(this.findInitialActiveIndex(this.visibleOptions()));
@@ -336,7 +339,7 @@ export class ImsAutocomplete<T = unknown>
         this.listboxMinHeight.set(0);
         this.activeIndex.set(-1);
 
-        if (commitText && !this.multiple() && !this.disabled()) {
+        if (commitText && !this.multiple() && !this.interactionDisabled()) {
             this.commitSingleInput();
         }
 
@@ -381,7 +384,7 @@ export class ImsAutocomplete<T = unknown>
     }
 
     onSingleInput(event: Event): void {
-        if (this.disabled()) return;
+        if (this.interactionDisabled()) return;
 
         const target = event.target;
         if (!(target instanceof HTMLInputElement)) return;
@@ -404,7 +407,7 @@ export class ImsAutocomplete<T = unknown>
     }
 
     openEditDialog(): void {
-        if (this.disabled()) return;
+        if (this.interactionDisabled()) return;
 
         const checked: ImsTransferRow<T>[] = [];
         const unchecked: ImsTransferRow<T>[] = [];
@@ -423,24 +426,17 @@ export class ImsAutocomplete<T = unknown>
 
         this.closePanel(false);
 
-        const dialogRef = this.dialog
-            .info(ImsTransferDialog)
-            .title('עריכת בחירה')
-            .data({
-                start: {
-                    title: 'לא נבחרו',
-                    rows: unchecked
-                },
-                end: {
-                    title: 'נבחרו',
-                    rows: checked
-                }
-            })
-            .config({
-                minWidth: 'min(560px, 92vw)',
-                maxWidth: '92vw'
-            })
-            .open<ImsTransferDialogResult<T>>();
+        const dialogRef = this.transferDialog.open<T>({
+            start: {
+                title: 'לא נבחרו',
+                rows: unchecked
+            },
+            end: {
+                title: 'נבחרו',
+                rows: checked
+            },
+            dialogTitle: 'עריכת בחירה'
+        });
 
         dialogRef.closed.subscribe((result) => {
             if (result === undefined) return;
@@ -475,7 +471,7 @@ export class ImsAutocomplete<T = unknown>
     onSingleBlur(): void {
         queueMicrotask(() => {
             if (!this.open()) {
-                if (!this.disabled()) {
+                if (!this.interactionDisabled()) {
                     this.commitSingleInput();
                 }
                 this.markAsTouched();
@@ -484,7 +480,7 @@ export class ImsAutocomplete<T = unknown>
     }
 
     onKeydown(event: KeyboardEvent): void {
-        if (this.disabled()) {
+        if (this.interactionDisabled()) {
             if (!this.allowOpenWhenDisabled()) return;
             this.onReadonlyKeydown(event);
             return;
@@ -574,7 +570,7 @@ export class ImsAutocomplete<T = unknown>
     }
 
     selectOption(option: ImsAutocompleteOption<T>): void {
-        if (this.disabled() || option.disabled) return;
+        if (this.interactionDisabled() || option.disabled) return;
 
         if (this.multiple()) {
             this.captureListboxHeight();

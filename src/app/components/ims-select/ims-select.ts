@@ -11,6 +11,7 @@ import {
   Component,
   ElementRef,
   OnDestroy,
+  Signal,
   booleanAttribute,
   computed,
   contentChildren,
@@ -25,14 +26,10 @@ import {
 import {Directionality} from '@angular/cdk/bidi';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
+import {ReadonlyDirective} from '../../shared/readonly.directive';
 import {runViewTransition} from '../../shared/view-transition';
 import {ImsOption} from './ims-option';
-import {ImsDialogService} from '../ims-dialog';
-import {
-  ImsTransferDialog,
-  ImsTransferDialogResult,
-  ImsTransferRow
-} from '../ims-transfer-dialog';
+import {ImsTransferDialogService, ImsTransferRow} from '../ims-transfer-dialog';
 import {
   IMS_SELECT_PARENT,
   ImsSelectActivationSource,
@@ -138,7 +135,8 @@ export class ImsSelect<T = unknown>
   private typeaheadResetTimer: ReturnType<typeof setTimeout> | null = null;
   readonly directionality = inject(Directionality);
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
-  private readonly dialog = inject(ImsDialogService);
+  private readonly transferDialog = inject(ImsTransferDialogService);
+  private readonly inheritedReadonly: Signal<boolean> = ReadonlyDirective.injectSignal();
 
   private readonly triggerButton = viewChild<ElementRef<HTMLButtonElement>>('triggerButton');
   private readonly filterField = viewChild<ElementRef<HTMLElement>>('filterField');
@@ -208,8 +206,10 @@ export class ImsSelect<T = unknown>
   readonly allowOpenWhenDisabled = computed(() =>
     this.allowOpenWhenDisabledInput() ?? this.multiple()
   );
+  /** True when disabled directly, by a form, or by an ancestor readonly provider. */
+  readonly interactionDisabled = computed(() => this.disabled() || this.inheritedReadonly());
   readonly readonlyMode = computed(() =>
-    this.disabled() && this.allowOpenWhenDisabled()
+    this.interactionDisabled() && this.allowOpenWhenDisabled()
   );
 
   readonly selectId = `ims-select-${nextSelectId++}`;
@@ -309,7 +309,7 @@ export class ImsSelect<T = unknown>
     super();
 
     effect(() => {
-      if (this.disabled() && !this.allowOpenWhenDisabled() && this.open()) {
+      if (this.interactionDisabled() && !this.allowOpenWhenDisabled() && this.open()) {
         this.close(false);
       }
     });
@@ -367,7 +367,7 @@ export class ImsSelect<T = unknown>
   }
 
   togglePanel(): void {
-    if (this.disabled() && !this.allowOpenWhenDisabled()) return;
+    if (this.interactionDisabled() && !this.allowOpenWhenDisabled()) return;
 
     if (this.open()) {
       this.close(true);
@@ -378,7 +378,7 @@ export class ImsSelect<T = unknown>
   }
 
   openPanel(): void {
-    if ((this.disabled() && !this.allowOpenWhenDisabled()) || this.open()) return;
+    if ((this.interactionDisabled() && !this.allowOpenWhenDisabled()) || this.open()) return;
 
     this.overlaySide = undefined;
     this.updatePanelGeometry();
@@ -445,7 +445,7 @@ export class ImsSelect<T = unknown>
   }
 
   openEditDialog(): void {
-    if (this.disabled()) return;
+    if (this.interactionDisabled()) return;
 
     const checked: ImsTransferRow<T>[] = [];
     const unchecked: ImsTransferRow<T>[] = [];
@@ -467,18 +467,11 @@ export class ImsSelect<T = unknown>
 
     this.close(false);
 
-    const dialogRef = this.dialog
-      .info(ImsTransferDialog)
-      .title('עריכת בחירה')
-      .data({
-        start: {title: 'לא נבחרו', rows: unchecked},
-        end: {title: 'נבחרו', rows: checked}
-      })
-      .config({
-        minWidth: 'min(560px, 92vw)',
-        maxWidth: '92vw'
-      })
-      .open<ImsTransferDialogResult<T>>();
+    const dialogRef = this.transferDialog.open<T>({
+      start: {title: 'לא נבחרו', rows: unchecked},
+      end: {title: 'נבחרו', rows: checked},
+      dialogTitle: 'עריכת בחירה'
+    });
 
     dialogRef.closed.subscribe((result) => {
       if (result === undefined) return;
@@ -534,7 +527,7 @@ export class ImsSelect<T = unknown>
   selectOption(option: ImsSelectOptionLike<T>, event?: Event): void {
     event?.preventDefault();
 
-    if (this.disabled() || option.disabled()) return;
+    if (this.interactionDisabled() || option.disabled()) return;
 
     const optionValue = this.readOptionValue(option);
     if (!optionValue.available) return;
@@ -551,7 +544,7 @@ export class ImsSelect<T = unknown>
   }
 
   onTriggerKeydown(event: KeyboardEvent): void {
-    if (this.disabled()) {
+    if (this.interactionDisabled()) {
       if (!this.allowOpenWhenDisabled()) return;
       this.onReadonlyTriggerKeydown(event);
       return;

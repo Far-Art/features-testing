@@ -208,6 +208,11 @@
   grid-column: 1 / -1;
 }
 
+.readonly-demo__select {
+  grid-column: 1 / -1;
+  max-width: 30rem;
+}
+
 .readonly-demo__editor > button {
   justify-self: start;
 }
@@ -263,6 +268,10 @@
   }
 
   .readonly-demo__notes {
+    grid-column: auto;
+  }
+
+  .readonly-demo__select {
     grid-column: auto;
   }
 }

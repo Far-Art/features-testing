@@ -1,5 +1,9 @@
 import { ChangeDetectionStrategy, Component, Signal, signal } from '@angular/core';
+import { ImsAutocomplete, type ImsAutocompleteOption } from '../../components/ims-autocomplete';
+import { ImsOption, ImsSelect } from '../../components/ims-select';
 import { ReadonlyDirective } from '../../shared/readonly.directive';
+
+type ContactMethod = 'Email' | 'Phone' | 'Text message';
 
 @Component({
   selector: 'app-readonly-state',
@@ -41,7 +45,7 @@ class ReadonlyState {
 
 @Component({
   selector: 'app-readonly-demo',
-  imports: [ReadonlyDirective, ReadonlyState],
+  imports: [ReadonlyDirective, ReadonlyState, ImsSelect, ImsOption, ImsAutocomplete],
   templateUrl: './readonly-demo.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './readonly-demo.scss',
@@ -49,6 +53,16 @@ class ReadonlyState {
 export class ReadonlyDemo {
   readonly pageReadonly = signal(true);
   readonly allowChildOverride = signal(false);
+  readonly contactMethods: readonly ContactMethod[] = ['Email', 'Phone', 'Text message'];
+  readonly contactMethodOptions: readonly ImsAutocompleteOption<ContactMethod>[] = this.contactMethods.map(
+    (method) => ({ value: method, label: method })
+  );
+  readonly preferredContactMethod = signal<ContactMethod | readonly ContactMethod[] | null | undefined>(
+    'Email'
+  );
+  readonly preferredContactMethodAutocomplete = signal<
+    ContactMethod | string | readonly ContactMethod[] | null | undefined
+  >('Phone');
 
   togglePageReadonly(): void {
     this.pageReadonly.update((readonly) => !readonly);

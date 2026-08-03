@@ -36,8 +36,8 @@
     </div>
 
     <p class="readonly-demo__description">
-      The controls below receive the host's <code>disabled</code> attribute. The state badge obtains
-      the same value through <code>ReadonlyDirective.injectSignal()</code>.
+      Native controls below receive the host's <code>disabled</code> attribute. The custom select
+      and autocomplete consume the same signal through <code>ReadonlyDirective.injectSignal()</code>.
     </p>
 
     <div class="readonly-demo__editor">
@@ -52,6 +52,29 @@
       <label class="readonly-demo__notes">
         <span>Internal note</span>
         <textarea [ims-readonly]="pageReadonly()">Review required before renewal.</textarea>
+      </label>
+      <label class="readonly-demo__select">
+        <span>Preferred contact method</span>
+        <ims-select
+          filter="off"
+          ariaLabel="Preferred contact method"
+          [value]="preferredContactMethod()"
+          (valueChange)="preferredContactMethod.set($event)"
+        >
+          @for (method of contactMethods; track method) {
+            <ims-option [value]="method">{{ method }}</ims-option>
+          }
+        </ims-select>
+      </label>
+      <label class="readonly-demo__select">
+        <span>Preferred contact method autocomplete</span>
+        <ims-autocomplete
+          strict
+          ariaLabel="Preferred contact method autocomplete"
+          [options]="contactMethodOptions"
+          [value]="preferredContactMethodAutocomplete()"
+          (valueChange)="preferredContactMethodAutocomplete.set($event)"
+        />
       </label>
       <button type="button" [ims-readonly]="pageReadonly()">Save changes</button>
     </div>
