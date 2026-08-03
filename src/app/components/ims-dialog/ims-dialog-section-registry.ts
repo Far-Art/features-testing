@@ -12,7 +12,6 @@ export class ImsDialogSectionRegistry {
   });
 
   readonly hasTitle = computed(() => this.sectionCounts().title > 0);
-  readonly hasToolbar = computed(() => this.sectionCounts().toolbar > 0);
   readonly hasContent = computed(() => this.sectionCounts().content > 0);
   readonly hasActions = computed(() => this.sectionCounts().actions > 0);
 
