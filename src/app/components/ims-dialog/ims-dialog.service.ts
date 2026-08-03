@@ -2,7 +2,7 @@ import { Dialog, DialogConfig, DialogRef } from '@angular/cdk/dialog';
 import { Directionality } from '@angular/cdk/bidi';
 import { Overlay } from '@angular/cdk/overlay';
 import { DOCUMENT } from '@angular/common';
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, linkedSignal } from '@angular/core';
 import { ImsDialogBuilder, ImsDialogBuilderHost } from './ims-dialog-builder';
 import { ImsDialogRef } from './ims-dialog-ref';
 import { ImsDialogShell } from './ims-dialog-shell';
@@ -48,6 +48,9 @@ export class ImsDialogService implements ImsDialogBuilderHost {
 
   openFromBuilder(options: ImsDialogOpenOptions): ImsDialogRef<unknown> {
     const confirmationMode = isConfirmationMode(options.mode);
+    const readonlyState = linkedSignal(
+      () => isReadonlyMode(options.mode) && (options.readonlySignal?.() ?? true),
+    );
     const mergedData = mergeDialogData(options.config.data, options.data, options.hasData);
     const direction = options.config.direction ?? this.directionality.value;
     const requestedInsideBoundary =
@@ -59,7 +62,7 @@ export class ImsDialogService implements ImsDialogBuilderHost {
     const runtimeConfig: ImsDialogRuntimeConfig = {
       severity: options.severity,
       mode: options.mode,
-      readonlySignal: options.readonlySignal,
+      readonlySignal: readonlyState,
       content: options.content,
       title: options.title,
       icon: options.iconRequested ? (options.iconName ?? DEFAULT_ICONS[options.severity]) : null,
@@ -124,7 +127,7 @@ export class ImsDialogService implements ImsDialogBuilderHost {
           typeof callerProviders === 'function'
             ? callerProviders(dialogRef, dialogConfig, container)
             : (callerProviders ?? []);
-        imsDialogRef = new ImsDialogRef(dialogRef, confirmationMode);
+        imsDialogRef = new ImsDialogRef(dialogRef, confirmationMode, readonlyState);
 
         return [
           ...resolvedCallerProviders,
@@ -137,7 +140,7 @@ export class ImsDialogService implements ImsDialogBuilderHost {
 
     const cdkDialogRef = this.dialog.open<unknown, unknown, ImsDialogShell>(ImsDialogShell, config);
 
-    return imsDialogRef ?? new ImsDialogRef(cdkDialogRef, confirmationMode);
+    return imsDialogRef ?? new ImsDialogRef(cdkDialogRef, confirmationMode, readonlyState);
   }
 
   private resolveInsideBoundary(className: string): HTMLElement | null {
@@ -225,4 +228,8 @@ function normalizePanelClass(panelClass: DialogConfig['panelClass']): string[] {
 
 function isConfirmationMode(mode: ImsDialogOpenOptions['mode']): boolean {
   return mode === 'confirmation' || mode === 'confirmation-readonly';
+}
+
+function isReadonlyMode(mode: ImsDialogOpenOptions['mode']): boolean {
+  return mode === 'readonly' || mode === 'confirmation-readonly';
 }

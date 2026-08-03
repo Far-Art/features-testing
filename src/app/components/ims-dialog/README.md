@@ -413,9 +413,15 @@ The reference exposes:
 
 ```ts
 dialogRef.close(result?);
+dialogRef.setReadonly(state?);
 dialogRef.closed;
 dialogRef.panelElement;
 ```
+
+`setReadonly()` enables readonly mode immediately; pass `false` to restore the
+editable state. It can be used on any open dialog, including one that was not
+configured with `asReadonly()`. The content and generated actions update in
+place, while the title, toolbar, and close control remain interactive.
 
 `panelElement` is the `.cdk-overlay-pane` HTML element containing the dialog
 shell. It can be used for scoped measurements, observation, or imperative

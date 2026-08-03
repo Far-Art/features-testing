@@ -129,11 +129,7 @@ export class ImsDialogContent extends ImsDialogSectionBase {
     | ImsDialogRuntimeConfig
     | null;
   private readonly readonlyDirective = inject(ReadonlyDirective);
-  readonly readonlyMode = computed(
-    () =>
-      (this.config?.mode === 'readonly' || this.config?.mode === 'confirmation-readonly') &&
-      (this.config.readonlySignal?.() ?? true),
-  );
+  readonly readonlyMode = computed(() => this.config?.readonlySignal?.() ?? false);
 
   constructor() {
     super();

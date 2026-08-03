@@ -53,11 +53,7 @@ export class ImsDialogShell {
   readonly ready = signal(false);
   readonly confirmationMode =
     this.config.mode === 'confirmation' || this.config.mode === 'confirmation-readonly';
-  readonly readonlyMode = computed(
-    () =>
-      (this.config.mode === 'readonly' || this.config.mode === 'confirmation-readonly') &&
-      (this.config.readonlySignal?.() ?? true),
-  );
+  readonly readonlyMode = computed(() => this.config.readonlySignal?.() ?? false);
   readonly contentComponentType = (() => {
     const content = this.config.content;
     return typeof content === 'function' ? (content as Type<unknown>) : null;

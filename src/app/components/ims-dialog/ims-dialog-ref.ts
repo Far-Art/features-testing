@@ -1,3 +1,4 @@
+import { WritableSignal, signal } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
 interface DialogRefAdapter {
@@ -17,6 +18,7 @@ export class ImsDialogRef<R = unknown> {
   constructor(
     private readonly dialogRef: DialogRefAdapter,
     confirmation: boolean,
+    private readonly readonlyState: WritableSignal<boolean> = signal(false),
   ) {
     this.panelElement = dialogRef.overlayRef.overlayElement;
     this.closed = (
@@ -26,5 +28,15 @@ export class ImsDialogRef<R = unknown> {
 
   close(result?: R): void {
     this.dialogRef.close(result);
+  }
+
+  /**
+   * Updates the dialog's live readonly state.
+   *
+   * Readonly affects the dialog content and generated actions while leaving
+   * the title, toolbar, and close control interactive.
+   */
+  setReadonly(state = true): void {
+    this.readonlyState.set(state);
   }
 }
