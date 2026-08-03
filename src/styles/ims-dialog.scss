@@ -239,6 +239,91 @@ ims-dialog-shell.ims-dialog {
   line-height: 1.6;
 }
 
+.ims-dialog__structured-content {
+  display: grid;
+  gap: 0.875rem;
+}
+
+.ims-dialog__result {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.ims-dialog__result-code-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  color: var(--ims-color-on-surface-muted);
+  font-size: 0.78rem;
+}
+
+.ims-dialog__result-code-label {
+  font-weight: 700;
+}
+
+.ims-dialog__result-code {
+  color: inherit;
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.ims-dialog__result--info .ims-dialog__result-code {
+  color: var(--ims-color-primary-800);
+}
+
+.ims-dialog__result--danger .ims-dialog__result-code {
+  color: var(--ims-color-danger-700);
+}
+
+.ims-dialog__result-description {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--ims-color-on-surface);
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.ims-dialog__message-list {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ims-dialog__message {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.45rem;
+  padding: 0.25rem 0.15rem;
+  color: var(--ims-color-on-surface-muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.ims-dialog__message--info .ims-dialog__message-icon {
+  color: var(--ims-color-primary-700);
+}
+
+.ims-dialog__message--warning .ims-dialog__message-icon {
+  color: var(--ims-color-warning-700);
+}
+
+.ims-dialog__message--danger .ims-dialog__message-icon {
+  color: var(--ims-color-danger-700);
+}
+
+.ims-dialog__message-icon {
+  font-size: 1rem;
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 450,
+    'GRAD' 0,
+    'opsz' 20;
+}
+
 .ims-dialog-actions {
   display: flex;
   grid-area: actions;

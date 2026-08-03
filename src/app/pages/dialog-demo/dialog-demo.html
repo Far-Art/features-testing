@@ -109,6 +109,37 @@
       </div>
       <button type="button" (click)="openGridContent()">Test sticky grid header</button>
     </article>
+
+    <article class="dialog-demo-card dialog-demo-card--danger">
+      <div class="dialog-demo-card__index">08</div>
+      <div class="dialog-demo-card__body">
+        <span class="dialog-demo-card__tag">Structured output</span>
+        <h2>Result code + message stack</h2>
+        <p>
+          An <code>IBaseOutput</code> renders its code and description first, then sorts mixed-level
+          messages from danger to info without changing the source array.
+        </p>
+        <code>.info(output: IBaseOutput)</code>
+      </div>
+      <div class="dialog-demo-card__actions">
+        <button type="button" (click)="openBaseOutput(0)">Code 0</button>
+        <button type="button" (click)="openBaseOutput(-12)">Negative code</button>
+      </div>
+    </article>
+
+    <article class="dialog-demo-card dialog-demo-card--warning">
+      <div class="dialog-demo-card__index">09</div>
+      <div class="dialog-demo-card__body">
+        <span class="dialog-demo-card__tag">Messages only</span>
+        <h2>Standalone severity rows</h2>
+        <p>
+          A plain <code>IMessage[]</code> uses the same descending level sort and visual mapping:
+          danger, warning, then informational rows.
+        </p>
+        <code>.info(messages: IMessage[])</code>
+      </div>
+      <button type="button" (click)="openMessageList()">Show sorted messages</button>
+    </article>
   </section>
 
   <app-dialog-inside-playground (dialogClosed)="lastEvent.set($event)" />

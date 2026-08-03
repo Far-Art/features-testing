@@ -146,6 +146,25 @@
   cursor: pointer;
 }
 
+.dialog-demo-card__actions {
+  display: flex;
+  grid-column: 2;
+  align-self: end;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.dialog-demo-card__actions button {
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--demo-accent);
+  border-radius: 0.625rem;
+  background: var(--demo-tint);
+  color: var(--demo-accent);
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+
 .dialog-demo-severity {
   display: grid;
   grid-template-columns: minmax(16rem, 0.8fr) minmax(24rem, 1.2fr);

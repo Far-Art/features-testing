@@ -34,7 +34,7 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
 
   constructor(
     private readonly host: ImsDialogBuilderHost,
-    private readonly component: ImsDialogContentType<C> | null,
+    private readonly content: ImsDialogContentType<C> | null,
     private readonly severity: ImsDialogSeverity,
   ) {}
 
@@ -164,7 +164,7 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
     : ImsDialogRef<R | undefined> {
     return this.host.openFromBuilder({
       severity: this.severity,
-      component: this.component,
+      content: this.content,
       title: this.dialogTitle,
       iconRequested: this.hasIcon,
       iconName: this.materialIconName,

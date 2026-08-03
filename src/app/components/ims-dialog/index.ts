@@ -11,6 +11,8 @@ export {
 export { ImsDialogService } from './ims-dialog.service';
 export { IMS_DIALOG_CONFIG, IMS_DIALOG_DATA, resolveConfirmationLabels } from './ims-dialog.types';
 export type {
+  IBaseOutput,
+  IMessage,
   ImsDialogConfirmationLabels,
   ImsDialogContentType,
   ImsDialogMode,

@@ -30,20 +30,20 @@ export class ImsDialogService implements ImsDialogBuilderHost {
   private readonly overlay = inject(Overlay);
   private readonly document = inject(DOCUMENT);
 
-  info<C = unknown>(component: ImsDialogContentType<C> | null = null): ImsDialogBuilder<C> {
-    return this.createBuilder(component, 'info');
+  info<C = unknown>(content: ImsDialogContentType<C> | null = null): ImsDialogBuilder<C> {
+    return this.createBuilder(content, 'info');
   }
 
-  success<C = unknown>(component: ImsDialogContentType<C> | null = null): ImsDialogBuilder<C> {
-    return this.createBuilder(component, 'success');
+  success<C = unknown>(content: ImsDialogContentType<C> | null = null): ImsDialogBuilder<C> {
+    return this.createBuilder(content, 'success');
   }
 
-  warning<C = unknown>(component: ImsDialogContentType<C> | null = null): ImsDialogBuilder<C> {
-    return this.createBuilder(component, 'warning');
+  warning<C = unknown>(content: ImsDialogContentType<C> | null = null): ImsDialogBuilder<C> {
+    return this.createBuilder(content, 'warning');
   }
 
-  danger<C = unknown>(component: ImsDialogContentType<C> | null = null): ImsDialogBuilder<C> {
-    return this.createBuilder(component, 'danger');
+  danger<C = unknown>(content: ImsDialogContentType<C> | null = null): ImsDialogBuilder<C> {
+    return this.createBuilder(content, 'danger');
   }
 
   openFromBuilder(options: ImsDialogOpenOptions): ImsDialogRef<unknown> {
@@ -59,7 +59,7 @@ export class ImsDialogService implements ImsDialogBuilderHost {
       severity: options.severity,
       mode: options.mode,
       readonlySignal: options.readonlySignal,
-      component: options.component,
+      content: options.content,
       title: options.title,
       icon: options.iconRequested ? (options.iconName ?? DEFAULT_ICONS[options.severity]) : null,
       confirmationLabels: options.confirmationLabels
@@ -180,10 +180,10 @@ export class ImsDialogService implements ImsDialogBuilderHost {
   }
 
   private createBuilder<C>(
-    component: ImsDialogContentType<C> | null,
+    content: ImsDialogContentType<C> | null,
     severity: ImsDialogSeverity,
   ): ImsDialogBuilder<C> {
-    return new ImsDialogBuilder(this, component, severity);
+    return new ImsDialogBuilder(this, content, severity);
   }
 }
 

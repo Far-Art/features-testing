@@ -18,19 +18,54 @@
     <span class="material-symbols-sharp" aria-hidden="true">close</span>
   </button>
 
-  @if (config.component !== null) {
+  @if (config.content !== null) {
     <div
       class="ims-dialog__component-content"
       [class.ims-dialog-content]="!sections.hasContent()"
-      [class.ims-dialog__component-content--projecting]="componentType() && sections.hasContent()"
+      [class.ims-dialog__component-content--projecting]="contentComponentType && sections.hasContent()"
       [ims-readonly]="readonlyMode() && !sections.hasContent()"
     >
-      @if (componentType(); as component) {
+      @if (contentComponentType; as component) {
         <ng-container *ngComponentOutlet="component" />
       } @else {
-        <div class="ims-dialog__text-content">
-          @for (text of textContent(); track $index) {
-            <p>{{ text }}</p>
+        <div class="ims-dialog__structured-content">
+          @if (baseOutput; as output) {
+            <section
+              class="ims-dialog__result"
+              [class.ims-dialog__result--danger]="output.resultCode < 0"
+              [class.ims-dialog__result--info]="output.resultCode >= 0"
+              [attr.role]="output.resultCode < 0 ? 'alert' : 'status'"
+            >
+              <div class="ims-dialog__result-code-line">
+                <span class="ims-dialog__result-code-label">קוד:</span>
+                <code class="ims-dialog__result-code">{{ output.resultCode }}</code>
+              </div>
+              <p class="ims-dialog__result-description">{{ output.resultDesc }}</p>
+            </section>
+          }
+
+          @if (messages.length > 0) {
+            <ul class="ims-dialog__message-list" aria-label="Dialog messages">
+              @for (message of messages; track $index) {
+                <li
+                  class="ims-dialog__message"
+                  [class.ims-dialog__message--danger]="messageStyle(message.level) === 'danger'"
+                  [class.ims-dialog__message--warning]="messageStyle(message.level) === 'warning'"
+                  [class.ims-dialog__message--info]="messageStyle(message.level) === 'info'"
+                >
+                  <span class="ims-dialog__message-icon material-symbols-sharp" aria-hidden="true">
+                    {{ messageIcon(message.level) }}
+                  </span>
+                  <span>{{ message.message }}</span>
+                </li>
+              }
+            </ul>
+          } @else if (!baseOutput && !isMessageListContent) {
+            <div class="ims-dialog__text-content">
+              @for (text of textContent; track $index) {
+                <p>{{ text }}</p>
+              }
+            </div>
           }
         </div>
       }

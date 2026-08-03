@@ -5,7 +5,14 @@ import { ReadonlyDirective } from '../../shared/readonly.directive';
 import { ImsDialogRef } from './ims-dialog-ref';
 import { ImsDialogActions, ImsDialogTitle } from './ims-dialog-section';
 import { ImsDialogSectionRegistry } from './ims-dialog-section-registry';
-import { IMS_DIALOG_CONFIG, ImsDialogRuntimeConfig } from './ims-dialog.types';
+import {
+  IBaseOutput,
+  IMessage,
+  IMS_DIALOG_CONFIG,
+  ImsDialogRuntimeConfig,
+} from './ims-dialog.types';
+
+type ImsDialogMessageStyle = 'danger' | 'info' | 'warning';
 
 /**
  * Internal CDK dialog shell.
@@ -30,10 +37,10 @@ import { IMS_DIALOG_CONFIG, ImsDialogRuntimeConfig } from './ims-dialog.types';
   host: {
     class: 'ims-dialog',
     '[attr.dir]': 'config.direction',
-    '[class.ims-dialog--info]': 'config.severity === "info"',
-    '[class.ims-dialog--success]': 'config.severity === "success"',
-    '[class.ims-dialog--warning]': 'config.severity === "warning"',
-    '[class.ims-dialog--danger]': 'config.severity === "danger"',
+    '[class.ims-dialog--info]': 'effectiveSeverity === "info"',
+    '[class.ims-dialog--success]': 'effectiveSeverity === "success"',
+    '[class.ims-dialog--warning]': 'effectiveSeverity === "warning"',
+    '[class.ims-dialog--danger]': 'effectiveSeverity === "danger"',
     '[class.ims-dialog--confirmation]': 'config.mode === "confirmation"',
     '[class.ims-dialog--readonly]': 'readonlyMode()',
     '[class.ims-dialog--ready]': 'ready()',
@@ -47,19 +54,36 @@ export class ImsDialogShell {
   readonly readonlyMode = computed(
     () => this.config.mode === 'readonly' && (this.config.readonlySignal?.() ?? true),
   );
-  readonly componentType = computed(() => {
-    const content = this.config.component;
+  readonly contentComponentType = (() => {
+    const content = this.config.content;
     return typeof content === 'function' ? (content as Type<unknown>) : null;
-  });
-  readonly textContent = computed(() => {
-    const content = this.config.component;
+  })();
+  readonly baseOutput = (() => {
+    const content = this.config.content;
+    return isBaseOutput(content) ? content : null;
+  })();
+  readonly effectiveSeverity =
+    (this.baseOutput?.resultCode ?? 0) < 0 ? 'danger' : this.config.severity;
+  readonly isMessageListContent = isMessageArray(this.config.content);
+  readonly messages: readonly IMessage[] = (() => {
+    const content = this.config.content;
+    const messages = isBaseOutput(content)
+      ? content.messages
+      : isMessageArray(content)
+        ? content
+        : [];
+
+    return [...messages].sort((first, second) => second.level - first.level);
+  })();
+  readonly textContent: readonly string[] = (() => {
+    const content = this.config.content;
 
     if (typeof content === 'string') {
       return [content];
     }
 
-    return Array.isArray(content) ? content : [];
-  });
+    return isStringArray(content) ? content : [];
+  })();
 
   constructor() {
     queueMicrotask(() => {
@@ -78,4 +102,43 @@ export class ImsDialogShell {
   close(): void {
     this.dialogRef.close();
   }
+
+  messageStyle(level: number): ImsDialogMessageStyle {
+    if (level >= 3) return 'danger';
+    if (level === 2) return 'warning';
+    return 'info';
+  }
+
+  messageIcon(level: number): string {
+    const style = this.messageStyle(level);
+    if (style === 'danger') return 'error';
+    if (style === 'warning') return 'warning';
+    return 'info';
+  }
+}
+
+function isBaseOutput(content: unknown): content is IBaseOutput {
+  if (typeof content !== 'object' || content === null || Array.isArray(content)) return false;
+
+  const candidate = content as Partial<IBaseOutput>;
+  return (
+    typeof candidate.resultCode === 'number' &&
+    typeof candidate.resultDesc === 'string' &&
+    isMessageArray(candidate.messages)
+  );
+}
+
+function isMessageArray(content: unknown): content is IMessage[] {
+  return Array.isArray(content) && content.every(isMessage);
+}
+
+function isMessage(content: unknown): content is IMessage {
+  if (typeof content !== 'object' || content === null) return false;
+
+  const candidate = content as Partial<IMessage>;
+  return typeof candidate.level === 'number' && typeof candidate.message === 'string';
+}
+
+function isStringArray(content: unknown): content is string[] {
+  return Array.isArray(content) && content.every((item) => typeof item === 'string');
 }

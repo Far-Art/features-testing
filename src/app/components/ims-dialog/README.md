@@ -48,20 +48,61 @@ export class Example {
 The service exposes one entrypoint per severity:
 
 ```ts
-dialog.info(component?);
-dialog.success(component?);
-dialog.warning(component?);
-dialog.danger(component?);
+dialog.info(content?);
+dialog.success(content?);
+dialog.warning(content?);
+dialog.danger(content?);
 ```
 
 Each method accepts `ImsDialogContentType<C>` and returns an
-`ImsDialogBuilder`. Content can be a component type, a string, or an array of
-strings:
+`ImsDialogBuilder`. Content can be a component type, `IBaseOutput`, an
+`IMessage[]`, a string, or an array of strings:
 
 ```ts
 dialog.info(DetailsComponent);
 dialog.info('The operation completed.');
 dialog.warning(['The current draft has unsaved changes.', 'Continue anyway?']);
+```
+
+### Structured output and messages
+
+`IBaseOutput` renders its result code and description followed by any messages:
+
+```ts
+const output: IBaseOutput = {
+  resultCode: -12,
+  resultDesc: 'The request could not be completed.',
+  messages: [
+    { level: 1, message: 'The submitted values were preserved.' },
+    { level: 3, message: 'The policy is no longer active.' },
+    { level: 2, message: 'Review the effective date.' },
+  ],
+};
+
+dialog.info(output).title('Request result').open();
+```
+
+Result styling is derived from `resultCode`: `0` is informational and values
+below `0` are dangerous. A negative result also overrides the complete dialog
+chrome to the danger theme, regardless of which severity method opened it.
+Message rows are copied and sorted by `level` in descending order before
+rendering; the caller's array is not mutated.
+
+| Message level | Style |
+| --- | --- |
+| `3` or above | Danger |
+| `2` | Warning |
+| `1` or below | Info |
+
+Messages can also be supplied without an `IBaseOutput`:
+
+```ts
+const messages: IMessage[] = [
+  { level: 2, message: 'One field needs review.' },
+  { level: 1, message: 'No data was changed.' },
+];
+
+dialog.warning(messages).title('Validation messages').open();
 ```
 
 ### `data(value)`

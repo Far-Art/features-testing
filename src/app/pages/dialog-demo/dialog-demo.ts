@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
 import {
+  type IBaseOutput,
+  type IMessage,
   IMS_DIALOG_DATA,
   ImsAbstractDialog,
   ImsDialogActions,
@@ -152,7 +154,7 @@ export class DialogMergeContent {
 
         <label>
           <span>Display name</span>
-          <input type="text" [value]="displayName()" (input)="updateDisplayName($event)" />
+          <input  type="text" [value]="displayName()" (input)="updateDisplayName($event)" />
         </label>
 
         <p>
@@ -850,6 +852,52 @@ export class DialogDemo {
 
     ref.closed.subscribe(() => {
       this.lastEvent.set('Sticky-header grid dialog closed.');
+    });
+  }
+
+  openBaseOutput(resultCode: 0 | -12): void {
+    const output: IBaseOutput = {
+      resultCode,
+      resultDesc:
+        resultCode === 0
+          ? 'The policy review completed successfully.'
+          : 'The policy review could not be completed.',
+      messages: [
+        { level: 1, message: 'The submitted values were preserved.' },
+        { level: 3, message: 'The selected policy is no longer active.' },
+        { level: 2, message: 'Review the effective date before trying again.' },
+      ],
+    };
+    const ref = this.dialog
+      .info(output)
+      .title(resultCode === 0 ? 'Successful result output' : 'Failed result output')
+      .withIcon(resultCode === 0 ? 'task_alt' : 'error')
+      .config({ direction: 'ltr', width: 'min(38rem, calc(100vw - 2rem))' })
+      .asReadonly()
+      .open();
+
+    ref.closed.subscribe(() => {
+      this.lastEvent.set(`Base output dialog with result code ${resultCode} closed.`);
+    });
+  }
+
+  openMessageList(): void {
+    const messages: IMessage[] = [
+      { level: 1, message: 'No saved values were changed.' },
+      { level: 3, message: 'Customer authorization has expired.' },
+      { level: 0, message: 'A new review can be started at any time.' },
+      { level: 2, message: 'One supporting document needs attention.' },
+    ];
+    const ref = this.dialog
+      .info(messages)
+      .title('Validation messages')
+      .withIcon('format_list_bulleted')
+      .config({ direction: 'ltr', width: 'min(38rem, calc(100vw - 2rem))' })
+      .asReadonly()
+      .open();
+
+    ref.closed.subscribe(() => {
+      this.lastEvent.set('Standalone message-list dialog closed.');
     });
   }
 
