@@ -159,8 +159,34 @@ The `closed` observable always emits a boolean:
 Generates a Close action when the supplied component has no
 `ims-dialog-actions`.
 
-Read-only mode controls generated dialog chrome only. It does not disable form
-controls or block interaction inside caller content.
+Read-only mode is provided only to `ims-dialog-content`; the title, toolbar,
+close control, and action controls remain interactive. Content controls that
+consume `ReadonlyDirective` respond to the state.
+
+`ImsDialogContent` installs `ReadonlyDirective` as a host directive. This is
+important for Angular content projection: projected custom controls can inject
+the provider from the content host. Native controls do not consume an ancestor
+provider automatically, so apply an inheriting directive to them explicitly:
+
+```html
+<ims-dialog-title>Customer review</ims-dialog-title>
+
+<ims-dialog-toolbar>
+  <button type="button">Refresh</button>
+</ims-dialog-toolbar>
+
+<ims-dialog-content>
+  <input [ims-readonly]="null" value="Awaiting approval" />
+  <ims-select><!-- Consumes ReadonlyDirective itself. --></ims-select>
+</ims-dialog-content>
+
+<ims-dialog-actions>
+  <button type="button">Close</button>
+</ims-dialog-actions>
+```
+
+In this example, the input and select follow `asReadonly`; the toolbar and
+action buttons do not.
 
 An optional `Signal<boolean>` makes the shell state reactive:
 
@@ -171,8 +197,9 @@ dialog.info(EditorComponent).asReadonly(this.readonlyState).open();
 ```
 
 While the signal is `true`, the read-only host class and generated Close action
-are active. While it is `false`, both are removed. Component-provided actions
-continue to take precedence.
+are active and the dialog content receives the readonly provider. While it is
+`false`, both are removed. Component-provided actions continue to take
+precedence.
 
 Confirmation and read-only modes are mutually exclusive. Combining them throws
 an error.
@@ -243,10 +270,11 @@ export class ProfileDialog {
 The shell registers supporting components rendered by the supplied component
 and composes the final layout without recreating that component.
 
-1. If no `ims-dialog-content` is supplied, the entire component is wrapped in a
-   generated content section.
-2. If `ims-dialog-content` is supplied, the generated content host and supplied
-   component are flattened so its sections occupy their dialog layout areas.
+1. If no `ims-dialog-content` is supplied, a neutral shell container receives
+   the content styling and wraps the entire supplied component.
+2. If `ims-dialog-content` is supplied, the neutral shell wrapper is flattened
+   with `display: contents`; the caller's content component is the only
+   `ims-dialog-content` in the rendered structure.
 3. A custom title suppresses the builder-generated title and icon.
 4. A custom actions section suppresses generated confirmation or read-only
    actions.
@@ -261,6 +289,11 @@ scrolls without an additional wrapper element. Its top gutter is a scrolling
 spacer rather than container padding, allowing sticky descendants to reach the
 content viewport's top edge after the gutter scrolls away. Override
 `--ims-dialog-content-padding` to adjust the shared gutter size.
+
+The readonly provider is attached directly to the `ims-dialog-content` host,
+not to an internal `ng-container` or wrapper. This keeps projected descendants
+in the correct Angular injection hierarchy and avoids duplicate content
+components.
 
 For hybrid dialogs, a component can provide only the sections it owns:
 

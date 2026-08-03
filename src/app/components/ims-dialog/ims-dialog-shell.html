@@ -19,10 +19,11 @@
   </button>
 
   @if (config.component !== null) {
-    <ims-dialog-content
+    <div
       class="ims-dialog__component-content"
+      [class.ims-dialog-content]="!sections.hasContent()"
       [class.ims-dialog__component-content--projecting]="componentType() && sections.hasContent()"
-      [generated]="true"
+      [ims-readonly]="readonlyMode() && !sections.hasContent()"
     >
       @if (componentType(); as component) {
         <ng-container *ngComponentOutlet="component" />
@@ -33,7 +34,7 @@
           }
         </div>
       }
-    </ims-dialog-content>
+    </div>
   }
 
   @if (!sections.hasActions() && config.mode === 'confirmation') {

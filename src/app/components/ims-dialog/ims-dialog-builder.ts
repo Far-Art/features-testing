@@ -136,9 +136,10 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
    * Configures generated chrome for a read-only dialog.
    *
    * A Close action is generated when the supplied component does not render
-   * `ims-dialog-actions`. This mode does not disable controls inside caller
-   * content. When a signal is provided, generated read-only chrome follows its
-   * current boolean value.
+   * `ims-dialog-actions`. The readonly state is provided only to
+   * `ims-dialog-content`, leaving the title, toolbar, and actions interactive.
+   * When a signal is provided, generated read-only chrome follows its current
+   * boolean value.
    *
    * @param state Optional signal controlling whether read-only mode is active.
    * @returns This builder for continued chaining.

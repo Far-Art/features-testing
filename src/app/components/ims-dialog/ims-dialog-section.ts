@@ -1,14 +1,18 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   Directive,
+  effect,
   OnDestroy,
   OnInit,
   inject,
   input,
 } from '@angular/core';
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
+import { ReadonlyDirective } from '../../shared/readonly.directive';
 import { ImsDialogSection, ImsDialogSectionRegistry } from './ims-dialog-section-registry';
+import { IMS_DIALOG_CONFIG, ImsDialogRuntimeConfig } from './ims-dialog.types';
 
 @Directive()
 abstract class ImsDialogSectionBase implements OnInit, OnDestroy {
@@ -113,6 +117,7 @@ export class ImsDialogToolbar extends ImsDialogSectionBase {
   selector: 'ims-dialog-content',
   standalone: true,
   template: `<ng-content />`,
+  hostDirectives: [ReadonlyDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'ims-dialog-content',
@@ -120,6 +125,20 @@ export class ImsDialogToolbar extends ImsDialogSectionBase {
 })
 export class ImsDialogContent extends ImsDialogSectionBase {
   protected readonly section = 'content' as const;
+  private readonly config = inject(IMS_DIALOG_CONFIG, { optional: true }) as
+    | ImsDialogRuntimeConfig
+    | null;
+  private readonly readonlyDirective = inject(ReadonlyDirective);
+  readonly readonlyMode = computed(
+    () =>
+      this.config?.mode === 'readonly' &&
+      (this.config.readonlySignal?.() ?? true),
+  );
+
+  constructor() {
+    super();
+    effect(() => this.readonlyDirective.readonly.set(this.readonlyMode()));
+  }
 }
 
 /**

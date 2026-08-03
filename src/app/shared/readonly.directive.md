@@ -99,3 +99,29 @@ Every provider host exposes its effective state in the DOM:
 
 For custom controls, use `ReadonlyDirective.injectSignal()` to update their disabled or readonly
 behavior instead of relying on the native `disabled` attribute.
+
+## Projected content and dialog integration
+
+Angular dependency injection follows the logical template hierarchy, not only the rendered DOM.
+A provider placed around `<ng-content>` inside a component template is therefore not visible to
+the projected nodes. Components that provide readonly state to projected descendants should attach
+`ReadonlyDirective` to their host, for example with `hostDirectives`.
+
+`ImsDialogContent` uses this pattern. When a dialog is opened with `asReadonly(state)`, its content
+host exposes the reactive readonly provider. The dialog title, toolbar, close control, and actions
+are outside that provider and remain interactive.
+
+Readonly-aware custom controls such as `ims-select` and `ims-autocomplete` consume the host signal
+automatically. Native controls must attach their own inheriting directive because a `disabled`
+attribute on an ancestor does not disable descendants:
+
+```html
+<ims-dialog-content>
+    <input [ims-readonly]="null" />
+    <textarea [ims-readonly]="null"></textarea>
+    <ims-select></ims-select>
+</ims-dialog-content>
+```
+
+The `null` value asks each native control provider to inherit the effective state from
+`ims-dialog-content`.

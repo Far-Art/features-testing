@@ -1,8 +1,9 @@
 import { NgComponentOutlet } from '@angular/common';
 import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
 import { ChangeDetectionStrategy, Component, Type, computed, inject, signal } from '@angular/core';
+import { ReadonlyDirective } from '../../shared/readonly.directive';
 import { ImsDialogRef } from './ims-dialog-ref';
-import { ImsDialogActions, ImsDialogContent, ImsDialogTitle } from './ims-dialog-section';
+import { ImsDialogActions, ImsDialogTitle } from './ims-dialog-section';
 import { ImsDialogSectionRegistry } from './ims-dialog-section-registry';
 import { IMS_DIALOG_CONFIG, ImsDialogRuntimeConfig } from './ims-dialog.types';
 
@@ -19,9 +20,9 @@ import { IMS_DIALOG_CONFIG, ImsDialogRuntimeConfig } from './ims-dialog.types';
     CdkDrag,
     CdkDragHandle,
     ImsDialogActions,
-    ImsDialogContent,
     ImsDialogTitle,
     NgComponentOutlet,
+    ReadonlyDirective,
   ],
   providers: [ImsDialogSectionRegistry],
   templateUrl: './ims-dialog-shell.html',

@@ -258,6 +258,32 @@
   flex: 0 0 auto;
 }
 
+.readonly-demo__dialog-demo {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.4rem;
+  margin-block: 1.8rem 2.8rem;
+  background: #edf5f0;
+  border: 1px solid #b7c8bb;
+  border-radius: 1rem;
+}
+
+.readonly-demo__dialog-demo h2 {
+  margin-block: 0.25rem 0.5rem;
+}
+
+.readonly-demo__dialog-demo p {
+  max-width: 40rem;
+  color: var(--readonly-muted);
+  line-height: 1.6;
+}
+
+.readonly-demo__dialog-demo button {
+  flex: 0 0 auto;
+}
+
 @media (max-width: 720px) {
   .readonly-demo__controls {
     grid-template-columns: 1fr 1fr;
@@ -273,6 +299,11 @@
 
   .readonly-demo__select {
     grid-column: auto;
+  }
+
+  .readonly-demo__dialog-demo {
+    align-items: start;
+    flex-direction: column;
   }
 }
 
