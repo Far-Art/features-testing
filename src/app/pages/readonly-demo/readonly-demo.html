@@ -1,0 +1,84 @@
+<section class="readonly-demo">
+  <header class="readonly-demo__intro">
+    <p class="readonly-demo__eyebrow">Directive laboratory</p>
+    <h1>Readonly is inherited, deliberately.</h1>
+    <p class="readonly-demo__lede">
+      A provider sets the state once. Every descendant can react to the same signal, while a nested
+      provider needs explicit permission before it can unlock a protected area.
+    </p>
+  </header>
+
+  <section class="readonly-demo__controls" aria-label="Readonly demo controls">
+    <div>
+      <span class="readonly-demo__control-label">Page provider</span>
+      <strong>{{ pageReadonly() ? 'Locked' : 'Editable' }}</strong>
+    </div>
+    <button type="button" (click)="togglePageReadonly()">
+      {{ pageReadonly() ? 'Make page editable' : 'Make page readonly' }}
+    </button>
+
+    <div>
+      <span class="readonly-demo__control-label">Child exception</span>
+      <strong>{{ allowChildOverride() ? 'Allowed' : 'Protected' }}</strong>
+    </div>
+    <button type="button" class="readonly-demo__secondary" (click)="toggleChildOverride()">
+      {{ allowChildOverride() ? 'Protect child again' : 'Allow child override' }}
+    </button>
+  </section>
+
+  <section class="readonly-demo__scope" [ims-readonly]="pageReadonly()">
+    <div class="readonly-demo__scope-header">
+      <div>
+        <span class="readonly-demo__scope-kicker">ims-readonly-provider</span>
+        <h2>Customer profile</h2>
+      </div>
+      <app-readonly-state />
+    </div>
+
+    <p class="readonly-demo__description">
+      The controls below receive the host's <code>disabled</code> attribute. The state badge obtains
+      the same value through <code>ReadonlyDirective.injectSignal()</code>.
+    </p>
+
+    <div class="readonly-demo__editor">
+      <label>
+        <span>Display name</span>
+        <input value="Maya Levin" [ims-readonly]="pageReadonly()" />
+      </label>
+      <label>
+        <span>Contact email</span>
+        <input value="maya.levin@example.test" [ims-readonly]="pageReadonly()" />
+      </label>
+      <label class="readonly-demo__notes">
+        <span>Internal note</span>
+        <textarea [ims-readonly]="pageReadonly()">Review required before renewal.</textarea>
+      </label>
+      <button type="button" [ims-readonly]="pageReadonly()">Save changes</button>
+    </div>
+
+    <section
+      class="readonly-demo__child"
+      [ims-readonly]="false"
+      [ims-readonly-override-parent]="allowChildOverride()"
+    >
+      <div class="readonly-demo__child-heading">
+        <div>
+          <span class="readonly-demo__scope-kicker">Nested provider · ims-readonly="false"</span>
+          <h3>Exception zone</h3>
+        </div>
+        <app-readonly-state />
+      </div>
+      <p>
+        This provider requests <code>false</code>. While the page is locked, that request is ignored
+        until <code>ims-readonly-override-parent</code> is enabled above.
+      </p>
+      <div class="readonly-demo__child-control">
+        <label>
+          <span>Reason for exception</span>
+          <input value="Correct a verified typo" [ims-readonly]="false" />
+        </label>
+        <button type="button" [ims-readonly]="false">Submit exception</button>
+      </div>
+    </section>
+  </section>
+</section>
