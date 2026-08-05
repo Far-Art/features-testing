@@ -1,6 +1,6 @@
 import { NgComponentOutlet } from '@angular/common';
 import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, Type, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Type, inject, signal } from '@angular/core';
 import { ReadonlyDirective } from '../../shared/readonly.directive';
 import { ImsDialogRef } from './ims-dialog-ref';
 import { ImsDialogActions, ImsDialogTitle } from './ims-dialog-section';
@@ -9,6 +9,7 @@ import {
   IBaseOutput,
   IMessage,
   IMS_DIALOG_CONFIG,
+  IMS_DIALOG_READONLY,
   ImsDialogRuntimeConfig,
 } from './ims-dialog.types';
 
@@ -31,7 +32,13 @@ type ImsDialogMessageStyle = 'danger' | 'info' | 'warning';
     NgComponentOutlet,
     ReadonlyDirective,
   ],
-  providers: [ImsDialogSectionRegistry],
+  providers: [
+    ImsDialogSectionRegistry,
+    {
+      provide: IMS_DIALOG_READONLY,
+      useFactory: () => inject(IMS_DIALOG_CONFIG).readonlySignal,
+    },
+  ],
   templateUrl: './ims-dialog-shell.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -53,7 +60,7 @@ export class ImsDialogShell {
   readonly ready = signal(false);
   readonly confirmationMode =
     this.config.mode === 'confirmation' || this.config.mode === 'confirmation-readonly';
-  readonly readonlyMode = computed(() => this.config.readonlySignal?.() ?? false);
+  readonly readonlyMode = this.config.readonlySignal;
   readonly contentComponentType = (() => {
     const content = this.config.content;
     return typeof content === 'function' ? (content as Type<unknown>) : null;

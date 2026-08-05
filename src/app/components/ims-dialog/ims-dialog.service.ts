@@ -83,7 +83,7 @@ export class ImsDialogService implements ImsDialogBuilderHost {
 
     const config: DialogConfig<unknown, DialogRef<unknown, ImsDialogShell>> = {
       ...callerConfig,
-      width: callerConfig.width ?? 'min(42rem, calc(100vw - 2rem))',
+      width: callerConfig.width ?? 'min(30rem, calc(100vw - 2rem))',
       maxWidth: insideSize
         ? `${insideSize.width}px`
         : (callerConfig.maxWidth ?? 'calc(100vw - 2rem)'),

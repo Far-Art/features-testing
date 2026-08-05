@@ -9,6 +9,15 @@
   </header>
 
   <section class="readonly-demo__controls" aria-label="Readonly demo controls">
+      <ims-grid>
+          <ims-grid-header>
+              <ims-grid-cell>sdfsdf</ims-grid-cell>
+          </ims-grid-header>
+
+          <ims-grid-row >
+              <ims-grid-cell [ims-readonly]="pageReadonly()"></ims-grid-cell>
+          </ims-grid-row>
+      </ims-grid>
     <div>
       <span class="readonly-demo__control-label">Page provider</span>
       <strong>{{ pageReadonly() ? 'Locked' : 'Editable' }}</strong>

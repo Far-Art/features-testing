@@ -34,7 +34,7 @@ export interface ImsDialogResolvedConfirmationLabels {
 export interface ImsDialogRuntimeConfig<D = unknown> {
   readonly severity: ImsDialogSeverity;
   readonly mode: ImsDialogMode;
-  readonly readonlySignal: Signal<boolean> | null;
+  readonly readonlySignal: Signal<boolean>;
   readonly content: ImsDialogContentType | null;
   readonly title: string;
   readonly icon: string | null;
@@ -57,12 +57,15 @@ export interface ImsDialogOpenOptions {
   readonly data: unknown;
   readonly hasData: boolean;
   readonly insideClassName: string | null;
-  readonly config: DialogConfig<unknown>;
+  readonly config: DialogConfig;
 }
 
 export const IMS_DIALOG_DATA = new InjectionToken<unknown>('IMS_DIALOG_DATA');
 
 export const IMS_DIALOG_CONFIG = new InjectionToken<ImsDialogRuntimeConfig>('IMS_DIALOG_CONFIG');
+
+/** Live readonly state available to components rendered inside an IMS dialog. */
+export const IMS_DIALOG_READONLY = new InjectionToken<Signal<boolean>>('IMS_DIALOG_READONLY');
 
 export function resolveConfirmationLabels(
   labels: ImsDialogConfirmationLabels,

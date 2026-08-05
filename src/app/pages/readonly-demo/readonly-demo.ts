@@ -3,6 +3,7 @@ import { ImsAutocomplete, type ImsAutocompleteOption } from '../../components/im
 import {
   ImsDialogActions,
   ImsDialogContent,
+  IMS_DIALOG_READONLY,
   ImsDialogRef,
   ImsDialogService,
   ImsDialogTitle,
@@ -10,6 +11,7 @@ import {
 } from '../../components/ims-dialog';
 import { ImsOption, ImsSelect } from '../../components/ims-select';
 import { ReadonlyDirective } from '../../shared/readonly.directive';
+import {ImsGrid, ImsGridCell, ImsGridRow, ImsGridSortHeader} from '../../components/ims-grid';
 
 type ContactMethod = 'Email' | 'Phone' | 'Text message';
 
@@ -76,6 +78,11 @@ class ReadonlyState {
         <p>
           This area receives <code>asReadonly()</code>. The toolbar and footer action remain
           available outside the content provider.
+        </p>
+
+        <p>
+          Injected dialog signal:
+          <strong>{{ dialogReadonly() ? 'Readonly' : 'Editable' }}</strong>
         </p>
 
         <label>
@@ -167,6 +174,7 @@ class ReadonlyState {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class ReadonlyDialogContent {
+  readonly dialogReadonly = inject(IMS_DIALOG_READONLY);
   readonly contactMethods: readonly ContactMethod[] = ['Email', 'Phone', 'Text message'];
   readonly preferredContactMethod = signal<ContactMethod | readonly ContactMethod[] | null | undefined>(
     'Email',
@@ -186,7 +194,7 @@ class ReadonlyDialogContent {
 
 @Component({
   selector: 'app-readonly-demo',
-  imports: [ReadonlyDirective, ReadonlyState, ImsSelect, ImsOption, ImsAutocomplete],
+  imports: [ReadonlyDirective, ReadonlyState, ImsSelect, ImsOption, ImsAutocomplete, ImsGrid, ImsGridCell, ImsGridRow],
   templateUrl: './readonly-demo.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './readonly-demo.scss',

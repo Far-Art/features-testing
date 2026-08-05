@@ -240,6 +240,15 @@ readonly readonlyState = signal(true);
 dialog.info(EditorComponent).asReadonly(this.readonlyState).open();
 ```
 
+The rendered dialog component can inject that same live signal. It also
+reflects changes made through `ImsDialogRef.setReadonly()`:
+
+```ts
+import { IMS_DIALOG_READONLY } from './components/ims-dialog';
+
+readonly dialogReadonly = inject(IMS_DIALOG_READONLY);
+```
+
 While the signal is `true`, the read-only host class and generated Close action
 are active and the dialog content receives the readonly provider. While it is
 `false`, both are removed. Component-provided actions continue to take
