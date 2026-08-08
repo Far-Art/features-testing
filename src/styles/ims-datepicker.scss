@@ -84,6 +84,20 @@
     border-color: var(--ims-datepicker-error);
 }
 
+.ims-datepicker__field.ims-datepicker__field--readonly {
+    border-color: var(--ims-color-border);
+    background: var(--ims-color-surface-input-readonly);
+    color: var(--ims-color-on-surface-readonly);
+
+    &:hover {
+        border-color: var(--ims-color-border);
+    }
+
+    .ims-datepicker__toggle {
+        cursor: not-allowed;
+    }
+}
+
 .ims-datepicker__panel {
     display: grid;
     gap: 0.5rem;

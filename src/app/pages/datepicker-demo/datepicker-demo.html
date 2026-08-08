@@ -7,6 +7,13 @@
     <div class="datepicker-demo__actions">
         <button type="button" (click)="tightenRange()">הגבל לשנת 2026</button>
         <button type="button" (click)="restoreRange()">החזר טווח 2020-2035</button>
+        <button
+            type="button"
+            [attr.aria-pressed]="readonlyEnabled()"
+            (click)="toggleReadonly()"
+        >
+            {{ readonlyEnabled() ? 'אפשר עריכת תאריך' : 'הפעל קריאה בלבד' }}
+        </button>
     </div>
 
     <div class="datepicker-demo__grid">
@@ -20,6 +27,17 @@
             />
             <code>{{ describe(dateControl.value) }}</code>
             <code>{{ dateControl.errors | json }}</code>
+        </label>
+
+        <label class="datepicker-demo__field">
+            <span>תאריך לקריאה בלבד, ims-readonly</span>
+            <ims-datepicker
+                ariaLabel="תאריך לקריאה בלבד"
+                [formControl]="readonlyDateControl"
+                [ims-readonly]="readonlyEnabled()"
+            />
+            <code>{{ describe(readonlyDateControl.value) }}</code>
+            <code>ims-readonly: {{ readonlyEnabled() }}</code>
         </label>
 
         <label class="datepicker-demo__field">

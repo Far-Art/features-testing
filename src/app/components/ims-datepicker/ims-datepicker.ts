@@ -4,8 +4,8 @@ import {
     Component,
     ElementRef,
     LOCALE_ID,
+    Signal,
     Type,
-    VERSION,
     computed,
     effect,
     forwardRef,
@@ -24,6 +24,7 @@ import {
     Validator
 } from '@angular/forms';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
+import {ReadonlyDirective} from '../../shared/readonly.directive';
 import {runScopedViewTransition} from '../../shared/view-transition';
 import {
     IMS_DATEPICKER_CONFIG,
@@ -147,12 +148,29 @@ export class ImsDatepicker
     private readonly angularLocale = inject(LOCALE_ID);
     private readonly changeDetectorRef = inject(ChangeDetectorRef);
     readonly directionality = inject(Directionality);
+    private readonly inheritedReadonly: Signal<boolean> = ReadonlyDirective.injectSignal();
     private readonly field = viewChild<ElementRef<HTMLElement>>('field');
     private readonly textInput = viewChild<ElementRef<HTMLInputElement>>('textInput');
     private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
     private readonly grid = viewChild<ElementRef<HTMLElement>>('grid');
+    private readonly previousFarButton = viewChild<ElementRef<HTMLButtonElement>>(
+        'previousFarButton'
+    );
+    private readonly previousNearButton = viewChild<ElementRef<HTMLButtonElement>>(
+        'previousNearButton'
+    );
+    private readonly headerViewButton = viewChild<ElementRef<HTMLButtonElement>>(
+        'headerViewButton'
+    );
+    private readonly nextNearButton = viewChild<ElementRef<HTMLButtonElement>>(
+        'nextNearButton'
+    );
+    private readonly nextFarButton = viewChild<ElementRef<HTMLButtonElement>>(
+        'nextFarButton'
+    );
     private validatorChange: () => void = () => undefined;
     private focusFrame: number | null = null;
+    private headerFocusFrame: number | null = null;
     private pendingNavigationCursor: ImsDatepickerDate | null = null;
     private readonly userEditing = signal(false);
     private readonly inferredValueType = signal<ImsDatepickerValueType>('date');
@@ -187,6 +205,11 @@ export class ImsDatepicker
     );
     readonly overlayPositions = OVERLAY_POSITIONS;
     readonly calendarYear = dateYear;
+
+    /** True when disabled directly, by a form, or by an `ims-readonly` provider. */
+    readonly interactionDisabled = computed(() => this.disabled() || this.inheritedReadonly());
+    /** Distinguishes readonly styling from the lower-emphasis disabled state. */
+    readonly readonlyMode = this.inheritedReadonly;
 
     readonly effectiveLocale = computed(
         () => this.locale() ?? this.globalConfig.locale ?? this.angularLocale
@@ -367,6 +390,7 @@ export class ImsDatepicker
         super();
         this.destroyRef.onDestroy(() => {
             if (this.focusFrame !== null) cancelAnimationFrame(this.focusFrame);
+            if (this.headerFocusFrame !== null) cancelAnimationFrame(this.headerFocusFrame);
         });
 
         effect(() => {
@@ -386,7 +410,7 @@ export class ImsDatepicker
 
             this.rawText.set(value ? this.formatValue(value, format, formats, locale) : '');
             this.parseInvalid.set(false);
-        }, Number(VERSION.major) < 19 ? {allowSignalWrites: true} : undefined);
+        }, {allowSignalWrites: true});
 
         effect(() => {
             this.effectiveMin();
@@ -401,6 +425,13 @@ export class ImsDatepicker
         });
 
         effect(() => {
+            if (!this.interactionDisabled()) return;
+
+            if (this.open()) this.closePicker();
+            if (this.userEditing()) this.userEditing.set(false);
+        }, {allowSignalWrites: true});
+
+        effect(() => {
             if (this.open()) {
                 const cursor = this.cursor();
                 const resolved = this.resolveActiveDate(cursor, this.calendarView());
@@ -409,7 +440,7 @@ export class ImsDatepicker
                     this.scheduleActiveCellFocus();
                 }
             }
-        }, Number(VERSION.major) < 19 ? {allowSignalWrites: true} : undefined);
+        }, {allowSignalWrites: true});
     }
 
     override writeValue(value: ImsDatepickerValue): void {
@@ -465,6 +496,11 @@ export class ImsDatepicker
     }
 
     onBeforeInput(event: InputEvent): void {
+        if (this.interactionDisabled()) {
+            event.preventDefault();
+            return;
+        }
+
         if (
             event.data === null
             || event.isComposing
@@ -486,6 +522,8 @@ export class ImsDatepicker
     }
 
     onTextInput(event: Event): void {
+        if (this.interactionDisabled()) return;
+
         const input = event.target as HTMLInputElement;
         if (!isDateInputTextAllowed(input.value, this.format())) {
             input.value = this.rawText();
@@ -498,11 +536,13 @@ export class ImsDatepicker
     }
 
     onInputBlur(): void {
-        this.commitText();
+        if (!this.interactionDisabled()) this.commitText();
         this.markAsTouched();
     }
 
     onInputKeydown(event: KeyboardEvent): void {
+        if (this.interactionDisabled()) return;
+
         if (event.key === 'Enter') {
             event.preventDefault();
             this.commitText();
@@ -522,6 +562,8 @@ export class ImsDatepicker
     }
 
     togglePicker(): void {
+        if (this.interactionDisabled()) return;
+
         if (this.open()) {
             this.closePicker();
         } else {
@@ -530,7 +572,7 @@ export class ImsDatepicker
     }
 
     openPicker(): void {
-        if (this.disabled()) return;
+        if (this.interactionDisabled()) return;
 
         if (this.userEditing()) this.commitText();
         const base = this.normalizedValue() ?? this.today();
@@ -653,6 +695,8 @@ export class ImsDatepicker
     ): void {
         if (!this.canNavigate(distance, direction)) return;
 
+        const sourceButton = this.headerStepButton(distance, direction)?.nativeElement;
+        const sourceWasFocused = sourceButton?.ownerDocument.activeElement === sourceButton;
         const {unit, amount} = this.navigationStep(distance);
         const target = this.resolveActiveDate(
             this.addDate(this.pendingNavigationCursor ?? this.cursor(), unit, amount * direction),
@@ -663,7 +707,12 @@ export class ImsDatepicker
             () => {
                 const pendingCursor = this.pendingNavigationCursor;
                 this.pendingNavigationCursor = null;
-                if (pendingCursor) this.cursor.set(pendingCursor);
+                if (pendingCursor) {
+                    this.cursor.set(pendingCursor);
+                    if (sourceWasFocused) {
+                        this.scheduleDisabledHeaderStepFocus(distance, direction);
+                    }
+                }
             },
             this.navigationTransitionDirection(direction)
         );
@@ -727,7 +776,7 @@ export class ImsDatepicker
     }
 
     selectDay(cell: ImsDatepickerDayCell): void {
-        if (cell.disabled) return;
+        if (this.interactionDisabled() || cell.disabled) return;
         this.cursor.set(cell.date);
         this.commitDate(cell.date);
         this.closePicker();
@@ -735,7 +784,7 @@ export class ImsDatepicker
     }
 
     selectMonth(cell: ImsDatepickerMonthCell): void {
-        if (cell.disabled) return;
+        if (this.interactionDisabled() || cell.disabled) return;
 
         const cursor = this.cursor();
         const candidate = this.format() === 'MM/yyyy'
@@ -765,7 +814,7 @@ export class ImsDatepicker
     }
 
     selectYear(cell: ImsDatepickerYearCell): void {
-        if (cell.disabled) return;
+        if (this.interactionDisabled() || cell.disabled) return;
 
         const cursor = this.cursor();
         const firstOfMonth = canonicalDate(cell.year, dateMonth(cursor), 1)!;
@@ -1222,8 +1271,40 @@ export class ImsDatepicker
         this.focusFrame = null;
     }
 
+    private scheduleDisabledHeaderStepFocus(
+        distance: ImsDatepickerNavigationDistance,
+        direction: ImsDatepickerNavigationDirection
+    ): void {
+        if (this.headerFocusFrame !== null) cancelAnimationFrame(this.headerFocusFrame);
+
+        this.headerFocusFrame = requestAnimationFrame(() => {
+            this.headerFocusFrame = null;
+            const sourceButton = this.headerStepButton(distance, direction)?.nativeElement;
+            if (!sourceButton?.disabled) return;
+
+            const nearButton = distance === 'far'
+                ? this.headerStepButton('near', direction)?.nativeElement
+                : null;
+            const fallbackButton = nearButton && !nearButton.disabled
+                ? nearButton
+                : this.headerViewButton()?.nativeElement;
+            fallbackButton?.focus({preventScroll: true});
+        });
+    }
+
+    private headerStepButton(
+        distance: ImsDatepickerNavigationDistance,
+        direction: ImsDatepickerNavigationDirection
+    ): ElementRef<HTMLButtonElement> | undefined {
+        if (distance === 'far') {
+            return direction < 0 ? this.previousFarButton() : this.nextFarButton();
+        }
+
+        return direction < 0 ? this.previousNearButton() : this.nextNearButton();
+    }
+
     private dayCellId(date: ImsDatepickerDate): string {
-        return `${this.datepickerId}-day-${date.toString()}`;
+        return `${this.datepickerId}-day-${dateYear(date)}-${dateMonth(date)}-${dateDay(date)}`;
     }
 
     private monthCellId(year: number, month: number): string {

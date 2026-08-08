@@ -5,7 +5,6 @@ import {
     ElementRef,
     LOCALE_ID,
     Type,
-    VERSION,
     computed,
     effect,
     forwardRef,
@@ -375,7 +374,7 @@ export class ImsDatepickerExperimental
 
             this.rawText.set(value ? this.formatValue(value, format, formats, locale) : '');
             this.parseInvalid.set(false);
-        }, Number(VERSION.major) < 19 ? {allowSignalWrites: true} : undefined);
+        }, {allowSignalWrites: true});
 
         effect(() => {
             this.effectiveMin();
@@ -398,7 +397,7 @@ export class ImsDatepickerExperimental
                     this.scheduleActiveCellFocus();
                 }
             }
-        }, Number(VERSION.major) < 19 ? {allowSignalWrites: true} : undefined);
+        }, {allowSignalWrites: true});
     }
 
     override writeValue(value: ImsDatepickerExperimentalValue): void {

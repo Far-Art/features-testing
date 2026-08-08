@@ -18,6 +18,7 @@ import {
     ImsDatepickerMomentValue,
     provideImsDatepickerMomentConfig
 } from '../../components/ims-datepicker-moment';
+import {ReadonlyDirective} from '../../shared/readonly.directive';
 import {TemporalHelper} from '../../shared/temporal.helper';
 
 @Component({
@@ -28,7 +29,8 @@ import {TemporalHelper} from '../../shared/temporal.helper';
         JsonPipe,
         ImsDatepicker,
         ImsDatepickerMoment,
-        ImsDatepickerExperimental
+        ImsDatepickerExperimental,
+        ReadonlyDirective
     ],
     providers: [
         provideImsDatepickerMomentConfig({
@@ -53,6 +55,9 @@ export class DatepickerDemo {
     readonly monthControl = new FormControl<ImsDatepickerValue>(
         Date.UTC(2026, 5, 30)
     );
+    readonly readonlyDateControl = new FormControl<ImsDatepickerValue>(
+        utcDate(2026, 8, 8)
+    );
     readonly temporalControl = new FormControl<ImsDatepickerExperimentalValue>(
         TemporalHelper.plainDate(2026, 6, 7)
     );
@@ -61,6 +66,7 @@ export class DatepickerDemo {
     );
     readonly min = signal<ImsDatepickerValue>(utcDate(2020, 1, 1));
     readonly max = signal<ImsDatepickerValue>(utcDate(2035, 12, 31));
+    readonly readonlyEnabled = signal(true);
 
     templateDate: ImsDatepickerValue = null;
 
@@ -81,6 +87,10 @@ export class DatepickerDemo {
     restoreRange(): void {
         this.min.set(utcDate(2020, 1, 1));
         this.max.set(utcDate(2035, 12, 31));
+    }
+
+    toggleReadonly(): void {
+        this.readonlyEnabled.update((enabled) => !enabled);
     }
 
     describe(

@@ -5,7 +5,6 @@ import {
     ElementRef,
     LOCALE_ID,
     Type,
-    VERSION,
     computed,
     effect,
     forwardRef,
@@ -388,7 +387,7 @@ export class ImsDatepickerMoment
 
             this.rawText.set(value ? this.formatValue(value, format, formats, locale) : '');
             this.parseInvalid.set(false);
-        }, Number(VERSION.major) < 19 ? {allowSignalWrites: true} : undefined);
+        }, {allowSignalWrites: true});
 
         effect(() => {
             this.effectiveMin();
@@ -411,7 +410,7 @@ export class ImsDatepickerMoment
                     this.scheduleActiveCellFocus();
                 }
             }
-        }, Number(VERSION.major) < 19 ? {allowSignalWrites: true} : undefined);
+        }, {allowSignalWrites: true});
     }
 
     override writeValue(value: ImsDatepickerMomentValue): void {
@@ -1232,7 +1231,7 @@ export class ImsDatepickerMoment
     }
 
     private dayCellId(date: ImsDatepickerMomentCalendarDate): string {
-        return `${this.datepickerId}-day-${date.toString()}`;
+        return `${this.datepickerId}-day-${dateYear(date)}-${dateMonth(date)}-${dateDay(date)}`;
     }
 
     private monthCellId(year: number, month: number): string {

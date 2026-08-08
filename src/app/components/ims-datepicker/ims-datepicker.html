@@ -5,6 +5,7 @@
     #overlayOrigin="cdkOverlayOrigin"
     [class.ims-datepicker__field--open]="open()"
     [class.ims-datepicker__field--invalid]="parseInvalid()"
+    [class.ims-datepicker__field--readonly]="readonlyMode()"
 >
     <input
         #textInput
@@ -20,7 +21,8 @@
         [attr.aria-controls]="open() ? dialogId : null"
         [attr.aria-expanded]="open()"
         [attr.aria-invalid]="parseInvalid()"
-        [disabled]="disabled()"
+        [attr.aria-readonly]="readonlyMode()"
+        [disabled]="interactionDisabled()"
         [value]="rawText()"
         (beforeinput)="onBeforeInput($event)"
         (input)="onTextInput($event)"
@@ -34,7 +36,7 @@
         aria-label="Open calendar"
         [attr.aria-controls]="open() ? dialogId : null"
         [attr.aria-expanded]="open()"
-        [disabled]="disabled()"
+        [disabled]="interactionDisabled()"
         (click)="togglePicker()"
     >
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -74,6 +76,7 @@
         >
             <div class="ims-datepicker__navigation">
                 <button
+                    #previousFarButton
                     type="button"
                     class="ims-datepicker__step ims-datepicker__step--far"
                     [attr.aria-label]="navigationLabel('far', -1)"
@@ -88,6 +91,7 @@
                     ></span>
                 </button>
                 <button
+                    #previousNearButton
                     type="button"
                     class="ims-datepicker__step"
                     [attr.aria-label]="navigationLabel('near', -1)"
@@ -102,6 +106,7 @@
                     ></span>
                 </button>
                 <button
+                    #headerViewButton
                     [attr.id]="headerButtonId"
                     type="button"
                     class="ims-datepicker__view-button"
@@ -111,6 +116,7 @@
                     {{ headerLabel() }}
                 </button>
                 <button
+                    #nextNearButton
                     type="button"
                     class="ims-datepicker__step"
                     [attr.aria-label]="navigationLabel('near', 1)"
@@ -125,6 +131,7 @@
                     ></span>
                 </button>
                 <button
+                    #nextFarButton
                     type="button"
                     class="ims-datepicker__step ims-datepicker__step--far"
                     [attr.aria-label]="navigationLabel('far', 1)"

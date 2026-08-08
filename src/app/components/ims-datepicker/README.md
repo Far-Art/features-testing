@@ -98,6 +98,12 @@ The global stylesheet must include:
 | `id` | `string \| null` | `null` | Inherited from `BasicValueAccessor`; forwarded to the native input. |
 | `disabled` | `boolean` | `false` | Inherited from `BasicValueAccessor`; combined with form disabled state. |
 
+The component also consumes the nearest `ReadonlyDirective` provider. Applying
+`[ims-readonly]` to the datepicker or an ancestor prevents text editing, calendar
+opening, and value changes while preserving a readable, enabled-like value style.
+The overlay closes without committing pending text if readonly becomes active
+while the picker is open.
+
 The component supports reactive forms, template-driven forms, and direct value
 binding through the inherited value model.
 
@@ -311,6 +317,9 @@ Important focus behavior:
   navigation and return focus to the active grid cell.
 - Enter or Space on a header button performs the native button click and keeps
   focus on that header button.
+- If a focused far-step button becomes disabled, focus moves to the same-direction
+  near-step button. If that button is also disabled, or a focused near-step button
+  becomes disabled, focus moves to the header view button.
 - Clicking empty grid space or a blank day placeholder focuses the active cell,
   allowing immediate keyboard traversal.
 - Clicking a real grid cell keeps its normal selection behavior.
@@ -333,6 +342,8 @@ not commit the form value immediately. Disabled shortcuts cannot be activated.
 ## Accessibility
 
 - The overlay is a modal dialog with `cdkTrapFocus`.
+- Readonly state is exposed on the native input with `aria-readonly` and disables
+  both the text input and calendar trigger.
 - Each calendar is a `role="grid"`.
 - Cells use `role="gridcell"`, row/column indexes, `aria-selected`, and disabled
   state.
