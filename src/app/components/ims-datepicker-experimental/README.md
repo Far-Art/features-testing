@@ -18,3 +18,35 @@ import {
 
 The component shares the global `src/styles/ims-datepicker.scss` styles with
 the stable and Moment implementations.
+
+## Supported Value Types
+
+```ts
+type ImsDatepickerExperimentalValue =
+    | Temporal.PlainDate
+    | number
+    | null
+    | undefined;
+```
+
+Accepted Angular form values, direct values, and `min`/`max` constraints are:
+
+| Value | Meaning |
+| --- | --- |
+| `Temporal.PlainDate` | A valid calendar date without a time or time zone. |
+| `number` | A finite epoch-millisecond instant interpreted in the configured `zone`. |
+| `null` | An explicitly empty value. |
+| `undefined` | An unset value; treated as empty. |
+
+The component never writes a string to the Angular form. Text entered in the
+native input is parsed and then emitted as `Temporal.PlainDate`, `number`, or
+`null`. The `format` input controls full-date versus month-only precision; it
+does not change the value's TypeScript type.
+
+Output is controlled by `valueType`:
+
+| `valueType` | Committed output |
+| --- | --- |
+| `'temporal'` | A `Temporal.PlainDate`. |
+| `'millis'` | An epoch-millisecond `number` for UTC midnight. |
+| `null` or omitted | Inferred from the most recent valid `Temporal.PlainDate` or `number`; defaults to `'temporal'`. |

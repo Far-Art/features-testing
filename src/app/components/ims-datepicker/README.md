@@ -116,7 +116,7 @@ when readonly becomes active.
 The component supports reactive forms, template-driven forms, and direct value
 binding through the inherited value model.
 
-## Value Model
+## Supported Value Types
 
 The public value type is:
 
@@ -127,6 +127,28 @@ type ImsDatepickerValue =
     | null
     | undefined;
 ```
+
+Accepted Angular form values, direct values, and `min`/`max` constraints are:
+
+| Value | Meaning |
+| --- | --- |
+| `Date` | A valid native date. Its UTC calendar fields are used. |
+| `number` | A finite epoch-millisecond instant interpreted in the configured `zone`. |
+| `null` | An explicitly empty value. |
+| `undefined` | An unset value; treated as empty. |
+
+The component never writes a string to the Angular form. Text entered in the
+native input is parsed and then emitted as either `Date`, `number`, or `null`.
+The `format` input controls full-date versus month-only precision; it does not
+change the value's TypeScript type.
+
+Output is controlled by `valueType`:
+
+| `valueType` | Committed output |
+| --- | --- |
+| `'date'` | A new native `Date` normalized to UTC midnight. |
+| `'millis'` | An epoch-millisecond `number` for UTC midnight. |
+| `null` or omitted | Inferred from the most recent valid `Date` or `number`; defaults to `'date'`. |
 
 Internally, all date calculations use date-only `Date` values at UTC midnight.
 
