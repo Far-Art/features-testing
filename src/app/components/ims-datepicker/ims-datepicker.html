@@ -32,13 +32,29 @@
         (keydown)="onInputKeydown($event)"
     />
 
+    @if (canClear()) {
+        <button
+            type="button"
+            class="ims-datepicker__clear"
+            [attr.aria-label]="effectiveLabels().clearDate"
+            [attr.title]="effectiveLabels().clearDate"
+            (pointerdown)="$event.preventDefault()"
+            (click)="clearDate()"
+        >
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="m7 7 10 10M17 7 7 17" />
+            </svg>
+        </button>
+    }
+
     <button
+        #toggleButton
         type="button"
         class="ims-datepicker__toggle"
-        aria-label="Open calendar"
+        [attr.aria-label]="open() ? effectiveLabels().closeCalendar : effectiveLabels().openCalendar"
         [attr.aria-controls]="open() ? dialogId : null"
         [attr.aria-expanded]="open()"
-        [disabled]="interactionDisabled()"
+        [disabled]="!canOpenPicker()"
         (click)="togglePicker()"
     >
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -69,6 +85,8 @@
         [attr.id]="dialogId"
         [attr.aria-labelledby]="headerButtonId"
         [attr.dir]="directionality.value"
+        [class.ims-datepicker__panel--readonly]="readonlyMode()"
+        [class.ims-datepicker__panel--week-numbers]="showWeekNumbers()"
         (keydown.escape)="onPanelEscape($event)"
     >
         <header
@@ -112,7 +130,7 @@
                     [attr.id]="headerButtonId"
                     type="button"
                     class="ims-datepicker__view-button"
-                    aria-label="Change calendar view"
+                    [attr.aria-label]="effectiveLabels().changeCalendarView"
                     (click)="cycleView()"
                 >
                     {{ headerLabel() }}
@@ -160,7 +178,7 @@
                         [disabled]="!canSelectMonthStart()"
                         (click)="focusShortcut('month-start')"
                     >
-                        Start of month
+                        {{ effectiveLabels().startOfMonth }}
                     </button>
                 }
                 <button
@@ -169,7 +187,7 @@
                     [disabled]="!canSelectToday()"
                     (click)="focusShortcut('today')"
                 >
-                    Today
+                    {{ effectiveLabels().today }}
                 </button>
                 @if (calendarView() === 'day') {
                     <button
@@ -178,7 +196,7 @@
                         [disabled]="!canSelectMonthEnd()"
                         (click)="focusShortcut('month-end')"
                     >
-                        End of month
+                        {{ effectiveLabels().endOfMonth }}
                     </button>
                 }
             </div>
@@ -187,7 +205,16 @@
         <div class="ims-datepicker__calendar">
             @switch (calendarView()) {
                 @case ('day') {
-                    <div class="ims-datepicker__weekdays" aria-hidden="true">
+                    <div
+                        class="ims-datepicker__weekdays"
+                        [class.ims-datepicker__weekdays--week-numbers]="showWeekNumbers()"
+                        aria-hidden="true"
+                    >
+                        @if (showWeekNumbers()) {
+                            <span class="ims-datepicker__week-heading">
+                                {{ effectiveLabels().week }}
+                            </span>
+                        }
                         @for (weekday of weekdayLabels(); track $index) {
                             <span>{{ weekday }}</span>
                         }
@@ -195,13 +222,27 @@
                     <div
                         #grid
                         class="ims-datepicker__grid ims-datepicker__days"
+                        [class.ims-datepicker__days--week-numbers]="showWeekNumbers()"
                         role="grid"
                         [attr.data-transition-direction]="calendarTransitionDirection()"
                         [attr.aria-label]="gridAriaLabel()"
+                        [attr.aria-colcount]="showWeekNumbers() ? 8 : 7"
+                        [attr.aria-readonly]="readonlyMode()"
                         (keydown)="onCalendarKeydown($event)"
                         (click)="onGridClick($event)"
                     >
                         @for (cell of dayCells(); track cell.date.toString(); let cellIndex = $index) {
+                            @if (showWeekNumbers() && cellIndex % 7 === 0) {
+                                @let weekNumber = weekNumbers()[cellIndex / 7];
+                                <span
+                                    role="rowheader"
+                                    class="ims-datepicker__week-number"
+                                    [attr.aria-label]="effectiveLabels().week + ' ' + weekNumber"
+                                    [attr.aria-rowindex]="cellIndex / 7 + 1"
+                                >
+                                    {{ weekNumber }}
+                                </span>
+                            }
                             @if (cell.currentMonth) {
                                 <button
                                     [attr.id]="cell.id"
@@ -216,7 +257,7 @@
                                     [attr.aria-selected]="cell.selected"
                                     [attr.aria-current]="cell.today ? 'date' : null"
                                     [attr.aria-rowindex]="(cellIndex - cellIndex % 7) / 7 + 1"
-                                    [attr.aria-colindex]="cellIndex % 7 + 1"
+                                    [attr.aria-colindex]="cellIndex % 7 + (showWeekNumbers() ? 2 : 1)"
                                     [disabled]="cell.disabled"
                                     (click)="selectDay(cell)"
                                     (focus)="activateDay(cell.date)"
@@ -239,6 +280,7 @@
                         role="grid"
                         [attr.data-transition-direction]="calendarTransitionDirection()"
                         [attr.aria-label]="gridAriaLabel()"
+                        [attr.aria-readonly]="readonlyMode()"
                         (keydown)="onCalendarKeydown($event)"
                         (click)="onGridClick($event)"
                     >
@@ -271,6 +313,7 @@
                         role="grid"
                         [attr.data-transition-direction]="calendarTransitionDirection()"
                         [attr.aria-label]="gridAriaLabel()"
+                        [attr.aria-readonly]="readonlyMode()"
                         (keydown)="onCalendarKeydown($event)"
                         (click)="onGridClick($event)"
                     >

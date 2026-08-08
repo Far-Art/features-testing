@@ -41,13 +41,12 @@
         }
     }
 
+    .ims-datepicker__clear,
     .ims-datepicker__toggle {
         display: grid;
-        flex: 0 0 2.5rem;
         place-items: center;
         padding: 0;
         border: 0;
-        border-inline-start: 1px solid var(--ims-color-border-subtle);
         outline: 0;
         background: transparent;
         color: inherit;
@@ -62,13 +61,34 @@
         }
 
         svg {
-            width: 1.25rem;
-            height: 1.25rem;
             fill: none;
             stroke: currentColor;
             stroke-linecap: round;
             stroke-linejoin: round;
             stroke-width: 1.7;
+        }
+    }
+
+    .ims-datepicker__clear {
+        flex: 0 0 2.25rem;
+
+        &:hover {
+            color: var(--ims-color-interactive-alt-strong);
+        }
+
+        svg {
+            width: 1rem;
+            height: 1rem;
+        }
+    }
+
+    .ims-datepicker__toggle {
+        flex: 0 0 2.5rem;
+        border-inline-start: 1px solid var(--ims-color-border-subtle);
+
+        svg {
+            width: 1.25rem;
+            height: 1.25rem;
         }
     }
 }
@@ -221,6 +241,11 @@
         user-select: none;
     }
 
+    .ims-datepicker__weekdays.ims-datepicker__weekdays--week-numbers,
+    .ims-datepicker__days.ims-datepicker__days--week-numbers {
+        grid-template-columns: minmax(2rem, 0.75fr) repeat(7, minmax(0, 1fr));
+    }
+
     .ims-datepicker__weekdays {
         span {
             padding: 0.45rem 0;
@@ -229,6 +254,20 @@
             font-weight: 700;
             text-align: center;
         }
+    }
+
+    .ims-datepicker__week-heading,
+    .ims-datepicker__week-number {
+        border-inline-end: 1px solid var(--ims-color-border-subtle);
+    }
+
+    .ims-datepicker__week-number {
+        display: grid;
+        place-items: center;
+        min-width: 2rem;
+        color: var(--ims-color-on-surface-muted);
+        font-size: 0.72rem;
+        font-weight: 700;
     }
 
     .ims-datepicker__cell {
@@ -347,6 +386,10 @@
             animation: ims-datepicker-wipe-in-left-to-right 260ms 60ms cubic-bezier(0.22, 1, 0.36, 1) both;
         }
     }
+}
+
+.ims-datepicker__panel.ims-datepicker__panel--week-numbers {
+    width: min(23rem, calc(100vw - 1rem));
 }
 
 @keyframes ims-datepicker-wipe-in-right-to-left {

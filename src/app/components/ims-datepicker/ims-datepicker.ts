@@ -6,11 +6,13 @@ import {
     LOCALE_ID,
     Signal,
     Type,
+    booleanAttribute,
     computed,
     effect,
     forwardRef,
     inject,
     input,
+    output,
     signal,
     viewChild
 } from '@angular/core';
@@ -28,16 +30,19 @@ import {ReadonlyDirective} from '../../shared/readonly.directive';
 import {runScopedViewTransition} from '../../shared/view-transition';
 import {
     IMS_DATEPICKER_CONFIG,
+    IMS_DATEPICKER_DEFAULT_LABELS,
     ImsDatepickerDate,
     ImsDatepickerDateFilter,
     ImsDatepickerFirstDayOfWeek,
     ImsDatepickerFormats,
+    ImsDatepickerLabels,
     ImsDatepickerMonthDay,
     ImsDatepickerPrecision,
     ImsDatepickerValue,
     ImsDatepickerValueType,
     ImsDatepickerView,
-    PartialImsDatepickerFormats
+    PartialImsDatepickerFormats,
+    PartialImsDatepickerLabels
 } from './ims-datepicker.types';
 import {
     addDate,
@@ -152,6 +157,7 @@ export class ImsDatepicker
     private readonly inheritedReadonly: Signal<boolean> = ReadonlyDirective.injectSignal();
     private readonly field = viewChild<ElementRef<HTMLElement>>('field');
     private readonly textInput = viewChild<ElementRef<HTMLInputElement>>('textInput');
+    private readonly toggleButton = viewChild<ElementRef<HTMLButtonElement>>('toggleButton');
     private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
     private readonly grid = viewChild<ElementRef<HTMLElement>>('grid');
     private readonly previousFarButton = viewChild<ElementRef<HTMLButtonElement>>(
@@ -187,9 +193,18 @@ export class ImsDatepicker
     readonly locale = input<string | null>(null);
     readonly zone = input<string | null>(null);
     readonly firstDayOfWeek = input<ImsDatepickerFirstDayOfWeek | null>(null);
+    readonly labels = input<PartialImsDatepickerLabels | null>(null);
+    readonly clearable = input(true, {transform: booleanAttribute});
+    readonly allowOpenWhenReadonly = input(true, {transform: booleanAttribute});
+    readonly showWeekNumbers = input(false, {transform: booleanAttribute});
     readonly placeholder = input<string | null>(null);
     readonly ariaLabel = input<string | null>(null, {alias: 'ariaLabel'});
     readonly ariaLabelledby = input<string | null>(null, {alias: 'ariaLabelledby'});
+
+    readonly opened = output<void>();
+    readonly closed = output<void>();
+    readonly viewChanged = output<ImsDatepickerView>();
+    readonly dateChange = output<ImsDatepickerValue>();
 
     readonly open = signal(false);
     readonly rawText = signal('');
@@ -211,6 +226,12 @@ export class ImsDatepicker
     readonly interactionDisabled = computed(() => this.disabled() || this.inheritedReadonly());
     /** Distinguishes readonly styling from the lower-emphasis disabled state. */
     readonly readonlyMode = this.inheritedReadonly;
+    readonly canOpenPicker = computed(() =>
+        !this.disabled() && (!this.readonlyMode() || this.allowOpenWhenReadonly())
+    );
+    readonly canClear = computed(() =>
+        this.clearable() && this.rawText().length > 0 && !this.interactionDisabled()
+    );
 
     readonly effectiveLocale = computed(
         () => this.locale() ?? this.globalConfig.locale ?? this.angularLocale
@@ -227,6 +248,11 @@ export class ImsDatepicker
     readonly effectiveFormats = computed<ImsDatepickerFormats>(() =>
         mergeDatepickerFormats(this.globalConfig.formats, this.formats() ?? undefined)
     );
+    readonly effectiveLabels = computed<ImsDatepickerLabels>(() => ({
+        ...IMS_DATEPICKER_DEFAULT_LABELS,
+        ...(this.globalConfig.labels ?? {}),
+        ...(this.labels() ?? {})
+    }));
 
     readonly globalMin = computed(() =>
         normalizeDateValue(
@@ -295,9 +321,13 @@ export class ImsDatepicker
     });
     readonly gridAriaLabel = computed(() => {
         const view = this.calendarView();
-        if (view === 'day') return `Calendar for ${this.headerLabel()}`;
-        if (view === 'month') return `Choose a month in ${this.headerLabel()}`;
-        return `Choose a year from ${this.headerLabel()}`;
+        const labels = this.effectiveLabels();
+        const template = view === 'day'
+            ? labels.calendarFor
+            : view === 'month'
+                ? labels.chooseMonthIn
+                : labels.chooseYearFrom;
+        return this.interpolateLabel(template, {period: this.headerLabel()});
     });
     readonly activeCellId = computed(() => {
         const cursor = this.cursor();
@@ -334,6 +364,15 @@ export class ImsDatepicker
                 disabled: !this.isDateEnabled(date)
             };
         });
+    });
+
+    readonly weekNumbers = computed<readonly number[]>(() => {
+        const cells = this.dayCells();
+        const weekNumberCellIndex = this.effectiveFirstDayOfWeek() === 1 ? 3 : 4;
+
+        return Array.from({length: 6}, (_, rowIndex) =>
+            this.isoWeekNumber(cells[rowIndex * 7 + weekNumberCellIndex].date)
+        );
     });
 
     readonly monthCells = computed<readonly ImsDatepickerMonthCell[]>(() => {
@@ -426,10 +465,14 @@ export class ImsDatepicker
         });
 
         effect(() => {
-            if (!this.interactionDisabled()) return;
+            const disabled = this.disabled();
+            const readonly = this.readonlyMode();
+            const allowReadonlyReview = this.allowOpenWhenReadonly();
 
-            if (this.open()) this.closePicker();
-            if (this.userEditing()) this.userEditing.set(false);
+            if ((disabled || (readonly && !allowReadonlyReview)) && this.open()) {
+                this.closePicker();
+            }
+            if ((disabled || readonly) && this.userEditing()) this.userEditing.set(false);
         }, {allowSignalWrites: true});
 
         effect(() => {
@@ -563,7 +606,7 @@ export class ImsDatepicker
     }
 
     togglePicker(): void {
-        if (this.interactionDisabled()) return;
+        if (!this.canOpenPicker()) return;
 
         if (this.open()) {
             this.closePicker();
@@ -573,14 +616,15 @@ export class ImsDatepicker
     }
 
     openPicker(): void {
-        if (this.interactionDisabled()) return;
+        if (!this.canOpenPicker() || this.open()) return;
 
-        if (this.userEditing()) this.commitText();
+        if (this.userEditing() && !this.readonlyMode()) this.commitText();
         const base = this.normalizedValue() ?? this.today();
         const view = this.format() === 'dd/MM/yyyy' ? 'day' : 'month';
         this.calendarView.set(view);
         this.cursor.set(this.resolveActiveDate(base, view));
         this.open.set(true);
+        this.opened.emit();
     }
 
     onOverlayAttached(): void {
@@ -588,14 +632,16 @@ export class ImsDatepicker
     }
 
     closePicker(): void {
+        if (!this.open()) return;
         this.open.set(false);
+        this.closed.emit();
     }
 
     onPanelEscape(event: Event): void {
         event.preventDefault();
         event.stopPropagation();
         this.closePicker();
-        this.textInput()?.nativeElement.focus();
+        this.restoreTriggerFocus();
     }
 
     onOutsideClick(event: MouseEvent): void {
@@ -603,6 +649,19 @@ export class ImsDatepicker
         if (target instanceof Node && this.field()?.nativeElement.contains(target)) return;
         this.closePicker();
         this.markAsTouched();
+    }
+
+    clearDate(): void {
+        if (!this.canClear()) return;
+
+        this.userEditing.set(false);
+        this.parseInvalid.set(false);
+        this.rawText.set('');
+        this.setValue(null);
+        this.dateChange.emit(null);
+        this.closePicker();
+        this.markAsTouched();
+        this.textInput()?.nativeElement.focus({preventScroll: true});
     }
 
     cycleView(): void {
@@ -686,7 +745,12 @@ export class ImsDatepicker
 
     onGridClick(event: MouseEvent): void {
         const target = event.target;
-        if (target instanceof Element && target.closest('.ims-datepicker__cell')) return;
+        if (
+            target instanceof Element
+            && target.closest('.ims-datepicker__cell, .ims-datepicker__week-number')
+        ) {
+            return;
+        }
         this.scheduleActiveCellFocus();
     }
 
@@ -724,8 +788,13 @@ export class ImsDatepicker
         direction: ImsDatepickerNavigationDirection
     ): string {
         const {amount, label} = this.navigationStep(distance);
-        const action = direction < 0 ? 'Previous' : 'Next';
-        return `${action} ${amount === 1 ? label : `${amount} ${label}s`}`;
+        const labels = this.effectiveLabels();
+        const template = label === 'month'
+            ? direction < 0 ? labels.previousMonth : labels.nextMonth
+            : amount === 1
+                ? direction < 0 ? labels.previousYear : labels.nextYear
+                : direction < 0 ? labels.previousYears : labels.nextYears;
+        return this.interpolateLabel(template, {count: amount});
     }
 
     navigationIcon(
@@ -781,11 +850,12 @@ export class ImsDatepicker
         this.cursor.set(cell.date);
         this.commitDate(cell.date);
         this.closePicker();
-        this.textInput()?.nativeElement.focus();
+        this.restoreTriggerFocus();
     }
 
     selectMonth(cell: ImsDatepickerMonthCell): void {
-        if (this.interactionDisabled() || cell.disabled) return;
+        if (this.disabled() || cell.disabled) return;
+        if (this.readonlyMode() && this.format() === 'MM/yyyy') return;
 
         const cursor = this.cursor();
         const candidate = this.format() === 'MM/yyyy'
@@ -808,14 +878,14 @@ export class ImsDatepicker
         if (this.format() === 'MM/yyyy') {
             this.commitDate(date);
             this.closePicker();
-            this.textInput()?.nativeElement.focus();
+            this.restoreTriggerFocus();
         } else {
             this.setCalendarView('day');
         }
     }
 
     selectYear(cell: ImsDatepickerYearCell): void {
-        if (this.interactionDisabled() || cell.disabled) return;
+        if (this.disabled() || cell.disabled) return;
 
         const cursor = this.cursor();
         const firstOfMonth = canonicalDate(cell.year, dateMonth(cursor), 1)!;
@@ -839,6 +909,7 @@ export class ImsDatepicker
             this.parseInvalid.set(false);
             this.rawText.set('');
             this.setValue(null);
+            this.dateChange.emit(null);
             return;
         }
 
@@ -853,6 +924,7 @@ export class ImsDatepicker
         if (!parsed) {
             this.parseInvalid.set(true);
             this.setValue(null);
+            this.dateChange.emit(null);
             return;
         }
 
@@ -878,7 +950,9 @@ export class ImsDatepicker
                 this.effectiveLocale()
             )
         );
-        this.setValue(this.serialize(normalized));
+        const serialized = this.serialize(normalized);
+        this.setValue(serialized);
+        this.dateChange.emit(serialized);
     }
 
     private serialize(value: ImsDatepickerDate): ImsDatepickerDate | number {
@@ -931,11 +1005,12 @@ export class ImsDatepicker
         const view = this.calendarView();
 
         if (view === 'day') {
+            if (this.readonlyMode()) return;
             const date = this.cursor();
             if (!this.isDateEnabled(date)) return;
             this.commitDate(date);
             this.closePicker();
-            this.textInput()?.nativeElement.focus();
+            this.restoreTriggerFocus();
             return;
         }
 
@@ -1076,6 +1151,7 @@ export class ImsDatepicker
 
         this.calendarTransitionDirection.set('view');
         this.calendarView.set(view);
+        this.viewChanged.emit(view);
         this.scheduleActiveCellFocus();
     }
 
@@ -1302,6 +1378,33 @@ export class ImsDatepicker
         }
 
         return direction < 0 ? this.previousNearButton() : this.nextNearButton();
+    }
+
+    private restoreTriggerFocus(): void {
+        const input = this.textInput()?.nativeElement;
+        const target = input && !input.disabled
+            ? input
+            : this.toggleButton()?.nativeElement;
+        target?.focus({preventScroll: true});
+    }
+
+    private interpolateLabel(
+        template: string,
+        values: Readonly<Record<string, string | number>>
+    ): string {
+        return Object.entries(values).reduce(
+            (label, [key, value]) => label.replaceAll(`{${key}}`, String(value)),
+            template
+        );
+    }
+
+    private isoWeekNumber(date: ImsDatepickerDate): number {
+        const thursday = new Date(date.getTime());
+        thursday.setUTCDate(thursday.getUTCDate() + 4 - (thursday.getUTCDay() || 7));
+        const yearStart = new Date(Date.UTC(thursday.getUTCFullYear(), 0, 1));
+        return Math.ceil(
+            ((thursday.getTime() - yearStart.getTime()) / 86_400_000 + 1) / 7
+        );
     }
 
     private dayCellId(date: ImsDatepickerDate): string {

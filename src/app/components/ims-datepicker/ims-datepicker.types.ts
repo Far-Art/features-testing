@@ -9,6 +9,28 @@ export type ImsDatepickerView = 'day' | 'month' | 'year';
 export type ImsDatepickerFirstDayOfWeek = 1 | 7;
 export type ImsDatepickerDateFilter = (date: ImsDatepickerDate) => boolean;
 
+export interface ImsDatepickerLabels {
+    readonly openCalendar: string;
+    readonly closeCalendar: string;
+    readonly clearDate: string;
+    readonly changeCalendarView: string;
+    readonly calendarFor: string;
+    readonly chooseMonthIn: string;
+    readonly chooseYearFrom: string;
+    readonly previousMonth: string;
+    readonly nextMonth: string;
+    readonly previousYear: string;
+    readonly nextYear: string;
+    readonly previousYears: string;
+    readonly nextYears: string;
+    readonly startOfMonth: string;
+    readonly today: string;
+    readonly endOfMonth: string;
+    readonly week: string;
+}
+
+export type PartialImsDatepickerLabels = Partial<ImsDatepickerLabels>;
+
 export interface ImsDatepickerFormats {
     readonly parse: {
         readonly dateInput: readonly string[];
@@ -41,6 +63,7 @@ export interface ImsDatepickerConfig {
     readonly zone?: string;
     readonly firstDayOfWeek?: ImsDatepickerFirstDayOfWeek;
     readonly formats?: PartialImsDatepickerFormats;
+    readonly labels?: PartialImsDatepickerLabels;
 }
 
 export interface PartialImsDatepickerFormats {
@@ -64,6 +87,26 @@ export const IMS_DATEPICKER_DEFAULT_FORMATS: ImsDatepickerFormats = {
         monthYearLabel: 'LLLL yyyy',
         dayAriaLabel: 'cccc, d LLLL yyyy'
     }
+};
+
+export const IMS_DATEPICKER_DEFAULT_LABELS: ImsDatepickerLabels = {
+    openCalendar: 'Open calendar',
+    closeCalendar: 'Close calendar',
+    clearDate: 'Clear date',
+    changeCalendarView: 'Change calendar view',
+    calendarFor: 'Calendar for {period}',
+    chooseMonthIn: 'Choose a month in {period}',
+    chooseYearFrom: 'Choose a year from {period}',
+    previousMonth: 'Previous month',
+    nextMonth: 'Next month',
+    previousYear: 'Previous year',
+    nextYear: 'Next year',
+    previousYears: 'Previous {count} years',
+    nextYears: 'Next {count} years',
+    startOfMonth: 'Start of month',
+    today: 'Today',
+    endOfMonth: 'End of month',
+    week: 'Week'
 };
 
 export const IMS_DATEPICKER_CONFIG = new InjectionToken<ImsDatepickerConfig>(

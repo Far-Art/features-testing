@@ -6,9 +6,12 @@ export type {
     ImsDatepickerDateFilter,
     ImsDatepickerFirstDayOfWeek,
     ImsDatepickerFormats,
+    ImsDatepickerLabels,
     ImsDatepickerMonthDay,
     ImsDatepickerPrecision,
     ImsDatepickerValue,
     ImsDatepickerValueType,
-    PartialImsDatepickerFormats
+    ImsDatepickerView,
+    PartialImsDatepickerFormats,
+    PartialImsDatepickerLabels
 } from './ims-datepicker.types';

@@ -68,7 +68,11 @@ provideImsDatepickerConfig({
     locale: 'he',
     zone: 'Asia/Jerusalem',
     firstDayOfWeek: 7,
-    valueType: 'date'
+    valueType: 'date',
+    labels: {
+        today: 'היום',
+        clearDate: 'נקה תאריך'
+    }
 })
 ```
 
@@ -92,6 +96,10 @@ The global stylesheet must include:
 | `locale` | `string \| null` | `null` | Instance locale override. |
 | `zone` | `string \| null` | `null` | Zone used to interpret millisecond inputs and calculate today. |
 | `firstDayOfWeek` | `1 \| 7 \| null` | `null` | Monday or Sunday grid start. |
+| `labels` | `PartialImsDatepickerLabels \| null` | `null` | Instance text and accessible-label translations. |
+| `clearable` | `boolean` | `true` | Shows a clear action when the control contains text. |
+| `allowOpenWhenReadonly` | `boolean` | `true` | Allows calendar navigation without value changes in readonly mode. |
+| `showWeekNumbers` | `boolean` | `false` | Shows informational ISO week numbers in the day view. |
 | `placeholder` | `string \| null` | `null` | Input placeholder override. |
 | `ariaLabel` | `string \| null` | `null` | Accessible input label. |
 | `ariaLabelledby` | `string \| null` | `null` | ID reference for an external input label. |
@@ -99,10 +107,11 @@ The global stylesheet must include:
 | `disabled` | `boolean` | `false` | Inherited from `BasicValueAccessor`; combined with form disabled state. |
 
 The component also consumes the nearest `ReadonlyDirective` provider. Applying
-`[ims-readonly]` to the datepicker or an ancestor prevents text editing, calendar
-opening, and value changes while preserving a readable, enabled-like value style.
-The overlay closes without committing pending text if readonly becomes active
-while the picker is open.
+`[ims-readonly]` to the datepicker or an ancestor prevents text editing and value
+changes while preserving a readable, enabled-like value style. By default the
+calendar can still open for review, including period and view navigation. Set
+`allowOpenWhenReadonly="false"` to disable the trigger and close an open overlay
+when readonly becomes active.
 
 The component supports reactive forms, template-driven forms, and direct value
 binding through the inherited value model.
@@ -339,11 +348,31 @@ Header shortcuts are:
 A shortcut moves the active cursor and focuses the resulting grid cell. It does
 not commit the form value immediately. Disabled shortcuts cannot be activated.
 
+## Clear, Weeks, And Events
+
+The clear button appears for non-empty editable controls when `clearable` is
+enabled. Clearing writes `null`, marks the control touched, emits `dateChange`,
+and restores focus to the text input.
+
+`showWeekNumbers` adds a non-interactive ISO week-number row-header column to
+the day view. Week numbers are informational and do not affect focus,
+selection, the form value, or overlay state.
+
+Public interaction events are:
+
+- `opened` and `closed` when the overlay state changes.
+- `viewChanged` when day, month, or year view changes.
+- `dateChange` when a user commits or clears a value.
+
+All visible control text and generated navigation ARIA labels can be translated
+globally through `ImsDatepickerConfig.labels` or per instance through `labels`.
+Templates use `{period}` and `{count}` placeholders where applicable.
+
 ## Accessibility
 
 - The overlay is a modal dialog with `cdkTrapFocus`.
-- Readonly state is exposed on the native input with `aria-readonly` and disables
-  both the text input and calendar trigger.
+- Readonly state is exposed on the native input and calendar grids with
+  `aria-readonly`; value selection remains blocked during calendar review.
 - Each calendar is a `role="grid"`.
 - Cells use `role="gridcell"`, row/column indexes, `aria-selected`, and disabled
   state.

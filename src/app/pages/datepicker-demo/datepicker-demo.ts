@@ -67,6 +67,7 @@ export class DatepickerDemo {
     readonly min = signal<ImsDatepickerValue>(utcDate(2020, 1, 1));
     readonly max = signal<ImsDatepickerValue>(utcDate(2035, 12, 31));
     readonly readonlyEnabled = signal(true);
+    readonly datepickerEvent = signal('—');
 
     templateDate: ImsDatepickerValue = null;
 
@@ -91,6 +92,11 @@ export class DatepickerDemo {
 
     toggleReadonly(): void {
         this.readonlyEnabled.update((enabled) => !enabled);
+    }
+
+    logDatepickerEvent(name: string, value?: ImsDatepickerValue): void {
+        const detail = value === undefined ? '' : `: ${this.describe(value)}`;
+        this.datepickerEvent.set(`${name}${detail}`);
     }
 
     describe(

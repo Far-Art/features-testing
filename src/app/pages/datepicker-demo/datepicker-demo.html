@@ -24,9 +24,15 @@
                 [formControl]="dateControl"
                 [min]="min()"
                 [max]="max()"
+                showWeekNumbers
+                (opened)="logDatepickerEvent('opened')"
+                (closed)="logDatepickerEvent('closed')"
+                (viewChanged)="logDatepickerEvent('viewChanged: ' + $event)"
+                (dateChange)="logDatepickerEvent('dateChange', $event)"
             />
             <code>{{ describe(dateControl.value) }}</code>
             <code>{{ dateControl.errors | json }}</code>
+            <code>{{ datepickerEvent() }}</code>
         </label>
 
         <label class="datepicker-demo__field">
@@ -38,6 +44,7 @@
             />
             <code>{{ describe(readonlyDateControl.value) }}</code>
             <code>ims-readonly: {{ readonlyEnabled() }}</code>
+            <code>readonly calendar review: enabled</code>
         </label>
 
         <label class="datepicker-demo__field">
