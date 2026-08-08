@@ -28,6 +28,7 @@ import {
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {ReadonlyDirective} from '../../shared/readonly.directive';
 import {runScopedViewTransition} from '../../shared/view-transition';
+import {IMS_DATEPICKER_PARSER} from './ims-datepicker.parser';
 import {
     IMS_DATEPICKER_CONFIG,
     IMS_DATEPICKER_DEFAULT_LABELS,
@@ -63,7 +64,6 @@ import {
     isNativeDate,
     mergeDatepickerFormats,
     normalizeDateValue,
-    parseDateText,
     todayInZone,
     toUtcEpochMillis
 } from './ims-datepicker.utils';
@@ -151,6 +151,7 @@ export class ImsDatepicker
     extends BasicValueAccessor<ImsDatepickerValue>
     implements Validator {
     private readonly globalConfig = inject(IMS_DATEPICKER_CONFIG);
+    private readonly dateParser = inject(IMS_DATEPICKER_PARSER);
     private readonly angularLocale = inject(LOCALE_ID);
     private readonly changeDetectorRef = inject(ChangeDetectorRef);
     readonly directionality = inject(Directionality);
@@ -913,15 +914,16 @@ export class ImsDatepicker
             return;
         }
 
-        const parsed = parseDateText(text, {
+        const parsedMillis = this.dateParser.parse(text, {
             precision: this.format(),
             monthDay: this.monthDay(),
             formats: this.effectiveFormats(),
             locale: this.effectiveLocale(),
             interpretationZone: this.interpretationZone()
         });
+        const parsed = parsedMillis === null ? null : new Date(parsedMillis);
 
-        if (!parsed) {
+        if (!parsed || !isNativeDate(parsed)) {
             this.parseInvalid.set(true);
             this.setValue(null);
             this.dateChange.emit(null);

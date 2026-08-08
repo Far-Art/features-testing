@@ -12,6 +12,8 @@ of the component contract unless a requested change explicitly replaces it.
   and the day/month/year grids.
 - `ims-datepicker.types.ts`: public types, default formats, configuration token,
   and `provideImsDatepickerConfig`.
+- `ims-datepicker.parser.ts`: adapter-neutral parser contract, default parser,
+  injection token, and `provideImsDatepickerParser`.
 - `ims-datepicker.utils.ts`: native Date normalization, parsing, formatting, and
   date comparison helpers.
 - `ims-datepicker.spec.ts`: component, forms, navigation, and focus tests.
@@ -253,6 +255,57 @@ display format.
 
 Display formatting additionally supports localized month and weekday tokens:
 `LLLL`, `LLL`, `MMMM`, `MMM`, `cccc`, `ccc`, `EEEE`, and `EEE`.
+
+## Injectable Date Parser
+
+All datepicker variants inject the same `IMS_DATEPICKER_PARSER`. A parser is
+synchronous and returns either the parsed calendar date as UTC-midnight epoch
+milliseconds or `null`. It must not return `Date`, Temporal, Moment, Luxon, or
+another library-specific value. Each datepicker adapter converts the returned
+milliseconds into its own date type.
+
+```ts
+interface ImsDatepickerParser {
+    parse(
+        text: string,
+        options: ImsDatepickerParserOptions
+    ): number | null;
+}
+```
+
+Register a custom parser at application or feature scope:
+
+```ts
+import {Injectable} from '@angular/core';
+import {
+    ImsDatepickerParser,
+    ImsDatepickerParserOptions,
+    provideImsDatepickerParser
+} from './components/ims-datepicker';
+
+@Injectable()
+class IsoDatepickerParser implements ImsDatepickerParser {
+    parse(text: string, options: ImsDatepickerParserOptions): number | null {
+        const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text.trim());
+        if (!match || options.precision !== 'dd/MM/yyyy') return null;
+
+        const value = Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+        const date = new Date(value);
+        return date.getUTCFullYear() === Number(match[1])
+            && date.getUTCMonth() === Number(match[2]) - 1
+            && date.getUTCDate() === Number(match[3])
+            ? value
+            : null;
+    }
+}
+
+provideImsDatepickerParser(IsoDatepickerParser)
+```
+
+`ImsDatepickerParserOptions` provides `precision`, `monthDay`, the effective
+formats, locale, and interpretation zone. Providing the parser in a nested
+injector customizes only datepickers under that injector; an application-level
+provider affects the native, Temporal, Moment, and future adapters.
 
 ## Validation
 

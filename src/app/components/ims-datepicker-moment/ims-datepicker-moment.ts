@@ -25,6 +25,7 @@ import {
 import moment from 'moment';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {runScopedViewTransition} from '../../shared/view-transition';
+import {IMS_DATEPICKER_PARSER} from '../ims-datepicker/ims-datepicker.parser';
 import {
     IMS_DATEPICKER_MOMENT_CONFIG,
     ImsDatepickerMomentCalendarDate,
@@ -58,7 +59,6 @@ import {
     isMomentDate,
     mergeDatepickerFormats,
     normalizeDateValue,
-    parseDateText,
     todayInZone,
     toUtcEpochMillis
 } from './ims-datepicker-moment.utils';
@@ -145,6 +145,7 @@ export class ImsDatepickerMoment
     extends BasicValueAccessor<ImsDatepickerMomentValue>
     implements Validator {
     private readonly globalConfig = inject(IMS_DATEPICKER_MOMENT_CONFIG);
+    private readonly dateParser = inject(IMS_DATEPICKER_PARSER);
     private readonly angularLocale = inject(LOCALE_ID);
     private readonly changeDetectorRef = inject(ChangeDetectorRef);
     readonly directionality = inject(Directionality);
@@ -793,15 +794,18 @@ export class ImsDatepickerMoment
             return;
         }
 
-        const parsed = parseDateText(text, {
+        const parsedMillis = this.dateParser.parse(text, {
             precision: this.format(),
             monthDay: this.monthDay(),
             formats: this.effectiveFormats(),
             locale: this.effectiveLocale(),
             interpretationZone: this.interpretationZone()
         });
+        const parsed = parsedMillis === null || !Number.isFinite(parsedMillis)
+            ? null
+            : moment.utc(parsedMillis);
 
-        if (!parsed) {
+        if (!parsed?.isValid()) {
             this.parseInvalid.set(true);
             this.setValue(null);
             return;
@@ -810,7 +814,9 @@ export class ImsDatepickerMoment
         this.commitDate(parsed);
     }
 
-    private commitDate(value: ImsDatepickerMomentCalendarDate): void {
+    private commitDate(
+        value: ImsDatepickerMomentDate | ImsDatepickerMomentCalendarDate
+    ): void {
         const normalized = normalizeDateValue(
             value,
             this.interpretationZone(),

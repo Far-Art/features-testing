@@ -50,3 +50,11 @@ Output is controlled by `valueType`:
 | `'moment'` | A UTC `Moment` normalized to the selected calendar date. |
 | `'millis'` | An epoch-millisecond `number` for UTC midnight. |
 | `null` or omitted | Inferred from the most recent valid `Moment` or `number`; defaults to `'moment'`. |
+
+## Injectable Date Parser
+
+This adapter uses the shared `IMS_DATEPICKER_PARSER` from `ims-datepicker`.
+The parser returns UTC-midnight epoch milliseconds, which this component
+converts to a UTC `Moment`. Import `ImsDatepickerParser`,
+`ImsDatepickerParserOptions`, and `provideImsDatepickerParser` from this package
+to register the same custom parser API described in the stable datepicker guide.

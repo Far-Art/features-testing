@@ -16,6 +16,7 @@ import {
 import {CdkTrapFocus} from '@angular/cdk/a11y';
 import {CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition} from '@angular/cdk/overlay';
 import {Directionality} from '@angular/cdk/bidi';
+import {Temporal} from '@js-temporal/polyfill';
 import {
     AbstractControl,
     NG_VALIDATORS,
@@ -24,6 +25,7 @@ import {
 } from '@angular/forms';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {runScopedViewTransition} from '../../shared/view-transition';
+import {IMS_DATEPICKER_PARSER} from '../ims-datepicker/ims-datepicker.parser';
 import {
     IMS_DATEPICKER_EXPERIMENTAL_CONFIG,
     ImsDatepickerExperimentalDate,
@@ -48,7 +50,6 @@ import {
     isTemporalPlainDate,
     mergeDatepickerFormats,
     normalizeDateValue,
-    parseDateText,
     todayInZone,
     toUtcEpochMillis
 } from './ims-datepicker-experimental.utils';
@@ -135,6 +136,7 @@ export class ImsDatepickerExperimental
     extends BasicValueAccessor<ImsDatepickerExperimentalValue>
     implements Validator {
     private readonly globalConfig = inject(IMS_DATEPICKER_EXPERIMENTAL_CONFIG);
+    private readonly dateParser = inject(IMS_DATEPICKER_PARSER);
     private readonly angularLocale = inject(LOCALE_ID);
     private readonly changeDetectorRef = inject(ChangeDetectorRef);
     readonly directionality = inject(Directionality);
@@ -780,13 +782,14 @@ export class ImsDatepickerExperimental
             return;
         }
 
-        const parsed = parseDateText(text, {
+        const parsedMillis = this.dateParser.parse(text, {
             precision: this.format(),
             monthDay: this.monthDay(),
             formats: this.effectiveFormats(),
             locale: this.effectiveLocale(),
             interpretationZone: this.interpretationZone()
         });
+        const parsed = this.fromParserMillis(parsedMillis);
 
         if (!parsed) {
             this.parseInvalid.set(true);
@@ -795,6 +798,19 @@ export class ImsDatepickerExperimental
         }
 
         this.commitDate(parsed);
+    }
+
+    private fromParserMillis(value: number | null): ImsDatepickerExperimentalDate | null {
+        if (value === null || !Number.isFinite(value)) return null;
+
+        try {
+            return Temporal.Instant
+                .fromEpochMilliseconds(value)
+                .toZonedDateTimeISO('UTC')
+                .toPlainDate();
+        } catch {
+            return null;
+        }
     }
 
     private commitDate(value: ImsDatepickerExperimentalDate): void {

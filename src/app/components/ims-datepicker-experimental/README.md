@@ -50,3 +50,11 @@ Output is controlled by `valueType`:
 | `'temporal'` | A `Temporal.PlainDate`. |
 | `'millis'` | An epoch-millisecond `number` for UTC midnight. |
 | `null` or omitted | Inferred from the most recent valid `Temporal.PlainDate` or `number`; defaults to `'temporal'`. |
+
+## Injectable Date Parser
+
+This adapter uses the shared `IMS_DATEPICKER_PARSER` from `ims-datepicker`.
+The parser returns UTC-midnight epoch milliseconds, which this component
+converts to `Temporal.PlainDate`. Import `ImsDatepickerParser`,
+`ImsDatepickerParserOptions`, and `provideImsDatepickerParser` from this package
+to register the same custom parser API described in the stable datepicker guide.

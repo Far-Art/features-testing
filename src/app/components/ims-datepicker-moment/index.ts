@@ -1,6 +1,14 @@
 export * from './ims-datepicker-moment';
 export * from './ims-datepicker-moment.types';
 export {
+    IMS_DATEPICKER_PARSER,
+    provideImsDatepickerParser
+} from '../ims-datepicker/ims-datepicker.parser';
+export type {
+    ImsDatepickerParser,
+    ImsDatepickerParserOptions
+} from '../ims-datepicker/ims-datepicker.parser';
+export {
     canonicalDate,
     compareDateOnly,
     formatDate,
