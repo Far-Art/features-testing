@@ -1,10 +1,12 @@
 <div
     #field
-    class="ims-datepicker__field"
+    class="ims-input ims-datepicker__field"
+    data-ims-main-control
     cdkOverlayOrigin
     #overlayOrigin="cdkOverlayOrigin"
     [class.ims-datepicker__field--open]="open()"
     [class.ims-datepicker__field--invalid]="parseInvalid()"
+    [class.ims-datepicker__field--disabled]="disabled()"
 >
     <input
         #textInput

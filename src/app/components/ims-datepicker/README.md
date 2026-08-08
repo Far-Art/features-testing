@@ -356,18 +356,13 @@ not commit the form value immediately. Disabled shortcuts cannot be activated.
 ## Styling
 
 Styles are global because the CDK overlay panel is rendered outside the
-component host. The main CSS variables are declared on both
-`.ims-datepicker-host` and `.ims-datepicker__panel` so overlay content has its
-own token values:
+component host. The field uses the shared `.ims-input` contract, the component
+host uses `.ims-input-host`, and the visual field is marked with
+`data-ims-main-control`. Component and overlay colors consume the shared
+semantic `--ims-color-*` and `--ims-background-*` tokens directly.
 
-```scss
---ims-datepicker-primary
---ims-datepicker-surface
---ims-datepicker-on-surface
---ims-datepicker-on-primary
---ims-datepicker-error
---ims-datepicker-shadow-rgb
-```
+Readonly mode adds `.ims-readonly` to the input host and keeps the native input
+and toggle disabled while using the shared readable-disabled token overrides.
 
 Cell state classes:
 
@@ -376,10 +371,9 @@ Cell state classes:
 - `.ims-datepicker__cell--active`: current traversal cursor.
 - `.ims-datepicker__cell--today`: actual current date.
 
-Focus uses a native CSS outline, not a pseudo-element. The active selected cell
-uses an outward `outline-offset` so the outline remains distinguishable from
-the filled selected background. Avoid reintroducing a focus pseudo-element
-because it overlays today/selected styling.
+Focus uses the shared semantic focus-ring token and a CSS box shadow rather
+than a pseudo-element. Combined today, selected, and focused states retain both
+their inset indicator and the external focus ring.
 
 Sass nesting follows the repository rule: use nesting for descendants,
 pseudo-classes, pseudo-elements, attributes, and state scopes only. Write full

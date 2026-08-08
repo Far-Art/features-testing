@@ -1,40 +1,22 @@
-.ims-datepicker-host,
-.ims-datepicker__panel {
-    --ims-datepicker-primary: #1769aa;
-    --ims-datepicker-surface: #fff;
-    --ims-datepicker-on-surface: #172033;
-    --ims-datepicker-on-primary: #fff;
-    --ims-datepicker-error: #ba1a1a;
-    --ims-datepicker-shadow-rgb: 15 23 42;
-}
-
 .ims-datepicker-host {
     display: inline-block;
     width: 100%;
     min-width: 0;
-    color: var(--ims-datepicker-on-surface);
+    color: var(--ims-color-on-surface);
 }
 
 .ims-datepicker__field {
+    --ims-input-padding: 0;
+
     display: flex;
     width: 100%;
-    min-height: 2.5rem;
     overflow: hidden;
-    border: 1px solid color-mix(in oklch, currentColor 28%, transparent);
-    border-radius: 0.5rem;
-    background: var(--ims-datepicker-surface);
-
-    &:hover,
-    &:focus-within {
-        border-color: var(--ims-datepicker-primary);
-    }
 
     &:focus-within {
-        box-shadow: 0 0 0 3px color-mix(
-            in oklch,
-            var(--ims-datepicker-primary) 22%,
-            transparent
-        );
+        border-color: var(--ims-input-focus-border, var(--ims-color-interactive));
+        box-shadow:
+            0 0 0 3px var(--ims-input-focus-ring, var(--ims-color-focus-ring)),
+            var(--ims-input-field-shadow);
     }
 
     .ims-datepicker__input {
@@ -49,7 +31,13 @@
         text-align: start;
 
         &::placeholder {
+            color: var(--ims-color-on-surface-muted);
             text-transform: lowercase;
+        }
+
+        &:disabled {
+            opacity: 1;
+            -webkit-text-fill-color: currentColor;
         }
     }
 
@@ -59,10 +47,19 @@
         place-items: center;
         padding: 0;
         border: 0;
-        border-inline-start: 1px solid color-mix(in oklch, currentColor 12%, transparent);
+        border-inline-start: 1px solid var(--ims-color-border-subtle);
+        outline: 0;
         background: transparent;
         color: inherit;
         cursor: pointer;
+
+        &:focus-visible {
+            box-shadow: inset 0 0 0 3px var(--ims-color-focus-ring);
+        }
+
+        &:disabled {
+            cursor: not-allowed;
+        }
 
         svg {
             width: 1.25rem;
@@ -77,24 +74,31 @@
 }
 
 .ims-datepicker__field.ims-datepicker__field--open {
-    border-color: var(--ims-datepicker-primary);
+    border-color: var(--ims-color-interactive);
 }
 
-.ims-datepicker__field.ims-datepicker__field--invalid {
-    border-color: var(--ims-datepicker-error);
+.ims-datepicker-host.ng-invalid
+    .ims-datepicker__field:not(.ims-datepicker__field--disabled):not(.ims-datepicker__field--readonly),
+.ims-datepicker__field.ims-datepicker__field--invalid:not(.ims-datepicker__field--disabled):not(.ims-datepicker__field--readonly) {
+    border-color: var(--ims-input-invalid-border, var(--ims-color-invalid));
 }
 
+.ims-datepicker-host.ng-invalid
+    .ims-datepicker__field:not(.ims-datepicker__field--disabled):not(.ims-datepicker__field--readonly):focus-within,
+.ims-datepicker__field.ims-datepicker__field--invalid:not(.ims-datepicker__field--disabled):not(.ims-datepicker__field--readonly):focus-within {
+    box-shadow:
+        0 0 0 3px var(--ims-input-invalid-focus-ring, var(--ims-color-invalid-focus-ring)),
+        var(--ims-input-field-shadow);
+}
+
+.ims-datepicker__field.ims-datepicker__field--disabled,
 .ims-datepicker__field.ims-datepicker__field--readonly {
-    border-color: var(--ims-color-border);
-    background: var(--ims-color-surface-input-readonly);
-    color: var(--ims-color-on-surface-readonly);
+    border-color: var(--ims-input-disabled-border, var(--ims-color-border-subtle));
+    background: var(--ims-input-disabled-background, var(--ims-color-surface-input-disabled));
+    color: var(--ims-input-disabled-color, var(--ims-color-on-surface-disabled));
 
     &:hover {
-        border-color: var(--ims-color-border);
-    }
-
-    .ims-datepicker__toggle {
-        cursor: not-allowed;
+        border-color: var(--ims-input-disabled-border, var(--ims-color-border-subtle));
     }
 }
 
@@ -103,24 +107,29 @@
     gap: 0.5rem;
     box-sizing: border-box;
     width: min(21rem, calc(100vw - 1rem));
-    color: var(--ims-datepicker-on-surface);
+    color: var(--ims-color-on-surface);
+
+    .ims-datepicker__header,
+    .ims-datepicker__calendar {
+        border: 1px solid var(--ims-color-border-subtle);
+        background: var(--ims-background-dialog);
+        box-shadow: 0 0.5rem 1.5rem color-mix(
+            in oklch,
+            var(--ims-color-on-surface) 14%,
+            transparent
+        );
+    }
 
     .ims-datepicker__header {
         display: grid;
         gap: 0.25rem;
         padding: 0.5rem;
-        border: 1px solid color-mix(in oklch, currentColor 14%, transparent);
         border-radius: 0.75rem;
-        background: var(--ims-datepicker-surface);
-        box-shadow: 0 0.4rem 1rem rgb(var(--ims-datepicker-shadow-rgb) / 14%);
     }
 
     .ims-datepicker__calendar {
         padding: 0.75rem;
-        border: 1px solid color-mix(in oklch, currentColor 14%, transparent);
         border-radius: 0.75rem;
-        background: var(--ims-datepicker-surface);
-        box-shadow: 0 18px 42px rgb(var(--ims-datepicker-shadow-rgb) / 18%);
     }
 
     .ims-datepicker__navigation {
@@ -132,33 +141,26 @@
 
     .ims-datepicker__step,
     .ims-datepicker__view-button,
+    .ims-datepicker__shortcut,
     .ims-datepicker__cell {
         border: 0;
         border-radius: 0.5rem;
+        outline: 0;
         background: transparent;
         color: inherit;
         font: inherit;
         cursor: pointer;
 
         &:hover:not(:disabled) {
-            background: color-mix(
-                in oklch,
-                var(--ims-datepicker-primary) 10%,
-                transparent
-            );
+            background: var(--ims-color-interactive-alt-subtle);
         }
 
         &:focus-visible {
-            outline: 3px solid color-mix(
-                in oklch,
-                var(--ims-datepicker-primary) 24%,
-                transparent
-            );
-            outline-offset: 1px;
+            box-shadow: 0 0 0 3px var(--ims-color-focus-ring);
         }
 
         &:disabled {
-            opacity: 0.32;
+            color: var(--ims-color-on-surface-disabled);
             cursor: not-allowed;
         }
     }
@@ -187,7 +189,7 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 0.25rem;
         padding-block-start: 0.25rem;
-        border-block-start: 1px solid color-mix(in oklch, currentColor 10%, transparent);
+        border-block-start: 1px solid var(--ims-color-border-subtle);
     }
 
     .ims-datepicker__shortcuts--today-only {
@@ -199,32 +201,8 @@
     .ims-datepicker__shortcut {
         min-height: 1.85rem;
         padding: 0.25rem;
-        border: 0;
-        border-radius: 0.5rem;
-        background: transparent;
-        color: inherit;
-        font: inherit;
         font-size: 0.72rem;
         font-weight: 650;
-        cursor: pointer;
-
-        &:hover:not(:disabled) {
-            background: color-mix(in oklch, var(--ims-datepicker-primary) 10%, transparent);
-        }
-
-        &:focus-visible {
-            outline: 3px solid color-mix(
-                in oklch,
-                var(--ims-datepicker-primary) 24%,
-                transparent
-            );
-            outline-offset: 1px;
-        }
-
-        &:disabled {
-            opacity: 0.32;
-            cursor: not-allowed;
-        }
     }
 
     .ims-datepicker__weekdays,
@@ -238,7 +216,7 @@
     .ims-datepicker__weekdays {
         span {
             padding: 0.45rem 0;
-            color: color-mix(in oklch, currentColor 55%, transparent);
+            color: var(--ims-color-on-surface-muted);
             font-size: 0.72rem;
             font-weight: 700;
             text-align: center;
@@ -252,43 +230,46 @@
     }
 
     .ims-datepicker__cell--today {
-        box-shadow: inset 0 0 0 2px var(--ims-datepicker-primary);
-        color: var(--ims-datepicker-primary);
+        box-shadow: inset 0 0 0 2px var(--ims-color-interactive);
+        color: var(--ims-color-interactive-strong);
         font-weight: 750;
-    }
 
-    .ims-datepicker__cell--active {
         &:focus-visible {
-            outline: 3px solid var(--ims-datepicker-primary);
-            outline-offset: -3px;
+            box-shadow:
+                inset 0 0 0 2px var(--ims-color-interactive),
+                0 0 0 3px var(--ims-color-focus-ring);
         }
     }
 
     .ims-datepicker__cell--active:not(.ims-datepicker__cell--selected) {
-        background: color-mix(
-            in oklch,
-            var(--ims-datepicker-primary) 18%,
-            transparent
-        );
+        background: var(--ims-color-interactive-subtle);
     }
 
     .ims-datepicker__cell--selected {
-        background: var(--ims-datepicker-primary);
-        color: var(--ims-datepicker-on-primary);
+        background: var(--ims-color-interactive);
+        color: var(--ims-color-on-interactive);
         font-weight: 750;
 
         &:hover:not(:disabled) {
-            background: color-mix(
-                in oklch,
-                var(--ims-datepicker-primary) 88%,
-                black
-            );
+            background: var(--ims-color-interactive-strong);
         }
     }
 
     .ims-datepicker__cell--today.ims-datepicker__cell--selected {
-        box-shadow: inset 0 0 0 2px var(--ims-datepicker-on-primary);
-        color: var(--ims-datepicker-on-primary);
+        box-shadow: inset 0 0 0 2px var(--ims-color-on-interactive);
+        color: var(--ims-color-on-interactive);
+
+        &:focus-visible {
+            box-shadow:
+                inset 0 0 0 2px var(--ims-color-on-interactive),
+                0 0 0 3px var(--ims-color-focus-ring);
+        }
+    }
+
+    .ims-datepicker__cell:disabled {
+        background: transparent;
+        color: var(--ims-color-on-surface-disabled);
+        box-shadow: none;
     }
 
     .ims-datepicker__day {
@@ -322,10 +303,6 @@
         &:focus-within {
             .ims-datepicker__cell--active {
                 z-index: 1;
-            }
-
-            .ims-datepicker__cell--active.ims-datepicker__cell--selected {
-                outline-offset: 2px;
             }
         }
 

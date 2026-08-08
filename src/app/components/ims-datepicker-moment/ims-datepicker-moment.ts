@@ -138,7 +138,7 @@ function provideDatepickerValidator(type: Type<unknown>) {
         provideDatepickerValidator(ImsDatepickerMoment)
     ],
     host: {
-        class: 'ims-datepicker-host'
+        class: 'ims-datepicker-host ims-input-host'
     }
 })
 export class ImsDatepickerMoment
