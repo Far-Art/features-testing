@@ -1,60 +1,38 @@
-# IMS Moment Datepicker
+# IMS Datepicker Moment Value Handler
 
-`ImsDatepickerMoment` is the Moment-specific datepicker implementation. Its
-Angular forms value is `Moment | number | null | undefined`; set
-`valueType="millis"` to force epoch-millisecond output when the initial value is
-empty.
+The Moment adapter uses the shared `ImsDatepicker` component. It converts valid
+Moment objects and epoch-millisecond numbers into the component's internal UTC
+calendar representation, and creates UTC Moment objects for concrete outputs.
+
+Per-instance usage:
 
 ```ts
+import {ImsDatepicker} from '../ims-datepicker';
 import {
-    ImsDatepickerMoment,
-    provideImsDatepickerMomentConfig
-} from './components/ims-datepicker-moment';
+    ImsDatepickerMomentValue,
+    ImsDatepickerMomentValueHandlerDirective
+} from '../ims-datepicker-moment';
 ```
 
 ```html
-<ims-datepicker-moment [formControl]="date" />
+<ims-datepicker
+    imsDatepickerMoment
+    [formControl]="momentDate"
+/>
 ```
 
-The component shares the global `src/styles/ims-datepicker.scss` styles with
-the other datepicker implementations.
-
-## Supported Value Types
+Use `ImsDatepickerMomentValue` for the form value type:
 
 ```ts
-type ImsDatepickerMomentValue =
-    | Moment
-    | number
-    | null
-    | undefined;
+type ImsDatepickerMomentValue = Moment | number | null | undefined;
 ```
 
-Accepted Angular form values, direct values, and `min`/`max` constraints are:
+To select Moment for every datepicker under an injector instead, register:
 
-| Value | Meaning |
-| --- | --- |
-| `Moment` | A valid Moment value; its calendar date is normalized by the component. |
-| `number` | A finite epoch-millisecond instant interpreted in the configured `zone`. |
-| `null` | An explicitly empty value. |
-| `undefined` | An unset value; treated as empty. |
+```ts
+provideImsDatepickerMomentValueHandler()
+```
 
-The component never writes a string to the Angular form. Text entered in the
-native input is parsed and then emitted as `Moment`, `number`, or `null`. The
-`format` input controls full-date versus month-only precision; it does not
-change the value's TypeScript type.
-
-Output is controlled by `valueType`:
-
-| `valueType` | Committed output |
-| --- | --- |
-| `'moment'` | A UTC `Moment` normalized to the selected calendar date. |
-| `'millis'` | An epoch-millisecond `number` for UTC midnight. |
-| `null` or omitted | Inferred from the most recent valid `Moment` or `number`; defaults to `'moment'`. |
-
-## Injectable Date Parser
-
-This adapter uses the shared `IMS_DATEPICKER_PARSER` from `ims-datepicker`.
-The parser returns UTC-midnight epoch milliseconds, which this component
-converts to a UTC `Moment`. Import `ImsDatepickerParser`,
-`ImsDatepickerParserOptions`, and `provideImsDatepickerParser` from this package
-to register the same custom parser API described in the stable datepicker guide.
+`valueType="date"` emits a UTC `Moment`; `valueType="millis"` emits UTC-midnight
+epoch milliseconds. When `valueType` is omitted, output is inferred from the
+received value and defaults to the concrete Moment object.

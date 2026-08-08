@@ -17,7 +17,7 @@ import {
 ```
 
 The component shares the global `src/styles/ims-datepicker.scss` styles with
-the stable and Moment implementations.
+the stable value-handler-based datepicker.
 
 ## Supported Value Types
 

@@ -74,7 +74,7 @@ export function isDateInputTextAllowed(
 }
 
 export function normalizeDateValue(
-    value: ImsDatepickerValue,
+    value: ImsDatepickerValue<Date>,
     interpretationZone: string,
     precision: ImsDatepickerPrecision,
     monthDay: ImsDatepickerMonthDay

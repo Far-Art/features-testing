@@ -1,13 +1,17 @@
 import {InjectionToken, Provider} from '@angular/core';
+import type {DateTime} from 'luxon';
 
 export type ImsDatepickerPrecision = 'dd/MM/yyyy' | 'MM/yyyy';
 export type ImsDatepickerDate = Date;
-export type ImsDatepickerValue = ImsDatepickerDate | number | null | undefined;
+export type ImsDatepickerValue<TDate extends object = DateTime> =
+    TDate | number | null | undefined;
+export type ImsDatepickerAnyValue = ImsDatepickerValue<object>;
 export type ImsDatepickerValueType = 'date' | 'millis';
 export type ImsDatepickerMonthDay = 'start' | 'end';
 export type ImsDatepickerView = 'day' | 'month' | 'year';
 export type ImsDatepickerFirstDayOfWeek = 1 | 7;
-export type ImsDatepickerDateFilter = (date: ImsDatepickerDate) => boolean;
+export type ImsDatepickerDateFilter<TDate extends object = DateTime> =
+    (date: TDate) => boolean;
 
 export interface ImsDatepickerLabels {
     readonly openCalendar: string;
@@ -46,19 +50,19 @@ export interface ImsDatepickerFormats {
     };
 }
 
-export interface ImsDatepickerConfig {
-    readonly min?: ImsDatepickerValue;
-    readonly max?: ImsDatepickerValue;
+export interface ImsDatepickerConfig<TDate extends object = DateTime> {
+    readonly min?: ImsDatepickerValue<TDate>;
+    readonly max?: ImsDatepickerValue<TDate>;
     /**
      * Global strict date filter. An instance filter can further restrict dates,
      * but cannot enable a date rejected by this predicate.
      */
-    readonly dateFilter?: ImsDatepickerDateFilter;
+    readonly dateFilter?: ImsDatepickerDateFilter<TDate>;
     readonly valueType?: ImsDatepickerValueType;
     readonly locale?: string;
     /**
      * Zone used to interpret millisecond inputs and obtain the current calendar
-     * date. Date and millisecond outputs are serialized at UTC midnight.
+     * date. Concrete handler values and millisecond outputs represent UTC midnight.
      */
     readonly zone?: string;
     readonly firstDayOfWeek?: ImsDatepickerFirstDayOfWeek;
@@ -109,12 +113,14 @@ export const IMS_DATEPICKER_DEFAULT_LABELS: ImsDatepickerLabels = {
     week: 'Week'
 };
 
-export const IMS_DATEPICKER_CONFIG = new InjectionToken<ImsDatepickerConfig>(
+export const IMS_DATEPICKER_CONFIG = new InjectionToken<ImsDatepickerConfig<object>>(
     'IMS_DATEPICKER_CONFIG',
     {factory: () => ({})}
 );
 
-export function provideImsDatepickerConfig(config: ImsDatepickerConfig): Provider {
+export function provideImsDatepickerConfig<TDate extends object = DateTime>(
+    config: ImsDatepickerConfig<TDate>
+): Provider {
     return {
         provide: IMS_DATEPICKER_CONFIG,
         useValue: config

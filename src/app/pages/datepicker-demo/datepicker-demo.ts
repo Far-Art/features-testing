@@ -2,10 +2,12 @@ import {JsonPipe} from '@angular/common';
 import {Component, signal, ChangeDetectionStrategy} from '@angular/core';
 import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {Temporal} from '@js-temporal/polyfill';
+import {DateTime} from 'luxon';
 import moment from 'moment';
 import type {Moment} from 'moment';
 import {
     ImsDatepicker,
+    ImsDatepickerDateValueHandlerDirective,
     ImsDatepickerValue
 } from '../../components/ims-datepicker';
 import {
@@ -14,10 +16,12 @@ import {
     provideImsDatepickerExperimentalConfig
 } from '../../components/ims-datepicker-experimental';
 import {
-    ImsDatepickerMoment,
     ImsDatepickerMomentValue,
-    provideImsDatepickerMomentConfig
+    ImsDatepickerMomentValueHandlerDirective
 } from '../../components/ims-datepicker-moment';
+import {
+    ImsDatepickerLuxonValue
+} from '../../components/ims-datepicker-luxon';
 import {ReadonlyDirective} from '../../shared/readonly.directive';
 import {TemporalHelper} from '../../shared/temporal.helper';
 
@@ -28,16 +32,12 @@ import {TemporalHelper} from '../../shared/temporal.helper';
         ReactiveFormsModule,
         JsonPipe,
         ImsDatepicker,
-        ImsDatepickerMoment,
+        ImsDatepickerDateValueHandlerDirective,
+        ImsDatepickerMomentValueHandlerDirective,
         ImsDatepickerExperimental,
         ReadonlyDirective
     ],
     providers: [
-        provideImsDatepickerMomentConfig({
-            locale: 'he',
-            zone: 'Asia/Jerusalem',
-            firstDayOfWeek: 7
-        }),
         provideImsDatepickerExperimentalConfig({
             locale: 'he',
             zone: 'Asia/Jerusalem',
@@ -49,13 +49,13 @@ import {TemporalHelper} from '../../shared/temporal.helper';
     styleUrl: './datepicker-demo.scss'
 })
 export class DatepickerDemo {
-    readonly dateControl = new FormControl<ImsDatepickerValue>(
+    readonly dateControl = new FormControl<NativeDatepickerValue>(
         utcDate(2026, 6, 7)
     );
-    readonly monthControl = new FormControl<ImsDatepickerValue>(
+    readonly monthControl = new FormControl<NativeDatepickerValue>(
         Date.UTC(2026, 5, 30)
     );
-    readonly readonlyDateControl = new FormControl<ImsDatepickerValue>(
+    readonly readonlyDateControl = new FormControl<NativeDatepickerValue>(
         utcDate(2026, 8, 8)
     );
     readonly temporalControl = new FormControl<ImsDatepickerExperimentalValue>(
@@ -64,12 +64,15 @@ export class DatepickerDemo {
     readonly momentControl = new FormControl<ImsDatepickerMomentValue>(
         moment.utc([2026, 5, 7])
     );
-    readonly min = signal<ImsDatepickerValue>(utcDate(2020, 1, 1));
-    readonly max = signal<ImsDatepickerValue>(utcDate(2035, 12, 31));
+    readonly luxonControl = new FormControl<ImsDatepickerLuxonValue>(
+        DateTime.utc(2026, 6, 7)
+    );
+    readonly min = signal<NativeDatepickerValue>(utcDate(2020, 1, 1));
+    readonly max = signal<NativeDatepickerValue>(utcDate(2035, 12, 31));
     readonly readonlyEnabled = signal(true);
     readonly datepickerEvent = signal('—');
 
-    templateDate: ImsDatepickerValue = null;
+    templateDate: NativeDatepickerValue = null;
 
     readonly customFormats = {
         parse: {
@@ -94,17 +97,16 @@ export class DatepickerDemo {
         this.readonlyEnabled.update((enabled) => !enabled);
     }
 
-    logDatepickerEvent(name: string, value?: ImsDatepickerValue): void {
+    logDatepickerEvent(name: string, value?: unknown): void {
         const detail = value === undefined ? '' : `: ${this.describe(value)}`;
         this.datepickerEvent.set(`${name}${detail}`);
     }
 
-    describe(
-        value: ImsDatepickerValue | ImsDatepickerExperimentalValue | ImsDatepickerMomentValue
-    ): string {
+    describe(value: unknown): string {
         if (value instanceof Date) return value.toISOString();
         if (value instanceof Temporal.PlainDate) return value.toString();
         if (moment.isMoment(value)) return (value as Moment).toISOString();
+        if (DateTime.isDateTime(value)) return value.toISO() ?? 'Invalid DateTime';
         return value === null || value === undefined ? 'null' : String(value);
     }
 }
@@ -112,3 +114,5 @@ export class DatepickerDemo {
 function utcDate(year: number, month: number, day: number): Date {
     return new Date(Date.UTC(year, month - 1, day));
 }
+
+type NativeDatepickerValue = ImsDatepickerValue<Date>;

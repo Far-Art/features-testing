@@ -29,9 +29,11 @@ import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value
 import {ReadonlyDirective} from '../../shared/readonly.directive';
 import {runScopedViewTransition} from '../../shared/view-transition';
 import {IMS_DATEPICKER_PARSER} from './ims-datepicker.parser';
+import {IMS_DATEPICKER_VALUE_HANDLER} from './ims-datepicker.value-handler';
 import {
     IMS_DATEPICKER_CONFIG,
     IMS_DATEPICKER_DEFAULT_LABELS,
+    ImsDatepickerAnyValue,
     ImsDatepickerDate,
     ImsDatepickerDateFilter,
     ImsDatepickerFirstDayOfWeek,
@@ -39,7 +41,6 @@ import {
     ImsDatepickerLabels,
     ImsDatepickerMonthDay,
     ImsDatepickerPrecision,
-    ImsDatepickerValue,
     ImsDatepickerValueType,
     ImsDatepickerView,
     PartialImsDatepickerFormats,
@@ -148,10 +149,11 @@ function provideDatepickerValidator(type: Type<unknown>) {
     }
 })
 export class ImsDatepicker
-    extends BasicValueAccessor<ImsDatepickerValue>
+    extends BasicValueAccessor<ImsDatepickerAnyValue>
     implements Validator {
     private readonly globalConfig = inject(IMS_DATEPICKER_CONFIG);
     private readonly dateParser = inject(IMS_DATEPICKER_PARSER);
+    private readonly valueHandler = inject(IMS_DATEPICKER_VALUE_HANDLER);
     private readonly angularLocale = inject(LOCALE_ID);
     private readonly changeDetectorRef = inject(ChangeDetectorRef);
     readonly directionality = inject(Directionality);
@@ -185,9 +187,9 @@ export class ImsDatepicker
 
     /** Selection precision. This is independent from the configured display format. */
     readonly format = input<ImsDatepickerPrecision>('dd/MM/yyyy');
-    readonly min = input<ImsDatepickerValue>(null);
-    readonly max = input<ImsDatepickerValue>(null);
-    readonly dateFilter = input<ImsDatepickerDateFilter | null>(null);
+    readonly min = input<ImsDatepickerAnyValue>(null);
+    readonly max = input<ImsDatepickerAnyValue>(null);
+    readonly dateFilter = input<ImsDatepickerDateFilter<any> | null>(null);
     readonly valueType = input<ImsDatepickerValueType | null>(null);
     readonly monthDay = input<ImsDatepickerMonthDay>('start');
     readonly formats = input<PartialImsDatepickerFormats | null>(null);
@@ -204,7 +206,7 @@ export class ImsDatepicker
     readonly opened = output<void>();
     readonly closed = output<void>();
     readonly viewChanged = output<ImsDatepickerView>();
-    readonly dateChange = output<ImsDatepickerValue>();
+    readonly dateChange = output<ImsDatepickerAnyValue>();
 
     readonly open = signal(false);
     readonly rawText = signal('');
@@ -252,25 +254,22 @@ export class ImsDatepicker
     }));
 
     readonly globalMin = computed(() =>
-        normalizeDateValue(
+        this.normalizeExternalValue(
             this.globalConfig.min,
-            this.interpretationZone(),
             'dd/MM/yyyy',
             'start'
         ) ?? DEFAULT_MIN
     );
     readonly globalMax = computed(() =>
-        normalizeDateValue(
+        this.normalizeExternalValue(
             this.globalConfig.max,
-            this.interpretationZone(),
             'dd/MM/yyyy',
             'start'
         ) ?? DEFAULT_MAX
     );
     readonly effectiveMin = computed(() => {
-        const instanceMin = normalizeDateValue(
+        const instanceMin = this.normalizeExternalValue(
             this.min(),
-            this.interpretationZone(),
             'dd/MM/yyyy',
             'start'
         );
@@ -278,9 +277,8 @@ export class ImsDatepicker
         return instanceMin && compareDateOnly(instanceMin, globalMin) > 0 ? instanceMin : globalMin;
     });
     readonly effectiveMax = computed(() => {
-        const instanceMax = normalizeDateValue(
+        const instanceMax = this.normalizeExternalValue(
             this.max(),
-            this.interpretationZone(),
             'dd/MM/yyyy',
             'start'
         );
@@ -289,9 +287,8 @@ export class ImsDatepicker
     });
 
     readonly normalizedValue = computed(() =>
-        normalizeDateValue(
+        this.normalizeExternalValue(
             this.value(),
-            this.interpretationZone(),
             this.format(),
             this.monthDay()
         )
@@ -434,7 +431,7 @@ export class ImsDatepicker
             const rawValue = this.value();
             if (typeof rawValue === 'number') {
                 this.inferredValueType.set('millis');
-            } else if (isNativeDate(rawValue)) {
+            } else if (this.valueHandler.isValue(rawValue)) {
                 this.inferredValueType.set('date');
             }
 
@@ -481,19 +478,18 @@ export class ImsDatepicker
         }, {allowSignalWrites: true});
     }
 
-    override writeValue(value: ImsDatepickerValue): void {
+    override writeValue(value: ImsDatepickerAnyValue): void {
         this.userEditing.set(false);
         this.value.set(value);
     }
 
-    validate(control: AbstractControl<ImsDatepickerValue>): ValidationErrors | null {
+    validate(control: AbstractControl<ImsDatepickerAnyValue>): ValidationErrors | null {
         if (this.parseInvalid()) {
             return {imsDatepickerParse: {text: this.rawText()}};
         }
 
-        const value = normalizeDateValue(
+        const value = this.normalizeExternalValue(
             control.value,
-            this.interpretationZone(),
             this.format(),
             this.monthDay()
         );
@@ -950,10 +946,27 @@ export class ImsDatepicker
         this.dateChange.emit(serialized);
     }
 
-    private serialize(value: ImsDatepickerDate): ImsDatepickerDate | number {
+    private serialize(value: ImsDatepickerDate): object | number {
         return this.outputType() === 'millis'
             ? toUtcEpochMillis(value)
-            : new Date(value.getTime());
+            : this.valueHandler.fromCalendarMillis(toUtcEpochMillis(value));
+    }
+
+    private normalizeExternalValue(
+        value: unknown,
+        precision: ImsDatepickerPrecision,
+        monthDay: ImsDatepickerMonthDay
+    ): ImsDatepickerDate | null {
+        const calendarMillis = this.valueHandler.toCalendarMillis(
+            value,
+            this.interpretationZone()
+        );
+        if (calendarMillis === null) return null;
+
+        const calendarDate = new Date(calendarMillis);
+        if (!isNativeDate(calendarDate)) return null;
+
+        return normalizeDateValue(calendarDate, 'UTC', precision, monthDay);
     }
 
     private formatValue(
@@ -977,8 +990,9 @@ export class ImsDatepicker
     private passesDateFilters(date: ImsDatepickerDate): boolean {
         const globalFilter = this.globalConfig.dateFilter;
         const instanceFilter = this.dateFilter();
-        return (!globalFilter || globalFilter(date))
-            && (!instanceFilter || instanceFilter(date));
+        const externalDate = this.valueHandler.fromCalendarMillis(toUtcEpochMillis(date));
+        return (!globalFilter || globalFilter(externalDate))
+            && (!instanceFilter || instanceFilter(externalDate));
     }
 
     private monthValue(year: number, month: number): ImsDatepickerDate {
