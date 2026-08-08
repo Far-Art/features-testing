@@ -196,7 +196,6 @@ export class ImsDatepicker
     readonly firstDayOfWeek = input<ImsDatepickerFirstDayOfWeek | null>(null);
     readonly labels = input<PartialImsDatepickerLabels | null>(null);
     readonly clearable = input(true, {transform: booleanAttribute});
-    readonly allowOpenWhenReadonly = input(true, {transform: booleanAttribute});
     readonly showWeekNumbers = input(false, {transform: booleanAttribute});
     readonly placeholder = input<string | null>(null);
     readonly ariaLabel = input<string | null>(null, {alias: 'ariaLabel'});
@@ -227,9 +226,6 @@ export class ImsDatepicker
     readonly interactionDisabled = computed(() => this.disabled() || this.inheritedReadonly());
     /** Distinguishes readonly styling from the lower-emphasis disabled state. */
     readonly readonlyMode = this.inheritedReadonly;
-    readonly canOpenPicker = computed(() =>
-        !this.disabled() && (!this.readonlyMode() || this.allowOpenWhenReadonly())
-    );
     readonly canClear = computed(() =>
         this.clearable() && this.rawText().length > 0 && !this.interactionDisabled()
     );
@@ -466,14 +462,11 @@ export class ImsDatepicker
         });
 
         effect(() => {
-            const disabled = this.disabled();
-            const readonly = this.readonlyMode();
-            const allowReadonlyReview = this.allowOpenWhenReadonly();
+            const interactionDisabled = this.interactionDisabled();
+            if (!interactionDisabled) return;
 
-            if ((disabled || (readonly && !allowReadonlyReview)) && this.open()) {
-                this.closePicker();
-            }
-            if ((disabled || readonly) && this.userEditing()) this.userEditing.set(false);
+            if (this.open()) this.closePicker();
+            if (this.userEditing()) this.userEditing.set(false);
         }, {allowSignalWrites: true});
 
         effect(() => {
@@ -607,7 +600,7 @@ export class ImsDatepicker
     }
 
     togglePicker(): void {
-        if (!this.canOpenPicker()) return;
+        if (this.interactionDisabled()) return;
 
         if (this.open()) {
             this.closePicker();
@@ -617,9 +610,9 @@ export class ImsDatepicker
     }
 
     openPicker(): void {
-        if (!this.canOpenPicker() || this.open()) return;
+        if (this.interactionDisabled() || this.open()) return;
 
-        if (this.userEditing() && !this.readonlyMode()) this.commitText();
+        if (this.userEditing()) this.commitText();
         const base = this.normalizedValue() ?? this.today();
         const view = this.format() === 'dd/MM/yyyy' ? 'day' : 'month';
         this.calendarView.set(view);

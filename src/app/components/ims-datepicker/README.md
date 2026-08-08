@@ -100,7 +100,6 @@ The global stylesheet must include:
 | `firstDayOfWeek` | `1 \| 7 \| null` | `null` | Monday or Sunday grid start. |
 | `labels` | `PartialImsDatepickerLabels \| null` | `null` | Instance text and accessible-label translations. |
 | `clearable` | `boolean` | `true` | Shows a clear action when the control contains text. |
-| `allowOpenWhenReadonly` | `boolean` | `true` | Allows calendar navigation without value changes in readonly mode. |
 | `showWeekNumbers` | `boolean` | `false` | Shows informational ISO week numbers in the day view. |
 | `placeholder` | `string \| null` | `null` | Input placeholder override. |
 | `ariaLabel` | `string \| null` | `null` | Accessible input label. |
@@ -109,11 +108,9 @@ The global stylesheet must include:
 | `disabled` | `boolean` | `false` | Inherited from `BasicValueAccessor`; combined with form disabled state. |
 
 The component also consumes the nearest `ReadonlyDirective` provider. Applying
-`[ims-readonly]` to the datepicker or an ancestor prevents text editing and value
-changes while preserving a readable, enabled-like value style. By default the
-calendar can still open for review, including period and view navigation. Set
-`allowOpenWhenReadonly="false"` to disable the trigger and close an open overlay
-when readonly becomes active.
+`[ims-readonly]` to the datepicker or an ancestor prevents text editing, disables
+the calendar trigger, and blocks value changes while preserving a readable,
+enabled-like value style. An open overlay closes when readonly becomes active.
 
 The component supports reactive forms, template-driven forms, and direct value
 binding through the inherited value model.
@@ -446,8 +443,8 @@ Templates use `{period}` and `{count}` placeholders where applicable.
 ## Accessibility
 
 - The overlay is a modal dialog with `cdkTrapFocus`.
-- Readonly state is exposed on the native input and calendar grids with
-  `aria-readonly`; value selection remains blocked during calendar review.
+- Readonly state is exposed on the native input with `aria-readonly` and disables
+  the calendar trigger.
 - Each calendar is a `role="grid"`.
 - Cells use `role="gridcell"`, row/column indexes, `aria-selected`, and disabled
   state.

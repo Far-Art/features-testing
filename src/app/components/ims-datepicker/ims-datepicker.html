@@ -54,7 +54,7 @@
         [attr.aria-label]="open() ? effectiveLabels().closeCalendar : effectiveLabels().openCalendar"
         [attr.aria-controls]="open() ? dialogId : null"
         [attr.aria-expanded]="open()"
-        [disabled]="!canOpenPicker()"
+        [disabled]="interactionDisabled()"
         (click)="togglePicker()"
     >
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
