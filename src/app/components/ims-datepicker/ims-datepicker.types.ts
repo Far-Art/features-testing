@@ -1,10 +1,9 @@
 import {InjectionToken, Provider} from '@angular/core';
-import {Temporal} from '@js-temporal/polyfill';
 
 export type ImsDatepickerPrecision = 'dd/MM/yyyy' | 'MM/yyyy';
-export type ImsDatepickerDate = Temporal.PlainDate;
+export type ImsDatepickerDate = Date;
 export type ImsDatepickerValue = ImsDatepickerDate | number | null | undefined;
-export type ImsDatepickerValueType = 'temporal' | 'millis';
+export type ImsDatepickerValueType = 'date' | 'millis';
 export type ImsDatepickerMonthDay = 'start' | 'end';
 export type ImsDatepickerView = 'day' | 'month' | 'year';
 export type ImsDatepickerFirstDayOfWeek = 1 | 7;
@@ -37,7 +36,7 @@ export interface ImsDatepickerConfig {
     readonly locale?: string;
     /**
      * Zone used to interpret millisecond inputs and obtain the current calendar
-     * date. Millisecond outputs are serialized at UTC midnight.
+     * date. Date and millisecond outputs are serialized at UTC midnight.
      */
     readonly zone?: string;
     readonly firstDayOfWeek?: ImsDatepickerFirstDayOfWeek;

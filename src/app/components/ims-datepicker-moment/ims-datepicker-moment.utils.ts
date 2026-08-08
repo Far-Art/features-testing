@@ -1,20 +1,21 @@
+import moment from 'moment';
 import {
-    IMS_DATEPICKER_DEFAULT_FORMATS,
-    ImsDatepickerDate,
-    ImsDatepickerFirstDayOfWeek,
-    ImsDatepickerFormats,
-    ImsDatepickerMonthDay,
-    ImsDatepickerPrecision,
-    ImsDatepickerValue,
-    PartialImsDatepickerFormats
-} from './ims-datepicker.types';
+    IMS_DATEPICKER_MOMENT_DEFAULT_FORMATS,
+    ImsDatepickerMomentCalendarDate,
+    ImsDatepickerMomentFirstDayOfWeek,
+    ImsDatepickerMomentFormats,
+    ImsDatepickerMomentMonthDay,
+    ImsDatepickerMomentPrecision,
+    ImsDatepickerMomentValue,
+    PartialImsDatepickerMomentFormats
+} from './ims-datepicker-moment.types';
 
 const UTC_TIME_ZONE = 'UTC';
 const FORMAT_TOKEN_PATTERN = /yyyy|yy|LLLL|LLL|MMMM|MMM|cccc|ccc|EEEE|EEE|dd|d|MM|M/g;
 const FORMAT_PARSE_TOKENS = ['yyyy', 'yy', 'dd', 'd', 'MM', 'M'] as const;
 
-export const IMS_DATEPICKER_INPUT_PATTERNS: Readonly<
-    Record<ImsDatepickerPrecision, string>
+export const IMS_DATEPICKER_MOMENT_INPUT_PATTERNS: Readonly<
+    Record<ImsDatepickerMomentPrecision, string>
 > = {
     'dd/MM/yyyy': '[0-9]+(?:(?:/|\\.|-| )[0-9]+){0,2}',
     'MM/yyyy': '[0-9]+(?:(?:/|\\.|-| )[0-9]+)?'
@@ -33,15 +34,15 @@ interface ParsedFormatPart {
 }
 
 export interface ImsDateParseOptions {
-    readonly precision: ImsDatepickerPrecision;
-    readonly monthDay: ImsDatepickerMonthDay;
-    readonly formats: ImsDatepickerFormats;
+    readonly precision: ImsDatepickerMomentPrecision;
+    readonly monthDay: ImsDatepickerMomentMonthDay;
+    readonly formats: ImsDatepickerMomentFormats;
     readonly locale: string;
     readonly interpretationZone: string;
-    readonly now?: ImsDatepickerDate;
+    readonly now?: ImsDatepickerMomentCalendarDate;
 }
 
-export function canonicalDate(year: number, month: number, day: number): ImsDatepickerDate | null {
+export function canonicalDate(year: number, month: number, day: number): ImsDatepickerMomentCalendarDate | null {
     if (
         !Number.isInteger(year)
         || !Number.isInteger(month)
@@ -60,13 +61,17 @@ export function canonicalDate(year: number, month: number, day: number): ImsDate
         : null;
 }
 
-export function isNativeDate(value: unknown): value is ImsDatepickerDate {
+export function isNativeDate(value: unknown): value is ImsDatepickerMomentCalendarDate {
     return value instanceof Date && Number.isFinite(value.getTime());
+}
+
+export function isMomentDate(value: unknown): value is import('moment').Moment {
+    return moment.isMoment(value) && value.isValid();
 }
 
 export function isDateInputTextAllowed(
     text: string,
-    precision: ImsDatepickerPrecision
+    precision: ImsDatepickerMomentPrecision
 ): boolean {
     return precision === 'dd/MM/yyyy'
         ? PROGRESSIVE_DATE_INPUT.test(text)
@@ -74,14 +79,14 @@ export function isDateInputTextAllowed(
 }
 
 export function normalizeDateValue(
-    value: ImsDatepickerValue,
+    value: ImsDatepickerMomentValue | ImsDatepickerMomentCalendarDate,
     interpretationZone: string,
-    precision: ImsDatepickerPrecision,
-    monthDay: ImsDatepickerMonthDay
-): ImsDatepickerDate | null {
+    precision: ImsDatepickerMomentPrecision,
+    monthDay: ImsDatepickerMomentMonthDay
+): ImsDatepickerMomentCalendarDate | null {
     if (value === null || value === undefined) return null;
 
-    let source: ImsDatepickerDate;
+    let source: ImsDatepickerMomentCalendarDate;
 
     if (typeof value === 'number') {
         if (!Number.isFinite(value)) return null;
@@ -91,6 +96,8 @@ export function normalizeDateValue(
         source = canonicalDate(parts.year, parts.month, parts.day)!;
     } else if (isNativeDate(value)) {
         source = value;
+    } else if (isMomentDate(value)) {
+        source = canonicalDate(value.year(), value.month() + 1, value.date())!;
     } else {
         return null;
     }
@@ -107,7 +114,7 @@ export function normalizeDateValue(
 export function parseDateText(
     text: string,
     options: ImsDateParseOptions
-): ImsDatepickerDate | null {
+): ImsDatepickerMomentCalendarDate | null {
     const trimmed = text.trim();
     if (!trimmed || !ALLOWED_INPUT.test(trimmed)) return null;
 
@@ -125,83 +132,83 @@ export function parseDateText(
 }
 
 export function mergeDatepickerFormats(
-    globalFormats?: PartialImsDatepickerFormats,
-    instanceFormats?: PartialImsDatepickerFormats
-): ImsDatepickerFormats {
+    globalFormats?: PartialImsDatepickerMomentFormats,
+    instanceFormats?: PartialImsDatepickerMomentFormats
+): ImsDatepickerMomentFormats {
     return {
         parse: {
             dateInput: instanceFormats?.parse?.dateInput
                 ?? globalFormats?.parse?.dateInput
-                ?? IMS_DATEPICKER_DEFAULT_FORMATS.parse.dateInput,
+                ?? IMS_DATEPICKER_MOMENT_DEFAULT_FORMATS.parse.dateInput,
             monthInput: instanceFormats?.parse?.monthInput
                 ?? globalFormats?.parse?.monthInput
-                ?? IMS_DATEPICKER_DEFAULT_FORMATS.parse.monthInput
+                ?? IMS_DATEPICKER_MOMENT_DEFAULT_FORMATS.parse.monthInput
         },
         display: {
             dateInput: instanceFormats?.display?.dateInput
                 ?? globalFormats?.display?.dateInput
-                ?? IMS_DATEPICKER_DEFAULT_FORMATS.display.dateInput,
+                ?? IMS_DATEPICKER_MOMENT_DEFAULT_FORMATS.display.dateInput,
             monthInput: instanceFormats?.display?.monthInput
                 ?? globalFormats?.display?.monthInput
-                ?? IMS_DATEPICKER_DEFAULT_FORMATS.display.monthInput,
+                ?? IMS_DATEPICKER_MOMENT_DEFAULT_FORMATS.display.monthInput,
             monthLabel: instanceFormats?.display?.monthLabel
                 ?? globalFormats?.display?.monthLabel
-                ?? IMS_DATEPICKER_DEFAULT_FORMATS.display.monthLabel,
+                ?? IMS_DATEPICKER_MOMENT_DEFAULT_FORMATS.display.monthLabel,
             yearLabel: instanceFormats?.display?.yearLabel
                 ?? globalFormats?.display?.yearLabel
-                ?? IMS_DATEPICKER_DEFAULT_FORMATS.display.yearLabel,
+                ?? IMS_DATEPICKER_MOMENT_DEFAULT_FORMATS.display.yearLabel,
             monthYearLabel: instanceFormats?.display?.monthYearLabel
                 ?? globalFormats?.display?.monthYearLabel
-                ?? IMS_DATEPICKER_DEFAULT_FORMATS.display.monthYearLabel,
+                ?? IMS_DATEPICKER_MOMENT_DEFAULT_FORMATS.display.monthYearLabel,
             dayAriaLabel: instanceFormats?.display?.dayAriaLabel
                 ?? globalFormats?.display?.dayAriaLabel
-                ?? IMS_DATEPICKER_DEFAULT_FORMATS.display.dayAriaLabel
+                ?? IMS_DATEPICKER_MOMENT_DEFAULT_FORMATS.display.dayAriaLabel
         }
     };
 }
 
-export function compareDateOnly(first: ImsDatepickerDate, second: ImsDatepickerDate): number {
+export function compareDateOnly(first: ImsDatepickerMomentCalendarDate, second: ImsDatepickerMomentCalendarDate): number {
     return Math.sign(first.getTime() - second.getTime());
 }
 
 export function clampDate(
-    value: ImsDatepickerDate,
-    min: ImsDatepickerDate,
-    max: ImsDatepickerDate
-): ImsDatepickerDate {
+    value: ImsDatepickerMomentCalendarDate,
+    min: ImsDatepickerMomentCalendarDate,
+    max: ImsDatepickerMomentCalendarDate
+): ImsDatepickerMomentCalendarDate {
     if (compareDateOnly(value, min) < 0) return min;
     if (compareDateOnly(value, max) > 0) return max;
     return value;
 }
 
-export function todayInZone(interpretationZone: string): ImsDatepickerDate {
+export function todayInZone(interpretationZone: string): ImsDatepickerMomentCalendarDate {
     const now = Date.now();
     const parts = datePartsInZone(now, resolveTimeZoneId(interpretationZone))
         ?? datePartsInZone(now, 'UTC')!;
     return canonicalDate(parts.year, parts.month, parts.day)!;
 }
 
-export function toUtcEpochMillis(value: ImsDatepickerDate): number {
+export function toUtcEpochMillis(value: ImsDatepickerMomentCalendarDate): number {
     return value.getTime();
 }
 
-export function dateYear(value: ImsDatepickerDate): number {
+export function dateYear(value: ImsDatepickerMomentCalendarDate): number {
     return value.getUTCFullYear();
 }
 
-export function dateMonth(value: ImsDatepickerDate): number {
+export function dateMonth(value: ImsDatepickerMomentCalendarDate): number {
     return value.getUTCMonth() + 1;
 }
 
-export function dateDay(value: ImsDatepickerDate): number {
+export function dateDay(value: ImsDatepickerMomentCalendarDate): number {
     return value.getUTCDate();
 }
 
-export function dateDayOfWeek(value: ImsDatepickerDate): number {
+export function dateDayOfWeek(value: ImsDatepickerMomentCalendarDate): number {
     return value.getUTCDay() || 7;
 }
 
-export function daysInMonth(value: ImsDatepickerDate): number {
+export function daysInMonth(value: ImsDatepickerMomentCalendarDate): number {
     const end = new Date(0);
     end.setUTCHours(0, 0, 0, 0);
     end.setUTCFullYear(dateYear(value), dateMonth(value), 0);
@@ -209,9 +216,9 @@ export function daysInMonth(value: ImsDatepickerDate): number {
 }
 
 export function addDate(
-    value: ImsDatepickerDate,
+    value: ImsDatepickerMomentCalendarDate,
     duration: {readonly days?: number; readonly months?: number; readonly years?: number}
-): ImsDatepickerDate {
+): ImsDatepickerMomentCalendarDate {
     const year = dateYear(value) + (duration.years ?? 0);
     const monthIndex = dateMonth(value) - 1 + (duration.months ?? 0);
     const normalizedYear = year + Math.floor(monthIndex / 12);
@@ -227,18 +234,18 @@ export function addDate(
 }
 
 export function dateDifferenceDays(
-    start: ImsDatepickerDate,
-    end: ImsDatepickerDate
+    start: ImsDatepickerMomentCalendarDate,
+    end: ImsDatepickerMomentCalendarDate
 ): number {
     return Math.round((end.getTime() - start.getTime()) / 86_400_000);
 }
 
-export function dateEquals(first: ImsDatepickerDate, second: ImsDatepickerDate): boolean {
+export function dateEquals(first: ImsDatepickerMomentCalendarDate, second: ImsDatepickerMomentCalendarDate): boolean {
     return first.getTime() === second.getTime();
 }
 
 export function formatDate(
-    value: ImsDatepickerDate,
+    value: ImsDatepickerMomentCalendarDate,
     format: string,
     locale: string
 ): string {
@@ -276,7 +283,7 @@ export function formatDate(
 
 export function formatWeekdays(
     locale: string,
-    firstDayOfWeek: ImsDatepickerFirstDayOfWeek
+    firstDayOfWeek: ImsDatepickerMomentFirstDayOfWeek
 ): readonly string[] {
     const monday = canonicalDate(2021, 11, 1)!;
     const weekdays = Array.from({length: 7}, (_, index) =>
@@ -297,8 +304,8 @@ function resolveTimeZoneId(interpretationZone: string): string {
 function parseConfiguredFormat(
     text: string,
     options: ImsDateParseOptions,
-    now: ImsDatepickerDate
-): ImsDatepickerDate | null {
+    now: ImsDatepickerMomentCalendarDate
+): ImsDatepickerMomentCalendarDate | null {
     const formats = options.precision === 'dd/MM/yyyy'
         ? options.formats.parse.dateInput
         : options.formats.parse.monthInput;
@@ -394,9 +401,9 @@ function parseYearToken(value: string, token: FormatParseToken): number {
 
 function parseDateSegments(
     segments: readonly string[],
-    now: ImsDatepickerDate,
-    monthDay: ImsDatepickerMonthDay
-): ImsDatepickerDate | null {
+    now: ImsDatepickerMomentCalendarDate,
+    monthDay: ImsDatepickerMomentMonthDay
+): ImsDatepickerMomentCalendarDate | null {
     if (segments.length === 1) {
         const token = segments[0];
 
@@ -450,9 +457,9 @@ function parseDateSegments(
 
 function parseMonthSegments(
     segments: readonly string[],
-    now: ImsDatepickerDate,
-    monthDay: ImsDatepickerMonthDay
-): ImsDatepickerDate | null {
+    now: ImsDatepickerMomentCalendarDate,
+    monthDay: ImsDatepickerMomentMonthDay
+): ImsDatepickerMomentCalendarDate | null {
     if (segments.length === 1) {
         const token = segments[0];
 
@@ -506,9 +513,9 @@ function canonicalForPrecision(
     year: number,
     month: number,
     day: number,
-    precision: ImsDatepickerPrecision,
-    monthDay: ImsDatepickerMonthDay
-): ImsDatepickerDate | null {
+    precision: ImsDatepickerMomentPrecision,
+    monthDay: ImsDatepickerMomentMonthDay
+): ImsDatepickerMomentCalendarDate | null {
     if (precision === 'dd/MM/yyyy') return canonicalDate(year, month, day);
 
     const firstDay = canonicalDate(year, month, 1);
@@ -522,14 +529,14 @@ function dateWithClampedDay(
     year: number,
     month: number,
     preferredDay: number
-): ImsDatepickerDate | null {
+): ImsDatepickerMomentCalendarDate | null {
     const firstDay = canonicalDate(year, month, 1);
     if (!firstDay) return null;
     return canonicalDate(year, month, Math.min(preferredDay, daysInMonth(firstDay)));
 }
 
 function formatWithIntl(
-    value: ImsDatepickerDate,
+    value: ImsDatepickerMomentCalendarDate,
     locale: string,
     options: Intl.DateTimeFormatOptions
 ): string {

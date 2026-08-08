@@ -12,7 +12,7 @@ of the component contract unless a requested change explicitly replaces it.
   and the day/month/year grids.
 - `ims-datepicker.types.ts`: public types, default formats, configuration token,
   and `provideImsDatepickerConfig`.
-- `ims-datepicker.utils.ts`: Temporal normalization, parsing, formatting, and
+- `ims-datepicker.utils.ts`: native Date normalization, parsing, formatting, and
   date comparison helpers.
 - `ims-datepicker.spec.ts`: component, forms, navigation, and focus tests.
 - `ims-datepicker.utils.spec.ts`: parsing and normalization tests.
@@ -22,15 +22,13 @@ of the component contract unless a requested change explicitly replaces it.
 - `src/app/pages/datepicker-demo`: working examples.
 
 The component is standalone, uses `ChangeDetectionStrategy.OnPush`, and depends
-on Angular CDK overlay, focus trapping, directionality, Angular forms, and
-`@js-temporal/polyfill`.
+on Angular CDK overlay, focus trapping, directionality, and Angular forms.
 
 ## Basic Usage
 
 ```ts
 import {Component} from '@angular/core';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
-import {Temporal} from '@js-temporal/polyfill';
 import {
     ImsDatepicker,
     ImsDatepickerValue
@@ -47,7 +45,7 @@ import {
 })
 export class Example {
     readonly date = new FormControl<ImsDatepickerValue>(
-        Temporal.PlainDate.from('2026-06-07')
+        new Date(Date.UTC(2026, 5, 7))
     );
 }
 ```
@@ -70,7 +68,7 @@ provideImsDatepickerConfig({
     locale: 'he',
     zone: 'Asia/Jerusalem',
     firstDayOfWeek: 7,
-    valueType: 'temporal'
+    valueType: 'date'
 })
 ```
 
@@ -88,7 +86,7 @@ The global stylesheet must include:
 | `min` | `ImsDatepickerValue` | `null` | Instance minimum. It can tighten but not relax the global minimum. |
 | `max` | `ImsDatepickerValue` | `null` | Instance maximum. It can tighten but not relax the global maximum. |
 | `dateFilter` | `(date) => boolean` | `null` | Instance filter combined with the global filter using logical AND. |
-| `valueType` | `'temporal' \| 'millis' \| null` | `null` | Explicit output type. When omitted, it is inferred from received values. |
+| `valueType` | `'date' \| 'millis' \| null` | `null` | Explicit output type. When omitted, it is inferred from received values. |
 | `monthDay` | `'start' \| 'end'` | `'start'` | Canonical day used for month-only values. |
 | `formats` | `PartialImsDatepickerFormats \| null` | `null` | Instance parsing and display format overrides. |
 | `locale` | `string \| null` | `null` | Instance locale override. |
@@ -109,30 +107,23 @@ The public value type is:
 
 ```ts
 type ImsDatepickerValue =
-    | Temporal.PlainDate
+    | Date
     | number
     | null
     | undefined;
 ```
 
-Internally, all date calculations use `Temporal.PlainDate`.
+Internally, all date calculations use date-only `Date` values at UTC midnight.
 
-### Temporal values
+### Date values
 
-`Temporal.PlainDate` values are already date-only and are normalized to the
+Valid native `Date` values are reduced to their UTC calendar fields and normalized to the
 configured precision.
 
 ### Millisecond values
 
-Numeric values are interpreted as instants in `zone`, then converted to a plain
-calendar date:
-
-```ts
-Temporal.Instant
-    .fromEpochMilliseconds(value)
-    .toZonedDateTimeISO(zone)
-    .toPlainDate();
-```
+Numeric values are interpreted as instants in `zone`, then reduced to their
+calendar year, month, and day.
 
 Numeric outputs are always serialized at UTC midnight with
 `toUtcEpochMillis`. The interpretation zone and output serialization zone are
@@ -141,7 +132,7 @@ intentionally different:
 - Input number -> interpret in configured zone.
 - Output number -> UTC midnight for the selected plain date.
 
-Do not replace this with native `Date` local-time construction without
+Do not replace UTC date construction with local-time construction without
 explicitly changing the component contract.
 
 ### Output type inference
@@ -150,8 +141,8 @@ If `valueType` is configured on the instance or globally, that setting wins.
 Otherwise:
 
 - Receiving a number changes inferred output to `millis`.
-- Receiving a `Temporal.PlainDate` changes inferred output to `temporal`.
-- The initial inferred type is `temporal`.
+- Receiving a valid `Date` changes inferred output to `date`.
+- The initial inferred type is `date`.
 
 ## Precision
 
@@ -250,7 +241,7 @@ month boundary, parse state, or the normalized value changes.
 Keep these concepts separate:
 
 - `value`: committed Angular form value.
-- `normalizedValue`: committed value converted to `Temporal.PlainDate`.
+- `normalizedValue`: committed value converted to a date-only UTC `Date`.
 - `rawText`: current text displayed in the input.
 - `cursor`: active date used for calendar traversal.
 - `calendarView`: current `day`, `month`, or `year` view.
@@ -391,9 +382,9 @@ RTL.
 
 When changing values or parsing:
 
-1. Keep internal calculations on `Temporal.PlainDate`.
+1. Keep internal calculations on date-only UTC `Date` values.
 2. Check both precision modes.
-3. Check Temporal and millisecond output.
+3. Check Date and millisecond output.
 4. Verify interpretation-zone and UTC-output behavior.
 5. Update `ims-datepicker.utils.spec.ts`.
 

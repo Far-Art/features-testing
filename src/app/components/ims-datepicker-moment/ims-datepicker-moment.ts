@@ -23,21 +23,23 @@ import {
     ValidationErrors,
     Validator
 } from '@angular/forms';
+import moment from 'moment';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {runScopedViewTransition} from '../../shared/view-transition';
 import {
-    IMS_DATEPICKER_CONFIG,
-    ImsDatepickerDate,
-    ImsDatepickerDateFilter,
-    ImsDatepickerFirstDayOfWeek,
-    ImsDatepickerFormats,
-    ImsDatepickerMonthDay,
-    ImsDatepickerPrecision,
-    ImsDatepickerValue,
-    ImsDatepickerValueType,
-    ImsDatepickerView,
-    PartialImsDatepickerFormats
-} from './ims-datepicker.types';
+    IMS_DATEPICKER_MOMENT_CONFIG,
+    ImsDatepickerMomentCalendarDate,
+    ImsDatepickerMomentDate,
+    ImsDatepickerMomentDateFilter,
+    ImsDatepickerMomentFirstDayOfWeek,
+    ImsDatepickerMomentFormats,
+    ImsDatepickerMomentMonthDay,
+    ImsDatepickerMomentPrecision,
+    ImsDatepickerMomentValue,
+    ImsDatepickerMomentValueType,
+    ImsDatepickerMomentView,
+    PartialImsDatepickerMomentFormats
+} from './ims-datepicker-moment.types';
 import {
     addDate,
     canonicalDate,
@@ -52,19 +54,19 @@ import {
     daysInMonth,
     formatDate,
     formatWeekdays,
-    IMS_DATEPICKER_INPUT_PATTERNS,
+    IMS_DATEPICKER_MOMENT_INPUT_PATTERNS,
     isDateInputTextAllowed,
-    isNativeDate,
+    isMomentDate,
     mergeDatepickerFormats,
     normalizeDateValue,
     parseDateText,
     todayInZone,
     toUtcEpochMillis
-} from './ims-datepicker.utils';
+} from './ims-datepicker-moment.utils';
 
-interface ImsDatepickerDayCell {
+interface ImsDatepickerMomentDayCell {
     readonly id: string;
-    readonly date: ImsDatepickerDate;
+    readonly date: ImsDatepickerMomentCalendarDate;
     readonly label: number;
     readonly currentMonth: boolean;
     readonly active: boolean;
@@ -73,7 +75,7 @@ interface ImsDatepickerDayCell {
     readonly disabled: boolean;
 }
 
-interface ImsDatepickerMonthCell {
+interface ImsDatepickerMomentMonthCell {
     readonly id: string;
     readonly month: number;
     readonly label: string;
@@ -82,7 +84,7 @@ interface ImsDatepickerMonthCell {
     readonly disabled: boolean;
 }
 
-interface ImsDatepickerYearCell {
+interface ImsDatepickerMomentYearCell {
     readonly id: string;
     readonly year: number;
     readonly active: boolean;
@@ -90,10 +92,10 @@ interface ImsDatepickerYearCell {
     readonly disabled: boolean;
 }
 
-type ImsDatepickerNavigationDistance = 'near' | 'far';
-type ImsDatepickerNavigationDirection = -1 | 1;
-type ImsDatepickerShortcut = 'today' | 'month-start' | 'month-end';
-type ImsDatepickerTransitionDirection = 'view' | 'left-to-right' | 'right-to-left';
+type ImsDatepickerMomentNavigationDistance = 'near' | 'far';
+type ImsDatepickerMomentNavigationDirection = -1 | 1;
+type ImsDatepickerMomentShortcut = 'today' | 'month-start' | 'month-end';
+type ImsDatepickerMomentTransitionDirection = 'view' | 'left-to-right' | 'right-to-left';
 
 const OVERLAY_POSITIONS: ConnectedPosition[] = [
     {
@@ -127,23 +129,23 @@ function provideDatepickerValidator(type: Type<unknown>) {
 }
 
 @Component({
-    selector: 'ims-datepicker',
+    selector: 'ims-datepicker-moment',
     standalone: true,
     imports: [CdkOverlayOrigin, CdkConnectedOverlay, CdkTrapFocus],
-    templateUrl: './ims-datepicker.html',
+    templateUrl: './ims-datepicker-moment.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
-        provideValueAccessor(ImsDatepicker),
-        provideDatepickerValidator(ImsDatepicker)
+        provideValueAccessor(ImsDatepickerMoment),
+        provideDatepickerValidator(ImsDatepickerMoment)
     ],
     host: {
         class: 'ims-datepicker-host'
     }
 })
-export class ImsDatepicker
-    extends BasicValueAccessor<ImsDatepickerValue>
+export class ImsDatepickerMoment
+    extends BasicValueAccessor<ImsDatepickerMomentValue>
     implements Validator {
-    private readonly globalConfig = inject(IMS_DATEPICKER_CONFIG);
+    private readonly globalConfig = inject(IMS_DATEPICKER_MOMENT_CONFIG);
     private readonly angularLocale = inject(LOCALE_ID);
     private readonly changeDetectorRef = inject(ChangeDetectorRef);
     readonly directionality = inject(Directionality);
@@ -153,21 +155,21 @@ export class ImsDatepicker
     private readonly grid = viewChild<ElementRef<HTMLElement>>('grid');
     private validatorChange: () => void = () => undefined;
     private focusFrame: number | null = null;
-    private pendingNavigationCursor: ImsDatepickerDate | null = null;
+    private pendingNavigationCursor: ImsDatepickerMomentCalendarDate | null = null;
     private readonly userEditing = signal(false);
-    private readonly inferredValueType = signal<ImsDatepickerValueType>('date');
+    private readonly inferredValueType = signal<ImsDatepickerMomentValueType>('moment');
 
     /** Selection precision. This is independent from the configured display format. */
-    readonly format = input<ImsDatepickerPrecision>('dd/MM/yyyy');
-    readonly min = input<ImsDatepickerValue>(null);
-    readonly max = input<ImsDatepickerValue>(null);
-    readonly dateFilter = input<ImsDatepickerDateFilter | null>(null);
-    readonly valueType = input<ImsDatepickerValueType | null>(null);
-    readonly monthDay = input<ImsDatepickerMonthDay>('start');
-    readonly formats = input<PartialImsDatepickerFormats | null>(null);
+    readonly format = input<ImsDatepickerMomentPrecision>('dd/MM/yyyy');
+    readonly min = input<ImsDatepickerMomentValue>(null);
+    readonly max = input<ImsDatepickerMomentValue>(null);
+    readonly dateFilter = input<ImsDatepickerMomentDateFilter | null>(null);
+    readonly valueType = input<ImsDatepickerMomentValueType | null>(null);
+    readonly monthDay = input<ImsDatepickerMomentMonthDay>('start');
+    readonly formats = input<PartialImsDatepickerMomentFormats | null>(null);
     readonly locale = input<string | null>(null);
     readonly zone = input<string | null>(null);
-    readonly firstDayOfWeek = input<ImsDatepickerFirstDayOfWeek | null>(null);
+    readonly firstDayOfWeek = input<ImsDatepickerMomentFirstDayOfWeek | null>(null);
     readonly placeholder = input<string | null>(null);
     readonly ariaLabel = input<string | null>(null, {alias: 'ariaLabel'});
     readonly ariaLabelledby = input<string | null>(null, {alias: 'ariaLabelledby'});
@@ -175,15 +177,15 @@ export class ImsDatepicker
     readonly open = signal(false);
     readonly rawText = signal('');
     readonly parseInvalid = signal(false);
-    readonly calendarView = signal<ImsDatepickerView>('day');
-    readonly calendarTransitionDirection = signal<ImsDatepickerTransitionDirection>('view');
+    readonly calendarView = signal<ImsDatepickerMomentView>('day');
+    readonly calendarTransitionDirection = signal<ImsDatepickerMomentTransitionDirection>('view');
     readonly cursor = signal(DEFAULT_MIN);
 
     readonly datepickerId = `ims-datepicker-${nextDatepickerId++}`;
     readonly dialogId = `${this.datepickerId}-dialog`;
     readonly headerButtonId = `${this.datepickerId}-period`;
     readonly inputPattern = computed(() =>
-        IMS_DATEPICKER_INPUT_PATTERNS[this.format()]
+        IMS_DATEPICKER_MOMENT_INPUT_PATTERNS[this.format()]
     );
     readonly overlayPositions = OVERLAY_POSITIONS;
     readonly calendarYear = dateYear;
@@ -200,7 +202,7 @@ export class ImsDatepicker
     readonly effectiveFirstDayOfWeek = computed(
         () => this.firstDayOfWeek() ?? this.globalConfig.firstDayOfWeek ?? 1
     );
-    readonly effectiveFormats = computed<ImsDatepickerFormats>(() =>
+    readonly effectiveFormats = computed<ImsDatepickerMomentFormats>(() =>
         mergeDatepickerFormats(this.globalConfig.formats, this.formats() ?? undefined)
     );
 
@@ -287,7 +289,7 @@ export class ImsDatepicker
         formatWeekdays(this.effectiveLocale(), this.effectiveFirstDayOfWeek())
     );
 
-    readonly dayCells = computed<readonly ImsDatepickerDayCell[]>(() => {
+    readonly dayCells = computed<readonly ImsDatepickerMomentDayCell[]>(() => {
         const cursor = this.cursor();
         const firstOfMonth = canonicalDate(dateYear(cursor), dateMonth(cursor), 1)!;
         const offset = (
@@ -312,7 +314,7 @@ export class ImsDatepicker
         });
     });
 
-    readonly monthCells = computed<readonly ImsDatepickerMonthCell[]>(() => {
+    readonly monthCells = computed<readonly ImsDatepickerMomentMonthCell[]>(() => {
         const cursor = this.cursor();
         const selected = this.normalizedValue();
 
@@ -339,7 +341,7 @@ export class ImsDatepicker
     readonly yearPageStart = computed(() =>
         Math.floor(dateYear(this.cursor()) / YEARS_PER_PAGE) * YEARS_PER_PAGE
     );
-    readonly yearCells = computed<readonly ImsDatepickerYearCell[]>(() => {
+    readonly yearCells = computed<readonly ImsDatepickerMomentYearCell[]>(() => {
         const start = this.yearPageStart();
         const selected = this.normalizedValue();
 
@@ -373,8 +375,8 @@ export class ImsDatepicker
             const rawValue = this.value();
             if (typeof rawValue === 'number') {
                 this.inferredValueType.set('millis');
-            } else if (isNativeDate(rawValue)) {
-                this.inferredValueType.set('date');
+            } else if (isMomentDate(rawValue)) {
+                this.inferredValueType.set('moment');
             }
 
             if (this.userEditing()) return;
@@ -412,12 +414,12 @@ export class ImsDatepicker
         }, Number(VERSION.major) < 19 ? {allowSignalWrites: true} : undefined);
     }
 
-    override writeValue(value: ImsDatepickerValue): void {
+    override writeValue(value: ImsDatepickerMomentValue): void {
         this.userEditing.set(false);
         this.value.set(value);
     }
 
-    validate(control: AbstractControl<ImsDatepickerValue>): ValidationErrors | null {
+    validate(control: AbstractControl<ImsDatepickerMomentValue>): ValidationErrors | null {
         if (this.parseInvalid()) {
             return {imsDatepickerParse: {text: this.rawText()}};
         }
@@ -599,7 +601,7 @@ export class ImsDatepicker
 
     onCalendarKeydown(event: KeyboardEvent): void {
         const active = this.cursor();
-        let target: ImsDatepickerDate | null = null;
+        let target: ImsDatepickerMomentCalendarDate | null = null;
         const horizontalDirection = this.horizontalDirection(event.key);
 
         if (horizontalDirection !== 0) {
@@ -648,8 +650,8 @@ export class ImsDatepicker
     }
 
     navigate(
-        distance: ImsDatepickerNavigationDistance,
-        direction: ImsDatepickerNavigationDirection
+        distance: ImsDatepickerMomentNavigationDistance,
+        direction: ImsDatepickerMomentNavigationDirection
     ): void {
         if (!this.canNavigate(distance, direction)) return;
 
@@ -670,8 +672,8 @@ export class ImsDatepicker
     }
 
     navigationLabel(
-        distance: ImsDatepickerNavigationDistance,
-        direction: ImsDatepickerNavigationDirection
+        distance: ImsDatepickerMomentNavigationDistance,
+        direction: ImsDatepickerMomentNavigationDirection
     ): string {
         const {amount, label} = this.navigationStep(distance);
         const action = direction < 0 ? 'Previous' : 'Next';
@@ -679,8 +681,8 @@ export class ImsDatepicker
     }
 
     navigationIcon(
-        distance: ImsDatepickerNavigationDistance,
-        direction: ImsDatepickerNavigationDirection
+        distance: ImsDatepickerMomentNavigationDistance,
+        direction: ImsDatepickerMomentNavigationDirection
     ): string {
         const pointsForward = this.directionality.value === 'rtl' ? direction < 0 : direction > 0;
         const suffix = pointsForward ? 'right' : 'left';
@@ -689,7 +691,7 @@ export class ImsDatepicker
             : `chevron_${suffix}`;
     }
 
-    dayAriaLabel(date: ImsDatepickerDate): string {
+    dayAriaLabel(date: ImsDatepickerMomentCalendarDate): string {
         return formatDate(
             date,
             this.effectiveFormats().display.dayAriaLabel,
@@ -697,14 +699,14 @@ export class ImsDatepicker
         );
     }
 
-    focusShortcut(shortcut: ImsDatepickerShortcut): void {
+    focusShortcut(shortcut: ImsDatepickerMomentShortcut): void {
         const date = this.shortcutDate(shortcut);
         if (!date || !this.isDateEnabled(date)) return;
 
         this.setActiveDate(date, true);
     }
 
-    activateDay(date: ImsDatepickerDate): void {
+    activateDay(date: ImsDatepickerMomentCalendarDate): void {
         if (this.isDateEnabled(date)) this.cursor.set(date);
     }
 
@@ -726,7 +728,7 @@ export class ImsDatepicker
         ));
     }
 
-    selectDay(cell: ImsDatepickerDayCell): void {
+    selectDay(cell: ImsDatepickerMomentDayCell): void {
         if (cell.disabled) return;
         this.cursor.set(cell.date);
         this.commitDate(cell.date);
@@ -734,7 +736,7 @@ export class ImsDatepicker
         this.textInput()?.nativeElement.focus();
     }
 
-    selectMonth(cell: ImsDatepickerMonthCell): void {
+    selectMonth(cell: ImsDatepickerMomentMonthCell): void {
         if (cell.disabled) return;
 
         const cursor = this.cursor();
@@ -764,7 +766,7 @@ export class ImsDatepicker
         }
     }
 
-    selectYear(cell: ImsDatepickerYearCell): void {
+    selectYear(cell: ImsDatepickerMomentYearCell): void {
         if (cell.disabled) return;
 
         const cursor = this.cursor();
@@ -809,7 +811,7 @@ export class ImsDatepicker
         this.commitDate(parsed);
     }
 
-    private commitDate(value: ImsDatepickerDate): void {
+    private commitDate(value: ImsDatepickerMomentCalendarDate): void {
         const normalized = normalizeDateValue(
             value,
             this.interpretationZone(),
@@ -831,16 +833,18 @@ export class ImsDatepicker
         this.setValue(this.serialize(normalized));
     }
 
-    private serialize(value: ImsDatepickerDate): ImsDatepickerDate | number {
+    private serialize(
+        value: ImsDatepickerMomentCalendarDate
+    ): ImsDatepickerMomentDate | number {
         return this.outputType() === 'millis'
             ? toUtcEpochMillis(value)
-            : new Date(value.getTime());
+            : moment.utc([dateYear(value), dateMonth(value) - 1, dateDay(value)]);
     }
 
     private formatValue(
-        value: ImsDatepickerDate,
-        precision: ImsDatepickerPrecision,
-        formats: ImsDatepickerFormats,
+        value: ImsDatepickerMomentCalendarDate,
+        precision: ImsDatepickerMomentPrecision,
+        formats: ImsDatepickerMomentFormats,
         locale: string
     ): string {
         const displayFormat = precision === 'dd/MM/yyyy'
@@ -849,20 +853,25 @@ export class ImsDatepicker
         return formatDate(value, displayFormat, locale);
     }
 
-    private isDateEnabled(date: ImsDatepickerDate): boolean {
+    private isDateEnabled(date: ImsDatepickerMomentCalendarDate): boolean {
         return compareDateOnly(date, this.effectiveMin()) >= 0
             && compareDateOnly(date, this.effectiveMax()) <= 0
             && this.passesDateFilters(date);
     }
 
-    private passesDateFilters(date: ImsDatepickerDate): boolean {
+    private passesDateFilters(date: ImsDatepickerMomentCalendarDate): boolean {
         const globalFilter = this.globalConfig.dateFilter;
         const instanceFilter = this.dateFilter();
-        return (!globalFilter || globalFilter(date))
-            && (!instanceFilter || instanceFilter(date));
+        const publicDate = moment.utc([
+            dateYear(date),
+            dateMonth(date) - 1,
+            dateDay(date)
+        ]);
+        return (!globalFilter || globalFilter(publicDate.clone()))
+            && (!instanceFilter || instanceFilter(publicDate.clone()));
     }
 
-    private monthValue(year: number, month: number): ImsDatepickerDate {
+    private monthValue(year: number, month: number): ImsDatepickerMomentCalendarDate {
         const firstDay = canonicalDate(year, month, 1)!;
         const day = this.monthDay() === 'end' ? daysInMonth(firstDay) : 1;
         return canonicalDate(year, month, day)!;
@@ -872,7 +881,7 @@ export class ImsDatepicker
         year: number,
         month: number,
         preferredDay: number
-    ): ImsDatepickerDate {
+    ): ImsDatepickerMomentCalendarDate {
         const firstDay = canonicalDate(year, month, 1)!;
         return canonicalDate(year, month, Math.min(preferredDay, daysInMonth(firstDay)))!;
     }
@@ -907,23 +916,23 @@ export class ImsDatepicker
     }
 
     private moveActiveHorizontally(
-        date: ImsDatepickerDate,
+        date: ImsDatepickerMomentCalendarDate,
         direction: -1 | 1
-    ): ImsDatepickerDate {
+    ): ImsDatepickerMomentCalendarDate {
         return this.moveActiveInGrid(date, direction);
     }
 
-    private moveActiveByRow(date: ImsDatepickerDate, direction: -1 | 1): ImsDatepickerDate {
+    private moveActiveByRow(date: ImsDatepickerMomentCalendarDate, direction: -1 | 1): ImsDatepickerMomentCalendarDate {
         const view = this.calendarView();
         const columns = view === 'day' ? 7 : view === 'month' ? 3 : 4;
         return this.moveActiveInGrid(date, direction * columns);
     }
 
-    private moveActiveInGrid(fallback: ImsDatepickerDate, offset: number): ImsDatepickerDate {
+    private moveActiveInGrid(fallback: ImsDatepickerMomentCalendarDate, offset: number): ImsDatepickerMomentCalendarDate {
         const cursor = this.cursor();
         const view = this.calendarView();
         let activeIndex = -1;
-        let dates: readonly (ImsDatepickerDate | null)[];
+        let dates: readonly (ImsDatepickerMomentCalendarDate | null)[];
 
         if (view === 'day') {
             const cells = this.dayCells();
@@ -964,7 +973,7 @@ export class ImsDatepicker
         return fallback;
     }
 
-    private activeBoundary(boundary: 'first' | 'last'): ImsDatepickerDate {
+    private activeBoundary(boundary: 'first' | 'last'): ImsDatepickerMomentCalendarDate {
         const cursor = this.cursor();
         const view = this.calendarView();
 
@@ -994,10 +1003,10 @@ export class ImsDatepicker
     }
 
     private moveActiveByPage(
-        date: ImsDatepickerDate,
+        date: ImsDatepickerMomentCalendarDate,
         direction: -1 | 1,
         largeStep: boolean
-    ): ImsDatepickerDate {
+    ): ImsDatepickerMomentCalendarDate {
         const view = this.calendarView();
 
         if (view === 'day') {
@@ -1015,13 +1024,13 @@ export class ImsDatepicker
         });
     }
 
-    private setActiveDate(date: ImsDatepickerDate, focus: boolean): void {
+    private setActiveDate(date: ImsDatepickerMomentCalendarDate, focus: boolean): void {
         const resolved = this.resolveActiveDate(date, this.calendarView());
         this.cursor.set(resolved);
         if (focus) this.scheduleActiveCellFocus();
     }
 
-    private setCalendarView(view: ImsDatepickerView): void {
+    private setCalendarView(view: ImsDatepickerMomentView): void {
         if (view === this.calendarView()) return;
 
         this.calendarTransitionDirection.set('view');
@@ -1031,7 +1040,7 @@ export class ImsDatepicker
 
     private runCalendarTransition(
         update: () => void,
-        direction: ImsDatepickerTransitionDirection
+        direction: ImsDatepickerMomentTransitionDirection
     ): void {
         if (!this.open() || !this.panel()) {
             update();
@@ -1048,17 +1057,17 @@ export class ImsDatepicker
     }
 
     private navigationTransitionDirection(
-        direction: ImsDatepickerNavigationDirection
-    ): ImsDatepickerTransitionDirection {
+        direction: ImsDatepickerMomentNavigationDirection
+    ): ImsDatepickerMomentTransitionDirection {
         const movesForward = direction > 0;
         const isRtl = this.directionality.value === 'rtl';
         return movesForward !== isRtl ? 'right-to-left' : 'left-to-right';
     }
 
     private resolveActiveDate(
-        date: ImsDatepickerDate,
-        view: ImsDatepickerView
-    ): ImsDatepickerDate {
+        date: ImsDatepickerMomentCalendarDate,
+        view: ImsDatepickerMomentView
+    ): ImsDatepickerMomentCalendarDate {
         if (view === 'day') {
             return this.findEnabledDate(
                 date,
@@ -1112,10 +1121,10 @@ export class ImsDatepicker
     }
 
     private findEnabledDate(
-        candidate: ImsDatepickerDate,
-        periodStart: ImsDatepickerDate,
-        periodEnd: ImsDatepickerDate
-    ): ImsDatepickerDate | null {
+        candidate: ImsDatepickerMomentCalendarDate,
+        periodStart: ImsDatepickerMomentCalendarDate,
+        periodEnd: ImsDatepickerMomentCalendarDate
+    ): ImsDatepickerMomentCalendarDate | null {
         const start = compareDateOnly(periodStart, this.effectiveMin()) < 0
             ? this.effectiveMin()
             : periodStart;
@@ -1151,18 +1160,18 @@ export class ImsDatepicker
     }
 
     private findSelectableMonth(
-        date: ImsDatepickerDate,
+        date: ImsDatepickerMomentCalendarDate,
         direction: -1 | 1
-    ): ImsDatepickerDate {
+    ): ImsDatepickerMomentCalendarDate {
         return this.findSelectableMonthInDirection(date, direction)
             ?? this.findSelectableMonthInDirection(date, direction === 1 ? -1 : 1)
             ?? clampDate(date, this.effectiveMin(), this.effectiveMax());
     }
 
     private findSelectableMonthInDirection(
-        date: ImsDatepickerDate,
+        date: ImsDatepickerMomentCalendarDate,
         direction: -1 | 1
-    ): ImsDatepickerDate | null {
+    ): ImsDatepickerMomentCalendarDate | null {
         let month = canonicalDate(dateYear(date), dateMonth(date), 1)!;
 
         while (
@@ -1222,7 +1231,7 @@ export class ImsDatepicker
         this.focusFrame = null;
     }
 
-    private dayCellId(date: ImsDatepickerDate): string {
+    private dayCellId(date: ImsDatepickerMomentCalendarDate): string {
         return `${this.datepickerId}-day-${date.toString()}`;
     }
 
@@ -1234,13 +1243,13 @@ export class ImsDatepicker
         return `${this.datepickerId}-year-${year}`;
     }
 
-    private canSelectShortcut(shortcut: ImsDatepickerShortcut): boolean {
+    private canSelectShortcut(shortcut: ImsDatepickerMomentShortcut): boolean {
         const date = this.shortcutDate(shortcut);
         return !!date && this.isDateEnabled(date);
     }
 
-    private shortcutDate(shortcut: ImsDatepickerShortcut): ImsDatepickerDate | null {
-        let date: ImsDatepickerDate;
+    private shortcutDate(shortcut: ImsDatepickerMomentShortcut): ImsDatepickerMomentCalendarDate | null {
+        let date: ImsDatepickerMomentCalendarDate;
 
         if (shortcut === 'today') {
             date = this.today();
@@ -1290,8 +1299,8 @@ export class ImsDatepicker
     }
 
     private canNavigate(
-        distance: ImsDatepickerNavigationDistance,
-        direction: ImsDatepickerNavigationDirection
+        distance: ImsDatepickerMomentNavigationDistance,
+        direction: ImsDatepickerMomentNavigationDirection
     ): boolean {
         const {unit, amount} = this.navigationStep(distance);
         const target = this.addDate(this.cursor(), unit, amount * direction);
@@ -1307,7 +1316,7 @@ export class ImsDatepicker
         return this.yearPageIntersectsRange(dateYear(target));
     }
 
-    private navigationStep(distance: ImsDatepickerNavigationDistance): {
+    private navigationStep(distance: ImsDatepickerMomentNavigationDistance): {
         readonly unit: 'months' | 'years';
         readonly amount: number;
         readonly label: 'month' | 'year';
@@ -1332,16 +1341,16 @@ export class ImsDatepicker
     }
 
     private addDate(
-        date: ImsDatepickerDate,
+        date: ImsDatepickerMomentCalendarDate,
         unit: 'months' | 'years',
         amount: number
-    ): ImsDatepickerDate {
+    ): ImsDatepickerMomentCalendarDate {
         return unit === 'months'
             ? addDate(date, {months: amount})
             : addDate(date, {years: amount});
     }
 
-    private startOfMonth(date: ImsDatepickerDate): ImsDatepickerDate {
+    private startOfMonth(date: ImsDatepickerMomentCalendarDate): ImsDatepickerMomentCalendarDate {
         return canonicalDate(dateYear(date), dateMonth(date), 1)!;
     }
 }

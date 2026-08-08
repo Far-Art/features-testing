@@ -242,7 +242,7 @@
                                 [class.ims-datepicker__cell--active]="cell.active"
                                 [class.ims-datepicker__cell--selected]="cell.selected"
                                 [attr.tabindex]="cell.active ? 0 : -1"
-                                [attr.aria-label]="cell.label + ' ' + calendarYear(cursor())"
+                                [attr.aria-label]="cell.label + ' ' + cursor().year"
                                 [attr.aria-selected]="cell.selected"
                                 [attr.aria-rowindex]="(cellIndex - cellIndex % 3) / 3 + 1"
                                 [attr.aria-colindex]="cellIndex % 3 + 1"

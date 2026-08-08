@@ -60,8 +60,8 @@ For more information on using the Angular CLI, including detailed command refere
 
 ## ImsDatepicker
 
-`ImsDatepicker` is a standalone, Angular-forms-compatible datepicker built around
-Luxon. Its signal-based API is compatible with Angular 18 and later.
+`ImsDatepicker` is a standalone, Angular-forms-compatible datepicker for native
+`Date` values or epoch milliseconds.
 
 ```ts
 import {
@@ -71,8 +71,8 @@ import {
 
 providers: [
   provideImsDatepickerConfig({
-    min: DateTime.utc(1900, 1, 1),
-    max: DateTime.utc(2100, 12, 31),
+    min: new Date(Date.UTC(1900, 0, 1)),
+    max: new Date(Date.UTC(2100, 11, 31)),
     locale: 'en',
     zone: 'local'
   })
@@ -95,11 +95,16 @@ providers: [
 />
 ```
 
-The form value accepts either a Luxon `DateTime` or milliseconds. Set
+The form value accepts either a native `Date` or milliseconds. Set
 `valueType="millis"` when a nullable numeric control cannot provide a value from
 which the output type can be inferred. Date values are emitted at UTC midnight.
 Millisecond inputs are first interpreted in the configured `zone`, then reduced
 to their calendar date.
+
+Use `ImsDatepickerMoment` from `components/ims-datepicker-moment` for
+`Moment | number` values, or `ImsDatepickerExperimental` from
+`components/ims-datepicker-experimental` for experimental
+`Temporal.PlainDate | number` values.
 
 The component contributes `imsDatepickerParse`, `imsDatepickerMin`, and
 `imsDatepickerMax` validation errors through Angular's `NG_VALIDATORS` mechanism.

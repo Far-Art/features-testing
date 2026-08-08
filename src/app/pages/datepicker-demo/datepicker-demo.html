@@ -1,6 +1,6 @@
 <header class="page-heading">
     <h1>בורר תאריך</h1>
-    <p>בחירה לפי יום או חודש, ערכי Temporal או milliseconds, קלט מקוצר וטווחים דינמיים.</p>
+    <p>בחירה לפי יום או חודש עם מימושים נפרדים ל-Date, Moment ו-Temporal.</p>
 </header>
 
 <section class="datepicker-demo">
@@ -11,7 +11,7 @@
 
     <div class="datepicker-demo__grid">
         <label class="datepicker-demo__field">
-            <span>תאריך מלא, Temporal, reactive form</span>
+            <span>תאריך מלא, Date, reactive form</span>
             <ims-datepicker
                 ariaLabel="תאריך מלא"
                 [formControl]="dateControl"
@@ -46,6 +46,25 @@
             />
             <code>{{ describe(templateDate) }}</code>
         </label>
+
+        <label class="datepicker-demo__field">
+            <span>Moment, reactive form</span>
+            <ims-datepicker-moment
+                ariaLabel="תאריך Moment"
+                [formControl]="momentControl"
+            />
+            <code>{{ describe(momentControl.value) }}</code>
+            <code>{{ momentControl.errors | json }}</code>
+        </label>
+
+        <label class="datepicker-demo__field">
+            <span>Temporal.PlainDate, experimental</span>
+            <ims-datepicker-experimental
+                ariaLabel="תאריך Temporal ניסיוני"
+                [formControl]="temporalControl"
+            />
+            <code>{{ describe(temporalControl.value) }}</code>
+            <code>{{ temporalControl.errors | json }}</code>
+        </label>
     </div>
 </section>
-
