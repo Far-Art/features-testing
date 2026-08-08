@@ -14,8 +14,10 @@ of the component contract unless a requested change explicitly replaces it.
   and `provideImsDatepickerConfig`.
 - `ims-datepicker.parser.ts`: adapter-neutral parser contract, default parser,
   injection token, and `provideImsDatepickerParser`.
-- `ims-datepicker.value-handler.ts`: external value adapter contract, default
-  Luxon handler, native Date handler, injection token, and provider helpers.
+- `ims-datepicker-value.directive.ts`: value-handler contract and token plus the
+  default Luxon and native Date adapter directives.
+- `ims-datepicker-moment.directive.ts`: Moment adapter directive and typed
+  Moment value alias.
 - `ims-datepicker.utils.ts`: native Date normalization, parsing, formatting, and
   date comparison helpers.
 - `ims-datepicker.spec.ts`: component, forms, navigation, and focus tests.
@@ -135,17 +137,24 @@ injector:
 <ims-datepicker imsDatepickerLuxon [formControl]="nestedLuxonOverride" />
 ```
 
+| Handler | Per-instance directive | Typed value alias |
+| --- | --- | --- |
+| Luxon `DateTime` (default) | None, or `imsDatepickerLuxon` to override a parent | `ImsDatepickerLuxonValue` |
+| Native `Date` | `imsDatepickerDate` | `ImsDatepickerDateValue` |
+| Moment | `imsDatepickerMoment` | `ImsDatepickerMomentValue` |
+
 Alternatively, select one handler for every datepicker under an injector:
 
 ```ts
 providers: [provideImsDatepickerMomentValueHandler()]
 ```
 
-Each handler recognizes both finite epoch-millisecond numbers and its concrete
-object type. It converts inputs to UTC calendar milliseconds and creates its
-own concrete object for non-millisecond outputs. Custom handlers implement
-`ImsDatepickerValueHandler<TDate>` and can be registered with
-`provideImsDatepickerValueHandler()`.
+Each adapter directive is also its value handler. It recognizes both finite
+epoch-millisecond numbers and its concrete object type, converts inputs to UTC
+calendar milliseconds, and creates its concrete object for non-millisecond
+outputs. Custom adapter directives implement `ImsDatepickerValueHandler<TDate>`,
+provide themselves as `IMS_DATEPICKER_VALUE_HANDLER`, and can also be registered
+injector-wide with `provideImsDatepickerValueHandler()`.
 
 ## Supported Value Types
 

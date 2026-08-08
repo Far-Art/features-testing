@@ -5,6 +5,8 @@ export type ImsDatepickerPrecision = 'dd/MM/yyyy' | 'MM/yyyy';
 export type ImsDatepickerDate = Date;
 export type ImsDatepickerValue<TDate extends object = DateTime> =
     TDate | number | null | undefined;
+export type ImsDatepickerDateValue = ImsDatepickerValue<Date>;
+export type ImsDatepickerLuxonValue = ImsDatepickerValue<DateTime>;
 export type ImsDatepickerAnyValue = ImsDatepickerValue<object>;
 export type ImsDatepickerValueType = 'date' | 'millis';
 export type ImsDatepickerMonthDay = 'start' | 'end';

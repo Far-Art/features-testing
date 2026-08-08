@@ -1,4 +1,10 @@
-import {Injectable, InjectionToken, Provider, Type, inject} from '@angular/core';
+import {
+    Directive,
+    InjectionToken,
+    Provider,
+    Type,
+    forwardRef
+} from '@angular/core';
 import {DateTime} from 'luxon';
 import {ImsDatepickerDate} from './ims-datepicker.types';
 import {isNativeDate, normalizeDateValue, toUtcEpochMillis} from './ims-datepicker.utils';
@@ -9,12 +15,26 @@ export interface ImsDatepickerValueHandler<TDate extends object = object> {
     /** Converts a supported object or epoch milliseconds to UTC calendar milliseconds. */
     toCalendarMillis(value: unknown, interpretationZone: string): number | null;
 
-    /** Creates the handler's concrete object from UTC calendar milliseconds. */
+    /** Creates the directive's concrete object from UTC calendar milliseconds. */
     fromCalendarMillis(value: number): TDate;
 }
 
-@Injectable({providedIn: 'root'})
-export class ImsDatepickerDateValueHandler implements ImsDatepickerValueHandler<Date> {
+export const IMS_DATEPICKER_VALUE_HANDLER =
+    new InjectionToken<ImsDatepickerValueHandler<object>>(
+        'IMS_DATEPICKER_VALUE_HANDLER',
+        {factory: () => new ImsDatepickerLuxonValueHandlerDirective()}
+    );
+
+/** Selects and handles native Date values for an ims-datepicker instance. */
+@Directive({
+    selector: 'ims-datepicker[imsDatepickerDate]',
+    providers: [{
+        provide: IMS_DATEPICKER_VALUE_HANDLER,
+        useExisting: forwardRef(() => ImsDatepickerDateValueHandlerDirective)
+    }]
+})
+export class ImsDatepickerDateValueHandlerDirective
+    implements ImsDatepickerValueHandler<Date> {
     isValue(value: unknown): value is Date {
         return isNativeDate(value);
     }
@@ -36,8 +56,15 @@ export class ImsDatepickerDateValueHandler implements ImsDatepickerValueHandler<
     }
 }
 
-@Injectable({providedIn: 'root'})
-export class ImsDatepickerLuxonValueHandler
+/** Selects and handles Luxon DateTime values for an ims-datepicker instance. */
+@Directive({
+    selector: 'ims-datepicker[imsDatepickerLuxon]',
+    providers: [{
+        provide: IMS_DATEPICKER_VALUE_HANDLER,
+        useExisting: forwardRef(() => ImsDatepickerLuxonValueHandlerDirective)
+    }]
+})
+export class ImsDatepickerLuxonValueHandlerDirective
     implements ImsDatepickerValueHandler<DateTime> {
     isValue(value: unknown): value is DateTime {
         return DateTime.isDateTime(value) && value.isValid;
@@ -64,27 +91,21 @@ export class ImsDatepickerLuxonValueHandler
     }
 }
 
-export const IMS_DATEPICKER_VALUE_HANDLER =
-    new InjectionToken<ImsDatepickerValueHandler<object>>(
-        'IMS_DATEPICKER_VALUE_HANDLER',
-        {factory: () => inject(ImsDatepickerLuxonValueHandler)}
-    );
-
 export function provideImsDatepickerValueHandler(
-    handler: Type<ImsDatepickerValueHandler<object>>
+    directive: Type<ImsDatepickerValueHandler<object>>
 ): Provider {
     return {
         provide: IMS_DATEPICKER_VALUE_HANDLER,
-        useClass: handler
+        useClass: directive
     };
 }
 
 export function provideImsDatepickerDateValueHandler(): Provider {
-    return provideImsDatepickerValueHandler(ImsDatepickerDateValueHandler);
+    return provideImsDatepickerValueHandler(ImsDatepickerDateValueHandlerDirective);
 }
 
 export function provideImsDatepickerLuxonValueHandler(): Provider {
-    return provideImsDatepickerValueHandler(ImsDatepickerLuxonValueHandler);
+    return provideImsDatepickerValueHandler(ImsDatepickerLuxonValueHandlerDirective);
 }
 
 export function calendarMillisFromNumber(

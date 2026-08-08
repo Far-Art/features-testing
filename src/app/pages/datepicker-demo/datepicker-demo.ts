@@ -8,6 +8,9 @@ import type {Moment} from 'moment';
 import {
     ImsDatepicker,
     ImsDatepickerDateValueHandlerDirective,
+    ImsDatepickerLuxonValue,
+    ImsDatepickerMomentValue,
+    ImsDatepickerMomentValueHandlerDirective,
     ImsDatepickerValue
 } from '../../components/ims-datepicker';
 import {
@@ -15,13 +18,6 @@ import {
     ImsDatepickerExperimentalValue,
     provideImsDatepickerExperimentalConfig
 } from '../../components/ims-datepicker-experimental';
-import {
-    ImsDatepickerMomentValue,
-    ImsDatepickerMomentValueHandlerDirective
-} from '../../components/ims-datepicker-moment';
-import {
-    ImsDatepickerLuxonValue
-} from '../../components/ims-datepicker-luxon';
 import {ReadonlyDirective} from '../../shared/readonly.directive';
 import {TemporalHelper} from '../../shared/temporal.helper';
 

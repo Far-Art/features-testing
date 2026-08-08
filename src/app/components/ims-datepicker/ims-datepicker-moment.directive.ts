@@ -1,18 +1,26 @@
-import {Injectable, Provider} from '@angular/core';
+import {Directive, Provider, forwardRef} from '@angular/core';
 import moment from 'moment';
 import type {Moment} from 'moment';
-import type {ImsDatepickerValue} from '../ims-datepicker/ims-datepicker.types';
+import type {ImsDatepickerValue} from './ims-datepicker.types';
 import {
+    IMS_DATEPICKER_VALUE_HANDLER,
     ImsDatepickerValueHandler,
     calendarMillisFromNumber,
     provideImsDatepickerValueHandler
-} from '../ims-datepicker/ims-datepicker.value-handler';
-import {canonicalDate, toUtcEpochMillis} from '../ims-datepicker/ims-datepicker.utils';
+} from './ims-datepicker-value.directive';
+import {canonicalDate, toUtcEpochMillis} from './ims-datepicker.utils';
 
 export type ImsDatepickerMomentValue = ImsDatepickerValue<Moment>;
 
-@Injectable()
-export class ImsDatepickerMomentValueHandler
+/** Selects and handles Moment values for an ims-datepicker instance. */
+@Directive({
+    selector: 'ims-datepicker[imsDatepickerMoment]',
+    providers: [{
+        provide: IMS_DATEPICKER_VALUE_HANDLER,
+        useExisting: forwardRef(() => ImsDatepickerMomentValueHandlerDirective)
+    }]
+})
+export class ImsDatepickerMomentValueHandlerDirective
     implements ImsDatepickerValueHandler<Moment> {
     isValue(value: unknown): value is Moment {
         return moment.isMoment(value) && value.isValid();
@@ -33,5 +41,5 @@ export class ImsDatepickerMomentValueHandler
 }
 
 export function provideImsDatepickerMomentValueHandler(): Provider {
-    return provideImsDatepickerValueHandler(ImsDatepickerMomentValueHandler);
+    return provideImsDatepickerValueHandler(ImsDatepickerMomentValueHandlerDirective);
 }

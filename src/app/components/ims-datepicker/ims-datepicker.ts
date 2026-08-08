@@ -29,7 +29,7 @@ import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value
 import {ReadonlyDirective} from '../../shared/readonly.directive';
 import {runScopedViewTransition} from '../../shared/view-transition';
 import {IMS_DATEPICKER_PARSER} from './ims-datepicker.parser';
-import {IMS_DATEPICKER_VALUE_HANDLER} from './ims-datepicker.value-handler';
+import {IMS_DATEPICKER_VALUE_HANDLER} from './ims-datepicker-value.directive';
 import {
     IMS_DATEPICKER_CONFIG,
     IMS_DATEPICKER_DEFAULT_LABELS,
