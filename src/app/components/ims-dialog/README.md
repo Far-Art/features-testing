@@ -198,7 +198,7 @@ The `closed` observable always emits a boolean:
 - Escape, backdrop click, or `close()` without a value: `false`
 - A custom confirmation action is converted with normal boolean coercion.
 
-### `asReadonly(state?)`
+### `asReadonly()`
 
 Generates a Close action when the supplied component has no
 `ims-dialog-actions`.
@@ -207,10 +207,11 @@ Read-only mode is provided only to `ims-dialog-content`; the title, toolbar,
 close control, and action controls remain interactive. Content controls that
 consume `ReadonlyDirective` respond to the state.
 
-`ImsDialogContent` installs `ReadonlyDirective` as a host directive. This is
-important for Angular content projection: projected custom controls can inject
-the provider from the content host. Native controls do not consume an ancestor
-provider automatically, so apply an inheriting directive to them explicitly:
+`ImsDialogContent` exposes the generic readonly-state provider from its own
+host. Projected custom controls can therefore inject the content state without
+the dialog installing a second `ReadonlyDirective`. Native controls do not
+consume an ancestor provider automatically, so apply an inheriting directive
+to them explicitly:
 
 ```html
 <ims-dialog-title>Customer review</ims-dialog-title>
@@ -232,16 +233,25 @@ provider automatically, so apply an inheriting directive to them explicitly:
 In this example, the input and select follow `asReadonly`; the toolbar and
 action buttons do not.
 
-An optional `Signal<boolean>` makes the shell state reactive:
+`ims-dialog-content` also accepts the readonly inputs directly. A local `true`
+can make content readonly in any dialog. A local `false` cannot unlock a
+readonly dialog unless the parent override is enabled:
 
-```ts
-readonly readonlyState = signal(true);
+```html
+<ims-dialog-content [ims-readonly]="contentReadonly()">
+  <!-- Content follows both the dialog state and this local state. -->
+</ims-dialog-content>
 
-dialog.info(EditorComponent).asReadonly(this.readonlyState).open();
+<ims-dialog-content
+  [ims-readonly]="false"
+  [ims-readonly-override-parent]="true"
+>
+  <!-- This content may remain editable inside a readonly dialog. -->
+</ims-dialog-content>
 ```
 
-The rendered dialog component can inject that same live signal. It also
-reflects changes made through `ImsDialogRef.setReadonly()`:
+The rendered dialog component can inject the live dialog state. It reflects
+changes made through `ImsDialogRef.setReadonly()`:
 
 ```ts
 import { IMS_DIALOG_READONLY } from './components/ims-dialog';
@@ -259,13 +269,13 @@ readonly signal hides the generated confirmation buttons and shows Close. A
 `false` signal restores the confirmation buttons without reopening the dialog:
 
 ```ts
-readonly readonlyState = signal(false);
-
-dialog
+const ref = dialog
   .warning('Review the operation before continuing.')
   .asConfirmation({ yes: 'Approve', no: 'Reject' })
-  .asReadonly(this.readonlyState)
   .open();
+
+ref.setReadonly();
+ref.setReadonly(false);
 ```
 
 ### `open<Result>()`

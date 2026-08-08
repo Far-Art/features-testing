@@ -73,7 +73,7 @@ class ReadonlyState {
       </button>
     </ims-dialog-toolbar>
 
-    <ims-dialog-content>
+    <ims-dialog-content [ims-readonly]="null">
       <div class="readonly-dialog-demo__content">
         <p>
           This area receives <code>asReadonly()</code>. The toolbar and footer action remain
@@ -224,6 +224,6 @@ export class ReadonlyDemo {
   }
 
   openReadonlyDialog(): void {
-    this.dialog.info(ReadonlyDialogContent).asReadonly(this.pageReadonly).open();
+    this.dialog.info(ReadonlyDialogContent).asReadonly().open();
   }
 }

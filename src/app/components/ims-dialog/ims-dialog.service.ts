@@ -2,7 +2,7 @@ import { Dialog, DialogConfig, DialogRef } from '@angular/cdk/dialog';
 import { Directionality } from '@angular/cdk/bidi';
 import { Overlay } from '@angular/cdk/overlay';
 import { DOCUMENT } from '@angular/common';
-import { Injectable, Injector, effect, inject, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { ImsDialogBuilder, ImsDialogBuilderHost } from './ims-dialog-builder';
 import { ImsDialogRef } from './ims-dialog-ref';
 import { ImsDialogShell } from './ims-dialog-shell';
@@ -29,7 +29,6 @@ export class ImsDialogService implements ImsDialogBuilderHost {
   private readonly directionality = inject(Directionality);
   private readonly overlay = inject(Overlay);
   private readonly document = inject(DOCUMENT);
-  private readonly injector = inject(Injector);
 
   info<C = unknown>(content: ImsDialogContentType<C> | null = null): ImsDialogBuilder<C> {
     return this.createBuilder(content, 'info');
@@ -49,8 +48,7 @@ export class ImsDialogService implements ImsDialogBuilderHost {
 
   openFromBuilder(options: ImsDialogOpenOptions): ImsDialogRef<unknown> {
     const confirmationMode = isConfirmationMode(options.mode);
-    const initialReadonlyState = resolveReadonlyState(options);
-    const readonlyState = signal(initialReadonlyState);
+    const readonlyState = signal(isReadonlyMode(options.mode));
     const mergedData = mergeDialogData(options.config.data, options.data, options.hasData);
     const direction = options.config.direction ?? this.directionality.value;
     const requestedInsideBoundary =
@@ -139,29 +137,6 @@ export class ImsDialogService implements ImsDialogBuilderHost {
     };
 
     const cdkDialogRef = this.dialog.open<unknown, unknown, ImsDialogShell>(ImsDialogShell, config);
-
-    if (options.readonlySignal) {
-      let previousSourceState = initialReadonlyState;
-      const readonlyStateEffect = effect(
-        () => {
-          const sourceState = resolveReadonlyState(options);
-
-          if (sourceState !== previousSourceState) {
-            previousSourceState = sourceState;
-            readonlyState.set(sourceState);
-          }
-        },
-        {
-          injector: this.injector,
-          manualCleanup: true,
-          allowSignalWrites: true,
-        },
-      );
-
-      cdkDialogRef.closed.subscribe({
-        complete: () => readonlyStateEffect.destroy(),
-      });
-    }
 
     return imsDialogRef ?? new ImsDialogRef(cdkDialogRef, confirmationMode, readonlyState);
   }
@@ -255,8 +230,4 @@ function isConfirmationMode(mode: ImsDialogOpenOptions['mode']): boolean {
 
 function isReadonlyMode(mode: ImsDialogOpenOptions['mode']): boolean {
   return mode === 'readonly' || mode === 'confirmation-readonly';
-}
-
-function resolveReadonlyState(options: ImsDialogOpenOptions): boolean {
-  return isReadonlyMode(options.mode) && (options.readonlySignal?.() ?? true);
 }

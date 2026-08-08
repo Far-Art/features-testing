@@ -60,8 +60,8 @@ override its parent:
 ## Consuming the signal
 
 Components should consume readonly state through `injectSignal()`. Call it from an Angular
-injection context, such as a field initializer. It returns the nearest `ReadonlyDirective`'s
-effective signal; when no provider exists, it returns a signal whose value is `false`.
+injection context, such as a field initializer. It returns the nearest generic readonly
+provider's effective signal; when no provider exists, it returns a signal whose value is `false`.
 
 ```ts
 import {Component, Signal} from '@angular/core';
@@ -104,12 +104,13 @@ behavior instead of relying on the native `disabled` attribute.
 
 Angular dependency injection follows the logical template hierarchy, not only the rendered DOM.
 A provider placed around `<ng-content>` inside a component template is therefore not visible to
-the projected nodes. Components that provide readonly state to projected descendants should attach
-`ReadonlyDirective` to their host, for example with `hostDirectives`.
+the projected nodes. Components that own readonly state can participate in the generic
+`IMS_READONLY_STATE` provider contract from their host.
 
-`ImsDialogContent` uses this pattern. When a dialog is opened with `asReadonly(state)`, its content
-host exposes the reactive readonly provider. The dialog title, toolbar, close control, and actions
-are outside that provider and remain interactive.
+`ImsDialogContent` uses that contract. When a dialog is opened with `asReadonly()`, its
+content host exposes the reactive readonly provider without installing `ReadonlyDirective` as a
+host directive. The dialog title, toolbar, close control, and actions are outside that provider
+and remain interactive.
 
 Readonly-aware custom controls such as `ims-select` and `ims-autocomplete` consume the host signal
 automatically. Native controls must attach their own inheriting directive because a `disabled`

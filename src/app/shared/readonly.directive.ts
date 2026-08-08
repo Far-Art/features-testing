@@ -1,4 +1,28 @@
-import { Directive, Signal, computed, inject, model, signal } from '@angular/core';
+import {
+  Directive,
+  InjectionToken,
+  Signal,
+  computed,
+  forwardRef,
+  inject,
+  model,
+  signal,
+} from '@angular/core';
+
+/** A readonly state exposed to descendant injectors. */
+export interface ImsReadonlyStateProvider {
+  readonly readonlySignal: Signal<boolean>;
+}
+
+/** Generic readonly provider used by directives and component-owned scopes. */
+export const IMS_READONLY_STATE = new InjectionToken<ImsReadonlyStateProvider>(
+  'IMS_READONLY_STATE',
+);
+
+/** Optional inherited state supplied by another provider on the same host. */
+export const IMS_READONLY_HOST_PARENT = new InjectionToken<Signal<boolean>>(
+  'IMS_READONLY_HOST_PARENT',
+);
 
 /**
  * Provides a readonly state to the host and its descendants.
@@ -10,16 +34,22 @@ import { Directive, Signal, computed, inject, model, signal } from '@angular/cor
 @Directive({
   selector: '[ims-readonly]',
   standalone: true,
+  providers: [
+    {
+      provide: IMS_READONLY_STATE,
+      useExisting: forwardRef(() => ReadonlyDirective),
+    },
+  ],
   host: {
     '[class.ims-readonly]': 'readonlySignal()',
     '[attr.disabled]': 'readonlySignal() ? "" : null',
     '[attr.ims-readonly-provider]': 'readonlySignal()',
   },
 })
-export class ReadonlyDirective {
+export class ReadonlyDirective implements ImsReadonlyStateProvider {
   /** Injects the nearest readonly provider, or a `false` signal when none exists. */
   static injectSignal(): Signal<boolean> {
-    return inject(ReadonlyDirective, { optional: true })?.readonlySignal ?? signal(false);
+    return inject(IMS_READONLY_STATE, { optional: true })?.readonlySignal ?? signal(false);
   }
 
   /** Local readonly state. `null` and `undefined` inherit the parent state. */
@@ -28,15 +58,22 @@ export class ReadonlyDirective {
   /** Allows this provider to explicitly replace an inherited readonly state. */
   readonly overrideParent = model<boolean | ''>(false, { alias: 'ims-readonly-override-parent' });
 
+  /** An inherited state supplied by another provider on this host, if any. */
+  private readonly hostParentReadonly = inject(IMS_READONLY_HOST_PARENT, {
+    optional: true,
+    self: true,
+  });
+
   /** The inherited state from the nearest ancestor provider, if any. */
-  private readonly parentReadonlyDirective = inject(ReadonlyDirective, {
+  private readonly parentReadonlyProvider = inject(IMS_READONLY_STATE, {
     optional: true,
     skipSelf: true,
   });
 
   /** Effective readonly state consumed by descendants. */
   readonly readonlySignal: Signal<boolean> = computed(() => {
-    const parentReadonly = this.parentReadonlyDirective?.readonlySignal() ?? false;
+    const parentReadonly =
+      this.hostParentReadonly?.() ?? this.parentReadonlyProvider?.readonlySignal() ?? false;
     const localReadonly = this.readonly();
 
     if (localReadonly === null || localReadonly === undefined) {

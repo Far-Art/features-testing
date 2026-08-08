@@ -3,14 +3,19 @@ import {
   Component,
   computed,
   Directive,
-  effect,
+  forwardRef,
   OnDestroy,
   OnInit,
   inject,
   input,
+  signal,
 } from '@angular/core';
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
-import { ReadonlyDirective } from '../../shared/readonly.directive';
+import {
+  IMS_READONLY_HOST_PARENT,
+  IMS_READONLY_STATE,
+  ImsReadonlyStateProvider,
+} from '../../shared/readonly.directive';
 import { ImsDialogSection, ImsDialogSectionRegistry } from './ims-dialog-section-registry';
 import { IMS_DIALOG_CONFIG, ImsDialogRuntimeConfig } from './ims-dialog.types';
 
@@ -110,31 +115,59 @@ export class ImsDialogToolbar extends ImsDialogSectionBase {
  * Projects the primary, scrollable dialog body.
  *
  * When omitted, the shell wraps the complete supplied component in a generated
- * content section. The content host owns scrolling directly. This component
- * has no public inputs or Angular outputs.
+ * content section. The content host owns scrolling directly. Its readonly
+ * inputs can refine or explicitly override the dialog state.
  */
 @Component({
   selector: 'ims-dialog-content',
   standalone: true,
   template: `<ng-content />`,
-  hostDirectives: [ReadonlyDirective],
+  providers: [
+    {
+      provide: IMS_READONLY_STATE,
+      useExisting: forwardRef(() => ImsDialogContent),
+    },
+    {
+      provide: IMS_READONLY_HOST_PARENT,
+      useFactory: () =>
+        inject(IMS_DIALOG_CONFIG, { optional: true })?.readonlySignal ?? signal(false),
+    },
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'ims-dialog-content',
+    '[class.ims-readonly]': 'readonlySignal()',
+    '[attr.disabled]': 'readonlySignal() ? "" : null',
+    '[attr.ims-readonly-provider]': 'readonlySignal()',
   },
 })
-export class ImsDialogContent extends ImsDialogSectionBase {
+export class ImsDialogContent extends ImsDialogSectionBase implements ImsReadonlyStateProvider {
   protected readonly section = 'content' as const;
   private readonly config = inject(IMS_DIALOG_CONFIG, { optional: true }) as
     | ImsDialogRuntimeConfig
     | null;
-  private readonly readonlyDirective = inject(ReadonlyDirective);
-  readonly readonlyMode = computed(() => this.config?.readonlySignal?.() ?? false);
+  /** Local readonly state. `null` and `undefined` inherit the dialog state. */
+  readonly localReadonly = input<boolean | null | undefined>(null, { alias: 'ims-readonly' });
 
-  constructor() {
-    super();
-    effect(() => this.readonlyDirective.readonly.set(this.readonlyMode()));
-  }
+  /** Allows the local state to replace an inherited readonly dialog state. */
+  readonly overrideDialogReadonly = input<boolean | ''>(false, {
+    alias: 'ims-readonly-override-parent',
+  });
+
+  readonly readonlySignal = computed(() => {
+    const dialogReadonly = this.config?.readonlySignal() ?? false;
+    const localReadonly = this.localReadonly();
+
+    if (localReadonly === null || localReadonly === undefined) {
+      return dialogReadonly;
+    }
+
+    if (localReadonly || !dialogReadonly || this.overrideDialogReadonly() === true) {
+      return localReadonly;
+    }
+
+    return true;
+  });
 }
 
 /**

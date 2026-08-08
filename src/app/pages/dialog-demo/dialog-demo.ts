@@ -902,9 +902,6 @@ export class DialogDemo {
   }
 
   openTimedReadonlyConfirmation(): void {
-    const readonlyState = signal(false);
-    const readonlyTimer = window.setTimeout(() => readonlyState.set(true), 2_000);
-    const confirmationTimer = window.setTimeout(() => readonlyState.set(false), 4_000);
     const ref = this.dialog
       .warning(
         'This dialog starts with confirmation actions. After two seconds readonly takes over and shows Close; after another two seconds confirmation returns.',
@@ -913,8 +910,9 @@ export class DialogDemo {
       .withIcon('timer')
       .config({ direction: 'ltr', width: 'min(38rem, calc(100vw - 2rem))' })
       .asConfirmation({ yes: 'Approve', no: 'Reject' })
-      .asReadonly(readonlyState)
       .open();
+    const readonlyTimer = window.setTimeout(() => ref.setReadonly(), 2_000);
+    const confirmationTimer = window.setTimeout(() => ref.setReadonly(false), 4_000);
 
     ref.closed.subscribe((confirmed) => {
       window.clearTimeout(readonlyTimer);

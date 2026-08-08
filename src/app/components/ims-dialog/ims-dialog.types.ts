@@ -52,7 +52,6 @@ export interface ImsDialogOpenOptions {
   readonly iconRequested: boolean;
   readonly iconName: string | null;
   readonly mode: ImsDialogMode;
-  readonly readonlySignal: Signal<boolean> | null;
   readonly confirmationLabels: ImsDialogConfirmationLabels | null;
   readonly data: unknown;
   readonly hasData: boolean;

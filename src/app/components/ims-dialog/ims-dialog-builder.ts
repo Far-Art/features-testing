@@ -1,5 +1,4 @@
 import { DialogConfig } from '@angular/cdk/dialog';
-import { Signal } from '@angular/core';
 import { ImsDialogRef } from './ims-dialog-ref';
 import {
   ImsDialogConfirmationLabels,
@@ -28,7 +27,6 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
   private hasIcon = false;
   private materialIconName: string | null = null;
   private dialogMode: ImsDialogMode = 'standard';
-  private readonlySignal: Signal<boolean> | null = null;
   private labels: ImsDialogConfirmationLabels | null = null;
   private insideClassName: string | null = null;
 
@@ -138,18 +136,14 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
    * A Close action is generated when the supplied component does not render
    * `ims-dialog-actions`. The readonly state is provided only to
    * `ims-dialog-content`, leaving the title, toolbar, and actions interactive.
-   * When a signal is provided, generated read-only chrome follows its current
-   * boolean value.
    *
-   * @param state Optional signal controlling whether read-only mode is active.
    * @returns This builder for continued chaining.
    */
-  asReadonly(state?: Signal<boolean>): ImsDialogBuilder<C, Confirmation> {
+  asReadonly(): ImsDialogBuilder<C, Confirmation> {
     this.dialogMode =
       this.dialogMode === 'confirmation' || this.dialogMode === 'confirmation-readonly'
         ? 'confirmation-readonly'
         : 'readonly';
-    this.readonlySignal = state ?? null;
     return this;
   }
 
@@ -170,7 +164,6 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
       iconRequested: this.hasIcon,
       iconName: this.materialIconName,
       mode: this.dialogMode,
-      readonlySignal: this.readonlySignal,
       confirmationLabels: this.labels,
       data: this.customData,
       hasData: this.hasCustomData,
