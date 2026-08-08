@@ -86,9 +86,14 @@
         flex: 0 0 2.5rem;
         border-inline-start: 1px solid var(--ims-color-border-subtle);
 
-        svg {
-            width: 1.25rem;
-            height: 1.25rem;
+        .material-symbols-sharp {
+            font-size: 1.25rem;
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 20;
+            line-height: 1;
         }
     }
 }
