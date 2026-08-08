@@ -1,15 +1,14 @@
-export * from './ims-datepicker';
-export * from './ims-datepicker.types';
-export {
-    canonicalDate,
-    compareDateOnly,
-    formatDate,
-    formatWeekdays,
-    IMS_DATEPICKER_INPUT_PATTERNS,
-    isDateInputTextAllowed,
-    isNativeDate,
-    normalizeDateValue,
-    parseDateText,
-    todayInZone,
-    toUtcEpochMillis
-} from './ims-datepicker.utils';
+export {ImsDatepicker} from './ims-datepicker';
+export {provideImsDatepickerConfig} from './ims-datepicker.types';
+export type {
+    ImsDatepickerConfig,
+    ImsDatepickerDate,
+    ImsDatepickerDateFilter,
+    ImsDatepickerFirstDayOfWeek,
+    ImsDatepickerFormats,
+    ImsDatepickerMonthDay,
+    ImsDatepickerPrecision,
+    ImsDatepickerValue,
+    ImsDatepickerValueType,
+    PartialImsDatepickerFormats
+} from './ims-datepicker.types';
