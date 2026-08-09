@@ -350,8 +350,9 @@ and composes the final layout without recreating that component.
    with `display: contents`; the caller's content component is the only
    `ims-dialog-content` in the rendered structure.
 3. A custom title suppresses the builder-generated title and icon.
-4. A custom actions section suppresses generated confirmation or read-only
-   actions.
+4. A custom actions section suppresses the generated actions section. Without
+   one, the shell always generates `ims-dialog-actions`; confirmation and
+   read-only modes populate it with their default controls.
 5. Toolbars are caller-projected only and occupy a full-width row beneath the
    title. The shell keeps its X close control at the inline end of the title
    row.

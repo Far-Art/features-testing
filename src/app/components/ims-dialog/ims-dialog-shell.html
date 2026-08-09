@@ -72,18 +72,18 @@
     </div>
   }
 
-  @if (!sections.hasActions() && confirmationMode && !readonlyMode()) {
+  @if (!sections.hasActions()) {
     <ims-dialog-actions [generated]="true">
-      <button type="button" (click)="reject()">
-        {{ config.confirmationLabels?.no }}
-      </button>
-      <button type="button" (click)="confirm()">
-        {{ config.confirmationLabels?.yes }}
-      </button>
-    </ims-dialog-actions>
-  } @else if (!sections.hasActions() && readonlyMode()) {
-    <ims-dialog-actions [generated]="true">
-      <button type="button" (click)="close()">סגור</button>
+      @if (confirmationMode && !readonlyMode()) {
+        <button type="button" (click)="reject()">
+          {{ config.confirmationLabels?.no }}
+        </button>
+        <button type="button" (click)="confirm()">
+          {{ config.confirmationLabels?.yes }}
+        </button>
+      } @else if (readonlyMode()) {
+        <button type="button" (click)="close()">סגור</button>
+      }
     </ims-dialog-actions>
   }
 </div>
