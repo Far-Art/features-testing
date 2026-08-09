@@ -16,15 +16,14 @@
             class="ims-input ims-autocomplete__trigger"
             [class.ims-autocomplete__trigger--open]="open()"
             [class.ims-autocomplete__trigger--empty]="!hasSelection()"
-            [class.ims-autocomplete__trigger--readonly]="readonlyMode()"
-            [disabled]="interactionDisabled() && !allowOpenWhenDisabled()"
+            [class.ims-autocomplete__trigger--readonly]="interactionDisabled()"
+            [disabled]="interactionDisabled() && !readonlyMultipleMode()"
             [attr.id]="id()"
             [attr.aria-label]="ariaLabel()"
             [attr.aria-labelledby]="ariaLabelledby()"
-            [attr.aria-disabled]="readonlyMode() ? 'true' : null"
-            aria-haspopup="listbox"
+            [attr.aria-haspopup]="readonlyMultipleMode() ? null : 'listbox'"
             [attr.aria-expanded]="open()"
-            [attr.aria-controls]="open() ? listboxId : null"
+            [attr.aria-controls]="readonlyMultipleMode() ? readonlyPanelId : (open() ? listboxId : null)"
             (click)="togglePanel()"
             (keydown)="onKeydown($event)"
         >
@@ -45,11 +44,15 @@
                 }
             </span>
 
-            <span
-                class="ims-autocomplete__mode-icon material-icons"
-                aria-hidden="true"
-                [textContent]="'playlist_add_check'"
-            ></span>
+            @if (readonlyMultipleMode()) {
+                <span class="ims-autocomplete__chevron" aria-hidden="true"></span>
+            } @else {
+                <span
+                    class="ims-autocomplete__mode-icon material-icons"
+                    aria-hidden="true"
+                    [textContent]="'playlist_add_check'"
+                ></span>
+            }
 
             @if (multiDisplay().overflowCount > 0) {
                 <span class="ims-autocomplete__badge">+{{ multiDisplay().overflowCount }}</span>
@@ -61,16 +64,13 @@
             type="text"
             class="ims-input ims-autocomplete__input"
             autocomplete="off"
-            [class.ims-autocomplete__input--readonly]="readonlyMode()"
-            [disabled]="interactionDisabled() && !allowOpenWhenDisabled()"
-            [readOnly]="readonlyMode()"
+            [class.ims-autocomplete__input--readonly]="interactionDisabled()"
+            [disabled]="interactionDisabled()"
             [attr.id]="id()"
             [attr.placeholder]="placeholder()"
             [attr.aria-label]="ariaLabel()"
             [attr.aria-labelledby]="ariaLabelledby()"
             role="combobox"
-            [attr.aria-disabled]="readonlyMode() ? 'true' : null"
-            [attr.aria-readonly]="readonlyMode() ? 'true' : null"
             aria-autocomplete="list"
             aria-haspopup="listbox"
             [attr.aria-expanded]="open()"
@@ -103,140 +103,176 @@
     (positionChange)="onOverlayPositionChange($event)"
     (overlayOutsideClick)="onOutsideClick($event)"
 >
-    <div
-        class="ims-autocomplete__overlay"
-        tabindex="-1"
-        [attr.dir]="directionality.value"
-        [class.ims-autocomplete__overlay--readonly]="readonlyMode()"
-        [class.ims-autocomplete__overlay--toolbar-left]="toolbarSide() === 'left'"
-        [class.ims-autocomplete__overlay--toolbar-right]="toolbarSide() === 'right'"
-        (keydown)="onKeydown($event)"
-    >
-        @if (showToolbar()) {
-            <aside #toolbarPanel class="ims-autocomplete__toolbar" aria-label="סרגל בחירה">
-                <button
-                    type="button"
-                    class="ims-autocomplete__edit"
-                    aria-label="ערוך בחירה"
-                    [disabled]="interactionDisabled() || editableOptions().length === 0"
-                    (click)="openEditDialog()"
+    <div class="ims-autocomplete__overlay" [attr.dir]="directionality.value">
+        @if (readonlyMultipleMode()) {
+            <section
+                #readonlyPanel
+                class="ims-autocomplete__readonly-panel"
+                role="region"
+                tabindex="-1"
+                [attr.id]="readonlyPanelId"
+                [attr.aria-labelledby]="readonlyPanelTitleId"
+                [style.width.px]="panelWidth()"
+                (keydown)="onKeydown($event)"
+            >
+                <h3
+                    class="ims-autocomplete__readonly-title"
+                    [attr.id]="readonlyPanelTitleId"
                 >
-                    <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                        <path d="M12.5 4.5 15.5 7.5 7 16H4v-3z" />
-                        <path d="M11 6 14 9" />
-                    </svg>
-                </button>
+                    @if (selectedLabels().length === 1) {
+                        ערך אחד נבחר
+                    } @else {
+                        {{ selectedLabels().length }} ערכים שנבחרו
+                    }
+                </h3>
 
-                <div class="ims-autocomplete__segments" role="group" aria-label="אפשרויות מוצגות">
-                    <button
-                        type="button"
-                        class="ims-autocomplete__segment"
-                        aria-label="הצג את כל האפשרויות"
-                        [disabled]="isViewModeDisabled('all')"
-                        [class.ims-autocomplete__segment--active]="viewMode() === 'all'"
-                        [attr.aria-pressed]="viewMode() === 'all'"
-                        (click)="setViewMode('all')"
-                    >
-                        <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                            <path d="M4 6h12M4 10h12M4 14h12" />
-                        </svg>
-                    </button>
-                    <button
-                        type="button"
-                        class="ims-autocomplete__segment"
-                        aria-label="הצג אפשרויות שנבחרו"
-                        [disabled]="isViewModeDisabled('selected')"
-                        [class.ims-autocomplete__segment--active]="viewMode() === 'selected'"
-                        [attr.aria-pressed]="viewMode() === 'selected'"
-                        (click)="setViewMode('selected')"
-                    >
-                        <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                            <path d="M4 10.5 8 14l8-8" />
-                        </svg>
-                    </button>
-                    <button
-                        type="button"
-                        class="ims-autocomplete__segment"
-                        aria-label="הצג אפשרויות שלא נבחרו"
-                        [disabled]="isViewModeDisabled('unselected')"
-                        [class.ims-autocomplete__segment--active]="viewMode() === 'unselected'"
-                        [attr.aria-pressed]="viewMode() === 'unselected'"
-                        (click)="setViewMode('unselected')"
-                    >
-                        <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                            <path d="M6 6h8v8H6z" />
-                        </svg>
-                    </button>
-                </div>
-            </aside>
-        }
-
-        <div #menu class="ims-autocomplete__menu" [style.width.px]="panelWidth()">
-            @if (multiple()) {
-                <label class="ims-autocomplete__filter">
-                    <span>חיפוש</span>
-                    <input
-                        #filterInput
-                        type="text"
-                        class="ims-input"
-                        autocomplete="off"
-                        [attr.aria-controls]="listboxId"
-                        [attr.aria-activedescendant]="activeOptionId()"
-                        [value]="query()"
-                        (input)="onMultiFilterInput($event)"
-                    />
-                </label>
-            }
-
-            <div class="ims-autocomplete__panel">
-                @if (loading()) {
-                    <div class="ims-autocomplete__state" role="status">טוען...</div>
-                }
-
-                @if (visibleOptions().length > 0) {
-                    <cdk-virtual-scroll-viewport
-                        #viewport
-                        class="ims-autocomplete__viewport"
-                        role="listbox"
-                        [attr.id]="listboxId"
-                        [attr.aria-multiselectable]="multiple() ? 'true' : null"
-                        [attr.aria-readonly]="readonlyMode() ? 'true' : null"
-                        [attr.aria-activedescendant]="activeOptionId()"
-                        [itemSize]="optionHeight()"
-                        [style.height.px]="listboxHeight()"
+                @if (selectedLabels().length > 0) {
+                    <ul
+                        class="ims-autocomplete__readonly-list"
+                        role="list"
                         [style.max-height.px]="listboxMaxHeight()"
                     >
-                        <div
-                            *cdkVirtualFor="let option of visibleOptions(); let index = index; trackBy: trackByOption"
-                            class="ims-autocomplete__option"
-                            role="option"
-                            tabindex="-1"
-                            [attr.id]="optionId(index)"
-                            [attr.aria-selected]="isSelected(option)"
-                            [attr.aria-disabled]="option.disabled ? 'true' : null"
-                            [class.ims-autocomplete__option--active]="activeIndex() === index"
-                            [class.ims-autocomplete__option--selected]="isSelected(option)"
-                            [class.ims-autocomplete__option--disabled]="option.disabled"
-                            [style.height.px]="optionHeight()"
-                            (click)="selectOption(option)"
-                            (mouseenter)="activateOption(option, 'pointer')"
-                        >
-                            <span class="ims-autocomplete__option-label">
-                                @for (part of highlightParts(option.label); track $index) {
-                                    @if (part.match) {
-                                        <mark>{{ part.text }}</mark>
-                                    } @else {
-                                        <span>{{ part.text }}</span>
-                                    }
-                                }
-                            </span>
-                        </div>
-                    </cdk-virtual-scroll-viewport>
-                } @else if (!loading()) {
-                    <div class="ims-autocomplete__state" role="note">אין אפשרויות</div>
+                        @for (label of selectedLabels(); track $index) {
+                            <li class="ims-autocomplete__readonly-value">{{ label }}</li>
+                        }
+                    </ul>
+                } @else {
+                    <p class="ims-autocomplete__readonly-empty">לא נבחרו ערכים</p>
                 }
+            </section>
+        } @else {
+            <div
+                tabindex="-1"
+                [class.ims-autocomplete__overlay--toolbar-left]="toolbarSide() === 'left'"
+                [class.ims-autocomplete__overlay--toolbar-right]="toolbarSide() === 'right'"
+                (keydown)="onKeydown($event)"
+            >
+                @if (showToolbar()) {
+                    <aside #toolbarPanel class="ims-autocomplete__toolbar" aria-label="סרגל בחירה">
+                        <button
+                            type="button"
+                            class="ims-autocomplete__edit"
+                            aria-label="ערוך בחירה"
+                            [disabled]="interactionDisabled() || editableOptions().length === 0"
+                            (click)="openEditDialog()"
+                        >
+                            <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                                <path d="M12.5 4.5 15.5 7.5 7 16H4v-3z" />
+                                <path d="M11 6 14 9" />
+                            </svg>
+                        </button>
+
+                        <div class="ims-autocomplete__segments" role="group" aria-label="אפשרויות מוצגות">
+                            <button
+                                type="button"
+                                class="ims-autocomplete__segment"
+                                aria-label="הצג את כל האפשרויות"
+                                [disabled]="isViewModeDisabled('all')"
+                                [class.ims-autocomplete__segment--active]="viewMode() === 'all'"
+                                [attr.aria-pressed]="viewMode() === 'all'"
+                                (click)="setViewMode('all')"
+                            >
+                                <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                                    <path d="M4 6h12M4 10h12M4 14h12" />
+                                </svg>
+                            </button>
+                            <button
+                                type="button"
+                                class="ims-autocomplete__segment"
+                                aria-label="הצג אפשרויות שנבחרו"
+                                [disabled]="isViewModeDisabled('selected')"
+                                [class.ims-autocomplete__segment--active]="viewMode() === 'selected'"
+                                [attr.aria-pressed]="viewMode() === 'selected'"
+                                (click)="setViewMode('selected')"
+                            >
+                                <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                                    <path d="M4 10.5 8 14l8-8" />
+                                </svg>
+                            </button>
+                            <button
+                                type="button"
+                                class="ims-autocomplete__segment"
+                                aria-label="הצג אפשרויות שלא נבחרו"
+                                [disabled]="isViewModeDisabled('unselected')"
+                                [class.ims-autocomplete__segment--active]="viewMode() === 'unselected'"
+                                [attr.aria-pressed]="viewMode() === 'unselected'"
+                                (click)="setViewMode('unselected')"
+                            >
+                                <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                                    <path d="M6 6h8v8H6z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </aside>
+                }
+
+                <div #menu class="ims-autocomplete__menu" [style.width.px]="panelWidth()">
+                    @if (multiple()) {
+                        <label class="ims-autocomplete__filter">
+                            <span>חיפוש</span>
+                            <input
+                                #filterInput
+                                type="text"
+                                class="ims-input"
+                                autocomplete="off"
+                                [attr.aria-controls]="listboxId"
+                                [attr.aria-activedescendant]="activeOptionId()"
+                                [value]="query()"
+                                (input)="onMultiFilterInput($event)"
+                            />
+                        </label>
+                    }
+
+                    <div class="ims-autocomplete__panel">
+                        @if (loading()) {
+                            <div class="ims-autocomplete__state" role="status">טוען...</div>
+                        }
+
+                        @if (visibleOptions().length > 0) {
+                            <cdk-virtual-scroll-viewport
+                                #viewport
+                                class="ims-autocomplete__viewport"
+                                role="listbox"
+                                [attr.id]="listboxId"
+                                [attr.aria-multiselectable]="multiple() ? 'true' : null"
+                                [attr.aria-activedescendant]="activeOptionId()"
+                                [itemSize]="optionHeight()"
+                                [style.height.px]="listboxHeight()"
+                                [style.max-height.px]="listboxMaxHeight()"
+                            >
+                                <div
+                                    *cdkVirtualFor="let option of visibleOptions(); let index = index; trackBy: trackByOption"
+                                    class="ims-autocomplete__option"
+                                    role="option"
+                                    tabindex="-1"
+                                    [attr.id]="optionId(index)"
+                                    [attr.aria-selected]="isSelected(option)"
+                                    [attr.aria-disabled]="option.disabled ? 'true' : null"
+                                    [class.ims-autocomplete__option--active]="activeIndex() === index"
+                                    [class.ims-autocomplete__option--selected]="isSelected(option)"
+                                    [class.ims-autocomplete__option--disabled]="option.disabled"
+                                    [style.height.px]="optionHeight()"
+                                    (click)="selectOption(option)"
+                                    (mouseenter)="activateOption(option)"
+                                >
+                                    <span class="ims-autocomplete__option-label">
+                                        @for (part of highlightParts(option.label); track $index) {
+                                            @if (part.match) {
+                                                <mark>{{ part.text }}</mark>
+                                            } @else {
+                                                <span>{{ part.text }}</span>
+                                            }
+                                        }
+                                    </span>
+                                </div>
+                            </cdk-virtual-scroll-viewport>
+                        } @else if (!loading()) {
+                            <div class="ims-autocomplete__state" role="note">אין אפשרויות</div>
+                        }
+                    </div>
+                </div>
             </div>
-        </div>
+        }
     </div>
 </ng-template>
 

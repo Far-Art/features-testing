@@ -32,7 +32,6 @@ import {ImsOption} from './ims-option';
 import {ImsTransferDialogService, ImsTransferRow} from '../ims-transfer-dialog';
 import {
   IMS_SELECT_PARENT,
-  ImsSelectActivationSource,
   ImsSelectCompareWith,
   ImsSelectFilterMode,
   ImsSelectFilterPredicate,
@@ -93,10 +92,6 @@ const TYPEAHEAD_RESET_MS = 700;
 
 let nextSelectId = 0;
 
-const optionalBooleanAttribute = (
-  value: boolean | string | null | undefined
-): boolean | null => value === null || value === undefined ? null : booleanAttribute(value);
-
 @Component({
   selector: 'ims-select',
   standalone: true,
@@ -143,6 +138,7 @@ export class ImsSelect<T = unknown>
   private readonly filterInput = viewChild<ElementRef<HTMLInputElement>>('filterInput');
   private readonly listbox = viewChild<ElementRef<HTMLElement>>('listbox');
   private readonly menu = viewChild<ElementRef<HTMLElement>>('menu');
+  private readonly readonlyPanel = viewChild<ElementRef<HTMLElement>>('readonlyPanel');
   private readonly toolbarPanel = viewChild<ElementRef<HTMLElement>>('toolbarPanel');
   private readonly valueRow = viewChild<ElementRef<HTMLElement>>('valueRow');
   private readonly measureTextElement = viewChild<ElementRef<HTMLElement>>('measureText');
@@ -153,18 +149,6 @@ export class ImsSelect<T = unknown>
 
   /** Enables multi-selection. Multi-select writes a readonly array of selected values. */
   readonly multiple = input(false, {transform: booleanAttribute});
-
-  /**
-   * Allows the dropdown to be opened for review while the control is disabled.
-   * Defaults to enabled in multiple mode and disabled in single-select mode.
-   */
-  readonly allowOpenWhenDisabledInput = input<
-    boolean | null,
-    boolean | string | null | undefined
-  >(
-    null,
-    {alias: 'allowOpenWhenDisabled', transform: optionalBooleanAttribute}
-  );
 
   /** Text displayed in the trigger when no value is selected. */
   readonly placeholder = input('בחר');
@@ -203,18 +187,15 @@ export class ImsSelect<T = unknown>
   readonly listboxMaxHeight = signal(LISTBOX_MAX_HEIGHT);
   readonly multiDisplay = signal<ImsSelectDisplayState>(DEFAULT_DISPLAY);
 
-  readonly allowOpenWhenDisabled = computed(() =>
-    this.allowOpenWhenDisabledInput() ?? this.multiple()
-  );
   /** True when disabled directly, by a form, or by an ancestor readonly provider. */
   readonly interactionDisabled = computed(() => this.disabled() || this.inheritedReadonly());
-  readonly readonlyMode = computed(() =>
-    this.interactionDisabled() && this.allowOpenWhenDisabled()
-  );
+  readonly readonlyMultipleMode = computed(() => this.interactionDisabled() && this.multiple());
 
   readonly selectId = `ims-select-${nextSelectId++}`;
   readonly listboxId = `${this.selectId}-listbox`;
   readonly filterInputId = `${this.selectId}-filter`;
+  readonly readonlyPanelId = `${this.selectId}-selected-values`;
+  readonly readonlyPanelTitleId = `${this.readonlyPanelId}-title`;
   readonly overlayPositions = OVERLAY_POSITIONS;
 
   readonly singleValue = computed<T | null>(() => {
@@ -248,6 +229,8 @@ export class ImsSelect<T = unknown>
   );
 
   readonly showFilter = computed(() => {
+    if (this.readonlyMultipleMode()) return false;
+
     const mode = this.filter();
     if (mode === 'on') return true;
     if (mode === 'off') return false;
@@ -255,7 +238,7 @@ export class ImsSelect<T = unknown>
   });
 
   readonly showToolbar = computed(() => {
-    if (!this.multiple()) return false;
+    if (this.readonlyMultipleMode() || !this.multiple()) return false;
 
     const mode = this.toolbar();
     if (mode === 'on') return true;
@@ -309,7 +292,7 @@ export class ImsSelect<T = unknown>
     super();
 
     effect(() => {
-      if (this.interactionDisabled() && !this.allowOpenWhenDisabled() && this.open()) {
+      if (this.interactionDisabled() && !this.readonlyMultipleMode() && this.open()) {
         this.close(false);
       }
     });
@@ -321,7 +304,7 @@ export class ImsSelect<T = unknown>
     });
 
     effect(() => {
-      if (!this.open()) return;
+      if (!this.open() || this.readonlyMultipleMode()) return;
 
       const viewMode = this.viewMode();
       if (viewMode !== 'all' && this.optionsForViewMode(viewMode).length === 0) {
@@ -367,7 +350,7 @@ export class ImsSelect<T = unknown>
   }
 
   togglePanel(): void {
-    if (this.interactionDisabled() && !this.allowOpenWhenDisabled()) return;
+    if (this.interactionDisabled() && !this.readonlyMultipleMode()) return;
 
     if (this.open()) {
       this.close(true);
@@ -378,11 +361,13 @@ export class ImsSelect<T = unknown>
   }
 
   openPanel(): void {
-    if ((this.interactionDisabled() && !this.allowOpenWhenDisabled()) || this.open()) return;
+    if ((this.interactionDisabled() && !this.readonlyMultipleMode()) || this.open()) return;
 
     this.overlaySide = undefined;
     this.updatePanelGeometry();
-    this.setInitialActiveOption();
+    if (!this.readonlyMultipleMode()) {
+      this.setInitialActiveOption();
+    }
     this.open.set(true);
   }
 
@@ -404,6 +389,12 @@ export class ImsSelect<T = unknown>
   onOverlayAttached(): void {
     queueMicrotask(() => {
       this.updatePanelGeometry();
+
+      if (this.readonlyMultipleMode()) {
+        this.readonlyPanel()?.nativeElement.focus({preventScroll: true});
+        return;
+      }
+
       this.updateToolbarSide();
       this.captureListboxHeight();
       this.setInitialActiveOption();
@@ -513,12 +504,7 @@ export class ImsSelect<T = unknown>
     return this.visibleOptions().some((visibleOption) => visibleOption === option);
   }
 
-  activateOption(
-    option: ImsSelectOptionLike<T>,
-    source: ImsSelectActivationSource = 'selection'
-  ): void {
-    if (source === 'pointer' && this.readonlyMode()) return;
-
+  activateOption(option: ImsSelectOptionLike<T>): void {
     const index = this.visibleOptions().findIndex((visibleOption) => visibleOption === option);
     if (index < 0 || option.disabled()) return;
     this.activeIndex.set(index);
@@ -544,9 +530,15 @@ export class ImsSelect<T = unknown>
   }
 
   onTriggerKeydown(event: KeyboardEvent): void {
+    if (this.readonlyMultipleMode()) {
+      if (event.key === 'Escape' && this.open()) {
+        event.preventDefault();
+        this.close(true);
+      }
+      return;
+    }
+
     if (this.interactionDisabled()) {
-      if (!this.allowOpenWhenDisabled()) return;
-      this.onReadonlyTriggerKeydown(event);
       return;
     }
 
@@ -589,31 +581,17 @@ export class ImsSelect<T = unknown>
     }
   }
 
-  private onReadonlyTriggerKeydown(event: KeyboardEvent): void {
-    switch (event.key) {
-      case 'ArrowDown':
-      case 'ArrowUp':
-      case 'Enter':
-      case ' ':
-        event.preventDefault();
-        if (!this.open()) {
-          this.openPanel();
-        } else if (event.key === 'ArrowDown') {
-          this.moveActiveOption(1);
-        } else if (event.key === 'ArrowUp') {
-          this.moveActiveOption(-1);
-        }
-        break;
-      case 'Escape':
-        if (this.open()) {
-          event.preventDefault();
-          this.close(true);
-        }
-        break;
-    }
-  }
-
   onPanelKeydown(event: KeyboardEvent): void {
+    if (this.readonlyMultipleMode()) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        this.close(true);
+      } else if (event.key === 'Tab') {
+        this.close(false);
+      }
+      return;
+    }
+
     if (this.isToolbarKeyboardEvent(event) && event.key !== 'Escape' && event.key !== 'Tab') {
       return;
     }

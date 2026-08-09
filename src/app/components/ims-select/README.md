@@ -52,15 +52,15 @@ depend on Angular CDK overlay and bidi.
 and `toolbar` each accept `'on' | 'off' | 'auto'`, where `'auto'` activates
 once `options().length >= filterAutoMinOptions()` (default `15`).
 
-`allowOpenWhenDisabled` allows a disabled select to open in readonly mode so
-its options can be reviewed without changing the value. When the input is not
-set, it defaults to `true` in multiple mode and `false` in single-select mode.
-Set it explicitly to override either default.
+When a multiple select is readonly or disabled, its trigger remains available
+as a disclosure that opens a semantic list containing only the selected
+values; the editing toolbar, filter, and available options are not rendered.
+Readonly and disabled single selects do not open an options panel.
 
 `ims-select` also consumes the nearest `ReadonlyDirective` provider. Applying
 `[ims-readonly]` to the select or an ancestor blocks value changes using the
-same readonly behavior; `allowOpenWhenDisabled` can still be used to allow
-reviewing the options.
+same readonly behavior. Multiple selects continue to expose their selected
+value details without exposing the selection interface.
 
 ## Multi-Select Toolbar
 

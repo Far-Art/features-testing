@@ -4,7 +4,6 @@ export type ImsAutocompleteSortMode = 'default' | 'asc' | 'desc';
 export type ImsAutocompleteToolbarMode = 'on' | 'off' | 'auto';
 export type ImsAutocompleteToolbarSide = 'left' | 'right';
 export type ImsAutocompleteViewMode = 'all' | 'selected' | 'unselected';
-export type ImsAutocompleteActivationSource = 'selection' | 'pointer';
 export type ImsAutocompleteValue<T> = T | string | readonly T[] | null | undefined;
 
 export interface ImsAutocompleteOption<T = unknown> {

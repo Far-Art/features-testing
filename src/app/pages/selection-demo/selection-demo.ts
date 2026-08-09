@@ -100,10 +100,6 @@ export class SelectionDemo {
         value: this.initialBagOptions[1],
         disabled: true
     });
-    readonly readonlySingleSelectControl = new FormControl<SelectDemoBag | null>({
-        value: this.initialBagOptions[1],
-        disabled: true
-    });
     readonly bagAutocompleteOptions: readonly ImsAutocompleteOption<SelectDemoBag>[] = this.initialBagOptions.map((bag) => ({
         value: bag,
         label: bag.label,
@@ -121,11 +117,6 @@ export class SelectionDemo {
         {nonNullable: true}
     );
     readonly disabledSingleAutocompleteControl =
-        new FormControl<SelectDemoBag | string | null>({
-            value: this.initialBagOptions[1],
-            disabled: true
-        });
-    readonly readonlySingleAutocompleteControl =
         new FormControl<SelectDemoBag | string | null>({
             value: this.initialBagOptions[1],
             disabled: true

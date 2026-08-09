@@ -54,9 +54,8 @@
     <div>
         <h2>בחירה מושבתת במצב צפייה בלבד</h2>
         <p>
-            בחירה מרובה נפתחת כברירת מחדל גם כשהפקד מושבת. בבחירה יחידה ברירת
-            המחדל היא לא להיפתח, וניתן לאפשר זאת באמצעות
-            <code>allowOpenWhenDisabled</code>. בשני המקרים לא ניתן לשנות את הערך.
+            בחירה מרובה מציגה כברירת מחדל רשימה של הערכים שנבחרו גם כשהפקד מושבת.
+            בחירה יחידה מושבתת נשארת סגורה. בשני המקרים לא ניתן לשנות את הערך.
         </p>
     </div>
 
@@ -95,22 +94,6 @@
             </ims-select>
         </label>
 
-        <label class="select-demo__field">
-            <span>בחירה יחידה מושבתת — פתיחה הופעלה</span>
-            <ims-select
-                allowOpenWhenDisabled
-                filter="auto"
-                ariaLabel="בחירה יחידה מושבתת לצפייה בלבד"
-                [formControl]="readonlySingleSelectControl"
-                [compareWith]="compareBagById"
-            >
-                @for (bag of bagOptions(); track bag.id) {
-                    <ims-option [value]="bag" [selectionText]="bag.label" [disabled]="!!bag.disabled">
-                        {{ bag.label }} (+{{ bag.count }})
-                    </ims-option>
-                }
-            </ims-select>
-        </label>
     </div>
 </section>
 
@@ -153,9 +136,8 @@
     <div>
         <h2>השלמה אוטומטית מושבתת במצב צפייה בלבד</h2>
         <p>
-            השלמה מרובה נפתחת לצפייה כברירת מחדל. השלמה יחידה נשארת סגורה כברירת
-            מחדל, וניתן לאפשר את פתיחתה באמצעות
-            <code>allowOpenWhenDisabled</code>.
+            השלמה מרובה מציגה רשימה של הערכים שנבחרו. השלמה יחידה מושבתת נשארת
+            סגורה. בשני המקרים לא ניתן לשנות את הערך.
         </p>
     </div>
 
@@ -183,17 +165,6 @@
             />
         </label>
 
-        <label class="select-demo__field">
-            <span>השלמה יחידה מושבתת — פתיחה הופעלה</span>
-            <ims-autocomplete
-                strict
-                allowOpenWhenDisabled
-                ariaLabel="השלמה יחידה מושבתת לצפייה בלבד"
-                [options]="bagAutocompleteOptions"
-                [formControl]="readonlySingleAutocompleteControl"
-                [compareWith]="compareBagById"
-            />
-        </label>
     </div>
 </section>
 
