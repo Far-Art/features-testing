@@ -81,7 +81,7 @@
         <button type="button" (click)="confirm()">
           {{ config.confirmationLabels?.yes }}
         </button>
-      } @else if (readonlyMode()) {
+      } @else {
         <button type="button" (click)="close()">סגור</button>
       }
     </ims-dialog-actions>
