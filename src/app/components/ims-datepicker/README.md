@@ -72,6 +72,8 @@ Global configuration:
 
 ```ts
 provideImsDatepickerConfig({
+    rangeMin: Date.UTC(1900, 0, 1),
+    rangeMax: Date.UTC(2200, 11, 31),
     locale: 'he',
     zone: 'Asia/Jerusalem',
     firstDayOfWeek: 7,
@@ -251,10 +253,10 @@ less strict:
 
 Range and filter behavior is stricter:
 
-- Effective minimum is the later of global and instance minimum.
-- Effective maximum is the earlier of global and instance maximum.
+- Effective minimum is the later of application `rangeMin` and instance `min`.
+- Effective maximum is the earlier of application `rangeMax` and instance `max`.
 - A date must pass both the global and instance filters.
-- Built-in fallback range is `1900-01-01` through `2100-12-31`.
+- Built-in fallback range is `1900-01-01` through `2200-12-31`.
 
 An instance must never enable a date rejected by global configuration.
 

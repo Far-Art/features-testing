@@ -119,8 +119,8 @@ const OVERLAY_POSITIONS: ConnectedPosition[] = [
     }
 ];
 
-const DEFAULT_MIN = canonicalDate(1900, 1, 1)!;
-const DEFAULT_MAX = canonicalDate(2100, 12, 31)!;
+const DEFAULT_RANGE_MIN = canonicalDate(1900, 1, 1)!;
+const DEFAULT_RANGE_MAX = canonicalDate(2200, 12, 31)!;
 const YEARS_PER_PAGE = 24;
 
 let nextDatepickerId = 0;
@@ -213,7 +213,7 @@ export class ImsDatepicker
     readonly parseInvalid = signal(false);
     readonly calendarView = signal<ImsDatepickerView>('day');
     readonly calendarTransitionDirection = signal<ImsDatepickerTransitionDirection>('view');
-    readonly cursor = signal(DEFAULT_MIN);
+    readonly cursor = signal(DEFAULT_RANGE_MIN);
 
     readonly datepickerId = `ims-datepicker-${nextDatepickerId++}`;
     readonly dialogId = `${this.datepickerId}-dialog`;
@@ -253,19 +253,19 @@ export class ImsDatepicker
         ...(this.labels() ?? {})
     }));
 
-    readonly globalMin = computed(() =>
+    readonly rangeMin = computed(() =>
         this.normalizeExternalValue(
-            this.globalConfig.min,
+            this.globalConfig.rangeMin,
             'dd/MM/yyyy',
             'start'
-        ) ?? DEFAULT_MIN
+        ) ?? DEFAULT_RANGE_MIN
     );
-    readonly globalMax = computed(() =>
+    readonly rangeMax = computed(() =>
         this.normalizeExternalValue(
-            this.globalConfig.max,
+            this.globalConfig.rangeMax,
             'dd/MM/yyyy',
             'start'
-        ) ?? DEFAULT_MAX
+        ) ?? DEFAULT_RANGE_MAX
     );
     readonly effectiveMin = computed(() => {
         const instanceMin = this.normalizeExternalValue(
@@ -273,8 +273,8 @@ export class ImsDatepicker
             'dd/MM/yyyy',
             'start'
         );
-        const globalMin = this.globalMin();
-        return instanceMin && compareDateOnly(instanceMin, globalMin) > 0 ? instanceMin : globalMin;
+        const rangeMin = this.rangeMin();
+        return instanceMin && compareDateOnly(instanceMin, rangeMin) > 0 ? instanceMin : rangeMin;
     });
     readonly effectiveMax = computed(() => {
         const instanceMax = this.normalizeExternalValue(
@@ -282,8 +282,8 @@ export class ImsDatepicker
             'dd/MM/yyyy',
             'start'
         );
-        const globalMax = this.globalMax();
-        return instanceMax && compareDateOnly(instanceMax, globalMax) < 0 ? instanceMax : globalMax;
+        const rangeMax = this.rangeMax();
+        return instanceMax && compareDateOnly(instanceMax, rangeMax) < 0 ? instanceMax : rangeMax;
     });
 
     readonly normalizedValue = computed(() =>

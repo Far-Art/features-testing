@@ -71,8 +71,8 @@ import {
 
 providers: [
   provideImsDatepickerConfig({
-    min: new Date(Date.UTC(1900, 0, 1)),
-    max: new Date(Date.UTC(2100, 11, 31)),
+    rangeMin: Date.UTC(1900, 0, 1),
+    rangeMax: Date.UTC(2200, 11, 31),
     locale: 'en',
     zone: 'local'
   })

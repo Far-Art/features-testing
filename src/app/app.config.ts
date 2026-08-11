@@ -18,6 +18,8 @@ export const appConfig: ApplicationConfig = {
         provideHttpClient(withXhr()),
         provideRouter(routes),
         provideImsDatepickerConfig({
+            rangeMin: Date.UTC(1900, 0, 1),
+            rangeMax: Date.UTC(2200, 11, 31),
             locale: 'he',
             zone: 'Asia/Jerusalem',
             firstDayOfWeek: 7,

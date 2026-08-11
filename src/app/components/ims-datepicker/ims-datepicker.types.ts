@@ -53,8 +53,16 @@ export interface ImsDatepickerFormats {
 }
 
 export interface ImsDatepickerConfig<TDate extends object = DateTime> {
-    readonly min?: ImsDatepickerValue<TDate>;
-    readonly max?: ImsDatepickerValue<TDate>;
+    /**
+     * Application-wide lower boundary. Instance `min` values can tighten this
+     * boundary, but cannot move it earlier.
+     */
+    readonly rangeMin?: ImsDatepickerValue<TDate>;
+    /**
+     * Application-wide upper boundary. Instance `max` values can tighten this
+     * boundary, but cannot move it later.
+     */
+    readonly rangeMax?: ImsDatepickerValue<TDate>;
     /**
      * Global strict date filter. An instance filter can further restrict dates,
      * but cannot enable a date rejected by this predicate.
