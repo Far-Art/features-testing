@@ -1,4 +1,5 @@
 import {
+    afterNextRender,
     booleanAttribute,
     ChangeDetectionStrategy,
     Component,
@@ -24,6 +25,7 @@ type CheckboxVisualState = 'unchecked' | 'checked' | 'intermediate';
 })
 export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T> {
     private previousVisualState: CheckboxVisualState = 'unchecked';
+    private rippleReady = false;
     private rippleResetHandle: ReturnType<typeof setTimeout> | null = null;
 
     readonly intermediate = model(false);
@@ -49,6 +51,7 @@ export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T>
         if (this.intermediate()) return 'intermediate';
         return this.isChecked() ? 'checked' : 'unchecked';
     });
+    readonly animationsReady = signal(false);
     readonly rippleActive = signal(false);
 
     // Checkmark path and dash path share the same number of SVG commands (M L L),
@@ -73,9 +76,14 @@ export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T>
             const previousState = this.previousVisualState;
             this.previousVisualState = currentState;
 
-            if (previousState === 'unchecked' && currentState === 'checked') {
+            if (this.rippleReady && previousState === 'unchecked' && currentState === 'checked') {
                 this.triggerRipple();
             }
+        });
+
+        afterNextRender(() => {
+            this.rippleReady = true;
+            this.animationsReady.set(true);
         });
 
         this.destroyRef.onDestroy(() => this.clearRipple());

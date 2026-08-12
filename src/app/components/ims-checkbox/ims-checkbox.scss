@@ -60,6 +60,9 @@
     border-radius: var(--ims-cb-radius);
     background: transparent;
     color: transparent;         // icon color inherits from here
+}
+
+.ims-cb--animations-ready .ims-cb__track {
     transition:
         background-color var(--ims-cb-duration) var(--ims-cb-ease),
         border-color     var(--ims-cb-duration) var(--ims-cb-ease),
@@ -84,7 +87,7 @@
     pointer-events: none;
 }
 
-.ims-cb--ripple .ims-cb__ripple {
+.ims-cb--animations-ready.ims-cb--ripple .ims-cb__ripple {
     animation: ims-cb-ripple var(--ims-cb-ripple-duration) ease-out forwards;
 }
 
@@ -111,6 +114,9 @@
     stroke-dasharray: 22;
     stroke-dashoffset: 22;
     opacity: 0;
+}
+
+.ims-cb--animations-ready .ims-cb__mark {
     transition:
         d                 var(--ims-cb-duration) var(--ims-cb-ease),
         stroke-dashoffset calc(var(--ims-cb-duration) * 1.6) var(--ims-cb-ease),
