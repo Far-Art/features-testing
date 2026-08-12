@@ -520,7 +520,7 @@ export class ImsDatepickerExperimental
     }
 
     openPicker(): void {
-        if (this.disabled()) return;
+        if (this.interactionDisabled()) return;
 
         if (this.userEditing()) this.commitText();
         const base = this.normalizedValue() ?? this.today();

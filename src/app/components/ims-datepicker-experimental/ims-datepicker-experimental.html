@@ -6,7 +6,8 @@
     #overlayOrigin="cdkOverlayOrigin"
     [class.ims-datepicker__field--open]="open()"
     [class.ims-datepicker__field--invalid]="parseInvalid()"
-    [class.ims-datepicker__field--disabled]="disabled()"
+    [class.ims-datepicker__field--disabled]="disabled() && !readonlyMode()"
+    [class.ims-datepicker__field--readonly]="readonlyMode()"
 >
     <input
         #textInput
@@ -22,7 +23,8 @@
         [attr.aria-controls]="open() ? dialogId : null"
         [attr.aria-expanded]="open()"
         [attr.aria-invalid]="parseInvalid()"
-        [disabled]="disabled()"
+        [attr.aria-readonly]="readonlyMode()"
+        [disabled]="interactionDisabled()"
         [value]="rawText()"
         (beforeinput)="onBeforeInput($event)"
         (input)="onTextInput($event)"
@@ -36,7 +38,7 @@
         aria-label="Open calendar"
         [attr.aria-controls]="open() ? dialogId : null"
         [attr.aria-expanded]="open()"
-        [disabled]="disabled()"
+        [disabled]="interactionDisabled()"
         (click)="togglePicker()"
     >
         <span class="material-symbols-sharp" aria-hidden="true">calendar_month</span>

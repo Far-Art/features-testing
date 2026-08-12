@@ -82,7 +82,7 @@ export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T>
     }
 
     toggle(): void {
-        if (this.disabled()) return;
+        if (this.interactionDisabled()) return;
 
         const nextValue = this.intermediate() || !this.isChecked()
             ? this.trueValue()

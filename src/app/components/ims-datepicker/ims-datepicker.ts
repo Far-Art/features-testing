@@ -4,7 +4,6 @@ import {
     Component,
     ElementRef,
     LOCALE_ID,
-    Signal,
     Type,
     booleanAttribute,
     computed,
@@ -26,7 +25,6 @@ import {
     Validator
 } from '@angular/forms';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
-import {ReadonlyDirective} from '../../shared/readonly.directive';
 import {runScopedViewTransition} from '../../shared/view-transition';
 import {
     IMS_ERROR_POPOVER_COMPONENT_HOST,
@@ -158,8 +156,7 @@ function provideDatepickerValidator(type: Type<unknown>) {
         }
     ],
     host: {
-        class: 'ims-datepicker-host ims-input-host',
-        '[class.ims-readonly]': 'readonlyMode()'
+        class: 'ims-datepicker-host ims-input-host'
     }
 })
 export class ImsDatepicker
@@ -171,7 +168,6 @@ export class ImsDatepicker
     private readonly angularLocale = inject(LOCALE_ID);
     private readonly changeDetectorRef = inject(ChangeDetectorRef);
     readonly directionality = inject(Directionality);
-    private readonly inheritedReadonly: Signal<boolean> = ReadonlyDirective.injectSignal();
     private readonly field = viewChild<ElementRef<HTMLElement>>('field');
     private readonly textInput = viewChild<ElementRef<HTMLInputElement>>('textInput');
     private readonly toggleButton = viewChild<ElementRef<HTMLButtonElement>>('toggleButton');
@@ -239,10 +235,6 @@ export class ImsDatepicker
     readonly overlayPositions = OVERLAY_POSITIONS;
     readonly calendarYear = dateYear;
 
-    /** True when disabled directly, by a form, or by an `ims-readonly` provider. */
-    readonly interactionDisabled = computed(() => this.disabled() || this.inheritedReadonly());
-    /** Distinguishes readonly styling from the lower-emphasis disabled state. */
-    readonly readonlyMode = this.inheritedReadonly;
     readonly canClear = computed(() =>
         this.clearable() && this.rawText().length > 0 && !this.interactionDisabled()
     );

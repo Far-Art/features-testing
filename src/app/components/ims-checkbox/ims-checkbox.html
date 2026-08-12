@@ -2,7 +2,7 @@
     class="ims-cb"
     [class.ims-cb--checked]="isChecked() && !intermediate()"
     [class.ims-cb--intermediate]="intermediate()"
-    [class.ims-cb--disabled]="disabled()"
+    [class.ims-cb--disabled]="interactionDisabled()"
     [class.ims-cb--ripple]="rippleActive()"
 >
     <input
@@ -11,7 +11,7 @@
         [attr.id]="id()"
         [checked]="isChecked() && !intermediate()"
         [indeterminate]="intermediate()"
-        [disabled]="disabled()"
+        [disabled]="interactionDisabled()"
         [attr.aria-checked]="ariaChecked()"
         (change)="toggle()"
         (blur)="markAsTouched()"

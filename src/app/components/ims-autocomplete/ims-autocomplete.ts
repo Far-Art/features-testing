@@ -1,10 +1,9 @@
 import {CdkConnectedOverlay, CdkOverlayOrigin, ConnectedOverlayPositionChange, ConnectedPosition} from '@angular/cdk/overlay';
 import {CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
-import {AfterViewInit, booleanAttribute, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, ElementRef, inject, input, numberAttribute, OnDestroy, Signal, signal, viewChild} from '@angular/core';
+import {AfterViewInit, booleanAttribute, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, ElementRef, inject, input, numberAttribute, OnDestroy, signal, viewChild} from '@angular/core';
 import {Directionality} from '@angular/cdk/bidi';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
-import {ReadonlyDirective} from '../../shared/readonly.directive';
 import {runViewTransition} from '../../shared/view-transition';
 import {ImsTransferDialogService, ImsTransferRow} from '../ims-transfer-dialog';
 import {ImsAutocompleteCompareWith, ImsAutocompleteHighlightPart, ImsAutocompleteOption, ImsAutocompleteSortMode, ImsAutocompleteToolbarMode, ImsAutocompleteToolbarSide, ImsAutocompleteValue, ImsAutocompleteViewMode} from './ims-autocomplete.types';
@@ -133,8 +132,6 @@ export class ImsAutocomplete<T = unknown>
     readonly readonlyPanelId = `${this.autocompleteId}-selected-values`;
     readonly readonlyPanelTitleId = `${this.readonlyPanelId}-title`;
     readonly overlayPositions = OVERLAY_POSITIONS;
-    /** True when disabled directly, by a form, or by an ancestor readonly provider. */
-    readonly interactionDisabled = computed(() => this.disabled() || this.inheritedReadonly());
     readonly readonlyMultipleMode = computed(() => this.interactionDisabled() && this.multiple());
     readonly effectiveStrict = computed(() => this.multiple() || this.strict());
     readonly selectedValues = computed<readonly T[]>(() => {
@@ -224,7 +221,6 @@ export class ImsAutocomplete<T = unknown>
     private overlaySide: ImsAutocompleteOverlaySide | undefined;
     private readonly changeDetectorRef = inject(ChangeDetectorRef);
     private readonly transferDialog = inject(ImsTransferDialogService);
-    private readonly inheritedReadonly: Signal<boolean> = ReadonlyDirective.injectSignal();
     private readonly origin = viewChild<ElementRef<HTMLElement>>('origin');
     private readonly singleInput = viewChild<ElementRef<HTMLInputElement>>('singleInput');
     private readonly filterInput = viewChild<ElementRef<HTMLInputElement>>('filterInput');

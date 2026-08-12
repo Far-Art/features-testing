@@ -1,5 +1,6 @@
 import {booleanAttribute, computed, DestroyRef, Directive, forwardRef, inject, input, model, signal, Type} from '@angular/core';
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
+import {ReadonlyDirective} from './readonly.directive';
 
 /**
  * Abstract base class that provides the ControlValueAccessor boilerplate for
@@ -8,6 +9,8 @@ import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
  * - `value` — the current form value, updated by writeValue and by the component
  * - `id` — forwarded to the inner native form element; the host element's own
  *   `id` attribute is nulled out so assistive technology targets the real input
+ * - `readonlyMode` — inherited from the nearest `ims-readonly` provider
+ * - `interactionDisabled` — true when disabled or readonly
  * - All CVA callbacks are wired up automatically
  *
  * Usage:
@@ -18,7 +21,8 @@ import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
     host: {
         // Prevent the id from landing on the host element so it can be
         // forwarded to the inner native form control instead.
-        '[attr.id]': 'null'
+        '[attr.id]': 'null',
+        '[class.ims-readonly]': 'readonlyMode()'
     }
 })
 export abstract class BasicValueAccessor<T = unknown> implements ControlValueAccessor {
@@ -42,6 +46,12 @@ export abstract class BasicValueAccessor<T = unknown> implements ControlValueAcc
 
     /** True when disabled via an attribute binding or by a parent form. */
     readonly disabled = computed(() => this.disabledInput() || this.formDisabled());
+
+    /** True when inherited from the nearest `ims-readonly` provider. */
+    readonly readonlyMode = ReadonlyDirective.injectSignal();
+
+    /** True when interaction should be blocked by disabled or readonly state. */
+    readonly interactionDisabled = computed(() => this.disabled() || this.readonlyMode());
 
     writeValue(value: T): void {
         this.value.set(value);

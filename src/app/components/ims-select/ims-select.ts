@@ -11,7 +11,6 @@ import {
   Component,
   ElementRef,
   OnDestroy,
-  Signal,
   booleanAttribute,
   computed,
   contentChildren,
@@ -26,7 +25,6 @@ import {
 import {Directionality} from '@angular/cdk/bidi';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
-import {ReadonlyDirective} from '../../shared/readonly.directive';
 import {runViewTransition} from '../../shared/view-transition';
 import {ImsOption} from './ims-option';
 import {ImsTransferDialogService, ImsTransferRow} from '../ims-transfer-dialog';
@@ -131,7 +129,6 @@ export class ImsSelect<T = unknown>
   readonly directionality = inject(Directionality);
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
   private readonly transferDialog = inject(ImsTransferDialogService);
-  private readonly inheritedReadonly: Signal<boolean> = ReadonlyDirective.injectSignal();
 
   private readonly triggerButton = viewChild<ElementRef<HTMLButtonElement>>('triggerButton');
   private readonly filterField = viewChild<ElementRef<HTMLElement>>('filterField');
@@ -187,8 +184,6 @@ export class ImsSelect<T = unknown>
   readonly listboxMaxHeight = signal(LISTBOX_MAX_HEIGHT);
   readonly multiDisplay = signal<ImsSelectDisplayState>(DEFAULT_DISPLAY);
 
-  /** True when disabled directly, by a form, or by an ancestor readonly provider. */
-  readonly interactionDisabled = computed(() => this.disabled() || this.inheritedReadonly());
   readonly readonlyMultipleMode = computed(() => this.interactionDisabled() && this.multiple());
 
   readonly selectId = `ims-select-${nextSelectId++}`;

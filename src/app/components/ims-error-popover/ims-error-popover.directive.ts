@@ -271,8 +271,7 @@ export class ImsErrorPopoverDirective
     /** Mirrors native disabled attributes that are outside Angular form state. */
     private syncNativeDisabled(): void {
         const host = this.popoverHost;
-        const disabled = (host as HTMLInputElement).disabled === true
-            || host.hasAttribute('disabled')
+        const disabled = (host as HTMLInputElement).disabled || host.hasAttribute('disabled')
             || host.getAttribute('aria-disabled') === 'true';
         this.nativeDisabled.set(disabled);
     }
