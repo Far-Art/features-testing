@@ -1,0 +1,393 @@
+<header class="page-heading">
+  <h1>מצבי רכיבים</h1>
+  <p>מטריצת מצב ויזואלית לרכיבי טופס: רגיל, מושבת, קריאה בלבד, לא תקין ולא תקין במצב קריאה בלבד.</p>
+</header>
+
+<section class="component-states-demo" aria-labelledby="native-states-title">
+  <div class="component-states-demo__section-heading">
+    <p class="component-states-demo__eyebrow">Baseline</p>
+    <h2 id="native-states-title">פקדים טבעיים</h2>
+    <p>
+      פקדים טבעיים משתמשים ישירות ב־<code>ims-readonly</code>, שמוסיף
+      <code>disabled</code> ו־<code>ims-readonly</code> על האלמנט.
+    </p>
+  </div>
+
+  <div class="component-states-demo__matrix">
+    <article class="component-states-demo__card">
+      <h3>Input · רגיל</h3>
+      <input class="ims-input" type="text" [formControl]="textNormal" />
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Input · מושבת</h3>
+      <input class="ims-input" type="text" [formControl]="textDisabled" />
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Input · קריאה בלבד</h3>
+      <input class="ims-input" type="text" [formControl]="textReadonly" [ims-readonly]="true" />
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Input · לא תקין</h3>
+      <input class="ims-input" type="text" placeholder="חובה" [formControl]="textInvalid" />
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Input · לא תקין + קריאה בלבד</h3>
+      <input
+        class="ims-input"
+        type="text"
+        placeholder="חובה"
+        [formControl]="textInvalidReadonly"
+        [ims-readonly]="true"
+      />
+    </article>
+  </div>
+
+  <div class="component-states-demo__matrix">
+    <article class="component-states-demo__card">
+      <h3>Textarea · רגיל</h3>
+      <textarea class="ims-input" rows="3" [formControl]="textareaNormal"></textarea>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Textarea · מושבת</h3>
+      <textarea class="ims-input" rows="3" [formControl]="textareaDisabled"></textarea>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Textarea · קריאה בלבד</h3>
+      <textarea
+        class="ims-input"
+        rows="3"
+        [formControl]="textareaReadonly"
+        [ims-readonly]="true"
+      ></textarea>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Textarea · לא תקין</h3>
+      <textarea
+        class="ims-input"
+        rows="3"
+        placeholder="חובה"
+        [formControl]="textareaInvalid"
+      ></textarea>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Textarea · לא תקין + קריאה בלבד</h3>
+      <textarea
+        class="ims-input"
+        rows="3"
+        placeholder="חובה"
+        [formControl]="textareaInvalidReadonly"
+        [ims-readonly]="true"
+      ></textarea>
+    </article>
+  </div>
+</section>
+
+<section class="component-states-demo" aria-labelledby="basic-accessor-states-title">
+  <div class="component-states-demo__section-heading">
+    <p class="component-states-demo__eyebrow">BasicValueAccessor</p>
+    <h2 id="basic-accessor-states-title">רכיבי טופס מותאמים</h2>
+    <p>
+      הרכיבים כאן יורשים את מצב הקריאה בלבד דרך
+      <code>BasicValueAccessor.readonlyMode()</code> ואת חסימת האינטראקציה דרך
+      <code>interactionDisabled()</code>.
+    </p>
+  </div>
+
+  <div class="component-states-demo__matrix">
+    <article class="component-states-demo__card">
+      <h3>Checkbox · רגיל</h3>
+      <ims-checkbox [formControl]="checkboxNormal">מאושר</ims-checkbox>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Checkbox · מושבת</h3>
+      <ims-checkbox [formControl]="checkboxDisabled">מאושר</ims-checkbox>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Checkbox · קריאה בלבד</h3>
+      <ims-checkbox [formControl]="checkboxReadonly" [ims-readonly]="true">מאושר</ims-checkbox>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Checkbox · לא תקין</h3>
+      <ims-checkbox [formControl]="checkboxInvalid">חובה לסמן</ims-checkbox>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Checkbox · לא תקין + קריאה בלבד</h3>
+      <ims-checkbox [formControl]="checkboxInvalidReadonly" [ims-readonly]="true">
+        חובה לסמן
+      </ims-checkbox>
+    </article>
+  </div>
+
+  <div class="component-states-demo__matrix">
+    <article class="component-states-demo__card">
+      <h3>Select · רגיל</h3>
+      <ims-select
+        placeholder="בחר מצב"
+        ariaLabel="Select normal"
+        [formControl]="selectNormal"
+        [compareWith]="compareOptionById"
+      >
+        @for (option of options; track option.id) {
+          <ims-option
+            [value]="option"
+            [selectionText]="option.label"
+            [disabled]="!!option.disabled"
+          >
+            {{ option.label }}
+          </ims-option>
+        }
+      </ims-select>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Select · מושבת</h3>
+      <ims-select
+        placeholder="בחר מצב"
+        ariaLabel="Select disabled"
+        [formControl]="selectDisabled"
+        [compareWith]="compareOptionById"
+      >
+        @for (option of options; track option.id) {
+          <ims-option
+            [value]="option"
+            [selectionText]="option.label"
+            [disabled]="!!option.disabled"
+          >
+            {{ option.label }}
+          </ims-option>
+        }
+      </ims-select>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Select · קריאה בלבד</h3>
+      <ims-select
+        placeholder="בחר מצב"
+        ariaLabel="Select readonly"
+        [formControl]="selectReadonly"
+        [compareWith]="compareOptionById"
+        [ims-readonly]="true"
+      >
+        @for (option of options; track option.id) {
+          <ims-option
+            [value]="option"
+            [selectionText]="option.label"
+            [disabled]="!!option.disabled"
+          >
+            {{ option.label }}
+          </ims-option>
+        }
+      </ims-select>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Select · לא תקין</h3>
+      <ims-select
+        placeholder="חובה לבחור"
+        ariaLabel="Select invalid"
+        [formControl]="selectInvalid"
+        [compareWith]="compareOptionById"
+      >
+        @for (option of options; track option.id) {
+          <ims-option
+            [value]="option"
+            [selectionText]="option.label"
+            [disabled]="!!option.disabled"
+          >
+            {{ option.label }}
+          </ims-option>
+        }
+      </ims-select>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Select · לא תקין + קריאה בלבד</h3>
+      <ims-select
+        placeholder="חובה לבחור"
+        ariaLabel="Select invalid readonly"
+        [formControl]="selectInvalidReadonly"
+        [compareWith]="compareOptionById"
+        [ims-readonly]="true"
+      >
+        @for (option of options; track option.id) {
+          <ims-option
+            [value]="option"
+            [selectionText]="option.label"
+            [disabled]="!!option.disabled"
+          >
+            {{ option.label }}
+          </ims-option>
+        }
+      </ims-select>
+    </article>
+  </div>
+
+  <div class="component-states-demo__matrix">
+    <article class="component-states-demo__card">
+      <h3>Autocomplete · רגיל</h3>
+      <ims-autocomplete
+        strict
+        placeholder="בחר מצב"
+        ariaLabel="Autocomplete normal"
+        [options]="autocompleteOptions"
+        [formControl]="autocompleteNormal"
+        [compareWith]="compareOptionById"
+      />
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Autocomplete · מושבת</h3>
+      <ims-autocomplete
+        strict
+        placeholder="בחר מצב"
+        ariaLabel="Autocomplete disabled"
+        [options]="autocompleteOptions"
+        [formControl]="autocompleteDisabled"
+        [compareWith]="compareOptionById"
+      />
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Autocomplete · קריאה בלבד</h3>
+      <ims-autocomplete
+        strict
+        placeholder="בחר מצב"
+        ariaLabel="Autocomplete readonly"
+        [options]="autocompleteOptions"
+        [formControl]="autocompleteReadonly"
+        [compareWith]="compareOptionById"
+        [ims-readonly]="true"
+      />
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Autocomplete · לא תקין</h3>
+      <ims-autocomplete
+        strict
+        placeholder="חובה לבחור"
+        ariaLabel="Autocomplete invalid"
+        [options]="autocompleteOptions"
+        [formControl]="autocompleteInvalid"
+        [compareWith]="compareOptionById"
+      />
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Autocomplete · לא תקין + קריאה בלבד</h3>
+      <ims-autocomplete
+        strict
+        placeholder="חובה לבחור"
+        ariaLabel="Autocomplete invalid readonly"
+        [options]="autocompleteOptions"
+        [formControl]="autocompleteInvalidReadonly"
+        [compareWith]="compareOptionById"
+        [ims-readonly]="true"
+      />
+    </article>
+  </div>
+
+  <div class="component-states-demo__matrix">
+    <article class="component-states-demo__card">
+      <h3>Datepicker · רגיל</h3>
+      <ims-datepicker
+        imsDatepickerDate
+        ariaLabel="Datepicker normal"
+        [formControl]="datepickerNormal"
+      />
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Datepicker · מושבת</h3>
+      <ims-datepicker
+        imsDatepickerDate
+        ariaLabel="Datepicker disabled"
+        [formControl]="datepickerDisabled"
+      />
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Datepicker · קריאה בלבד</h3>
+      <ims-datepicker
+        imsDatepickerDate
+        ariaLabel="Datepicker readonly"
+        [formControl]="datepickerReadonly"
+        [ims-readonly]="true"
+      />
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Datepicker · לא תקין</h3>
+      <ims-datepicker
+        imsDatepickerDate
+        ariaLabel="Datepicker invalid"
+        [formControl]="datepickerInvalid"
+      />
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Datepicker · לא תקין + קריאה בלבד</h3>
+      <ims-datepicker
+        imsDatepickerDate
+        ariaLabel="Datepicker invalid readonly"
+        [formControl]="datepickerInvalidReadonly"
+        [ims-readonly]="true"
+      />
+    </article>
+  </div>
+
+  <div class="component-states-demo__matrix">
+    <article class="component-states-demo__card">
+      <h3>Datepicker experimental · רגיל</h3>
+      <ims-datepicker-experimental
+        ariaLabel="Experimental datepicker normal"
+        [formControl]="experimentalNormal"
+      />
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Datepicker experimental · מושבת</h3>
+      <ims-datepicker-experimental
+        ariaLabel="Experimental datepicker disabled"
+        [formControl]="experimentalDisabled"
+      />
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Datepicker experimental · קריאה בלבד</h3>
+      <ims-datepicker-experimental
+        ariaLabel="Experimental datepicker readonly"
+        [formControl]="experimentalReadonly"
+        [ims-readonly]="true"
+      />
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Datepicker experimental · לא תקין</h3>
+      <ims-datepicker-experimental
+        ariaLabel="Experimental datepicker invalid"
+        [formControl]="experimentalInvalid"
+      />
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Datepicker experimental · לא תקין + קריאה בלבד</h3>
+      <ims-datepicker-experimental
+        ariaLabel="Experimental datepicker invalid readonly"
+        [formControl]="experimentalInvalidReadonly"
+        [ims-readonly]="true"
+      />
+    </article>
+  </div>
+</section>

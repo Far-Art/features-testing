@@ -56,6 +56,13 @@ export const routes: Routes = [
             import('./pages/readonly-demo/readonly-demo').then((module) => module.ReadonlyDemo)
     },
     {
+        path: 'component-states',
+        loadComponent: () =>
+            import('./pages/component-states-demo/component-states-demo').then(
+                (module) => module.ComponentStatesDemo
+            )
+    },
+    {
         path: '',
         pathMatch: 'full',
         redirectTo: 'forms'
