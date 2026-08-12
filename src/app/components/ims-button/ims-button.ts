@@ -93,3 +93,12 @@ export class ImsButtonWhite extends ImsButtonBase {
     @HostBinding('class.ims-button--white')
     protected readonly whiteButtonClass = true;
 }
+
+@Directive({
+    selector: 'button[ims-button-danger]',
+    standalone: true
+})
+export class ImsButtonDanger extends ImsButtonBase {
+    @HostBinding('class.ims-button--danger')
+    protected readonly dangerButtonClass = true;
+}

@@ -104,6 +104,15 @@
     --ims-button-ring-color: var(--ims-color-primary-450);
 }
 
+.ims-button--danger {
+    --ims-button-background: var(--ims-color-danger);
+    --ims-button-background-hover: var(--ims-color-danger-700);
+    --ims-button-background-active: var(--ims-color-danger-850);
+    --ims-button-color: var(--ims-color-on-interactive);
+    --ims-button-color-active: var(--ims-color-on-interactive);
+    --ims-button-ring-color: var(--ims-color-danger-500);
+}
+
 .ims-button--disabled,
 .ims-button--readonly,
 .ims-button:disabled {
