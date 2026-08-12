@@ -6,6 +6,7 @@ import localeHe from '@angular/common/locales/he';
 
 import {routes} from './app.routes';
 import {provideImsDatepickerConfig} from './components/ims-datepicker';
+import {provideImsErrorPopoverConfig} from './components/ims-error-popover';
 import {provideImsSnackbarConfig} from './components/ims-snackbar';
 
 
@@ -41,6 +42,23 @@ export const appConfig: ApplicationConfig = {
                 today: 'היום',
                 endOfMonth: 'סוף החודש',
                 week: 'שבוע'
+            }
+        }),
+        provideImsErrorPopoverConfig({
+            duration: 6000,
+            errorMapper: {
+                required: 'זהו שדה חובה.',
+                requiredTrue: 'יש לאשר שדה זה.',
+                email: 'יש להזין כתובת דוא״ל תקינה.',
+                minlength: 'יש להזין לפחות {requiredLength} תווים.',
+                maxlength: 'יש להזין לכל היותר {requiredLength} תווים.',
+                min: 'הערך חייב להיות לפחות {min}.',
+                max: 'הערך חייב להיות לכל היותר {max}.',
+                pattern: 'יש להזין ערך בתבנית הנדרשת.',
+                imsDatepickerParse: 'יש להזין תאריך תקין.',
+                imsDatepickerMin: 'התאריך לא יכול להיות מוקדם מ-{minFormatted}.',
+                imsDatepickerMax: 'התאריך לא יכול להיות מאוחר מ-{maxFormatted}.',
+                imsDatepickerFilter: 'לא ניתן לבחור בתאריך זה.'
             }
         }),
         provideImsSnackbarConfig({

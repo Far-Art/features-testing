@@ -1,0 +1,43 @@
+.ims-error-popover {
+    display: block;
+    box-sizing: border-box;
+    width: max-content;
+    max-width: min(24rem, calc(100vw - 1rem));
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--ims-color-danger-200);
+    border-radius: 0.5rem;
+    background: var(--ims-color-danger-50);
+    color: var(--ims-color-danger-800);
+    box-shadow: 0 0.5rem 1.25rem color-mix(
+        in oklch,
+        var(--ims-color-danger-900) 16%,
+        transparent
+    );
+    font: inherit;
+    pointer-events: auto;
+}
+
+.ims-error-popover__list {
+    display: grid;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ims-error-popover__error {
+    display: grid;
+    grid-template-columns: 0.45rem minmax(0, 1fr);
+    gap: 0.4rem;
+    align-items: start;
+    overflow-wrap: anywhere;
+}
+
+.ims-error-popover__error::before {
+    width: 0.35rem;
+    height: 0.35rem;
+    margin-block-start: 0.5em;
+    border-radius: 50%;
+    background: currentColor;
+    content: '';
+}

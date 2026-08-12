@@ -18,6 +18,7 @@ import {
     ImsDatepickerExperimentalValue,
     provideImsDatepickerExperimentalConfig
 } from '../../components/ims-datepicker-experimental';
+import {ImsErrorPopoverDirective} from '../../components/ims-error-popover';
 import {ReadonlyDirective} from '../../shared/readonly.directive';
 import {TemporalHelper} from '../../shared/temporal.helper';
 
@@ -30,6 +31,7 @@ import {TemporalHelper} from '../../shared/temporal.helper';
         ImsDatepicker,
         ImsDatepickerDateValueHandlerDirective,
         ImsDatepickerMomentValueHandlerDirective,
+        ImsErrorPopoverDirective,
         ImsDatepickerExperimental,
         ReadonlyDirective
     ],

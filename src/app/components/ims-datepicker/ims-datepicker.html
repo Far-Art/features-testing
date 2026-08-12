@@ -2,6 +2,8 @@
     #field
     class="ims-input ims-datepicker__field"
     data-ims-main-control
+    [ims-error-popover]="errorPopoverErrors"
+    [ims-error-popover-disabled]="internalErrorPopoverDisabled()"
     cdkOverlayOrigin
     #overlayOrigin="cdkOverlayOrigin"
     [class.ims-datepicker__field--open]="open()"
@@ -22,7 +24,7 @@
         [attr.aria-labelledby]="ariaLabelledby()"
         [attr.aria-controls]="open() ? dialogId : null"
         [attr.aria-expanded]="open()"
-        [attr.aria-invalid]="parseInvalid()"
+        [attr.aria-invalid]="errorPopoverErrors() ? true : null"
         [attr.aria-readonly]="readonlyMode()"
         [disabled]="interactionDisabled()"
         [value]="rawText()"

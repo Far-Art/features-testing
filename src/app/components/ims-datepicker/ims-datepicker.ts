@@ -28,6 +28,11 @@ import {
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {ReadonlyDirective} from '../../shared/readonly.directive';
 import {runScopedViewTransition} from '../../shared/view-transition';
+import {
+    IMS_ERROR_POPOVER_COMPONENT_HOST,
+    ImsErrorPopoverComponentHost,
+    ImsErrorPopoverDirective
+} from '../ims-error-popover';
 import {IMS_DATEPICKER_PARSER} from './ims-datepicker.parser';
 import {IMS_DATEPICKER_VALUE_HANDLER} from './ims-datepicker-value.directive';
 import {
@@ -136,12 +141,21 @@ function provideDatepickerValidator(type: Type<unknown>) {
 @Component({
     selector: 'ims-datepicker',
     standalone: true,
-    imports: [CdkOverlayOrigin, CdkConnectedOverlay, CdkTrapFocus],
+    imports: [
+        CdkOverlayOrigin,
+        CdkConnectedOverlay,
+        CdkTrapFocus,
+        ImsErrorPopoverDirective
+    ],
     templateUrl: './ims-datepicker.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
         provideValueAccessor(ImsDatepicker),
-        provideDatepickerValidator(ImsDatepicker)
+        provideDatepickerValidator(ImsDatepicker),
+        {
+            provide: IMS_ERROR_POPOVER_COMPONENT_HOST,
+            useExisting: forwardRef(() => ImsDatepicker)
+        }
     ],
     host: {
         class: 'ims-datepicker-host ims-input-host',
@@ -150,7 +164,7 @@ function provideDatepickerValidator(type: Type<unknown>) {
 })
 export class ImsDatepicker
     extends BasicValueAccessor<ImsDatepickerAnyValue>
-    implements Validator {
+    implements Validator, ImsErrorPopoverComponentHost {
     private readonly globalConfig = inject(IMS_DATEPICKER_CONFIG);
     private readonly dateParser = inject(IMS_DATEPICKER_PARSER);
     private readonly valueHandler = inject(IMS_DATEPICKER_VALUE_HANDLER);
@@ -184,6 +198,7 @@ export class ImsDatepicker
     private pendingNavigationCursor: ImsDatepickerDate | null = null;
     private readonly userEditing = signal(false);
     private readonly inferredValueType = signal<ImsDatepickerValueType>('date');
+    private readonly externalErrorPopoverCount = signal(0);
 
     /** Selection precision. This is independent from the configured display format. */
     readonly format = input<ImsDatepickerPrecision>('dd/MM/yyyy');
@@ -230,6 +245,12 @@ export class ImsDatepicker
     readonly readonlyMode = this.inheritedReadonly;
     readonly canClear = computed(() =>
         this.clearable() && this.rawText().length > 0 && !this.interactionDisabled()
+    );
+    readonly errorPopoverErrors = computed<ValidationErrors | null>(() =>
+        this.resolveValidationErrors(this.value())
+    );
+    readonly internalErrorPopoverDisabled = computed(() =>
+        this.interactionDisabled() || this.externalErrorPopoverCount() > 0
     );
 
     readonly effectiveLocale = computed(
@@ -452,6 +473,8 @@ export class ImsDatepicker
             this.dateFilter();
             this.format();
             this.monthDay();
+            this.effectiveFormats();
+            this.effectiveLocale();
             this.parseInvalid();
             const value = this.normalizedValue();
             if (value) this.passesDateFilters(value);
@@ -484,12 +507,33 @@ export class ImsDatepicker
     }
 
     validate(control: AbstractControl<ImsDatepickerAnyValue>): ValidationErrors | null {
+        return this.resolveValidationErrors(control.value);
+    }
+
+    /**
+     * Gives an explicitly attached host popover ownership over validation display.
+     *
+     * @returns An idempotent cleanup callback that re-enables the internal popover.
+     */
+    registerExternalErrorPopover(): () => void {
+        this.externalErrorPopoverCount.update((count) => count + 1);
+        let registered = true;
+
+        return () => {
+            if (!registered) return;
+            registered = false;
+            this.externalErrorPopoverCount.update((count) => Math.max(0, count - 1));
+        };
+    }
+
+    /** Produces the component-owned parse, range, and filter validation errors. */
+    private resolveValidationErrors(valueToValidate: ImsDatepickerAnyValue): ValidationErrors | null {
         if (this.parseInvalid()) {
             return {imsDatepickerParse: {text: this.rawText()}};
         }
 
         const value = this.normalizeExternalValue(
-            control.value,
+            valueToValidate,
             this.format(),
             this.monthDay()
         );
@@ -497,19 +541,25 @@ export class ImsDatepicker
         if (!value) return null;
 
         if (compareDateOnly(value, this.effectiveMin()) < 0) {
+            const min = this.effectiveMin();
             return {
                 imsDatepickerMin: {
-                    min: this.serialize(this.effectiveMin()),
-                    actual: this.serialize(value)
+                    min: this.serialize(min),
+                    actual: this.serialize(value),
+                    minFormatted: this.formatValidationDate(min),
+                    actualFormatted: this.formatValidationDate(value)
                 }
             };
         }
 
         if (compareDateOnly(value, this.effectiveMax()) > 0) {
+            const max = this.effectiveMax();
             return {
                 imsDatepickerMax: {
-                    max: this.serialize(this.effectiveMax()),
-                    actual: this.serialize(value)
+                    max: this.serialize(max),
+                    actual: this.serialize(value),
+                    maxFormatted: this.formatValidationDate(max),
+                    actualFormatted: this.formatValidationDate(value)
                 }
             };
         }
@@ -979,6 +1029,16 @@ export class ImsDatepicker
             ? formats.display.dateInput
             : formats.display.monthInput;
         return formatDate(value, displayFormat, locale);
+    }
+
+    /** Formats a validation date with the active precision, display format, and locale. */
+    private formatValidationDate(value: ImsDatepickerDate): string {
+        return this.formatValue(
+            value,
+            this.format(),
+            this.effectiveFormats(),
+            this.effectiveLocale()
+        );
     }
 
     private isDateEnabled(date: ImsDatepickerDate): boolean {

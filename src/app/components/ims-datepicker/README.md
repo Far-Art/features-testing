@@ -91,6 +91,21 @@ The global stylesheet must include:
 @use './styles/ims-datepicker';
 ```
 
+Invalid date text and the component's min, max, and filter errors are displayed
+by its internal `ims-error-popover`. Applying `ims-error-popover` explicitly to
+the component host replaces the internal instance and reads the complete bound
+Angular control error object:
+
+```html
+<ims-datepicker
+    ims-error-popover
+    [formControl]="date"
+/>
+```
+
+Only one error popover is active at a time. The external instance owns local
+mapper, duration, position, and disabled inputs.
+
 ## Public Inputs
 
 | Input | Type | Default | Purpose |
@@ -355,13 +370,28 @@ Possible validation errors:
 
 ```ts
 {imsDatepickerParse: {text: string}}
-{imsDatepickerMin: {min: value, actual: value}}
-{imsDatepickerMax: {max: value, actual: value}}
+{imsDatepickerMin: {
+    min: value,
+    actual: value,
+    minFormatted: string,
+    actualFormatted: string
+}}
+{imsDatepickerMax: {
+    max: value,
+    actual: value,
+    maxFormatted: string,
+    actualFormatted: string
+}}
 {imsDatepickerFilter: {actual: value}}
 ```
 
 Empty values are valid. Invalid non-empty text is represented by the parse
 error while the form value is set to `null`.
+
+The raw range values retain the configured output type. The `*Formatted`
+fields use the datepicker's effective `dateInput` or `monthInput` display format
+and locale, making them suitable for error-mapper placeholders such as
+`{minFormatted}` and `{maxFormatted}`.
 
 The validator change callback is triggered when range, filters, precision,
 month boundary, parse state, or the normalized value changes.
