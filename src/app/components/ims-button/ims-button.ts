@@ -2,8 +2,10 @@ import {
     Directive,
     HostBinding,
     HostListener,
+    afterNextRender,
     booleanAttribute,
     computed,
+    signal,
     input
 } from '@angular/core';
 import {ReadonlyDirective} from '../../shared/readonly.directive';
@@ -13,6 +15,27 @@ type ImsButtonType = 'button' | 'submit' | 'reset';
 @Directive()
 export abstract class ImsButtonBase {
     private readonly inheritedReadonly = ReadonlyDirective.injectSignal();
+
+    /**
+     * True for the first frame after the host is created. A freshly mounted
+     * button can land under an already-stationary pointer (returning to a
+     * route, content reflowing under the cursor) and pick up `:hover` with
+     * no real mouse movement, which then animates back out a moment later.
+     * Suppressing transitions for one frame keeps the initial state a snap
+     * instead of a visible, unintended animation.
+     */
+    private readonly justMounted = signal(true);
+
+    constructor() {
+        afterNextRender(() => {
+            requestAnimationFrame(() => this.justMounted.set(false));
+        });
+    }
+
+    @HostBinding('class.ims-button--mounting')
+    protected get mountingClass(): boolean {
+        return this.justMounted();
+    }
 
     /** Native disabled state. Readonly also disables interaction through `interactionDisabled`. */
     readonly disabledInput = input(false, {alias: 'disabled', transform: booleanAttribute});

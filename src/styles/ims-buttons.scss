@@ -1,9 +1,16 @@
+// These are placeholders, not a real "unstyled default" look — every
+// consumer directive (ImsButton, ImsButtonDark, ...) always pairs this
+// class with a --default/--dark/--white/--danger modifier that sets
+// its own full set below. Keeping this neutral (instead of duplicating
+// one variant's colors here) avoids a color that only ever exists for
+// a single frame before the modifier class lands, which was visible
+// as an unwanted flash-then-transition on mount.
 .ims-button {
-    --ims-button-background: var(--ims-color-brand);
-    --ims-button-background-hover: var(--ims-color-primary-700);
-    --ims-button-background-active: var(--ims-color-primary-900);
-    --ims-button-color: var(--ims-color-on-interactive);
-    --ims-button-color-active: var(--ims-color-on-interactive);
+    --ims-button-background: transparent;
+    --ims-button-background-hover: transparent;
+    --ims-button-background-active: transparent;
+    --ims-button-color: inherit;
+    --ims-button-color-active: inherit;
     --ims-button-focus-ring: var(--ims-color-focus-ring);
     --ims-button-radius: 0.375rem;
     --ims-button-ring-color: var(--ims-color-primary-600);
@@ -148,6 +155,20 @@
 .ims-button:disabled:active {
     outline-color: transparent;
     outline-offset: 8px;
+}
+
+// See ImsButtonBase.justMounted — a freshly mounted button can pick up a
+// phantom :hover/:active from a stationary pointer with no real mouse
+// movement. Force every transition off for that first frame so whatever
+// state applies (correct or phantom) renders instantly instead of
+// visibly animating in, then animating back out a moment later.
+.ims-button--mounting,
+.ims-button--mounting:hover,
+.ims-button--mounting:active,
+.ims-button--mounting::before,
+.ims-button--mounting:hover::before,
+.ims-button--mounting:active::before {
+    transition: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
