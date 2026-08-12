@@ -57,3 +57,71 @@ nearest `ims-readonly` provider all suppress the popover.
 `ims-datepicker` includes the directive internally. An explicitly attached
 instance on the datepicker host takes ownership and suppresses the internal
 instance so duplicate popovers cannot appear.
+
+## Use inside components
+
+Composite controls can render `ims-error-popover` internally on the real visual
+field instead of forcing consumers to attach the directive themselves. This is
+the pattern used by `ims-datepicker`: the component owns its component-specific
+errors by default, but yields ownership when the developer explicitly places
+`ims-error-popover` on the component host.
+
+Import `ImsErrorPopoverDirective` into the component and provide
+`IMS_ERROR_POPOVER_COMPONENT_HOST` from the component instance:
+
+```ts
+@Component({
+    selector: 'my-control',
+    imports: [ImsErrorPopoverDirective],
+    providers: [{
+        provide: IMS_ERROR_POPOVER_COMPONENT_HOST,
+        useExisting: forwardRef(() => MyControl)
+    }]
+})
+export class MyControl implements ImsErrorPopoverComponentHost {
+    private readonly externalErrorPopoverCount = signal(0);
+
+    readonly componentErrors = computed<ValidationErrors | null>(() =>
+        this.resolveValidationErrors()
+    );
+
+    readonly internalErrorPopoverDisabled = computed(() =>
+        this.disabled() || this.readonly() || this.externalErrorPopoverCount() > 0
+    );
+
+    registerExternalErrorPopover(): () => void {
+        this.externalErrorPopoverCount.update((count) => count + 1);
+        let registered = true;
+
+        return () => {
+            if (!registered) return;
+            registered = false;
+            this.externalErrorPopoverCount.update((count) => Math.max(0, count - 1));
+        };
+    }
+}
+```
+
+Attach the internal directive to the element that should anchor the popover:
+
+```html
+<div
+    class="my-control__field"
+    [ims-error-popover]="componentErrors"
+    [ims-error-popover-disabled]="internalErrorPopoverDisabled()"
+>
+    ...
+</div>
+```
+
+This gives the component a default popover for parse, range, filter, or other
+internal validation errors. If a consumer writes this:
+
+```html
+<my-control ims-error-popover [formControl]="control" />
+```
+
+the external directive calls `registerExternalErrorPopover()`, the component
+disables its internal instance, and the external instance reads the full bound
+Angular control errors. The external instance owns its own mapper, duration,
+position, and disabled inputs.
