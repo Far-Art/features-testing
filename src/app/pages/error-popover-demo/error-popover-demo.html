@@ -1,0 +1,177 @@
+<header class="page-heading">
+    <h1>חלונית שגיאות</h1>
+    <p>
+        בדיקת מקורות שגיאה, מיפוי הודעות, תזמון, מצבי השבתה ושילוב עם רכיבים.
+    </p>
+</header>
+
+<section class="error-popover-demo" aria-labelledby="error-popover-sources-title">
+    <div class="error-popover-demo__description">
+        <h2 id="error-popover-sources-title">מקורות ומיפוי שגיאות</h2>
+        <p>
+            הדירקטיבה יכולה לקרוא את הפקד שעל אותו אלמנט, לקבל פקד מפורש או
+            לקבל Signal של שגיאות.
+        </p>
+    </div>
+
+    <div class="error-popover-demo__grid">
+        <article class="error-popover-demo__card">
+            <h3>NgControl מאותו אלמנט</h3>
+            <label class="error-popover-demo__field">
+                <span>כתובת דוא״ל</span>
+                <input
+                    class="ims-input"
+                    type="email"
+                    dir="ltr"
+                    ims-error-popover
+                    [formControl]="emailControl"
+                >
+            </label>
+            <div class="error-popover-demo__actions">
+                <button type="button" (click)="setEmailState('empty')">חובה</button>
+                <button type="button" (click)="setEmailState('invalid')">דוא״ל שגוי</button>
+                <button type="button" (click)="setEmailState('valid')">ערך תקין</button>
+            </div>
+            <code>{{ emailControl.errors | json }}</code>
+        </article>
+
+        <article class="error-popover-demo__card">
+            <h3>FormControl מפורש על מעטפת</h3>
+            <div
+                class="error-popover-demo__explicit-host"
+                [ims-error-popover]="policyControl"
+                [ims-error-popover-mapper]="policyMapper"
+            >
+                <label class="error-popover-demo__field">
+                    <span>מספר פוליסה</span>
+                    <input class="ims-input" dir="ltr" [formControl]="policyControl">
+                </label>
+            </div>
+            <div class="error-popover-demo__actions">
+                <button type="button" (click)="showPolicyError()">שגיאה עם {{ '{period}' }}</button>
+                <button type="button" (click)="clearPolicyError()">ניקוי</button>
+            </div>
+            <code>{{ policyControl.errors | json }}</code>
+        </article>
+
+        <article class="error-popover-demo__card">
+            <h3>Signal, מספר שורות ועדכון חי</h3>
+            <div
+                class="error-popover-demo__signal-host"
+                tabindex="0"
+                role="group"
+                aria-label="אזור שגיאות שרת; ניתן להתמקד כדי לפתוח שוב"
+                [ims-error-popover]="serverErrors"
+                [ims-error-popover-mapper]="signalMapper"
+                ims-error-popover-position="top"
+                ims-error-popover-duration="3000"
+            >
+                <strong>שגיאות שרת</strong>
+                <span>לאחר הסגירה, מעבר עכבר או מיקוד יציגו אותן שוב.</span>
+            </div>
+            <div class="error-popover-demo__actions">
+                <button type="button" (click)="showMultipleSignalErrors()">שתי שגיאות</button>
+                <button type="button" (click)="replaceSignalErrors()">החלפה ואיפוס זמן</button>
+                <button type="button" (click)="clearSignalErrors()">ניקוי</button>
+            </div>
+            <code>{{ serverErrors() | json }}</code>
+        </article>
+    </div>
+</section>
+
+<section class="error-popover-demo" aria-labelledby="error-popover-state-title">
+    <div class="error-popover-demo__description">
+        <h2 id="error-popover-state-title">השבתה וקריאה בלבד</h2>
+        <p>
+            שגיאה קיימת אינה מוצגת כאשר הדירקטיבה מושבתת, הפקד מושבת או מצב
+            ims-readonly מתקבל מהורה.
+        </p>
+    </div>
+
+    <article class="error-popover-demo__card error-popover-demo__card--wide">
+        <div
+            class="error-popover-demo__readonly-scope"
+            [ims-readonly]="readonlyEnabled()"
+        >
+            <label class="error-popover-demo__field">
+                <span>שדה לבדיקת מצבים</span>
+                <input
+                    class="ims-input"
+                    ims-error-popover
+                    [ims-error-popover-disabled]="popoverDisabled()"
+                    [formControl]="stateControl"
+                >
+            </label>
+        </div>
+
+        <div class="error-popover-demo__actions">
+            <button type="button" (click)="makeStateControlInvalid()">יצירת שגיאה</button>
+            <button type="button" (click)="makeStateControlValid()">ערך תקין</button>
+            <button type="button" (click)="togglePopoverDisabled()">
+                disabled קלט: {{ popoverDisabled() ? 'פעיל' : 'כבוי' }}
+            </button>
+            <button type="button" (click)="toggleControlDisabled()">
+                FormControl: {{ stateControl.disabled ? 'מושבת' : 'פעיל' }}
+            </button>
+            <button type="button" (click)="toggleReadonly()">
+                readonly: {{ readonlyEnabled() ? 'פעיל' : 'כבוי' }}
+            </button>
+        </div>
+
+        <code>{{ stateControl.errors | json }}</code>
+    </article>
+</section>
+
+<section class="error-popover-demo" aria-labelledby="error-popover-datepicker-title">
+    <div class="error-popover-demo__description">
+        <h2 id="error-popover-datepicker-title">שילוב עם Datepicker</h2>
+        <p>
+            הדוגמה הראשונה משתמשת בחלונית הפנימית של הרכיב. בשנייה דירקטיבה
+            חיצונית מקבלת בעלות, בלי ליצור חלונית כפולה.
+        </p>
+    </div>
+
+    <div class="error-popover-demo__grid error-popover-demo__grid--datepicker">
+        <article class="error-popover-demo__card">
+            <h3>פנימי, תאריך מלא</h3>
+            <label class="error-popover-demo__field">
+                <span>תאריך התחלה</span>
+                <ims-datepicker
+                    ariaLabel="תאריך התחלה"
+                    imsDatepickerDate
+                    [formControl]="dayControl"
+                    [min]="minimumDate"
+                    [max]="maximumDate"
+                />
+            </label>
+            <div class="error-popover-demo__actions">
+                <button type="button" (click)="showDayBeforeMinimum()">לפני המינימום</button>
+                <button type="button" (click)="restoreValidDay()">תאריך תקין</button>
+            </div>
+            <code>{{ dayControl.errors | json }}</code>
+        </article>
+
+        <article class="error-popover-demo__card">
+            <h3>חיצוני, חודש</h3>
+            <label class="error-popover-demo__field">
+                <span>חודש סיום</span>
+                <ims-datepicker
+                    ims-error-popover
+                    ariaLabel="חודש סיום"
+                    format="MM/yyyy"
+                    monthDay="end"
+                    valueType="millis"
+                    imsDatepickerDate
+                    [formControl]="monthControl"
+                    [min]="minimumDate"
+                    [max]="maximumDate"
+                />
+            </label>
+            <div class="error-popover-demo__actions">
+                <button type="button" (click)="showMonthAfterMaximum()">אחרי המקסימום</button>
+                <button type="button" (click)="restoreValidMonth()">חודש תקין</button>
+            </div>
+            <code>{{ monthControl.errors | json }}</code>
+        </article>
+    </div>
+</section>

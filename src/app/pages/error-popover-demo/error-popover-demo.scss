@@ -1,0 +1,166 @@
+.page-heading {
+    margin-block-end: 1.5rem;
+}
+
+.page-heading h1,
+.page-heading p,
+.error-popover-demo h2,
+.error-popover-demo h3,
+.error-popover-demo p {
+    margin: 0;
+}
+
+.page-heading p {
+    margin-block-start: 0.5rem;
+    color: #52627d;
+}
+
+.error-popover-demo {
+    display: grid;
+    gap: 1.25rem;
+    margin-block-end: 1.5rem;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    background: #fff;
+    border: 1px solid #dfe5ed;
+    border-radius: 1.25rem;
+    box-shadow: 0 1rem 2.5rem rgb(32 51 84 / 8%);
+}
+
+.error-popover-demo__description {
+    display: grid;
+    gap: 0.45rem;
+}
+
+.error-popover-demo__description h2 {
+    color: #203354;
+}
+
+.error-popover-demo__description p {
+    max-inline-size: 58rem;
+    color: #52627d;
+    line-height: 1.6;
+}
+
+.error-popover-demo__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    gap: 1rem;
+}
+
+.error-popover-demo__grid--datepicker {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+}
+
+.error-popover-demo__card {
+    display: grid;
+    align-content: start;
+    gap: 0.9rem;
+    min-inline-size: 0;
+    padding: 1.15rem;
+    background: #f8fafc;
+    border: 1px solid #d8e0ea;
+    border-radius: 0.85rem;
+}
+
+.error-popover-demo__card--wide {
+    max-inline-size: 52rem;
+}
+
+.error-popover-demo__card h3 {
+    color: #263b57;
+    font-size: 1rem;
+}
+
+.error-popover-demo__field {
+    display: grid;
+    gap: 0.4rem;
+    min-inline-size: 0;
+}
+
+.error-popover-demo__field > span {
+    color: #334155;
+    font-weight: 700;
+}
+
+.error-popover-demo__field > input {
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-block-size: 2.55rem;
+    padding-inline: 0.75rem;
+}
+
+.error-popover-demo__explicit-host,
+.error-popover-demo__readonly-scope {
+    min-inline-size: 0;
+}
+
+.error-popover-demo__signal-host {
+    display: grid;
+    gap: 0.25rem;
+    min-block-size: 4rem;
+    padding: 0.85rem;
+    color: #174f8a;
+    background: #edf6ff;
+    border: 1px dashed #73a8d3;
+    border-radius: 0.65rem;
+    outline: none;
+    cursor: help;
+}
+
+.error-popover-demo__signal-host:focus-visible {
+    border-style: solid;
+    box-shadow: 0 0 0 3px rgb(23 105 170 / 22%);
+}
+
+.error-popover-demo__signal-host span {
+    color: #52627d;
+    font-size: 0.84rem;
+    line-height: 1.4;
+}
+
+.error-popover-demo__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+}
+
+.error-popover-demo__actions button {
+    min-block-size: 2.35rem;
+    padding: 0.5rem 0.75rem;
+    color: #174f8a;
+    background: #fff;
+    border: 1px solid #9bbbd6;
+    border-radius: 0.55rem;
+    font: inherit;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.error-popover-demo__actions button:hover {
+    background: #edf6ff;
+}
+
+.error-popover-demo__actions button:focus-visible {
+    outline: 3px solid rgb(23 105 170 / 22%);
+    outline-offset: 2px;
+}
+
+.error-popover-demo__card code {
+    min-block-size: 1rem;
+    overflow-wrap: anywhere;
+    color: #64748b;
+    font-size: 0.76rem;
+    direction: ltr;
+    text-align: start;
+}
+
+@media (max-width: 620px) {
+    .error-popover-demo {
+        padding: 1rem;
+    }
+
+    .error-popover-demo__actions {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+}
