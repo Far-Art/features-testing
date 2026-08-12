@@ -10,7 +10,7 @@
     // Background for disabled editable controls.
     --ims-color-surface-input-disabled: var(--ims-color-neutral-100);
     // Enabled-like background for disabled controls whose value must remain easy to read.
-    --ims-color-surface-input-readonly: var(--ims-color-surface-input);
+    --ims-color-surface-input-readonly: var(--ims-color-neutral-50);
 
     // Compatibility aliases for existing components.
     --ims-color-surface: var(--ims-color-surface-panel);
@@ -26,8 +26,8 @@
     --ims-color-on-surface-muted: var(--ims-color-neutral-700);
     // Text on a disabled control. Lower-contrast than muted — do not reuse muted for disabled state.
     --ims-color-on-surface-disabled: var(--ims-color-neutral-400);
-    // Enabled-like text for disabled controls whose value must remain easy to read.
-    --ims-color-on-surface-readonly: var(--ims-color-on-surface);
+    // Readable text for readonly controls. Higher contrast than disabled, lower emphasis than editable.
+    --ims-color-on-surface-readonly: var(--ims-color-on-surface-muted);
 
     // Default control border (inputs, buttons, cards).
     --ims-color-border: var(--ims-color-neutral-400);

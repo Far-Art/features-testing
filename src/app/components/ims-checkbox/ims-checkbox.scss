@@ -29,6 +29,16 @@
     cursor: not-allowed;
 }
 
+.ims-cb--readonly {
+    --ims-cb-border: var(--ims-color-border-subtle);
+    --ims-cb-fill: var(--ims-color-surface-input-readonly);
+    --ims-cb-fill-hover: var(--ims-color-surface-input-readonly);
+    --ims-cb-label: var(--ims-color-on-surface-readonly);
+    --ims-cb-mark: var(--ims-color-on-surface-readonly);
+
+    cursor: not-allowed;
+}
+
 // ─── Native input (invisible, covers the whole label for a11y) ────────────────
 .ims-cb__native {
     position: absolute;
@@ -114,12 +124,12 @@
 }
 
 // ─── Hover / active ───────────────────────────────────────────────────────────
-.ims-cb__native:hover + .ims-cb__track {
+.ims-cb:not(.ims-cb--disabled):not(.ims-cb--readonly) .ims-cb__native:hover + .ims-cb__track {
     border-color: var(--ims-cb-fill);
     transform: scale(1.06);
 }
 
-.ims-cb__native:active + .ims-cb__track {
+.ims-cb:not(.ims-cb--disabled):not(.ims-cb--readonly) .ims-cb__native:active + .ims-cb__track {
     transform: scale(0.94);
 }
 
@@ -136,7 +146,7 @@
     color: var(--ims-cb-mark);
 }
 
-.ims-cb--checked .ims-cb__native:hover + .ims-cb__track {
+.ims-cb--checked:not(.ims-cb--disabled):not(.ims-cb--readonly) .ims-cb__native:hover + .ims-cb__track {
     background: var(--ims-cb-fill-hover);
     border-color: var(--ims-cb-fill-hover);
 }
@@ -153,7 +163,7 @@
     color: var(--ims-cb-mark);
 }
 
-.ims-cb--intermediate .ims-cb__native:hover + .ims-cb__track {
+.ims-cb--intermediate:not(.ims-cb--disabled):not(.ims-cb--readonly) .ims-cb__native:hover + .ims-cb__track {
     background: var(--ims-cb-fill-hover);
     border-color: var(--ims-cb-fill-hover);
 }

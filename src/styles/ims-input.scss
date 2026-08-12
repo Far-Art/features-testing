@@ -34,7 +34,7 @@
 }
 
 .ims-readonly {
-    --ims-input-disabled-border: var(--ims-color-border);
+    --ims-input-disabled-border: var(--ims-color-border-subtle);
     --ims-input-disabled-background: var(--ims-color-surface-input-readonly);
     --ims-input-disabled-color: var(--ims-color-on-surface-readonly);
 }

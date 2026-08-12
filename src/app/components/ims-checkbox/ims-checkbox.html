@@ -2,7 +2,8 @@
     class="ims-cb"
     [class.ims-cb--checked]="isChecked() && !intermediate()"
     [class.ims-cb--intermediate]="intermediate()"
-    [class.ims-cb--disabled]="interactionDisabled()"
+    [class.ims-cb--disabled]="disabled()"
+    [class.ims-cb--readonly]="readonlyMode()"
     [class.ims-cb--ripple]="rippleActive()"
 >
     <input
