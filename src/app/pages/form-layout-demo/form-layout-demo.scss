@@ -126,8 +126,7 @@
     min-width: 0;
 }
 
-.form-grid-demo--auto ims-grid-cell ims-form-field >
-    .form-grid-demo__intrinsic-value {
+.form-grid-demo--auto ims-grid-cell ims-form-field > .form-grid-demo__intrinsic-value {
     inline-size: max-content;
     max-inline-size: none;
     white-space: nowrap;

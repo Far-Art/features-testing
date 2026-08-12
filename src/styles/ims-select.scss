@@ -19,9 +19,7 @@
     border-color: var(--ims-input-invalid-border, var(--ims-color-invalid));
 }
 
-.ims-select-host.ng-invalid
-    .ims-select__trigger:not(:disabled):not(.ims-select__trigger--readonly)
-    :is(.ims-select__chevron, .ims-select__mode-icon) {
+.ims-select-host.ng-invalid .ims-select__trigger:not(:disabled):not(.ims-select__trigger--readonly) :is(.ims-select__chevron, .ims-select__mode-icon) {
     color: var(--ims-input-invalid-border, var(--ims-color-invalid));
 }
 
