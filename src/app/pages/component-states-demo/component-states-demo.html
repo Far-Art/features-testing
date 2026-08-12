@@ -236,6 +236,125 @@
 
   <div class="component-states-demo__matrix">
     <article class="component-states-demo__card">
+      <h3>Multi select · רגיל</h3>
+      <ims-select
+        multiple
+        filter="auto"
+        toolbar="auto"
+        placeholder="בחר מצבים"
+        ariaLabel="Multi select normal"
+        [formControl]="multiSelectNormal"
+        [compareWith]="compareOptionById"
+      >
+        @for (option of options; track option.id) {
+          <ims-option
+            [value]="option"
+            [selectionText]="option.label"
+            [disabled]="!!option.disabled"
+          >
+            {{ option.label }}
+          </ims-option>
+        }
+      </ims-select>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Multi select · מושבת</h3>
+      <ims-select
+        multiple
+        filter="auto"
+        toolbar="auto"
+        placeholder="בחר מצבים"
+        ariaLabel="Multi select disabled"
+        [formControl]="multiSelectDisabled"
+        [compareWith]="compareOptionById"
+      >
+        @for (option of options; track option.id) {
+          <ims-option
+            [value]="option"
+            [selectionText]="option.label"
+            [disabled]="!!option.disabled"
+          >
+            {{ option.label }}
+          </ims-option>
+        }
+      </ims-select>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Multi select · קריאה בלבד</h3>
+      <ims-select
+        multiple
+        filter="auto"
+        toolbar="auto"
+        placeholder="בחר מצבים"
+        ariaLabel="Multi select readonly"
+        [formControl]="multiSelectReadonly"
+        [compareWith]="compareOptionById"
+        [ims-readonly]="true"
+      >
+        @for (option of options; track option.id) {
+          <ims-option
+            [value]="option"
+            [selectionText]="option.label"
+            [disabled]="!!option.disabled"
+          >
+            {{ option.label }}
+          </ims-option>
+        }
+      </ims-select>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Multi select · לא תקין</h3>
+      <ims-select
+        multiple
+        filter="auto"
+        toolbar="auto"
+        placeholder="חובה לבחור"
+        ariaLabel="Multi select invalid"
+        [formControl]="multiSelectInvalid"
+        [compareWith]="compareOptionById"
+      >
+        @for (option of options; track option.id) {
+          <ims-option
+            [value]="option"
+            [selectionText]="option.label"
+            [disabled]="!!option.disabled"
+          >
+            {{ option.label }}
+          </ims-option>
+        }
+      </ims-select>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Multi select · לא תקין + קריאה בלבד</h3>
+      <ims-select
+        multiple
+        filter="auto"
+        toolbar="auto"
+        placeholder="חובה לבחור"
+        ariaLabel="Multi select invalid readonly"
+        [formControl]="multiSelectInvalidReadonly"
+        [compareWith]="compareOptionById"
+        [ims-readonly]="true"
+      >
+        @for (option of options; track option.id) {
+          <ims-option
+            [value]="option"
+            [selectionText]="option.label"
+            [disabled]="!!option.disabled"
+          >
+            {{ option.label }}
+          </ims-option>
+        }
+      </ims-select>
+    </article>
+  </div>
+
+  <div class="component-states-demo__matrix">
+    <article class="component-states-demo__card">
       <h3>Autocomplete · רגיל</h3>
       <ims-autocomplete
         strict
@@ -292,6 +411,75 @@
         ariaLabel="Autocomplete invalid readonly"
         [options]="autocompleteOptions"
         [formControl]="autocompleteInvalidReadonly"
+        [compareWith]="compareOptionById"
+        [ims-readonly]="true"
+      />
+    </article>
+  </div>
+
+  <div class="component-states-demo__matrix">
+    <article class="component-states-demo__card">
+      <h3>Multi autocomplete · רגיל</h3>
+      <ims-autocomplete
+        multiple
+        toolbar="auto"
+        placeholder="בחר מצבים"
+        ariaLabel="Multi autocomplete normal"
+        [options]="autocompleteOptions"
+        [formControl]="multiAutocompleteNormal"
+        [compareWith]="compareOptionById"
+      />
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Multi autocomplete · מושבת</h3>
+      <ims-autocomplete
+        multiple
+        toolbar="auto"
+        placeholder="בחר מצבים"
+        ariaLabel="Multi autocomplete disabled"
+        [options]="autocompleteOptions"
+        [formControl]="multiAutocompleteDisabled"
+        [compareWith]="compareOptionById"
+      />
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Multi autocomplete · קריאה בלבד</h3>
+      <ims-autocomplete
+        multiple
+        toolbar="auto"
+        placeholder="בחר מצבים"
+        ariaLabel="Multi autocomplete readonly"
+        [options]="autocompleteOptions"
+        [formControl]="multiAutocompleteReadonly"
+        [compareWith]="compareOptionById"
+        [ims-readonly]="true"
+      />
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Multi autocomplete · לא תקין</h3>
+      <ims-autocomplete
+        multiple
+        toolbar="auto"
+        placeholder="חובה לבחור"
+        ariaLabel="Multi autocomplete invalid"
+        [options]="autocompleteOptions"
+        [formControl]="multiAutocompleteInvalid"
+        [compareWith]="compareOptionById"
+      />
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Multi autocomplete · לא תקין + קריאה בלבד</h3>
+      <ims-autocomplete
+        multiple
+        toolbar="auto"
+        placeholder="חובה לבחור"
+        ariaLabel="Multi autocomplete invalid readonly"
+        [options]="autocompleteOptions"
+        [formControl]="multiAutocompleteInvalidReadonly"
         [compareWith]="compareOptionById"
         [ims-readonly]="true"
       />

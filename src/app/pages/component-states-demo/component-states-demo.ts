@@ -122,6 +122,30 @@ export class ComponentStatesDemo {
     validators: Validators.required,
   });
 
+  readonly multiSelectNormal = new FormControl<readonly ComponentStateDemoOption[]>(
+    [this.options[0], this.options[1]],
+    { nonNullable: true },
+  );
+  readonly multiSelectDisabled = new FormControl<readonly ComponentStateDemoOption[]>(
+    {
+      value: [this.options[0], this.options[2]],
+      disabled: true,
+    },
+    { nonNullable: true },
+  );
+  readonly multiSelectReadonly = new FormControl<readonly ComponentStateDemoOption[]>(
+    [this.options[1], this.options[2]],
+    { nonNullable: true },
+  );
+  readonly multiSelectInvalid = new FormControl<readonly ComponentStateDemoOption[]>([], {
+    nonNullable: true,
+    validators: Validators.required,
+  });
+  readonly multiSelectInvalidReadonly = new FormControl<readonly ComponentStateDemoOption[]>([], {
+    nonNullable: true,
+    validators: Validators.required,
+  });
+
   readonly autocompleteNormal = new FormControl<ComponentStateDemoOption | string | null>(
     this.options[0],
   );
@@ -138,6 +162,33 @@ export class ComponentStatesDemo {
   readonly autocompleteInvalidReadonly = new FormControl<ComponentStateDemoOption | string | null>(
     null,
     {
+      validators: Validators.required,
+    },
+  );
+
+  readonly multiAutocompleteNormal = new FormControl<readonly ComponentStateDemoOption[]>(
+    [this.options[0], this.options[1]],
+    { nonNullable: true },
+  );
+  readonly multiAutocompleteDisabled = new FormControl<readonly ComponentStateDemoOption[]>(
+    {
+      value: [this.options[0], this.options[2]],
+      disabled: true,
+    },
+    { nonNullable: true },
+  );
+  readonly multiAutocompleteReadonly = new FormControl<readonly ComponentStateDemoOption[]>(
+    [this.options[1], this.options[2]],
+    { nonNullable: true },
+  );
+  readonly multiAutocompleteInvalid = new FormControl<readonly ComponentStateDemoOption[]>([], {
+    nonNullable: true,
+    validators: Validators.required,
+  });
+  readonly multiAutocompleteInvalidReadonly = new FormControl<readonly ComponentStateDemoOption[]>(
+    [],
+    {
+      nonNullable: true,
       validators: Validators.required,
     },
   );
@@ -182,8 +233,12 @@ export class ComponentStatesDemo {
       this.checkboxInvalidReadonly,
       this.selectInvalid,
       this.selectInvalidReadonly,
+      this.multiSelectInvalid,
+      this.multiSelectInvalidReadonly,
       this.autocompleteInvalid,
       this.autocompleteInvalidReadonly,
+      this.multiAutocompleteInvalid,
+      this.multiAutocompleteInvalidReadonly,
       this.datepickerInvalid,
       this.datepickerInvalidReadonly,
       this.experimentalInvalid,

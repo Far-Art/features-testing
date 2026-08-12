@@ -84,6 +84,7 @@
         />
         <span
             class="ims-autocomplete__mode-icon ims-autocomplete__mode-icon--input material-icons"
+            [class.ims-autocomplete__mode-icon--readonly]="interactionDisabled()"
             aria-hidden="true"
             [textContent]="'search'"
         ></span>

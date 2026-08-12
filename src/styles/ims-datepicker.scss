@@ -49,7 +49,7 @@
         border: 0;
         outline: 0;
         background: transparent;
-        color: inherit;
+        color: var(--ims-color-interactive-alt-strong);
         cursor: pointer;
 
         &:focus-visible {
@@ -110,9 +110,9 @@
 
 .ims-datepicker-host.ng-invalid
     .ims-datepicker__field:not(.ims-datepicker__field--disabled):not(.ims-datepicker__field--readonly)
-    .ims-datepicker__toggle,
+    :is(.ims-datepicker__clear, .ims-datepicker__toggle),
 .ims-datepicker__field.ims-datepicker__field--invalid:not(.ims-datepicker__field--disabled):not(.ims-datepicker__field--readonly)
-    .ims-datepicker__toggle {
+    :is(.ims-datepicker__clear, .ims-datepicker__toggle) {
     color: var(--ims-input-invalid-border, var(--ims-color-invalid));
 }
 
@@ -129,6 +129,11 @@
     border-color: var(--ims-input-disabled-border, var(--ims-color-border-subtle));
     background: var(--ims-input-disabled-background, var(--ims-color-surface-input-disabled));
     color: var(--ims-input-disabled-color, var(--ims-color-on-surface-disabled));
+
+    .ims-datepicker__clear,
+    .ims-datepicker__toggle {
+        color: var(--ims-color-on-surface-disabled);
+    }
 
     &:hover {
         border-color: var(--ims-input-disabled-border, var(--ims-color-border-subtle));
