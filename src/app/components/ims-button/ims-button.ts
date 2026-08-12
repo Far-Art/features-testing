@@ -102,3 +102,16 @@ export class ImsButtonDanger extends ImsButtonBase {
     @HostBinding('class.ims-button--danger')
     protected readonly dangerButtonClass = true;
 }
+
+/** Icon-only button. Give it an accessible name with `aria-label`, since there's no visible text. */
+@Directive({
+    selector: 'button[ims-button-icon]',
+    standalone: true
+})
+export class ImsButtonIcon extends ImsButtonBase {
+    @HostBinding('class.ims-button--default')
+    protected readonly defaultButtonClass = true;
+
+    @HostBinding('class.ims-button-icon')
+    protected readonly iconButtonClass = true;
+}

@@ -30,6 +30,7 @@
 @use './styles/ims-expand-collapse-button';
 @use './styles/ims-long-press';
 @use './styles/ims-buttons';
+@use './styles/ims-icon';
 
 html {
     @include mat.theme((

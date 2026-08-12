@@ -1,11 +1,25 @@
 import {Component, ChangeDetectionStrategy} from '@angular/core';
-import {ImsButton, ImsButtonDark, ImsButtonWhite, ImsButtonDanger} from '../../components/ims-button';
+import {
+    ImsButton,
+    ImsButtonDark,
+    ImsButtonWhite,
+    ImsButtonDanger,
+    ImsButtonIcon
+} from '../../components/ims-button';
 import {ImsLongPressDirective} from '../../ims-long-press.directive';
 import {ReadonlyDirective} from '../../shared/readonly.directive';
 
 @Component({
     selector: 'app-buttons-demo',
-    imports: [ImsButton, ImsButtonDark, ImsButtonWhite, ImsButtonDanger, ImsLongPressDirective, ReadonlyDirective],
+    imports: [
+        ImsButton,
+        ImsButtonDark,
+        ImsButtonWhite,
+        ImsButtonDanger,
+        ImsButtonIcon,
+        ImsLongPressDirective,
+        ReadonlyDirective
+    ],
     templateUrl: './buttons-demo.html',
     changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './buttons-demo.scss'

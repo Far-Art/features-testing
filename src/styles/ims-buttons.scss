@@ -113,16 +113,24 @@
     --ims-button-ring-color: var(--ims-color-danger-500);
 }
 
-.ims-button--disabled,
-.ims-button--readonly,
-.ims-button:disabled {
-    --ims-button-background: var(--ims-color-surface-input-disabled);
-    --ims-button-background-hover: var(--ims-color-surface-input-disabled);
-    --ims-button-background-active: var(--ims-color-surface-input-disabled);
-    --ims-button-color: var(--ims-color-on-surface-disabled);
-    --ims-button-color-active: var(--ims-color-on-surface-disabled);
-    --ims-button-border: var(--ims-color-border-subtle);
+.ims-button-icon {
+    min-inline-size: 2.5rem;
+    padding: 0.5rem;
+}
 
+// Disabled keeps each variant's own hue instead of one flat gray —
+// desaturated and faded, but a dark/danger/light button still reads
+// as its own color, just muted.
+.ims-button--disabled,
+.ims-button:disabled {
+    filter: grayscale(55%);
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+// Readonly stays close to the enabled look on purpose — it must
+// remain easy to read, unlike disabled.
+.ims-button--readonly {
     cursor: not-allowed;
 }
 
