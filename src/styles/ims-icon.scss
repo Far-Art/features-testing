@@ -1,0 +1,32 @@
+.ims-icon {
+    --ims-icon-size: 1.5rem;
+    --ims-icon-fill: 0;
+    --ims-icon-weight: 400;
+    --ims-icon-grade: 0;
+    --ims-icon-optical-size: 24;
+
+    display: inline-block;
+    overflow: hidden;
+    font-family: 'Material Symbols Sharp';
+    font-style: normal;
+    font-weight: normal;
+    font-size: var(--ims-icon-size);
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    color: currentColor;
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
+    font-variation-settings:
+        'FILL' var(--ims-icon-fill),
+        'wght' var(--ims-icon-weight),
+        'GRAD' var(--ims-icon-grade),
+        'opsz' var(--ims-icon-optical-size);
+}
+
+.ims-icon--filled {
+    --ims-icon-fill: 1;
+}
