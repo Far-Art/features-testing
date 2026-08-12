@@ -1,88 +1,149 @@
-:is(.ims-button) {
-    --ims-button__active-scale: 0.96;
-    --ims-button__start-color: #000;
-    --ims-button__end-color: #fff;
-    --ims-button__ripple-fill-color: transparent;
-    --ims-button__ripple-speed: 300ms;
+.ims-button {
+    --ims-button-active-scale: 0.97;
+    --ims-button-background: transparent;
+    --ims-button-background-hover: var(--ims-color-primary-700);
+    --ims-button-border: var(--ims-color-primary-700);
+    --ims-button-color: var(--ims-color-primary-800);
+    --ims-button-color-hover: var(--ims-color-on-interactive);
+    --ims-button-focus-ring: var(--ims-color-focus-ring);
+    --ims-button-radius: 0.5rem;
+    --ims-button-ripple-color: var(--ims-button-background-hover);
+    --ims-button-ripple-radius: 0%;
+    --ims-button-ripple-speed: 300ms;
 
     position: relative;
     isolation: isolate;
-    min-block-size: 1rem;
-    max-block-size: max-content;
+    display: inline-grid;
+    place-items: center;
+    min-block-size: 2.25rem;
     padding: 0.5rem 1rem;
-    border: 1px solid white;
-    border-radius: 0.5rem;
-    background: transparent;
-    transition: color 450ms ease;
-    color: var(--ims-button__start-color);
+    overflow: hidden;
+    border: 1px solid var(--ims-button-border);
+    border-radius: var(--ims-button-radius);
+    background: var(--ims-button-background);
+    color: var(--ims-button-color);
+    font: inherit;
+    font-weight: 650;
+    line-height: 1.2;
+    cursor: pointer;
+    user-select: none;
+    transition: color 180ms ease, border-color 180ms ease, background-color 180ms ease;
+}
 
-    &:after {
-        --ims-button__ripple-background-color: #2563eb;
-        --ims-button__ripple-background-radius: 0%;
-        --ims-button__ripple-background: radial-gradient(circle, var(--ims-button__ripple-background-color) var(--ims-button__ripple-background-radius), transparent calc(var(--ims-button__ripple-background-radius) + 1px));
-        background: var(--ims-button__ripple-background);
-        opacity: 0;
-        transition: opacity var(--ims-button__ripple-speed) ease,
-        --ims-button__ripple-background-radius 0ms linear var(--ims-button__ripple-speed);
-    }
+.ims-button::before,
+.ims-button::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+}
 
-    &:hover, &:focus-visible {
-        color: var(--ims-button__end-color);
-        transition: color calc(var(--ims-button__ripple-speed) * 2) ease;
+.ims-button::before {
+    background: var(--ims-button-background);
+}
 
-        &:after {
-            --ims-button__ripple-speed: 1.2s;
-            --ims-button__ripple-background-radius: 100%;
-            opacity: 1;
-            transform: scale(1);
-            transition: opacity var(--ims-button__ripple-speed) cubic-bezier(0, 0.5, 0, 1),
-            --ims-button__ripple-background-radius var(--ims-button__ripple-speed) cubic-bezier(0, 0.5, 0, 1);
-        }
-    }
+.ims-button::after {
+    background: radial-gradient(circle, var(--ims-button-ripple-color) var(--ims-button-ripple-radius), transparent calc(var(--ims-button-ripple-radius) + 1px));
+    opacity: 0;
+    transition: opacity var(--ims-button-ripple-speed) ease, --ims-button-ripple-radius 0ms linear var(--ims-button-ripple-speed);
+}
 
-    &:active {
-        color: var(--ims-button__end-color);
+.ims-button:hover,
+.ims-button:focus-visible {
+    color: var(--ims-button-color-hover);
+}
 
-        &:before,
-        &:after {
-            transform: scale(var(--ims-button__active-scale));
-        }
+.ims-button:hover::after,
+.ims-button:focus-visible::after {
+    --ims-button-ripple-radius: 100%;
+    --ims-button-ripple-speed: 900ms;
 
-        &:before {
-            transition: transform 90ms ease-out;
-        }
+    opacity: 1;
+    transition: opacity var(--ims-button-ripple-speed) cubic-bezier(0, 0.5, 0, 1), --ims-button-ripple-radius var(--ims-button-ripple-speed) cubic-bezier(0, 0.5, 0, 1);
+}
 
-        &:after {
-            --ims-button__ripple-background-radius: 100%;
-            opacity: 1;
-            transition: opacity 0ms,
-            --ims-button__ripple-background-radius 120ms ease-out,
-            transform 90ms ease-out;
-        }
-    }
+.ims-button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--ims-button-focus-ring);
+}
 
-    &:before,
-    &:after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-        border-radius: inherit;
-    }
+.ims-button:active {
+    color: var(--ims-button-color-hover);
+}
 
-    &:before {
-        background: var(--ims-button__ripple-fill-color);
+.ims-button:active::before,
+.ims-button:active::after {
+    transform: scale(var(--ims-button-active-scale));
+}
+
+.ims-button:active::before {
+    transition: transform 90ms ease-out;
+}
+
+.ims-button:active::after {
+    --ims-button-ripple-radius: 100%;
+
+    opacity: 1;
+    transition: opacity 0ms, --ims-button-ripple-radius 120ms ease-out, transform 90ms ease-out;
+}
+
+.ims-button--default {
+    --ims-button-background: transparent;
+    --ims-button-background-hover: var(--ims-color-primary-700);
+    --ims-button-border: var(--ims-color-primary-700);
+    --ims-button-color: var(--ims-color-primary-800);
+    --ims-button-color-hover: var(--ims-color-on-interactive);
+    --ims-button-ripple-color: var(--ims-color-primary-700);
+}
+
+.ims-button--dark {
+    --ims-button-background: var(--ims-color-primary-900);
+    --ims-button-background-hover: var(--ims-color-primary-700);
+    --ims-button-border: var(--ims-color-primary-900);
+    --ims-button-color: var(--ims-color-on-interactive);
+    --ims-button-color-hover: var(--ims-color-on-interactive);
+    --ims-button-ripple-color: var(--ims-color-primary-700);
+}
+
+.ims-button--white {
+    --ims-button-background: var(--ims-color-surface-input);
+    --ims-button-background-hover: var(--ims-color-primary-50);
+    --ims-button-border: var(--ims-color-border);
+    --ims-button-color: var(--ims-color-primary-800);
+    --ims-button-color-hover: var(--ims-color-primary-900);
+    --ims-button-ripple-color: var(--ims-color-primary-50);
+}
+
+.ims-button--disabled,
+.ims-button--readonly,
+.ims-button:disabled {
+    --ims-button-background: var(--ims-color-surface-input-disabled);
+    --ims-button-background-hover: var(--ims-color-surface-input-disabled);
+    --ims-button-border: var(--ims-color-border-subtle);
+    --ims-button-color: var(--ims-color-on-surface-disabled);
+    --ims-button-color-hover: var(--ims-color-on-surface-disabled);
+    --ims-button-ripple-color: var(--ims-color-surface-input-disabled);
+
+    cursor: not-allowed;
+}
+
+.ims-button--disabled::after,
+.ims-button--readonly::after,
+.ims-button:disabled::after {
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ims-button,
+    .ims-button::before,
+    .ims-button::after {
+        transition-duration: 1ms;
     }
 }
 
-@property --ims-button__ripple-background-radius {
+@property --ims-button-ripple-radius {
     syntax: '<percentage>';
     initial-value: 0%;
-    inherits: false;
-}
-
-@property --ims-button__ripple-background-color {
-    syntax: '<color>';
-    initial-value: #fff;
     inherits: false;
 }

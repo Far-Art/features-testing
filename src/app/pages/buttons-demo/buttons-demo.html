@@ -13,7 +13,13 @@
         המשך לתשלום
     </button>
 
-    <button class="ims-button">test ims button style</button>
+    <div class="button-demo__ims-buttons" aria-label="IMS button variants">
+        <button ims-button>Default</button>
+        <button ims-button-dark>Dark</button>
+        <button ims-button-white>White</button>
+        <button ims-button disabled>Disabled</button>
+        <button ims-button [ims-readonly]="true">Readonly</button>
+    </div>
 </section>
 
 <section class="button-demo">
