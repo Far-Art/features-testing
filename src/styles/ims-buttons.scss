@@ -1,23 +1,21 @@
 .ims-button {
-    --ims-button-active-scale: 0.97;
-    --ims-button-background: transparent;
+    --ims-button-background: var(--ims-color-brand);
     --ims-button-background-hover: var(--ims-color-primary-700);
-    --ims-button-border: var(--ims-color-primary-700);
-    --ims-button-color: var(--ims-color-primary-800);
-    --ims-button-color-hover: var(--ims-color-on-interactive);
+    --ims-button-background-active: var(--ims-color-primary-900);
+    --ims-button-color: var(--ims-color-on-interactive);
+    --ims-button-color-active: var(--ims-color-on-interactive);
     --ims-button-focus-ring: var(--ims-color-focus-ring);
-    --ims-button-radius: 0.5rem;
-    --ims-button-ripple-color: var(--ims-button-background-hover);
-    --ims-button-ripple-radius: 0%;
-    --ims-button-ripple-speed: 300ms;
+    --ims-button-radius: 0.375rem;
+    --ims-button-ring-color: var(--ims-color-primary-600);
+    --ims-button-border: transparent;
 
     position: relative;
     isolation: isolate;
+    overflow: hidden;
     display: inline-grid;
     place-items: center;
-    min-block-size: 2.25rem;
-    padding: 0.5rem 1rem;
-    overflow: hidden;
+    min-block-size: 2.5rem;
+    padding: 0.625rem 1.25rem;
     border: 1px solid var(--ims-button-border);
     border-radius: var(--ims-button-radius);
     background: var(--ims-button-background);
@@ -27,40 +25,51 @@
     line-height: 1.2;
     cursor: pointer;
     user-select: none;
-    transition: color 180ms ease, border-color 180ms ease, background-color 180ms ease;
+    outline: 2px solid transparent;
+    outline-offset: 8px;
+    transition: background-color 160ms ease, color 160ms ease, outline-color 260ms ease-out, outline-offset 260ms ease-out;
 }
 
-.ims-button::before,
-.ims-button::after {
+// Fill sweep: a deeper tone wipes in from the left on hover. Plain
+// transform + the button's own overflow: hidden keep it contained —
+// no clip-path needed, so it stays cheap to animate.
+.ims-button::before {
     content: '';
     position: absolute;
     inset: 0;
     z-index: -1;
     border-radius: inherit;
+    background: var(--ims-button-background-hover);
+    transform: translateX(-100%);
+    transition: transform 260ms cubic-bezier(0.4, 0, 0.2, 1), background-color 320ms ease-out;
+    pointer-events: none;
 }
 
-.ims-button::before {
-    background: var(--ims-button-background);
+.ims-button:hover::before,
+.ims-button:active::before {
+    transform: translateX(0);
 }
 
-.ims-button::after {
-    background: radial-gradient(circle, var(--ims-button-ripple-color) var(--ims-button-ripple-radius), transparent calc(var(--ims-button-ripple-radius) + 1px));
-    opacity: 0;
-    transition: opacity var(--ims-button-ripple-speed) ease, --ims-button-ripple-radius 0ms linear var(--ims-button-ripple-speed);
+.ims-button:active::before {
+    background: var(--ims-button-background-active);
+    transition: transform 260ms cubic-bezier(0.4, 0, 0.2, 1), background-color 90ms ease-out;
 }
 
-.ims-button:hover,
-.ims-button:focus-visible {
-    color: var(--ims-button-color-hover);
+// Press ring: a faint ring sits just outside the button on hover,
+// then contracts flush and solidifies on press. Built with outline
+// rather than a positioned pseudo-element so it isn't clipped by the
+// button's own overflow: hidden (outline always paints outside the
+// border box, and follows border-radius in evergreen browsers).
+.ims-button:hover {
+    outline-color: color-mix(in oklab, var(--ims-button-ring-color) 25%, transparent);
+    outline-offset: 2px;
 }
 
-.ims-button:hover::after,
-.ims-button:focus-visible::after {
-    --ims-button-ripple-radius: 100%;
-    --ims-button-ripple-speed: 900ms;
-
-    opacity: 1;
-    transition: opacity var(--ims-button-ripple-speed) cubic-bezier(0, 0.5, 0, 1), --ims-button-ripple-radius var(--ims-button-ripple-speed) cubic-bezier(0, 0.5, 0, 1);
+.ims-button:active {
+    outline-color: var(--ims-button-ring-color);
+    outline-offset: 0;
+    color: var(--ims-button-color-active);
+    transition: background-color 160ms ease, color 160ms ease, outline-color 110ms cubic-bezier(0.3, 0, 0.2, 1), outline-offset 110ms cubic-bezier(0.3, 0, 0.2, 1);
 }
 
 .ims-button:focus-visible {
@@ -68,51 +77,31 @@
     box-shadow: 0 0 0 3px var(--ims-button-focus-ring);
 }
 
-.ims-button:active {
-    color: var(--ims-button-color-hover);
-}
-
-.ims-button:active::before,
-.ims-button:active::after {
-    transform: scale(var(--ims-button-active-scale));
-}
-
-.ims-button:active::before {
-    transition: transform 90ms ease-out;
-}
-
-.ims-button:active::after {
-    --ims-button-ripple-radius: 100%;
-
-    opacity: 1;
-    transition: opacity 0ms, --ims-button-ripple-radius 120ms ease-out, transform 90ms ease-out;
-}
-
 .ims-button--default {
-    --ims-button-background: transparent;
-    --ims-button-background-hover: var(--ims-color-primary-700);
-    --ims-button-border: var(--ims-color-primary-700);
+    --ims-button-background: var(--ims-color-primary-50);
+    --ims-button-background-hover: var(--ims-color-primary-100);
+    --ims-button-background-active: var(--ims-color-primary-150);
     --ims-button-color: var(--ims-color-primary-800);
-    --ims-button-color-hover: var(--ims-color-on-interactive);
-    --ims-button-ripple-color: var(--ims-color-primary-700);
+    --ims-button-color-active: var(--ims-color-primary-900);
+    --ims-button-ring-color: var(--ims-color-primary-450);
 }
 
 .ims-button--dark {
-    --ims-button-background: var(--ims-color-primary-900);
+    --ims-button-background: var(--ims-color-brand);
     --ims-button-background-hover: var(--ims-color-primary-700);
-    --ims-button-border: var(--ims-color-primary-900);
+    --ims-button-background-active: var(--ims-color-primary-850);
     --ims-button-color: var(--ims-color-on-interactive);
-    --ims-button-color-hover: var(--ims-color-on-interactive);
-    --ims-button-ripple-color: var(--ims-color-primary-700);
+    --ims-button-color-active: var(--ims-color-on-interactive);
+    --ims-button-ring-color: var(--ims-color-primary-600);
 }
 
 .ims-button--white {
     --ims-button-background: var(--ims-color-surface-input);
     --ims-button-background-hover: var(--ims-color-primary-50);
-    --ims-button-border: var(--ims-color-border);
+    --ims-button-background-active: var(--ims-color-primary-100);
     --ims-button-color: var(--ims-color-primary-800);
-    --ims-button-color-hover: var(--ims-color-primary-900);
-    --ims-button-ripple-color: var(--ims-color-primary-50);
+    --ims-button-color-active: var(--ims-color-primary-900);
+    --ims-button-ring-color: var(--ims-color-primary-450);
 }
 
 .ims-button--disabled,
@@ -120,30 +109,33 @@
 .ims-button:disabled {
     --ims-button-background: var(--ims-color-surface-input-disabled);
     --ims-button-background-hover: var(--ims-color-surface-input-disabled);
-    --ims-button-border: var(--ims-color-border-subtle);
+    --ims-button-background-active: var(--ims-color-surface-input-disabled);
     --ims-button-color: var(--ims-color-on-surface-disabled);
-    --ims-button-color-hover: var(--ims-color-on-surface-disabled);
-    --ims-button-ripple-color: var(--ims-color-surface-input-disabled);
+    --ims-button-color-active: var(--ims-color-on-surface-disabled);
+    --ims-button-border: var(--ims-color-border-subtle);
 
     cursor: not-allowed;
 }
 
-.ims-button--disabled::after,
-.ims-button--readonly::after,
-.ims-button:disabled::after {
-    opacity: 0;
+.ims-button--disabled::before,
+.ims-button--readonly::before,
+.ims-button:disabled::before {
+    display: none;
+}
+
+.ims-button--disabled:hover,
+.ims-button--disabled:active,
+.ims-button--readonly:hover,
+.ims-button--readonly:active,
+.ims-button:disabled:hover,
+.ims-button:disabled:active {
+    outline-color: transparent;
+    outline-offset: 8px;
 }
 
 @media (prefers-reduced-motion: reduce) {
     .ims-button,
-    .ims-button::before,
-    .ims-button::after {
+    .ims-button::before {
         transition-duration: 1ms;
     }
-}
-
-@property --ims-button-ripple-radius {
-    syntax: '<percentage>';
-    initial-value: 0%;
-    inherits: false;
 }
