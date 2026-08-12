@@ -371,9 +371,9 @@ export class ImsErrorPopoverDirective
             direction
         });
 
-        panelRef.instance.id = this.popoverId;
-        panelRef.instance.direction = direction;
-        panelRef.instance.errors = errors;
+        panelRef.instance.id.set(this.popoverId);
+        panelRef.instance.direction.set(direction);
+        panelRef.instance.errors.set(errors);
         panelRef.changeDetectorRef.detectChanges();
         this.connectAriaDescription();
 

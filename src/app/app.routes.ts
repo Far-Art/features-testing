@@ -29,6 +29,13 @@ export const routes: Routes = [
             import('./pages/datepicker-demo/datepicker-demo').then((module) => module.DatepickerDemo)
     },
     {
+        path: 'error-popover',
+        loadComponent: () =>
+            import('./pages/error-popover-demo/error-popover-demo').then(
+                (module) => module.ErrorPopoverDemo
+            )
+    },
+    {
         path: 'snackbar',
         loadComponent: () =>
             import('./pages/snackbar-demo/snackbar-demo').then((module) => module.SnackbarDemo)
