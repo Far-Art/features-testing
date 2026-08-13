@@ -6,60 +6,60 @@
 // a single frame before the modifier class lands, which was visible
 // as an unwanted flash-then-transition on mount.
 .ims-button {
-    --ims-button-background: transparent;
-    --ims-button-background-hover: transparent;
-    --ims-button-background-active: transparent;
-    --ims-button-color: inherit;
-    --ims-button-color-active: inherit;
-    --ims-button-focus-ring: var(--ims-color-focus-ring);
-    --ims-button-radius: 0.375rem;
-    --ims-button-ring-color: var(--ims-color-primary-600);
-    --ims-button-border: transparent;
+  --ims-button-background: transparent;
+  --ims-button-background-hover: transparent;
+  --ims-button-background-active: transparent;
+  --ims-button-color: inherit;
+  --ims-button-color-active: inherit;
+  --ims-button-focus-ring: var(--ims-color-focus-ring);
+  --ims-button-radius: 0.375rem;
+  --ims-button-ring-color: var(--ims-color-primary-600);
+  --ims-button-border: transparent;
 
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
-    display: inline-grid;
-    place-items: center;
-    min-block-size: 2.5rem;
-    padding: 0.625rem 1.25rem;
-    border: 1px solid var(--ims-button-border);
-    border-radius: var(--ims-button-radius);
-    background: var(--ims-button-background);
-    color: var(--ims-button-color);
-    font: inherit;
-    font-weight: 650;
-    line-height: 1.2;
-    cursor: pointer;
-    user-select: none;
-    outline: 2px solid transparent;
-    outline-offset: 8px;
-    transition: background-color 160ms ease, color 160ms ease, outline-color 260ms ease-out, outline-offset 260ms ease-out;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-grid;
+  place-items: center;
+  min-block-size: 2.5rem;
+  padding: 0.625rem 1.25rem;
+  border: 1px solid var(--ims-button-border);
+  border-radius: var(--ims-button-radius);
+  background: var(--ims-button-background);
+  color: var(--ims-button-color);
+  font: inherit;
+  font-weight: 650;
+  line-height: 1.2;
+  cursor: pointer;
+  user-select: none;
+  outline: 2px solid transparent;
+  outline-offset: 8px;
+  transition: background-color 160ms ease, color 160ms ease, outline-color 260ms ease-out, outline-offset 260ms ease-out;
 }
 
 // Fill sweep: a deeper tone wipes in from the left on hover. Plain
 // transform + the button's own overflow: hidden keep it contained —
 // no clip-path needed, so it stays cheap to animate.
 .ims-button::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    border-radius: inherit;
-    background: var(--ims-button-background-hover);
-    transform: translateX(-100%);
-    transition: transform 260ms cubic-bezier(0.4, 0, 0.2, 1), background-color 320ms ease-out;
-    pointer-events: none;
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--ims-button-background-hover);
+  transform: translateX(-100%);
+  transition: transform 260ms cubic-bezier(0.4, 0, 0.2, 1), background-color 320ms ease-out;
+  pointer-events: none;
 }
 
 .ims-button:hover::before,
 .ims-button:active::before {
-    transform: translateX(0);
+  transform: translateX(0);
 }
 
 .ims-button:active::before {
-    background: var(--ims-button-background-active);
-    transition: transform 260ms cubic-bezier(0.4, 0, 0.2, 1), background-color 90ms ease-out;
+  background: var(--ims-button-background-active);
+  transition: transform 260ms cubic-bezier(0.4, 0, 0.2, 1), background-color 90ms ease-out;
 }
 
 // Press ring: a faint ring sits just outside the button on hover,
@@ -68,61 +68,63 @@
 // button's own overflow: hidden (outline always paints outside the
 // border box, and follows border-radius in evergreen browsers).
 .ims-button:hover {
-    outline-color: color-mix(in oklab, var(--ims-button-ring-color) 25%, transparent);
-    outline-offset: 2px;
+  outline-color: color-mix(in oklab, var(--ims-button-ring-color) 25%, transparent);
+  outline-offset: -1px;
+  outline-width: 1px;
 }
 
 .ims-button:active {
-    outline-color: var(--ims-button-ring-color);
-    outline-offset: 0;
-    color: var(--ims-button-color-active);
-    transition: background-color 160ms ease, color 160ms ease, outline-color 110ms cubic-bezier(0.3, 0, 0.2, 1), outline-offset 110ms cubic-bezier(0.3, 0, 0.2, 1);
+  outline-color: var(--ims-button-ring-color);
+  outline-offset: -1px;
+  color: var(--ims-button-color-active);
+  transition: background-color 160ms ease, color 160ms ease, outline-color 110ms cubic-bezier(0.3, 0, 0.2, 1), outline-offset 110ms cubic-bezier(0.3, 0, 0.2, 1);
 }
 
 .ims-button:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px var(--ims-button-focus-ring);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--ims-button-focus-ring);
 }
 
 .ims-button--default {
-    --ims-button-background: var(--ims-color-primary-50);
-    --ims-button-background-hover: var(--ims-color-primary-100);
-    --ims-button-background-active: var(--ims-color-primary-150);
-    --ims-button-color: var(--ims-color-primary-800);
-    --ims-button-color-active: var(--ims-color-primary-900);
-    --ims-button-ring-color: var(--ims-color-primary-450);
+  --ims-button-background: var(--ims-color-primary-50);
+  --ims-button-background-hover: var(--ims-color-primary-100);
+  --ims-button-background-active: var(--ims-color-primary-150);
+  --ims-button-color: var(--ims-color-primary-800);
+  --ims-button-color-active: var(--ims-color-primary-900);
+  --ims-button-ring-color: var(--ims-color-primary-450);
 }
 
 .ims-button--dark {
-    --ims-button-background: var(--ims-color-brand);
-    --ims-button-background-hover: var(--ims-color-primary-700);
-    --ims-button-background-active: var(--ims-color-primary-850);
-    --ims-button-color: var(--ims-color-on-interactive);
-    --ims-button-color-active: var(--ims-color-on-interactive);
-    --ims-button-ring-color: var(--ims-color-primary-600);
+  --ims-button-background: var(--ims-color-brand);
+  --ims-button-background-hover: var(--ims-color-primary-700);
+  --ims-button-background-active: var(--ims-color-primary-850);
+  --ims-button-color: var(--ims-color-on-interactive);
+  --ims-button-color-active: var(--ims-color-on-interactive);
+  --ims-button-ring-color: var(--ims-color-primary-600);
 }
 
 .ims-button--white {
-    --ims-button-background: var(--ims-color-surface-input);
-    --ims-button-background-hover: var(--ims-color-primary-50);
-    --ims-button-background-active: var(--ims-color-primary-100);
-    --ims-button-color: var(--ims-color-primary-800);
-    --ims-button-color-active: var(--ims-color-primary-900);
-    --ims-button-ring-color: var(--ims-color-primary-450);
+  --ims-button-background: var(--ims-color-surface-input);
+  --ims-button-background-hover: var(--ims-color-primary-50);
+  --ims-button-background-active: var(--ims-color-primary-100);
+  --ims-button-color: var(--ims-color-primary-800);
+  --ims-button-color-active: var(--ims-color-primary-900);
+  --ims-button-ring-color: var(--ims-color-primary-450);
 }
 
 .ims-button--danger {
-    --ims-button-background: var(--ims-color-danger);
-    --ims-button-background-hover: var(--ims-color-danger-700);
-    --ims-button-background-active: var(--ims-color-danger-850);
-    --ims-button-color: var(--ims-color-on-interactive);
-    --ims-button-color-active: var(--ims-color-on-interactive);
-    --ims-button-ring-color: var(--ims-color-danger-500);
+  --ims-button-background: var(--ims-color-danger);
+  --ims-button-background-hover: var(--ims-color-danger-700);
+  --ims-button-background-active: var(--ims-color-danger-850);
+  --ims-button-color: var(--ims-color-on-interactive);
+  --ims-button-color-active: var(--ims-color-on-interactive);
+  --ims-button-ring-color: var(--ims-color-danger-500);
 }
 
 .ims-button-icon {
-    min-inline-size: 2.5rem;
-    padding: 0.5rem;
+  min-inline-size: 2.5rem;
+  padding: 0.5rem;
+  background: transparent;
 }
 
 // Disabled keeps each variant's own hue instead of one flat gray —
@@ -130,21 +132,21 @@
 // as its own color, just muted.
 .ims-button--disabled,
 .ims-button:disabled {
-    filter: grayscale(55%);
-    opacity: 0.55;
-    cursor: not-allowed;
+  filter: grayscale(55%);
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 // Readonly stays close to the enabled look on purpose — it must
 // remain easy to read, unlike disabled.
 .ims-button--readonly {
-    cursor: not-allowed;
+  cursor: not-allowed;
 }
 
 .ims-button--disabled::before,
 .ims-button--readonly::before,
 .ims-button:disabled::before {
-    display: none;
+  display: none;
 }
 
 .ims-button--disabled:hover,
@@ -153,8 +155,8 @@
 .ims-button--readonly:active,
 .ims-button:disabled:hover,
 .ims-button:disabled:active {
-    outline-color: transparent;
-    outline-offset: 8px;
+  outline-color: transparent;
+  outline-offset: 8px;
 }
 
 // See ImsButtonBase.justMounted — a freshly mounted button can pick up a
@@ -168,12 +170,5 @@
 .ims-button--mounting::before,
 .ims-button--mounting:hover::before,
 .ims-button--mounting:active::before {
-    transition: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .ims-button,
-    .ims-button::before {
-        transition-duration: 1ms;
-    }
+  transition: none;
 }
