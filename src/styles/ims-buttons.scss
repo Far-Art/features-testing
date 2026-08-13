@@ -34,7 +34,7 @@
   user-select: none;
   outline: 2px solid transparent;
   outline-offset: 8px;
-  transition: background-color 160ms ease, color 160ms ease, outline-color 260ms ease-out, outline-offset 260ms ease-out;
+  transition: background-color 160ms ease, color 160ms ease, outline-color 260ms ease-out, outline-offset 260ms ease-out, box-shadow 160ms ease;
 }
 
 // Fill sweep: a deeper tone wipes in from the left on hover. Plain
@@ -53,7 +53,8 @@
 }
 
 .ims-button:hover::before,
-.ims-button:active::before {
+.ims-button:active::before,
+.ims-button:focus-visible::before {
   transform: translateX(0);
 }
 
@@ -77,11 +78,19 @@
   outline-color: var(--ims-button-ring-color);
   outline-offset: -1px;
   color: var(--ims-button-color-active);
-  transition: background-color 160ms ease, color 160ms ease, outline-color 110ms cubic-bezier(0.3, 0, 0.2, 1), outline-offset 110ms cubic-bezier(0.3, 0, 0.2, 1);
+  transition: background-color 160ms ease, color 160ms ease, outline-color 110ms cubic-bezier(0.3, 0, 0.2, 1), outline-offset 110ms cubic-bezier(0.3, 0, 0.2, 1), box-shadow 160ms ease;
 }
 
+// Keyboard focus rides on box-shadow, deliberately a different channel
+// from the outline the hover/press ring uses, so the two never fight.
+// Never reset `outline` here: the shorthand would also reset
+// outline-color to its initial currentColor and outline-style to none,
+// which both clobbers the hover/press ring (equal specificity, later in
+// the cascade) and flashes a currentColor ring on blur as the color
+// transitions back out from under a no-longer-none style.
+// Plain :focus needs no rule at all — the base sets a transparent
+// outline, which already suppresses the UA focus ring.
 .ims-button:focus-visible {
-  outline: none;
   box-shadow: 0 0 0 3px var(--ims-button-focus-ring);
 }
 
@@ -167,8 +176,10 @@
 .ims-button--mounting,
 .ims-button--mounting:hover,
 .ims-button--mounting:active,
+.ims-button--mounting:focus-visible,
 .ims-button--mounting::before,
 .ims-button--mounting:hover::before,
-.ims-button--mounting:active::before {
+.ims-button--mounting:active::before,
+.ims-button--mounting:focus-visible::before {
   transition: none;
 }
