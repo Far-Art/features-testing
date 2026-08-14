@@ -77,6 +77,7 @@
 .ims-button:active {
   outline-color: var(--ims-button-ring-color);
   outline-offset: -1px;
+  outline-width: 1px;
   color: var(--ims-button-color-active);
   transition: background-color 160ms ease, color 160ms ease, outline-color 110ms cubic-bezier(0.3, 0, 0.2, 1), outline-offset 110ms cubic-bezier(0.3, 0, 0.2, 1), box-shadow 160ms ease;
 }
@@ -134,6 +135,19 @@
   min-inline-size: 2.5rem;
   padding: 0.5rem;
   background: transparent;
+}
+
+.ims-button--with-symbol {
+  grid-auto-flow: column;
+  column-gap: 0.5rem;
+}
+
+.ims-button__symbol {
+  --ims-icon-size: 1.125rem;
+  --ims-icon-weight: 500;
+  --ims-icon-optical-size: 20;
+
+  pointer-events: none;
 }
 
 // Disabled keeps each variant's own hue instead of one flat gray —

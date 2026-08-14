@@ -366,9 +366,11 @@ export class DialogRiskContent {
     </ims-dialog-content>
 
     <ims-dialog-actions>
-      <button ims-button (click)="select('default')">Default action</button>
-      <button ims-button-white (click)="select('white')">White action</button>
-      <button ims-button-dark (click)="select('dark')">Dark action</button>
+      <button ims-button icon="tune" (click)="select('default')">Default action</button>
+      <button ims-button-white icon="visibility" (click)="select('white')">
+        White action
+      </button>
+      <button ims-button-dark icon="check" (click)="select('dark')">Dark action</button>
     </ims-dialog-actions>
   `,
   styles: `
@@ -973,7 +975,7 @@ export class DialogDemo {
     const ref = this.dialog[severity](DialogButtonReviewContent)
       .title(labels[severity])
       .withIcon()
-      .config({ direction: 'ltr', width: 'min(26rem, calc(100vw - 2rem))' })
+      .config({ direction: 'ltr', width: 'max-content' })
       .open<DialogButtonReviewResult>();
 
     ref.closed.subscribe((result) => {

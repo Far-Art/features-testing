@@ -14,9 +14,13 @@
     <div class="ims-dialog__grabber" cdkDragHandle aria-hidden="true"></div>
   }
 
-  <button ims-button-icon class="ims-dialog__close" aria-label="Close dialog" (click)="close()">
-    <span class="ims-icon" aria-hidden="true">close</span>
-  </button>
+  <button
+    ims-button-icon
+    icon="close"
+    class="ims-dialog__close"
+    aria-label="Close dialog"
+    (click)="close()"
+  ></button>
 
   @if (config.content !== null) {
     <div

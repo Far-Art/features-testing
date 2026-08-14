@@ -1,10 +1,14 @@
 import {
     Directive,
+    ElementRef,
     HostBinding,
     HostListener,
+    Renderer2,
     afterNextRender,
     booleanAttribute,
     computed,
+    effect,
+    inject,
     signal,
     input
 } from '@angular/core';
@@ -15,6 +19,9 @@ type ImsButtonType = 'button' | 'submit' | 'reset';
 @Directive()
 export abstract class ImsButtonBase {
     private readonly inheritedReadonly = ReadonlyDirective.injectSignal();
+    private readonly host = inject<ElementRef<HTMLButtonElement>>(ElementRef);
+    private readonly renderer = inject(Renderer2);
+    private symbolElement: HTMLElement | null = null;
 
     /**
      * True for the first frame after the host is created. A freshly mounted
@@ -27,6 +34,8 @@ export abstract class ImsButtonBase {
     private readonly justMounted = signal(true);
 
     constructor() {
+        effect(() => this.syncIcon(this.normalizedIcon()));
+
         afterNextRender(() => {
             requestAnimationFrame(() => this.justMounted.set(false));
         });
@@ -43,6 +52,11 @@ export abstract class ImsButtonBase {
     /** Defaults buttons to non-submit behavior; bind `type="submit"` when needed. */
     readonly type = input<ImsButtonType>('button');
 
+    /** Optional decorative Material Symbols ligature rendered before the button label. */
+    readonly icon = input<string | null>(null);
+
+    private readonly normalizedIcon = computed(() => this.icon()?.trim() ?? '');
+
     /** Readonly state inherited from the nearest `ims-readonly` provider. */
     readonly readonlyMode = this.inheritedReadonly;
 
@@ -51,6 +65,11 @@ export abstract class ImsButtonBase {
 
     @HostBinding('class.ims-button')
     protected readonly buttonClass = true;
+
+    @HostBinding('class.ims-button--with-symbol')
+    protected get withSymbolClass(): boolean {
+        return this.normalizedIcon().length > 0;
+    }
 
     @HostBinding('class.ims-readonly')
     protected get readonlyClass(): boolean {
@@ -87,6 +106,28 @@ export abstract class ImsButtonBase {
         if (!this.interactionDisabled()) return;
         event.preventDefault();
         event.stopImmediatePropagation();
+    }
+
+    private syncIcon(symbol: string): void {
+        const host = this.host.nativeElement;
+
+        if (!symbol) {
+            if (this.symbolElement) {
+                this.renderer.removeChild(host, this.symbolElement);
+                this.symbolElement = null;
+            }
+            return;
+        }
+
+        if (!this.symbolElement) {
+            this.symbolElement = this.renderer.createElement('span') as HTMLElement;
+            this.renderer.addClass(this.symbolElement, 'ims-icon');
+            this.renderer.addClass(this.symbolElement, 'ims-button__symbol');
+            this.renderer.setAttribute(this.symbolElement, 'aria-hidden', 'true');
+            this.renderer.insertBefore(host, this.symbolElement, host.firstChild);
+        }
+
+        this.renderer.setProperty(this.symbolElement, 'textContent', symbol);
     }
 }
 
