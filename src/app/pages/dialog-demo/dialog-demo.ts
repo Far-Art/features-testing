@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
+import { ImsButton, ImsButtonDark, ImsButtonWhite } from '../../components/ims-button';
 import {
   type IBaseOutput,
   type IMessage,
@@ -33,6 +34,8 @@ interface RiskDialogData {
   readonly environment: string;
   readonly deployments: number;
 }
+
+type DialogButtonReviewResult = 'dark' | 'default' | 'white';
 
 const LONG_DIALOG_CONTENT: string[] = [
   'The content region owns all overflow while the dialog title, toolbar, and actions remain fixed in their intrinsic grid rows.',
@@ -349,6 +352,41 @@ export class DialogProfileContent extends ImsAbstractDialog<
 })
 export class DialogRiskContent {
   readonly data = inject(IMS_DIALOG_DATA) as RiskDialogData;
+}
+
+@Component({
+  selector: 'app-dialog-button-review-content',
+  standalone: true,
+  imports: [ImsButton, ImsButtonDark, ImsButtonWhite, ImsDialogActions, ImsDialogContent],
+  template: `
+    <ims-dialog-content>
+      <p class="button-review-dialog__description">
+        Compare the header close sweep with each action button variant for this severity.
+      </p>
+    </ims-dialog-content>
+
+    <ims-dialog-actions>
+      <button ims-button (click)="select('default')">Default action</button>
+      <button ims-button-white (click)="select('white')">White action</button>
+      <button ims-button-dark (click)="select('dark')">Dark action</button>
+    </ims-dialog-actions>
+  `,
+  styles: `
+    .button-review-dialog__description {
+      margin: 0;
+      color: var(--ims-color-on-surface-muted);
+      line-height: 1.6;
+    }
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class DialogButtonReviewContent extends ImsAbstractDialog<
+  unknown,
+  DialogButtonReviewResult
+> {
+  select(result: DialogButtonReviewResult): void {
+    this.closeDialog(result);
+  }
 }
 
 @Component({
@@ -932,15 +970,18 @@ export class DialogDemo {
       warning: 'Warning dialog',
       danger: 'Danger dialog',
     };
-    const ref = this.dialog[severity]()
+    const ref = this.dialog[severity](DialogButtonReviewContent)
       .title(labels[severity])
       .withIcon()
       .config({ direction: 'ltr', width: 'min(26rem, calc(100vw - 2rem))' })
-      .asReadonly()
-      .open();
+      .open<DialogButtonReviewResult>();
 
-    ref.closed.subscribe(() => {
-      this.lastEvent.set(`${labels[severity]} closed.`);
+    ref.closed.subscribe((result) => {
+      this.lastEvent.set(
+        result
+          ? `${labels[severity]} ${result} button selected.`
+          : `${labels[severity]} header close selected.`,
+      );
     });
   }
 }

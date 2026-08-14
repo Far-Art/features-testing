@@ -12,6 +12,10 @@ ims-dialog-shell.ims-dialog--success {
   --ims-dialog-tint: var(--ims-color-success-50);
   --ims-dialog-border: var(--ims-color-success-200);
   --ims-dialog-accent-text: var(--ims-color-on-interactive);
+  --ims-dialog-button-background: var(--ims-color-success-600);
+  --ims-dialog-button-background-hover: var(--ims-color-success-700);
+  --ims-dialog-button-background-active: var(--ims-color-success-850);
+  --ims-dialog-button-ring-color: var(--ims-color-success-500);
 }
 
 ims-dialog-shell.ims-dialog--warning {
@@ -20,6 +24,10 @@ ims-dialog-shell.ims-dialog--warning {
   --ims-dialog-tint: var(--ims-color-warning-50);
   --ims-dialog-border: var(--ims-color-warning-200);
   --ims-dialog-accent-text: var(--ims-color-on-interactive);
+  --ims-dialog-button-background: var(--ims-color-warning-700);
+  --ims-dialog-button-background-hover: var(--ims-color-warning-800);
+  --ims-dialog-button-background-active: var(--ims-color-warning-900);
+  --ims-dialog-button-ring-color: var(--ims-color-warning-500);
 }
 
 ims-dialog-shell.ims-dialog--danger {
@@ -28,6 +36,43 @@ ims-dialog-shell.ims-dialog--danger {
   --ims-dialog-tint: var(--ims-color-danger-50);
   --ims-dialog-border: var(--ims-color-danger-200);
   --ims-dialog-accent-text: var(--ims-color-on-interactive);
+  --ims-dialog-button-background: var(--ims-color-danger-600);
+  --ims-dialog-button-background-hover: var(--ims-color-danger-700);
+  --ims-dialog-button-background-active: var(--ims-color-danger-850);
+  --ims-dialog-button-ring-color: var(--ims-color-danger-500);
+}
+
+ims-dialog-shell:is(.ims-dialog--success, .ims-dialog--warning, .ims-dialog--danger)
+  .ims-button--dark {
+  --ims-button-background: var(--ims-dialog-button-background);
+  --ims-button-background-hover: var(--ims-dialog-button-background-hover);
+  --ims-button-background-active: var(--ims-dialog-button-background-active);
+  --ims-button-ring-color: var(--ims-dialog-button-ring-color);
+}
+
+ims-dialog-shell.ims-dialog .ims-dialog__close {
+  --ims-button-background-hover: var(--ims-dialog-tint);
+  --ims-button-background-active: var(--ims-dialog-border);
+  --ims-button-ring-color: var(--ims-dialog-accent);
+}
+
+ims-dialog-shell.ims-dialog .ims-dialog-actions .ims-button--white {
+  --ims-button-background-hover: var(--ims-dialog-tint);
+  --ims-button-background-active: var(--ims-dialog-border);
+  --ims-button-ring-color: var(--ims-dialog-accent);
+}
+
+ims-dialog-shell.ims-dialog .ims-dialog-actions .ims-button--default {
+  --ims-button-background: var(--ims-dialog-tint);
+  --ims-button-background-hover: var(--ims-dialog-border);
+  --ims-button-background-active: color-mix(
+    in srgb,
+    var(--ims-dialog-border) 70%,
+    var(--ims-dialog-accent)
+  );
+  --ims-button-color: var(--ims-dialog-accent-hover);
+  --ims-button-color-active: var(--ims-dialog-accent-hover);
+  --ims-button-ring-color: var(--ims-dialog-accent);
 }
 
 .cdk-overlay-pane.ims-dialog-overlay {
@@ -135,44 +180,20 @@ ims-dialog-shell.ims-dialog {
   background: var(--ims-color-surface-subtle);
 }
 
+// Appearance and interaction come from `.ims-button` / `.ims-button-icon`
+// via the ims-button-icon directive; only grid placement and sizing that
+// are specific to the dialog layout stay here.
 .ims-dialog__close {
   z-index: 1;
-  display: grid;
-  place-items: center;
   grid-area: close;
   align-self: center;
   justify-self: end;
-  width: 2.25rem;
-  height: 2.25rem;
   margin-inline-end: 1rem;
-  padding: 0;
-  border: 0;
-  border-radius: 0.625rem;
-  background: transparent;
-  color: var(--ims-color-on-surface-muted);
-  cursor: pointer;
-  transition:
-    color 120ms ease,
-    background 120ms ease;
 }
 
-.ims-dialog__close .material-symbols-sharp {
-  font-size: 1.2rem;
-  font-variation-settings:
-    'FILL' 0,
-    'wght' 500,
-    'GRAD' 0,
-    'opsz' 24;
-}
-
-.ims-dialog__close:hover {
-  background: var(--ims-dialog-tint);
-  color: var(--ims-dialog-accent);
-}
-
-.ims-dialog__close:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--ims-color-focus-ring);
+.ims-dialog__close .ims-icon {
+  --ims-icon-size: 1.2rem;
+  --ims-icon-weight: 500;
 }
 
 .ims-dialog__grabber {

@@ -14,15 +14,17 @@
     <div class="ims-dialog__grabber" cdkDragHandle aria-hidden="true"></div>
   }
 
-  <button type="button" class="ims-dialog__close" aria-label="Close dialog" (click)="close()">
-    <span class="material-symbols-sharp" aria-hidden="true">close</span>
+  <button ims-button-icon class="ims-dialog__close" aria-label="Close dialog" (click)="close()">
+    <span class="ims-icon" aria-hidden="true">close</span>
   </button>
 
   @if (config.content !== null) {
     <div
       class="ims-dialog__component-content"
       [class.ims-dialog-content]="!sections.hasContent()"
-      [class.ims-dialog__component-content--projecting]="contentComponentType && sections.hasContent()"
+      [class.ims-dialog__component-content--projecting]="
+        contentComponentType && sections.hasContent()
+      "
       [ims-readonly]="readonlyMode() && !sections.hasContent()"
     >
       @if (contentComponentType; as component) {
@@ -75,14 +77,14 @@
   @if (!sections.hasActions()) {
     <ims-dialog-actions [generated]="true">
       @if (confirmationMode && !readonlyMode()) {
-        <button type="button" (click)="reject()">
+        <button ims-button (click)="reject()">
           {{ config.confirmationLabels?.no }}
         </button>
-        <button type="button" (click)="confirm()">
+        <button ims-button-dark (click)="confirm()">
           {{ config.confirmationLabels?.yes }}
         </button>
       } @else {
-        <button type="button" (click)="close()">סגור</button>
+        <button ims-button-dark (click)="close()">סגור</button>
       }
     </ims-dialog-actions>
   }
