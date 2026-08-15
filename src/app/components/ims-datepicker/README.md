@@ -542,6 +542,23 @@ available. In constrained containers the field shrinks so the complete control
 stays within the available inline size. The calendar overlay and validation
 popover remain anchored to the bordered field rather than the adjacent action.
 
+The bordered field defaults to `--field-width-s`, while the field and calendar
+button use `--field-height`. Apply one of the shared sizing utility classes to
+override the preferred field width from consumer markup:
+
+```html
+<ims-datepicker class="field-m" [formControl]="date" />
+<ims-datepicker class="field-stretch" [formControl]="fullWidthDate" />
+```
+
+The height token can also be overridden locally without changing the component:
+
+```scss
+.tall-datepicker {
+    --field-height: 2rem;
+}
+```
+
 Readonly mode adds `.ims-readonly` to the input host and keeps the native input
 and toggle disabled while using the shared readable-disabled token overrides.
 

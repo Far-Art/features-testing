@@ -24,6 +24,7 @@ function utcMillis(year: number, month: number, day: number): number {
     changeDetection: ChangeDetectionStrategy.Eager,
     template: `
         <ims-datepicker
+            [class]="sizeClass"
             [formControl]="control"
             [format]="format"
             [monthDay]="monthDay"
@@ -35,6 +36,7 @@ function utcMillis(year: number, month: number, day: number): number {
 })
 class DatepickerTestHost {
     readonly control = new FormControl<ImsDatepickerValue>(null);
+    sizeClass = '';
     format: 'dd/MM/yyyy' | 'MM/yyyy' = 'dd/MM/yyyy';
     monthDay: 'start' | 'end' = 'start';
     min: ImsDatepickerValue = null;
@@ -79,6 +81,19 @@ describe('ImsDatepicker', () => {
         expect(field.parentElement).toBe(datepickerHost);
         expect(toggle.parentElement).toBe(datepickerHost);
         expect(toggle.querySelector('.ims-button__symbol')?.textContent).toBe('calendar_month');
+    });
+
+    it('accepts a sizing utility class without replacing its host layout classes', () => {
+        host.sizeClass = 'field-m';
+        fixture.detectChanges();
+
+        const datepickerHost = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
+            'ims-datepicker'
+        )!;
+
+        expect(datepickerHost.classList.contains('field-m')).toBe(true);
+        expect(datepickerHost.classList.contains('ims-datepicker-host')).toBe(true);
+        expect(datepickerHost.classList.contains('ims-input-action')).toBe(true);
     });
 
     it('keeps the adjacent trigger inside the overlay interaction boundary', () => {

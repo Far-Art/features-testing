@@ -1,4 +1,8 @@
 .ims-datepicker-host {
+    --ims-input-action-size: var(--field-height);
+    --ims-input-min-height: var(--field-height);
+
+    inline-size: var(--field-width-s);
     color: var(--ims-color-on-surface);
 }
 
@@ -6,7 +10,8 @@
     --ims-input-padding: 0;
 
     display: flex;
-    width: 100%;
+    inline-size: 100%;
+    block-size: var(--field-height);
     overflow: hidden;
 
     &:focus-within {
@@ -18,8 +23,9 @@
 
     .ims-datepicker__input {
         flex: 1 1 auto;
-        min-width: 0;
-        padding: 0.45rem 0.65rem;
+        min-inline-size: 0;
+        padding-block: 0;
+        padding-inline: 0.65rem;
         border: 0;
         outline: 0;
         background: transparent;
@@ -41,7 +47,7 @@
     .ims-datepicker__clear {
         display: grid;
         place-items: center;
-        flex: 0 0 2.25rem;
+        flex: 0 0 var(--field-height);
         padding: 0;
         border: 0;
         outline: 0;
@@ -71,6 +77,12 @@
             stroke-width: 1.7;
         }
     }
+}
+
+.ims-datepicker-host > .ims-datepicker__toggle {
+    min-inline-size: var(--ims-input-action-size);
+    min-block-size: var(--ims-input-action-size);
+    padding: 0;
 }
 
 .ims-datepicker__field.ims-datepicker__field--open {
