@@ -1,4 +1,4 @@
-import { DestroyRef, Directive, ElementRef, OnInit, inject } from '@angular/core';
+import { DestroyRef, Directive, effect, ElementRef, inject, OnInit } from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { ReadonlyDirective } from './shared/readonly.directive';
 
@@ -11,7 +11,6 @@ type ImsInputElement = HTMLInputElement | HTMLTextAreaElement;
   host: {
     class: 'ims-input',
     '[class.ims-readonly]': 'readonlyMode()',
-    '[disabled]': 'interactionDisabled',
     '(paste)': 'onPaste($event)',
   },
 })
@@ -21,9 +20,10 @@ export class ImsInputDirective implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   protected readonly readonlyMode = ReadonlyDirective.injectSignal();
 
-  protected get interactionDisabled(): boolean {
-    console.log('here')
-    return this.readonlyMode() || this.ngControl?.disabled === true;
+  constructor() {
+    effect(() => {
+      this.element.disabled = this.readonlyMode() || this.ngControl?.disabled === true;
+    });
   }
 
   ngOnInit(): void {
