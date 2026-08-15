@@ -111,7 +111,7 @@ export class ImsAutocomplete<T = unknown>
     /** Option count threshold used by `toolbar="auto"`. */
     readonly toolbarAutoMinOptions = input(15, {transform: numberAttribute});
     /** Fixed item height used by the CDK virtual scroll viewport. */
-    readonly optionHeight = input(26, {transform: numberAttribute});
+    readonly optionHeight = input(32, {transform: numberAttribute});
     /** Equality function for option values. Defaults to strict reference equality. */
     readonly compareWith = input<ImsAutocompleteCompareWith<T>>(defaultCompare);
     /** Accessible label for the single input or multi trigger. */

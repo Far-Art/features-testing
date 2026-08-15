@@ -358,9 +358,11 @@
     display: flex;
     align-items: center;
     box-sizing: border-box;
-    min-block-size: var(--field-height);
+    min-block-size: calc(var(--field-height) + 0.425rem);
     padding: 0.2rem 0.5rem;
+    border-block: 0.0625rem solid transparent;
     border-radius: 0.375rem;
+    background-clip: padding-box;
     color: inherit;
     font-size: 0.875rem;
     cursor: pointer;
