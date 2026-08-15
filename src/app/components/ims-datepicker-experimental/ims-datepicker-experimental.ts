@@ -25,6 +25,7 @@ import {
 } from '@angular/forms';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {runScopedViewTransition} from '../../shared/view-transition';
+import {ImsButtonIcon} from '../ims-button';
 import {IMS_DATEPICKER_PARSER} from '../ims-datepicker/ims-datepicker.parser';
 import {
     IMS_DATEPICKER_EXPERIMENTAL_CONFIG,
@@ -121,7 +122,7 @@ function provideDatepickerValidator(type: Type<unknown>) {
 @Component({
     selector: 'ims-datepicker-experimental',
     standalone: true,
-    imports: [CdkOverlayOrigin, CdkConnectedOverlay, CdkTrapFocus],
+    imports: [CdkOverlayOrigin, CdkConnectedOverlay, CdkTrapFocus, ImsButtonIcon],
     templateUrl: './ims-datepicker-experimental.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
@@ -129,7 +130,7 @@ function provideDatepickerValidator(type: Type<unknown>) {
         provideDatepickerValidator(ImsDatepickerExperimental)
     ],
     host: {
-        class: 'ims-datepicker-host ims-input-host'
+        class: 'ims-datepicker-host ims-input-host ims-input-action'
     }
 })
 export class ImsDatepickerExperimental
@@ -139,8 +140,8 @@ export class ImsDatepickerExperimental
     private readonly dateParser = inject(IMS_DATEPICKER_PARSER);
     private readonly angularLocale = inject(LOCALE_ID);
     private readonly changeDetectorRef = inject(ChangeDetectorRef);
+    private readonly hostElement = inject<ElementRef<HTMLElement>>(ElementRef);
     readonly directionality = inject(Directionality);
-    private readonly field = viewChild<ElementRef<HTMLElement>>('field');
     private readonly textInput = viewChild<ElementRef<HTMLInputElement>>('textInput');
     private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
     private readonly grid = viewChild<ElementRef<HTMLElement>>('grid');
@@ -547,7 +548,7 @@ export class ImsDatepickerExperimental
 
     onOutsideClick(event: MouseEvent): void {
         const target = event.target;
-        if (target instanceof Node && this.field()?.nativeElement.contains(target)) return;
+        if (target instanceof Node && this.hostElement.nativeElement.contains(target)) return;
         this.closePicker();
         this.markAsTouched();
     }

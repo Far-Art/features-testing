@@ -26,6 +26,7 @@ import {
 } from '@angular/forms';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {runScopedViewTransition} from '../../shared/view-transition';
+import {ImsButtonIcon} from '../ims-button';
 import {
     IMS_ERROR_POPOVER_COMPONENT_HOST,
     ImsErrorPopoverComponentHost,
@@ -143,6 +144,7 @@ function provideDatepickerValidator(type: Type<unknown>) {
         CdkOverlayOrigin,
         CdkConnectedOverlay,
         CdkTrapFocus,
+        ImsButtonIcon,
         ImsErrorPopoverDirective
     ],
     templateUrl: './ims-datepicker.html',
@@ -156,7 +158,7 @@ function provideDatepickerValidator(type: Type<unknown>) {
         }
     ],
     host: {
-        class: 'ims-datepicker-host ims-input-host'
+        class: 'ims-datepicker-host ims-input-host ims-input-action'
     }
 })
 export class ImsDatepicker
@@ -167,8 +169,8 @@ export class ImsDatepicker
     private readonly valueHandler = inject(IMS_DATEPICKER_VALUE_HANDLER);
     private readonly angularLocale = inject(LOCALE_ID);
     private readonly changeDetectorRef = inject(ChangeDetectorRef);
+    private readonly hostElement = inject<ElementRef<HTMLElement>>(ElementRef);
     readonly directionality = inject(Directionality);
-    private readonly field = viewChild<ElementRef<HTMLElement>>('field');
     private readonly textInput = viewChild<ElementRef<HTMLInputElement>>('textInput');
     private readonly toggleButton = viewChild<ElementRef<HTMLButtonElement>>('toggleButton');
     private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
@@ -678,7 +680,7 @@ export class ImsDatepicker
 
     onOutsideClick(event: MouseEvent): void {
         const target = event.target;
-        if (target instanceof Node && this.field()?.nativeElement.contains(target)) return;
+        if (target instanceof Node && this.hostElement.nativeElement.contains(target)) return;
         this.closePicker();
         this.markAsTouched();
     }

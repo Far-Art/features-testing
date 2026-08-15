@@ -121,6 +121,42 @@ Prefer these variables when changing the shared input contract. Keep
 component-only layout, such as icon padding or width, in the component
 selector.
 
+### Adjacent input actions
+
+Use the shared input-action layout when a wrapped control has one fixed-size
+button next to its primary field:
+
+```html
+<div class="ims-input-action">
+    <input class="ims-input ims-input-action__field">
+    <button
+        class="ims-input-action__button"
+        ims-button-icon
+        icon="search"
+        aria-label="Search"
+    ></button>
+</div>
+```
+
+For an Angular form component, put `.ims-input-action` on the component host
+alongside `.ims-input-host`. The host's declared `width` or `inline-size`
+describes the preferred field width. The host reserves the action size and gap
+in its layout footprint; when the containing block cannot fit both, only the
+field shrinks.
+
+The layout exposes two customization variables:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `--ims-input-action-size` | `2.5rem` | Fixed inline and block size of the action. |
+| `--ims-input-action-gap` | `0.375rem` | Logical space between the field and action. |
+
+The first version intentionally supports one fixed-size action. Keep the field
+in normal flow and use `.ims-input-action__button` for the adjacent button so
+the shared host padding, narrow-container clamping, and RTL placement stay in
+sync. A containing block narrower than the action plus its gap cannot avoid
+overflow while preserving the action's usable size.
+
 ## States
 
 Use pseudo-classes and Angular state classes instead of inputs that manually
@@ -223,6 +259,7 @@ Do not construct class names with the parent selector:
 - Apply `.ims-input` to input-like controls.
 - Use `.ims-input-host` and `data-ims-main-control` for wrapped Angular form
   controls.
+- Use the shared input-action classes for one fixed-size adjacent button.
 - Keep layout and structural styles inside the component stylesheet.
 - Write full class names for elements and modifiers.
 - Check hover, keyboard focus, disabled, invalid, LTR, and RTL states.

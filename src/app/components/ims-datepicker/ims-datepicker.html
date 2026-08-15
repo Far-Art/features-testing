@@ -1,6 +1,5 @@
 <div
-    #field
-    class="ims-input ims-datepicker__field"
+    class="ims-input ims-input-action__field ims-datepicker__field"
     data-ims-main-control
     [ims-error-popover]="errorPopoverErrors"
     [ims-error-popover-disabled]="internalErrorPopoverDisabled()"
@@ -48,20 +47,20 @@
             </svg>
         </button>
     }
-
-    <button
-        #toggleButton
-        type="button"
-        class="ims-datepicker__toggle"
-        [attr.aria-label]="open() ? effectiveLabels().closeCalendar : effectiveLabels().openCalendar"
-        [attr.aria-controls]="open() ? dialogId : null"
-        [attr.aria-expanded]="open()"
-        [disabled]="interactionDisabled()"
-        (click)="togglePicker()"
-    >
-        <span class="material-symbols-sharp" aria-hidden="true">calendar_month</span>
-    </button>
 </div>
+
+<button
+    #toggleButton
+    ims-button-icon
+    icon="calendar_month"
+    type="button"
+    class="ims-input-action__button ims-datepicker__toggle"
+    [attr.aria-label]="open() ? effectiveLabels().closeCalendar : effectiveLabels().openCalendar"
+    [attr.aria-controls]="open() ? dialogId : null"
+    [attr.aria-expanded]="open()"
+    [disabled]="interactionDisabled()"
+    (click)="togglePicker()"
+></button>
 
 <ng-template
     cdkConnectedOverlay

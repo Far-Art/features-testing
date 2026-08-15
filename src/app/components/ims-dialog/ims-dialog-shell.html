@@ -32,7 +32,7 @@
       [ims-readonly]="readonlyMode() && !sections.hasContent()"
     >
       @if (contentComponentType; as component) {
-        <ng-container *ngComponentOutlet="component" />
+        <ng-container *ngComponentOutlet="component"/>
       } @else {
         <div class="ims-dialog__structured-content">
           @if (baseOutput; as output) {

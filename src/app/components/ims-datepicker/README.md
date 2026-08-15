@@ -535,6 +535,13 @@ host uses `.ims-input-host`, and the visual field is marked with
 `data-ims-main-control`. Component and overlay colors consume the shared
 semantic `--ims-color-*` and `--ims-background-*` tokens directly.
 
+The host also uses the shared `.ims-input-action` layout. A declared host width
+is the preferred width of the bordered date field; the separate calendar
+button adds `--ims-input-action-size` plus `--ims-input-action-gap` when room is
+available. In constrained containers the field shrinks so the complete control
+stays within the available inline size. The calendar overlay and validation
+popover remain anchored to the bordered field rather than the adjacent action.
+
 Readonly mode adds `.ims-readonly` to the input host and keeps the native input
 and toggle disabled while using the shared readable-disabled token overrides.
 

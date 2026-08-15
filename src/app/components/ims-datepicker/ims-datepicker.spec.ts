@@ -3,12 +3,16 @@ import { OverlayContainer } from '@angular/cdk/overlay';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { Temporal } from '@js-temporal/polyfill';
+import { DateTime } from 'luxon';
 import { ImsDatepicker } from './ims-datepicker';
 import { ImsDatepickerValue } from './ims-datepicker.types';
 
-function plainDate(year: number, month: number, day: number): Temporal.PlainDate {
-    return Temporal.PlainDate.from({ year, month, day });
+function calendarDate(year: number, month: number, day: number): Date {
+    return new Date(Date.UTC(year, month - 1, day));
+}
+
+function luxonDate(year: number, month: number, day: number): DateTime {
+    return DateTime.utc(year, month, day);
 }
 
 function utcMillis(year: number, month: number, day: number): number {
@@ -62,6 +66,66 @@ describe('ImsDatepicker', () => {
         input = fixture.nativeElement.querySelector('input');
     });
 
+    it('renders the field and calendar trigger with the shared input-action contract', () => {
+        const fixtureElement = fixture.nativeElement as HTMLElement;
+        const datepickerHost = fixtureElement.querySelector<HTMLElement>('ims-datepicker')!;
+        const field = datepickerHost.querySelector<HTMLElement>('.ims-datepicker__field')!;
+        const toggle = datepickerHost.querySelector<HTMLButtonElement>('.ims-datepicker__toggle')!;
+
+        expect(datepickerHost.classList.contains('ims-input-action')).toBe(true);
+        expect(field.classList.contains('ims-input-action__field')).toBe(true);
+        expect(toggle.classList.contains('ims-input-action__button')).toBe(true);
+        expect(toggle.classList.contains('ims-button-icon')).toBe(true);
+        expect(field.parentElement).toBe(datepickerHost);
+        expect(toggle.parentElement).toBe(datepickerHost);
+        expect(toggle.querySelector('.ims-button__symbol')?.textContent).toBe('calendar_month');
+    });
+
+    it('keeps the adjacent trigger inside the overlay interaction boundary', () => {
+        const datepicker = fixture.debugElement.query(By.directive(ImsDatepicker))
+            .componentInstance as ImsDatepicker;
+        const toggle = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
+            '.ims-datepicker__toggle'
+        )!;
+        datepicker.openPicker();
+        fixture.detectChanges();
+
+        const event = new MouseEvent('click');
+        Object.defineProperty(event, 'target', { value: toggle });
+        datepicker.onOutsideClick(event);
+
+        expect(datepicker.open()).toBe(true);
+
+        toggle.click();
+        fixture.detectChanges();
+
+        expect(datepicker.open()).toBe(false);
+    });
+
+    it('keeps the adjacent trigger accessibility and disabled state synchronized', () => {
+        const toggle = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
+            '.ims-datepicker__toggle'
+        )!;
+
+        expect(toggle.getAttribute('aria-label')).toBe('Open calendar');
+        expect(toggle.getAttribute('aria-expanded')).toBe('false');
+        expect(toggle.getAttribute('aria-controls')).toBeNull();
+
+        toggle.click();
+        fixture.detectChanges();
+
+        expect(toggle.getAttribute('aria-label')).toBe('Close calendar');
+        expect(toggle.getAttribute('aria-expanded')).toBe('true');
+        expect(toggle.getAttribute('aria-controls')).not.toBeNull();
+
+        host.control.disable();
+        fixture.detectChanges();
+
+        expect(input.disabled).toBe(true);
+        expect(toggle.disabled).toBe(true);
+        expect(toggle.getAttribute('aria-disabled')).toBe('true');
+    });
+
     it('coerces typed text and emits UTC midnight milliseconds', () => {
         input.value = '5-2-2028';
         input.dispatchEvent(new Event('input'));
@@ -72,7 +136,7 @@ describe('ImsDatepicker', () => {
         expect(input.value).toBe('05/02/2028');
     });
 
-    it('emits Temporal dates when no millisecond value type is configured', () => {
+    it('emits Luxon dates when no millisecond value type is configured', () => {
         host.valueType = null;
         fixture.detectChanges();
 
@@ -81,13 +145,13 @@ describe('ImsDatepicker', () => {
         input.dispatchEvent(new Event('blur'));
         fixture.detectChanges();
 
-        expect(host.control.value instanceof Temporal.PlainDate).toBe(true);
-        expect(host.control.value?.toString()).toBe('2028-02-05');
+        expect(DateTime.isDateTime(host.control.value)).toBe(true);
+        expect((host.control.value as DateTime).toISODate()).toBe('2028-02-05');
     });
 
     it('automatically contributes reactive-form min and max validation', () => {
-        host.min = plainDate(2026, 1, 1);
-        host.max = plainDate(2026, 12, 31);
+        host.min = luxonDate(2026, 1, 1);
+        host.max = luxonDate(2026, 12, 31);
         fixture.detectChanges();
 
         host.control.setValue(utcMillis(2025, 12, 31));
@@ -104,15 +168,15 @@ describe('ImsDatepicker', () => {
     });
 
     it('does not allow an instance range to relax the default global range', () => {
-        host.min = plainDate(1800, 1, 1);
-        host.max = plainDate(2200, 12, 31);
+        host.min = luxonDate(1800, 1, 1);
+        host.max = luxonDate(2300, 12, 31);
         fixture.detectChanges();
 
         host.control.setValue(utcMillis(1899, 12, 31));
         fixture.detectChanges();
         expect(host.control.hasError('imsDatepickerMin')).toBe(true);
 
-        host.control.setValue(utcMillis(2101, 1, 1));
+        host.control.setValue(utcMillis(2201, 1, 1));
         fixture.detectChanges();
         expect(host.control.hasError('imsDatepickerMax')).toBe(true);
     });
@@ -176,7 +240,7 @@ describe('ImsDatepicker', () => {
         const datepicker = fixture.debugElement.query(By.directive(ImsDatepicker))
             .componentInstance as ImsDatepicker;
 
-        datepicker.cursor.set(plainDate(2028, 2, 1));
+        datepicker.cursor.set(calendarDate(2028, 2, 1));
         datepicker.calendarView.set('day');
 
         expect(datepicker.headerLabel()).toBe('February 2028');
@@ -200,36 +264,36 @@ describe('ImsDatepicker', () => {
         const datepicker = fixture.debugElement.query(By.directive(ImsDatepicker))
             .componentInstance as ImsDatepicker;
 
-        datepicker.cursor.set(plainDate(2028, 2, 5));
+        datepicker.cursor.set(calendarDate(2028, 2, 5));
         datepicker.calendarView.set('day');
         expect(datepicker.navigationLabel('near', 1)).toBe('Next month');
         expect(datepicker.navigationLabel('far', -1)).toBe('Previous year');
         datepicker.navigate('near', 1);
-        expect(datepicker.cursor().toString()).toBe('2028-03-05');
+        expect(datepicker.cursor().toISOString().slice(0, 10)).toBe('2028-03-05');
         datepicker.navigate('far', -1);
-        expect(datepicker.cursor().toString()).toBe('2027-03-05');
+        expect(datepicker.cursor().toISOString().slice(0, 10)).toBe('2027-03-05');
 
-        datepicker.cursor.set(plainDate(2028, 2, 5));
+        datepicker.cursor.set(calendarDate(2028, 2, 5));
         datepicker.calendarView.set('month');
         expect(datepicker.navigationLabel('near', 1)).toBe('Next year');
         expect(datepicker.navigationLabel('far', -1)).toBe('Previous 10 years');
         datepicker.navigate('far', 1);
-        expect(datepicker.cursor().year).toBe(2038);
+        expect(datepicker.cursor().getUTCFullYear()).toBe(2038);
 
-        datepicker.cursor.set(plainDate(2000, 2, 5));
+        datepicker.cursor.set(calendarDate(2000, 2, 5));
         datepicker.calendarView.set('year');
         expect(datepicker.navigationLabel('near', 1)).toBe('Next 24 years');
         expect(datepicker.navigationLabel('far', -1)).toBe('Previous 48 years');
         datepicker.navigate('near', 1);
-        expect(datepicker.cursor().year).toBe(2024);
+        expect(datepicker.cursor().getUTCFullYear()).toBe(2024);
         datepicker.navigate('far', -1);
-        expect(datepicker.cursor().year).toBe(1976);
+        expect(datepicker.cursor().getUTCFullYear()).toBe(1976);
     });
 
     it('adds matching native tooltips to the navigation buttons', () => {
         const datepicker = fixture.debugElement.query(By.directive(ImsDatepicker))
             .componentInstance as ImsDatepicker;
-        datepicker.cursor.set(plainDate(2028, 2, 5));
+        datepicker.cursor.set(calendarDate(2028, 2, 5));
         datepicker.open.set(true);
         fixture.detectChanges();
 

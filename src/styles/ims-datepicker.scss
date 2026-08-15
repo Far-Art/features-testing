@@ -1,7 +1,4 @@
 .ims-datepicker-host {
-    display: inline-block;
-    width: 100%;
-    min-width: 0;
     color: var(--ims-color-on-surface);
 }
 
@@ -41,10 +38,10 @@
         }
     }
 
-    .ims-datepicker__clear,
-    .ims-datepicker__toggle {
+    .ims-datepicker__clear {
         display: grid;
         place-items: center;
+        flex: 0 0 2.25rem;
         padding: 0;
         border: 0;
         outline: 0;
@@ -60,18 +57,6 @@
             cursor: not-allowed;
         }
 
-        svg {
-            fill: none;
-            stroke: currentColor;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            stroke-width: 1.7;
-        }
-    }
-
-    .ims-datepicker__clear {
-        flex: 0 0 2.25rem;
-
         &:hover {
             color: var(--ims-color-interactive-alt-strong);
         }
@@ -79,21 +64,11 @@
         svg {
             width: 1rem;
             height: 1rem;
-        }
-    }
-
-    .ims-datepicker__toggle {
-        flex: 0 0 2.5rem;
-        border-inline-start: 1px solid var(--ims-color-border-subtle);
-
-        .material-symbols-sharp {
-            font-size: 1.25rem;
-            font-variation-settings:
-                'FILL' 0,
-                'wght' 400,
-                'GRAD' 0,
-                'opsz' 20;
-            line-height: 1;
+            fill: none;
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 1.7;
         }
     }
 }
@@ -107,8 +82,8 @@
     border-color: var(--ims-input-invalid-border, var(--ims-color-invalid));
 }
 
-.ims-datepicker-host.ng-invalid .ims-datepicker__field:not(.ims-datepicker__field--disabled):not(.ims-datepicker__field--readonly) :is(.ims-datepicker__clear, .ims-datepicker__toggle),
-.ims-datepicker__field.ims-datepicker__field--invalid:not(.ims-datepicker__field--disabled):not(.ims-datepicker__field--readonly) :is(.ims-datepicker__clear, .ims-datepicker__toggle) {
+.ims-datepicker-host.ng-invalid .ims-datepicker__field:not(.ims-datepicker__field--disabled):not(.ims-datepicker__field--readonly) .ims-datepicker__clear,
+.ims-datepicker__field.ims-datepicker__field--invalid:not(.ims-datepicker__field--disabled):not(.ims-datepicker__field--readonly) .ims-datepicker__clear {
     color: var(--ims-input-invalid-border, var(--ims-color-invalid));
 }
 
@@ -125,8 +100,7 @@
     background: var(--ims-input-disabled-background, var(--ims-color-surface-input-disabled));
     color: var(--ims-input-disabled-color, var(--ims-color-on-surface-disabled));
 
-    .ims-datepicker__clear,
-    .ims-datepicker__toggle {
+    .ims-datepicker__clear {
         color: var(--ims-color-on-surface-disabled);
     }
 
