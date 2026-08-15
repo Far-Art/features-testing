@@ -1,20 +1,21 @@
 .ims-autocomplete-host {
     display: inline-block;
-    width: 100%;
-    min-width: 0;
+    inline-size: 100%;
+    min-inline-size: var(--field-width-xxs);
     color: var(--ims-color-on-surface);
 }
 
 .ims-autocomplete {
     position: relative;
-    width: 100%;
-    min-width: 0;
+    inline-size: 100%;
+    min-inline-size: 0;
 }
 
 .ims-autocomplete__trigger,
 .ims-autocomplete__input {
-    width: 100%;
-    min-width: 0;
+    inline-size: 100%;
+    min-inline-size: 0;
+    block-size: var(--field-height);
     color: inherit;
 }
 
@@ -37,7 +38,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.45rem 0.65rem;
+    padding: 0 0.65rem;
     cursor: pointer;
 }
 
@@ -59,7 +60,7 @@
 }
 
 .ims-autocomplete__input {
-    padding: 0.45rem 2.25rem 0.45rem 0.65rem;
+    padding: 0 2.25rem 0 0.65rem;
     text-overflow: ellipsis;
 }
 
@@ -358,8 +359,9 @@
     display: flex;
     align-items: center;
     box-sizing: border-box;
-    padding: 0 0.55rem;
+    padding: 0.2rem 0.5rem;
     color: inherit;
+    font-size: 0.875rem;
     cursor: pointer;
     white-space: nowrap;
 }
@@ -376,11 +378,11 @@
 .ims-autocomplete__option--selected::after {
     content: "";
     flex: 0 0 auto;
-    width: 0.45rem;
-    height: 0.75rem;
+    width: 0.35rem;
+    height: 0.6rem;
     margin-inline-start: auto;
-    border-right: 2px solid currentColor;
-    border-bottom: 2px solid currentColor;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
     rotate: 45deg;
 }
 
