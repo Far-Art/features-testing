@@ -67,8 +67,8 @@
   transition: transform 260ms cubic-bezier(0.4, 0, 0.2, 1), background-color 90ms ease-out;
 }
 
-// Press ring: a faint ring sits just outside the button on hover,
-// then contracts flush and solidifies on press. Built with outline
+// Action ring: a faint ring sits just outside the button on hover,
+// then flashes solid when a completed interaction is released. Built with outline
 // rather than a positioned pseudo-element so it isn't clipped by the
 // button's own overflow: hidden (outline always paints outside the
 // border box, and follows border-radius in evergreen browsers).
@@ -79,11 +79,15 @@
 }
 
 .ims-button:active {
+  color: var(--ims-button-color-active);
+  transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.ims-button.ims-button--action-blink {
   outline-color: var(--ims-button-ring-color);
   outline-offset: -1px;
   outline-width: 1px;
-  color: var(--ims-button-color-active);
-  transition: background-color 160ms ease, color 160ms ease, outline-color 110ms cubic-bezier(0.3, 0, 0.2, 1), outline-offset 110ms cubic-bezier(0.3, 0, 0.2, 1), box-shadow 160ms ease;
+  transition: none;
 }
 
 // Keyboard focus rides on box-shadow, deliberately a different channel
