@@ -21,10 +21,9 @@ of the component contract unless a requested change explicitly replaces it.
 - `src/app/pages/selection-demo`: working examples, including
   `toolbar="auto"`.
 
-The toolbar pen icon opens `../ims-transfer-dialog`'s shared `ImsTransferDialog`
-via `ImsDialogService` — see that component's own README for the full
-dual-list dialog contract (filter, drag-and-drop, bulk-move, disabled rows,
-reset, etc.). `ims-select` doesn't own the dialog anymore; it's just a caller.
+The toolbar pen icon either opens `../ims-transfer-dialog`'s shared
+`ImsTransferDialog` or delegates to a consumer-provided edit workflow. See that
+component's README for the multi-list contract.
 
 Both components are standalone, use `ChangeDetectionStrategy.OnPush`, and
 depend on Angular CDK overlay and bidi.
@@ -67,8 +66,8 @@ value details without exposing the selection interface.
 When `multiple()` and `showToolbar()` are true, an `aside` renders next to the
 panel with:
 
-- A pen icon button (`ערוך בחירה`) that opens the shared `ImsTransferDialog`.
-  Disabled when the control is disabled or `editableOptions()` is empty.
+- An optional pen icon button (`ערוך בחירה`) whose behavior is controlled by
+  `editDialogMode`.
 - Three view-mode segments (`all` / `selected` / `unselected`) that filter
   `visibleOptions()` without touching the actual selection.
 
@@ -99,6 +98,34 @@ regardless of what happens in the dialog.
 **Nothing is written to the select's value until the dialog resolves with a
 result.** All in-dialog interaction happens inside `ImsTransferDialog` itself,
 entirely decoupled from `ims-select`'s own state.
+
+### Custom edit action
+
+`editDialogMode` accepts `'default'`, `'custom'`, or `'off'`:
+
+- `'default'` preserves the built-in one-list editor.
+- `'custom'` closes the select overlay and emits `editDialogRequested` without
+  opening an internal dialog.
+- `'off'` hides only the edit icon; the toolbar's view-mode segments remain.
+
+`editDialogDisabled` independently disables the edit action and
+`editDialogAriaLabel` supplies its accessible name. A custom action does not
+depend on the initiating select's editable option count because its dialog may
+combine data from other controls. The existing `toolbar` rules still determine
+whether the toolbar itself renders; use `toolbar="on"` for an always-available
+custom trigger.
+
+```html
+<ims-select
+    multiple
+    toolbar="on"
+    editDialogMode="custom"
+    editDialogAriaLabel="Edit collect and ignore policies"
+    (editDialogRequested)="openPolicyTransfer()"
+>
+    <!-- options -->
+</ims-select>
+```
 
 ## Safe Change Guide
 

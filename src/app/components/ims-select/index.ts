@@ -4,6 +4,7 @@ export {IMS_SELECT_PARENT} from './ims-select.types';
 export type {
     ImsSelectActivationSource,
     ImsSelectCompareWith,
+    ImsSelectEditDialogMode,
     ImsSelectFilterMode,
     ImsSelectFilterPredicate,
     ImsSelectOptionLike,

@@ -52,6 +52,71 @@
 
 <section class="select-demo">
     <div>
+        <h2>שתי בחירות מחוברות עם דיאלוג משותף</h2>
+        <p>
+            שתי הבחירות מקבלות את אותו קטלוג סוגי הפוליסות. בחירה בצד אחד משביתה את
+            אותו קוד בצד השני, וכפתור העריכה בכל אחת מהבחירות פותח את אותו דיאלוג
+            משותף שבו כל פוליסה מופיעה פעם אחת בלבד.
+        </p>
+    </div>
+
+    <div class="select-demo__grid">
+        <label class="select-demo__field">
+            <span>פוליסות לאיסוף</span>
+            <ims-select
+                multiple
+                filter="on"
+                toolbar="on"
+                editDialogMode="custom"
+                editDialogAriaLabel="עריכת פוליסות לאיסוף ולהתעלמות"
+                placeholder="בחר פוליסות לאיסוף"
+                ariaLabel="פוליסות לאיסוף"
+                [formControl]="collectPoliciesControl"
+                [compareWith]="comparePolicyByCode"
+                (editDialogRequested)="openPolicyTransfer()"
+            >
+                @for (policy of policyTypes; track policy.code) {
+                    <ims-option
+                        [value]="policy"
+                        [selectionText]="policy.label"
+                        [disabled]="isPolicySelected(ignorePoliciesControl, policy)"
+                    >
+                        {{ policy.label }}
+                    </ims-option>
+                }
+            </ims-select>
+        </label>
+
+        <label class="select-demo__field">
+            <span>פוליסות להתעלמות</span>
+            <ims-select
+                multiple
+                filter="on"
+                toolbar="on"
+                editDialogMode="custom"
+                editDialogAriaLabel="עריכת פוליסות לאיסוף ולהתעלמות"
+                placeholder="בחר פוליסות להתעלמות"
+                ariaLabel="פוליסות להתעלמות"
+                [formControl]="ignorePoliciesControl"
+                [compareWith]="comparePolicyByCode"
+                (editDialogRequested)="openPolicyTransfer()"
+            >
+                @for (policy of policyTypes; track policy.code) {
+                    <ims-option
+                        [value]="policy"
+                        [selectionText]="policy.label"
+                        [disabled]="isPolicySelected(collectPoliciesControl, policy)"
+                    >
+                        {{ policy.label }}
+                    </ims-option>
+                }
+            </ims-select>
+        </label>
+    </div>
+</section>
+
+<section class="select-demo">
+    <div>
         <h2>בחירה מושבתת במצב צפייה בלבד</h2>
         <p>
             בחירה מרובה מציגה כברירת מחדל רשימה של הערכים שנבחרו גם כשהפקד מושבת.

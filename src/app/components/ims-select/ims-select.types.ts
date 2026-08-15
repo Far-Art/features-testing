@@ -2,6 +2,7 @@ import {InjectionToken, Signal} from '@angular/core';
 
 export type ImsSelectFilterMode = 'on' | 'off' | 'auto';
 export type ImsSelectToolbarMode = 'on' | 'off' | 'auto';
+export type ImsSelectEditDialogMode = 'default' | 'custom' | 'off';
 export type ImsSelectViewMode = 'all' | 'selected' | 'unselected';
 export type ImsSelectToolbarSide = 'left' | 'right';
 export type ImsSelectActivationSource = 'selection' | 'pointer';

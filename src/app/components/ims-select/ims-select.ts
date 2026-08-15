@@ -19,6 +19,7 @@ import {
   inject,
   input,
   numberAttribute,
+  output,
   signal,
   viewChild
 } from '@angular/core';
@@ -31,6 +32,7 @@ import {ImsTransferDialogService, ImsTransferRow} from '../ims-transfer-dialog';
 import {
   IMS_SELECT_PARENT,
   ImsSelectCompareWith,
+  ImsSelectEditDialogMode,
   ImsSelectFilterMode,
   ImsSelectFilterPredicate,
   ImsSelectOptionLike,
@@ -156,6 +158,18 @@ export class ImsSelect<T = unknown>
   /** Controls whether the multi-select toolbar is shown: always, never, or above the auto threshold. */
   readonly toolbar = input<ImsSelectToolbarMode>('auto');
 
+  /** Controls whether the toolbar edit action uses the built-in dialog, emits a request, or is hidden. */
+  readonly editDialogMode = input<ImsSelectEditDialogMode>('default');
+
+  /** Lets a custom edit-dialog owner disable the toolbar action independently. */
+  readonly editDialogDisabled = input(false, {transform: booleanAttribute});
+
+  /** Accessible label for the toolbar edit action. */
+  readonly editDialogAriaLabel = input('ערוך בחירה');
+
+  /** Emitted instead of opening the built-in dialog when `editDialogMode="custom"`. */
+  readonly editDialogRequested = output<void>();
+
   /** Option count threshold used by `filter="auto"` and `toolbar="auto"`. */
   readonly filterAutoMinOptions = input(15, {transform: numberAttribute});
 
@@ -240,6 +254,12 @@ export class ImsSelect<T = unknown>
     if (mode === 'off') return false;
     return this.options().length >= this.filterAutoMinOptions();
   });
+
+  readonly editDialogButtonDisabled = computed(() =>
+    this.interactionDisabled()
+    || this.editDialogDisabled()
+    || (this.editDialogMode() === 'default' && this.editableOptions().length === 0)
+  );
 
   readonly textFilteredOptions = computed(() => {
     const query = this.normalizedFilterQuery();
@@ -462,6 +482,18 @@ export class ImsSelect<T = unknown>
       if (result === undefined) return;
       this.applyEditDialogResult(rows, result.checked);
     });
+  }
+
+  requestEditDialog(): void {
+    if (this.editDialogMode() === 'off' || this.editDialogButtonDisabled()) return;
+
+    if (this.editDialogMode() === 'custom') {
+      this.close(false);
+      this.editDialogRequested.emit();
+      return;
+    }
+
+    this.openEditDialog();
   }
 
   setViewMode(mode: ImsSelectViewMode): void {

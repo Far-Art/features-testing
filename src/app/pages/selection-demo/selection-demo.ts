@@ -28,6 +28,11 @@ interface DemoTrack {
     readonly title: string;
 }
 
+interface DemoPolicyType {
+    readonly code: string;
+    readonly label: string;
+}
+
 @Component({
     selector: 'app-selection-demo',
     imports: [
@@ -57,6 +62,23 @@ export class SelectionDemo {
         {id: 7, title: 'זיכרון רחוק'},
         {id: 8, title: 'שיר נשכח'}
     ]);
+
+    readonly policyTypes: readonly DemoPolicyType[] = [
+        {code: 'life', label: 'ביטוח חיים'},
+        {code: 'health', label: 'ביטוח בריאות'},
+        {code: 'vehicle', label: 'ביטוח רכב'},
+        {code: 'home', label: 'ביטוח דירה'},
+        {code: 'travel', label: 'ביטוח נסיעות'},
+        {code: 'business', label: 'ביטוח עסק'}
+    ];
+    readonly collectPoliciesControl = new FormControl<readonly DemoPolicyType[]>(
+        [this.policyTypes[0], this.policyTypes[2]],
+        {nonNullable: true}
+    );
+    readonly ignorePoliciesControl = new FormControl<readonly DemoPolicyType[]>(
+        [this.policyTypes[4]],
+        {nonNullable: true}
+    );
 
     private readonly initialBagOptions: readonly SelectDemoBag[] = [
         {id: 1, label: 'מסמכים', count: 35},
@@ -185,6 +207,54 @@ export class SelectionDemo {
         });
     }
 
+    openPolicyTransfer(): void {
+        const collectRows: ImsTransferRow<DemoPolicyType>[] = [];
+        const ignoreRows: ImsTransferRow<DemoPolicyType>[] = [];
+
+        for (const policy of this.policyTypes) {
+            const selectedForCollect = this.isPolicySelected(this.collectPoliciesControl, policy);
+            const selectedForIgnore = this.isPolicySelected(this.ignorePoliciesControl, policy);
+            const row: ImsTransferRow<DemoPolicyType> = {
+                id: `policy-${policy.code}`,
+                label: policy.label,
+                value: policy,
+                checked: selectedForCollect || selectedForIgnore
+            };
+
+            if (selectedForIgnore && !selectedForCollect) {
+                ignoreRows.push(row);
+            } else {
+                collectRows.push(row);
+            }
+        }
+
+        const dialogRef = this.transferDialog.open<DemoPolicyType, 'collect' | 'ignore'>({
+            lists: [
+                {id: 'collect', title: 'פוליסות לאיסוף', rows: collectRows},
+                {id: 'ignore', title: 'פוליסות להתעלמות', rows: ignoreRows}
+            ],
+            dialogTitle: 'עריכת מדיניות איסוף'
+        });
+
+        dialogRef.closed.subscribe((result) => {
+            if (result === undefined) return;
+
+            this.collectPoliciesControl.setValue(
+                result.lists.collect.filter((row) => row.checked).map((row) => row.value)
+            );
+            this.ignorePoliciesControl.setValue(
+                result.lists.ignore.filter((row) => row.checked).map((row) => row.value)
+            );
+        });
+    }
+
+    isPolicySelected(
+        control: FormControl<readonly DemoPolicyType[]>,
+        policy: DemoPolicyType
+    ): boolean {
+        return control.value.some((selectedPolicy) => selectedPolicy.code === policy.code);
+    }
+
     private tracksToRows(tracks: readonly DemoTrack[]): ImsTransferRow<DemoTrack>[] {
         return tracks.map((track) => ({id: `track-${track.id}`, label: track.title, value: track}));
     }
@@ -197,8 +267,20 @@ export class SelectionDemo {
         return first === second;
     };
 
+    readonly comparePolicyByCode = (first: unknown, second: unknown) => {
+        if (this.isDemoPolicyType(first) && this.isDemoPolicyType(second)) {
+            return first.code === second.code;
+        }
+
+        return first === second;
+    };
+
     private isSelectDemoBag(value: unknown): value is SelectDemoBag {
         return typeof value === 'object' && value !== null && 'id' in value;
+    }
+
+    private isDemoPolicyType(value: unknown): value is DemoPolicyType {
+        return typeof value === 'object' && value !== null && 'code' in value;
     }
 
     private matchesSearchQuery(text: string, query: string): boolean {
