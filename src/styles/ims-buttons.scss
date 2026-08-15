@@ -21,8 +21,9 @@
   overflow: hidden;
   display: inline-grid;
   place-items: center;
-  min-block-size: 2.5rem;
-  padding: 0.625rem 1.25rem;
+  box-sizing: border-box;
+  block-size: var(--field-height);
+  padding: 0 1rem;
   border: 1px solid var(--ims-button-border);
   border-radius: var(--ims-button-radius);
   background: var(--ims-button-background);
@@ -140,20 +141,20 @@
 }
 
 .ims-button-icon {
-  min-inline-size: 2.5rem;
+  min-inline-size: var(--field-height);
   padding: 0.5rem;
   background: transparent;
+  aspect-ratio: 1;
 }
 
-.ims-button--with-symbol {
+.ims-button--with-symbol:not([ims-button-icon]) {
   grid-auto-flow: column;
   column-gap: 0.5rem;
+  padding-inline: 0.4rem 0.8rem;
 }
 
-.ims-button__symbol {
+.ims-icon.ims-button__symbol {
   --ims-icon-size: 1.125rem;
-  --ims-icon-weight: 500;
-  --ims-icon-optical-size: 20;
 
   pointer-events: none;
 }
