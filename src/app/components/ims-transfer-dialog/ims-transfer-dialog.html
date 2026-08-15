@@ -1,187 +1,183 @@
 <ims-dialog-content>
-<label class="ims-transfer-dialog__filter">
+  <label class="ims-transfer-dialog__filter">
     <span class="ims-transfer-dialog__filter-label">סינון</span>
     <input
-        class="ims-input"
-        type="text"
-        autocomplete="off"
-        [value]="filterQuery()"
-        (input)="onFilterInput($event)"
+      imsInput
+      class="ims-transfer-dialog__filter-input"
+      type="search"
+      autocomplete="off"
+      [value]="filterQuery()"
+      (input)="onFilterInput($event)"
     />
-</label>
+  </label>
 
-<div class="ims-transfer-dialog__columns">
+  <div class="ims-transfer-dialog__columns">
     <section class="ims-transfer-dialog__column">
-        <header class="ims-transfer-dialog__column-header">
-            <span>{{ startTitle }}</span>
-            <span class="ims-transfer-dialog__column-header-actions">
-                <button
-                    type="button"
-                    class="ims-transfer-dialog__header-action ims-transfer-dialog__header-action--sort"
-                    [class.ims-transfer-dialog__header-action--desc]="startSort() === 'desc'"
-                    [class.ims-transfer-dialog__header-action--active]="startSort() !== null"
-                    [attr.aria-label]="startSort() === 'asc' ? 'מיין בסדר יורד' : startSort() === 'desc' ? 'נקה מיון' : 'מיין בסדר עולה'"
-                    [attr.aria-pressed]="startSort() !== null"
-                    [disabled]="startRows().length < 2"
-                    (click)="toggleStartSort()"
-                >
-                    <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                        <path d="M4 6h11M4 10h8M4 14h5" />
-                        <path d="M15 8v8M12.5 13.5 15 16l2.5-2.5" />
-                    </svg>
-                </button>
-                <button
-                    type="button"
-                    class="ims-transfer-dialog__header-action ims-transfer-dialog__header-action--forward"
-                    [attr.aria-label]="'העבר הכל אל ' + endTitle"
-                    [disabled]="filteredStartRows().length === 0"
-                    (click)="moveAllVisibleToEnd()"
-                >
-                    <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                        <path d="M4 10h12M12 6l4 4-4 4" />
-                    </svg>
-                </button>
-                <span class="ims-transfer-dialog__count">{{ startRows().length }}</span>
-            </span>
-        </header>
+      <header class="ims-transfer-dialog__column-header">
+        <span class="ims-transfer-dialog__column-title" [imsTextTruncate]="startTitle">{{
+          startTitle
+        }}</span>
+        <span class="ims-transfer-dialog__column-header-actions">
+          <button
+            ims-button-icon
+            icon="sort"
+            class="ims-transfer-dialog__header-action ims-transfer-dialog__header-action--sort"
+            [class.ims-transfer-dialog__header-action--desc]="startSort() === 'desc'"
+            [class.ims-transfer-dialog__header-action--active]="startSort() !== null"
+            [attr.aria-label]="
+              startSort() === 'asc'
+                ? 'מיין בסדר יורד'
+                : startSort() === 'desc'
+                  ? 'נקה מיון'
+                  : 'מיין בסדר עולה'
+            "
+            [attr.aria-pressed]="startSort() !== null"
+            [disabled]="startRows().length < 2"
+            (click)="toggleStartSort()"
+          ></button>
+          <button
+            ims-button-icon
+            icon="arrow_forward"
+            class="ims-transfer-dialog__header-action ims-transfer-dialog__header-action--forward"
+            [attr.aria-label]="'העבר הכל אל ' + endTitle"
+            [disabled]="filteredStartRows().length === 0"
+            (click)="moveAllVisibleToEnd()"
+          ></button>
+          <span class="ims-transfer-dialog__count">{{ startRows().length }}</span>
+        </span>
+      </header>
 
-        <div
-            class="ims-transfer-dialog__list"
-            cdkDropList
-            [cdkDropListSortingDisabled]="!!filterQuery().trim()"
-            [id]="startListId"
-            [cdkDropListData]="filteredStartRows()"
-            [cdkDropListConnectedTo]="[endListId]"
-            (cdkDropListDropped)="drop($event)"
-        >
-            @for (row of filteredStartRows(); track row.id) {
-                <div
-                    class="ims-transfer-dialog__row"
-                    [class.ims-transfer-dialog__row--disabled]="row.disabled"
-                    cdkDrag
-                    [cdkDragDisabled]="!!row.disabled"
-                    [cdkDragData]="row"
-                >
-                    <span class="ims-transfer-dialog__handle" aria-hidden="true">
-                        <svg viewBox="0 0 20 20" focusable="false">
-                            <circle cx="7" cy="5" r="1.2" />
-                            <circle cx="13" cy="5" r="1.2" />
-                            <circle cx="7" cy="10" r="1.2" />
-                            <circle cx="13" cy="10" r="1.2" />
-                            <circle cx="7" cy="15" r="1.2" />
-                            <circle cx="13" cy="15" r="1.2" />
-                        </svg>
-                    </span>
-                    <label class="ims-transfer-dialog__checkbox">
-                        <input
-                            type="checkbox"
-                            [attr.aria-label]="row.label"
-                            [disabled]="!!row.disabled"
-                            (change)="moveToEnd(row)"
-                        />
-                    </label>
-                    <span class="ims-transfer-dialog__label" (dblclick)="moveToEnd(row)">{{ row.label }}</span>
-                </div>
-            } @empty {
-                <p class="ims-transfer-dialog__empty">
-                    {{ filterQuery().trim() ? 'אין תוצאות' : 'אין פריטים' }}
-                </p>
-            }
-        </div>
+      <ims-scroll-container
+        class="ims-transfer-dialog__list"
+        [ariaLabel]="startTitle"
+        [hazeSize]="24"
+        cdkDropList
+        [cdkDropListSortingDisabled]="!!filterQuery().trim()"
+        [id]="startListId"
+        [cdkDropListData]="filteredStartRows()"
+        [cdkDropListConnectedTo]="[endListId]"
+        (cdkDropListDropped)="drop($event)"
+      >
+        @for (row of filteredStartRows(); track row.id) {
+          <div
+            class="ims-transfer-dialog__row"
+            [class.ims-transfer-dialog__row--disabled]="row.disabled"
+            cdkDrag
+            [cdkDragDisabled]="!!row.disabled"
+            [cdkDragData]="row"
+          >
+            <span class="ims-icon ims-transfer-dialog__handle" aria-hidden="true">
+              drag_indicator
+            </span>
+            <ims-checkbox
+              class="ims-transfer-dialog__checkbox"
+              [checked]="false"
+              [disabled]="!!row.disabled"
+              (change)="moveToEnd(row)"
+            >
+              <span class="ims-transfer-dialog__checkbox-accessible-label">{{ row.label }}</span>
+            </ims-checkbox>
+            <span
+              class="ims-transfer-dialog__label"
+              [imsTextTruncate]="row.label"
+              (dblclick)="moveToEnd(row)"
+              >{{ row.label }}</span
+            >
+          </div>
+        } @empty {
+          <p class="ims-transfer-dialog__empty">
+            {{ filterQuery().trim() ? 'אין תוצאות' : 'אין פריטים' }}
+          </p>
+        }
+      </ims-scroll-container>
     </section>
 
     <section class="ims-transfer-dialog__column">
-        <header class="ims-transfer-dialog__column-header">
-            <span>{{ endTitle }}</span>
-            <span class="ims-transfer-dialog__column-header-actions">
-                <button
-                    type="button"
-                    class="ims-transfer-dialog__header-action ims-transfer-dialog__header-action--sort"
-                    [class.ims-transfer-dialog__header-action--desc]="endSort() === 'desc'"
-                    [class.ims-transfer-dialog__header-action--active]="endSort() !== null"
-                    [attr.aria-label]="endSort() === 'asc' ? 'מיין בסדר יורד' : endSort() === 'desc' ? 'נקה מיון' : 'מיין בסדר עולה'"
-                    [attr.aria-pressed]="endSort() !== null"
-                    [disabled]="endRows().length < 2"
-                    (click)="toggleEndSort()"
-                >
-                    <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                        <path d="M4 6h11M4 10h8M4 14h5" />
-                        <path d="M15 8v8M12.5 13.5 15 16l2.5-2.5" />
-                    </svg>
-                </button>
-                <button
-                    type="button"
-                    class="ims-transfer-dialog__header-action ims-transfer-dialog__header-action--backward"
-                    [attr.aria-label]="'העבר הכל אל ' + startTitle"
-                    [disabled]="filteredEndRows().length === 0"
-                    (click)="moveAllVisibleToStart()"
-                >
-                    <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                        <path d="M4 10h12M12 6l4 4-4 4" />
-                    </svg>
-                </button>
-                <span class="ims-transfer-dialog__count">{{ endRows().length }}</span>
-            </span>
-        </header>
+      <header class="ims-transfer-dialog__column-header">
+        <span class="ims-transfer-dialog__column-title" [imsTextTruncate]="endTitle">{{
+          endTitle
+        }}</span>
+        <span class="ims-transfer-dialog__column-header-actions">
+          <button
+            ims-button-icon
+            icon="sort"
+            class="ims-transfer-dialog__header-action ims-transfer-dialog__header-action--sort"
+            [class.ims-transfer-dialog__header-action--desc]="endSort() === 'desc'"
+            [class.ims-transfer-dialog__header-action--active]="endSort() !== null"
+            [attr.aria-label]="
+              endSort() === 'asc'
+                ? 'מיין בסדר יורד'
+                : endSort() === 'desc'
+                  ? 'נקה מיון'
+                  : 'מיין בסדר עולה'
+            "
+            [attr.aria-pressed]="endSort() !== null"
+            [disabled]="endRows().length < 2"
+            (click)="toggleEndSort()"
+          ></button>
+          <button
+            ims-button-icon
+            icon="arrow_forward"
+            class="ims-transfer-dialog__header-action ims-transfer-dialog__header-action--backward"
+            [attr.aria-label]="'העבר הכל אל ' + startTitle"
+            [disabled]="filteredEndRows().length === 0"
+            (click)="moveAllVisibleToStart()"
+          ></button>
+          <span class="ims-transfer-dialog__count">{{ endRows().length }}</span>
+        </span>
+      </header>
 
-        <div
-            class="ims-transfer-dialog__list"
-            cdkDropList
-            [cdkDropListSortingDisabled]="!!filterQuery().trim()"
-            [id]="endListId"
-            [cdkDropListData]="filteredEndRows()"
-            [cdkDropListConnectedTo]="[startListId]"
-            (cdkDropListDropped)="drop($event)"
-        >
-            @for (row of filteredEndRows(); track row.id) {
-                <div
-                    class="ims-transfer-dialog__row"
-                    [class.ims-transfer-dialog__row--disabled]="row.disabled"
-                    cdkDrag
-                    [cdkDragDisabled]="!!row.disabled"
-                    [cdkDragData]="row"
-                >
-                    <span class="ims-transfer-dialog__handle" aria-hidden="true">
-                        <svg viewBox="0 0 20 20" focusable="false">
-                            <circle cx="7" cy="5" r="1.2" />
-                            <circle cx="13" cy="5" r="1.2" />
-                            <circle cx="7" cy="10" r="1.2" />
-                            <circle cx="13" cy="10" r="1.2" />
-                            <circle cx="7" cy="15" r="1.2" />
-                            <circle cx="13" cy="15" r="1.2" />
-                        </svg>
-                    </span>
-                    <label class="ims-transfer-dialog__checkbox">
-                        <input
-                            type="checkbox"
-                            checked
-                            [attr.aria-label]="row.label"
-                            [disabled]="!!row.disabled"
-                            (change)="moveToStart(row)"
-                        />
-                    </label>
-                    <span class="ims-transfer-dialog__label" (dblclick)="moveToStart(row)">{{ row.label }}</span>
-                </div>
-            } @empty {
-                <p class="ims-transfer-dialog__empty">
-                    {{ filterQuery().trim() ? 'אין תוצאות' : 'אין פריטים' }}
-                </p>
-            }
-        </div>
+      <ims-scroll-container
+        class="ims-transfer-dialog__list"
+        [ariaLabel]="endTitle"
+        [hazeSize]="24"
+        cdkDropList
+        [cdkDropListSortingDisabled]="!!filterQuery().trim()"
+        [id]="endListId"
+        [cdkDropListData]="filteredEndRows()"
+        [cdkDropListConnectedTo]="[startListId]"
+        (cdkDropListDropped)="drop($event)"
+      >
+        @for (row of filteredEndRows(); track row.id) {
+          <div
+            class="ims-transfer-dialog__row"
+            [class.ims-transfer-dialog__row--disabled]="row.disabled"
+            cdkDrag
+            [cdkDragDisabled]="!!row.disabled"
+            [cdkDragData]="row"
+          >
+            <span class="ims-icon ims-transfer-dialog__handle" aria-hidden="true">
+              drag_indicator
+            </span>
+            <ims-checkbox
+              class="ims-transfer-dialog__checkbox"
+              [checked]="true"
+              [disabled]="!!row.disabled"
+              (change)="moveToStart(row)"
+            >
+              <span class="ims-transfer-dialog__checkbox-accessible-label">{{ row.label }}</span>
+            </ims-checkbox>
+            <span
+              class="ims-transfer-dialog__label"
+              [imsTextTruncate]="row.label"
+              (dblclick)="moveToStart(row)"
+              >{{ row.label }}</span
+            >
+          </div>
+        } @empty {
+          <p class="ims-transfer-dialog__empty">
+            {{ filterQuery().trim() ? 'אין תוצאות' : 'אין פריטים' }}
+          </p>
+        }
+      </ims-scroll-container>
     </section>
-</div>
+  </div>
 </ims-dialog-content>
 
 <ims-dialog-actions class="ims-transfer-dialog__actions">
-    <button type="button" class="ims-transfer-dialog__button" (click)="reset()">אפס</button>
-    <div class="ims-transfer-dialog__actions-group">
-        <button type="button" class="ims-transfer-dialog__button" (click)="cancel()">ביטול</button>
-        <button
-            type="button"
-            class="ims-transfer-dialog__button ims-transfer-dialog__button--primary"
-            (click)="confirm()"
-        >
-            אישור
-        </button>
-    </div>
+  <button ims-button-white (click)="reset()">אפס</button>
+  <div class="ims-transfer-dialog__actions-group">
+    <button ims-button (click)="cancel()">ביטול</button>
+    <button ims-button-dark (click)="confirm()">אישור</button>
+  </div>
 </ims-dialog-actions>

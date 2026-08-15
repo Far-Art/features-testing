@@ -1,10 +1,11 @@
 import {ChangeDetectionStrategy, Component, computed, signal} from '@angular/core';
 import {CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
-import {
-    ImsAbstractDialog,
-    ImsDialogActions,
-    ImsDialogContent
-} from '../ims-dialog';
+import {ImsInputDirective} from '../../ims-input.directive';
+import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
+import {ImsButton, ImsButtonDark, ImsButtonIcon, ImsButtonWhite} from '../ims-button';
+import {ImsCheckbox} from '../ims-checkbox/ims-checkbox';
+import {ImsAbstractDialog, ImsDialogActions, ImsDialogContent} from '../ims-dialog';
+import {ImsScrollContainer} from '../ims-scroll-container/ims-scroll-container';
 import {ImsTransferDialogData, ImsTransferDialogResult, ImsTransferRow} from './ims-transfer-dialog.types';
 
 export type ImsTransferSortDirection = 'asc' | 'desc';
@@ -14,7 +15,20 @@ let nextDialogInstanceId = 0;
 @Component({
     selector: 'ims-transfer-dialog',
     standalone: true,
-    imports: [CdkDropList, CdkDrag, ImsDialogActions, ImsDialogContent],
+    imports: [
+        CdkDropList,
+        CdkDrag,
+        ImsButton,
+        ImsButtonDark,
+        ImsButtonIcon,
+        ImsButtonWhite,
+        ImsCheckbox,
+        ImsDialogActions,
+        ImsDialogContent,
+        ImsInputDirective,
+        ImsScrollContainer,
+        ImsTextTruncateDirective
+    ],
     templateUrl: './ims-transfer-dialog.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
