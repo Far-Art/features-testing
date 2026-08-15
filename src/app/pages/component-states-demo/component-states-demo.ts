@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ImsInputDirective } from '../../ims-input.directive';
 import {
   ImsDatepicker,
   ImsDatepickerDateValueHandlerDirective,
@@ -29,6 +30,7 @@ type NativeDatepickerValue = ImsDatepickerValue<Date>;
   standalone: true,
   imports: [
     ReactiveFormsModule,
+    ImsInputDirective,
     ImsAutocomplete,
     ImsCheckbox,
     ImsDatepicker,

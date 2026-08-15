@@ -8,36 +8,37 @@
     <p class="component-states-demo__eyebrow">Baseline</p>
     <h2 id="native-states-title">פקדים טבעיים</h2>
     <p>
-      פקדים טבעיים משתמשים ישירות ב־<code>ims-readonly</code>, שמוסיף
-      <code>disabled</code> ו־<code>ims-readonly</code> על האלמנט.
+      פקדי input ו־textarea משתמשים ב־<code>imsInput</code>, שמחיל את עיצוב
+      <code>ims-input</code> ומשלב בין מצב ה־<code>FormControl</code> לבין
+      <code>ims-readonly</code>.
     </p>
   </div>
 
   <div class="component-states-demo__matrix">
     <article class="component-states-demo__card">
       <h3>Input · רגיל</h3>
-      <input class="ims-input" type="text" [formControl]="textNormal" />
+      <input imsInput type="text" [formControl]="textNormal" />
     </article>
 
     <article class="component-states-demo__card">
       <h3>Input · מושבת</h3>
-      <input class="ims-input" type="text" [formControl]="textDisabled" />
+      <input imsInput type="text" [formControl]="textDisabled" />
     </article>
 
     <article class="component-states-demo__card">
       <h3>Input · קריאה בלבד</h3>
-      <input class="ims-input" type="text" [formControl]="textReadonly" [ims-readonly]="true" />
+      <input imsInput type="text" [formControl]="textReadonly" [ims-readonly]="true" />
     </article>
 
     <article class="component-states-demo__card">
       <h3>Input · לא תקין</h3>
-      <input class="ims-input" type="text" placeholder="חובה" [formControl]="textInvalid" />
+      <input imsInput type="text" placeholder="חובה" [formControl]="textInvalid" />
     </article>
 
     <article class="component-states-demo__card">
       <h3>Input · לא תקין + קריאה בלבד</h3>
       <input
-        class="ims-input"
+        imsInput
         type="text"
         placeholder="חובה"
         [formControl]="textInvalidReadonly"
@@ -49,18 +50,18 @@
   <div class="component-states-demo__matrix">
     <article class="component-states-demo__card">
       <h3>Textarea · רגיל</h3>
-      <textarea class="ims-input" rows="3" [formControl]="textareaNormal"></textarea>
+      <textarea imsInput rows="3" [formControl]="textareaNormal"></textarea>
     </article>
 
     <article class="component-states-demo__card">
       <h3>Textarea · מושבת</h3>
-      <textarea class="ims-input" rows="3" [formControl]="textareaDisabled"></textarea>
+      <textarea imsInput rows="3" [formControl]="textareaDisabled"></textarea>
     </article>
 
     <article class="component-states-demo__card">
       <h3>Textarea · קריאה בלבד</h3>
       <textarea
-        class="ims-input"
+        imsInput
         rows="3"
         [formControl]="textareaReadonly"
         [ims-readonly]="true"
@@ -70,7 +71,7 @@
     <article class="component-states-demo__card">
       <h3>Textarea · לא תקין</h3>
       <textarea
-        class="ims-input"
+        imsInput
         rows="3"
         placeholder="חובה"
         [formControl]="textareaInvalid"
@@ -80,7 +81,7 @@
     <article class="component-states-demo__card">
       <h3>Textarea · לא תקין + קריאה בלבד</h3>
       <textarea
-        class="ims-input"
+        imsInput
         rows="3"
         placeholder="חובה"
         [formControl]="textareaInvalidReadonly"

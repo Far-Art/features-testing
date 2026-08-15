@@ -45,22 +45,22 @@
     </div>
 
     <p class="readonly-demo__description">
-      Native controls below receive the host's <code>disabled</code> attribute. The custom select
-      and autocomplete consume the same signal through <code>ReadonlyDirective.injectSignal()</code>.
+      Native text controls use <code>imsInput</code>, while the custom select and autocomplete
+      consume the same inherited signal through <code>ReadonlyDirective.injectSignal()</code>.
     </p>
 
     <div class="readonly-demo__editor">
       <label>
         <span>Display name</span>
-        <input value="Maya Levin" [ims-readonly]="pageReadonly()" />
+        <input imsInput value="Maya Levin" />
       </label>
       <label>
         <span>Contact email</span>
-        <input value="maya.levin@example.test" [ims-readonly]="pageReadonly()" />
+        <input imsInput value="maya.levin@example.test" />
       </label>
       <label class="readonly-demo__notes">
         <span>Internal note</span>
-        <textarea [ims-readonly]="pageReadonly()">Review required before renewal.</textarea>
+        <textarea imsInput>Review required before renewal.</textarea>
       </label>
       <label class="readonly-demo__select">
         <span>Preferred contact method</span>
@@ -107,7 +107,7 @@
       <div class="readonly-demo__child-control">
         <label>
           <span>Reason for exception</span>
-          <input value="Correct a verified typo" [ims-readonly]="false" />
+          <input imsInput value="Correct a verified typo" />
         </label>
         <button type="button" [ims-readonly]="false">Submit exception</button>
       </div>

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, Signal, inject, signal } from '@angular/core';
+import { ImsInputDirective } from '../../ims-input.directive';
 import { ImsAutocomplete, type ImsAutocompleteOption } from '../../components/ims-autocomplete';
 import {
   ImsDialogActions,
@@ -60,6 +61,7 @@ class ReadonlyState {
     ImsDialogContent,
     ImsDialogTitle,
     ImsDialogToolbar,
+    ImsInputDirective,
     ImsOption,
     ImsSelect,
     ReadonlyDirective,
@@ -87,7 +89,7 @@ class ReadonlyState {
 
         <label>
           <span>Review note</span>
-          <input value="Awaiting approval" [ims-readonly]="null" />
+          <input imsInput value="Awaiting approval" />
         </label>
 
         <label>
@@ -194,7 +196,17 @@ class ReadonlyDialogContent {
 
 @Component({
   selector: 'app-readonly-demo',
-  imports: [ReadonlyDirective, ReadonlyState, ImsSelect, ImsOption, ImsAutocomplete, ImsGrid, ImsGridCell, ImsGridRow],
+  imports: [
+    ReadonlyDirective,
+    ReadonlyState,
+    ImsInputDirective,
+    ImsSelect,
+    ImsOption,
+    ImsAutocomplete,
+    ImsGrid,
+    ImsGridCell,
+    ImsGridRow,
+  ],
   templateUrl: './readonly-demo.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './readonly-demo.scss',
