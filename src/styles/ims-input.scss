@@ -2,9 +2,10 @@
     --ims-input-field-shadow: 0 1px 3px rgb(0 0 0 / 8%);
 
     box-sizing: border-box;
-    min-width: 0;
+    min-width: var(--field-width-xxs);
+    height: var(--field-height);
     min-height: var(--field-height);
-    padding: var(--ims-input-padding, 0.45rem 0.65rem);
+    padding: var(--ims-input-padding, 0.1rem 0.5rem);
     border: 1px solid var(--ims-input-border, var(--ims-color-border));
     border-radius: var(--ims-input-border-radius, 0.5rem);
     background: var(--ims-input-background, var(--ims-background-input));
@@ -12,6 +13,10 @@
     font: inherit;
     box-shadow: var(--ims-input-field-shadow);
     transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.ims-input:focus {
+    z-index: 1;
 }
 
 /**
@@ -29,12 +34,12 @@
     box-sizing: content-box;
     inline-size: 100%;
     max-inline-size: max(
-        0px,
-        calc(100% - var(--ims-input-action-size) - var(--ims-input-action-gap))
+      0px,
+      calc(100% - var(--ims-input-action-size) - var(--ims-input-action-gap))
     );
     min-inline-size: 0;
     padding-inline-end: calc(
-        var(--ims-input-action-size) + var(--ims-input-action-gap)
+      var(--ims-input-action-size) + var(--ims-input-action-gap)
     );
 }
 
@@ -67,9 +72,8 @@
 .ims-input:focus-visible {
     outline: none;
     border-color: var(--ims-input-focus-border, var(--ims-color-interactive));
-    box-shadow:
-        0 0 0 3px var(--ims-input-focus-ring, var(--ims-color-focus-ring)),
-        var(--ims-input-field-shadow);
+    box-shadow: 0 0 0 3px var(--ims-input-focus-ring, var(--ims-color-focus-ring)),
+    var(--ims-input-field-shadow);
 }
 
 .ims-input:disabled {
@@ -90,7 +94,6 @@
 }
 
 .ims-input.ng-invalid:focus-visible {
-    box-shadow:
-        0 0 0 3px var(--ims-input-invalid-focus-ring, var(--ims-color-invalid-focus-ring)),
-        var(--ims-input-field-shadow);
+    box-shadow: 0 0 0 3px var(--ims-input-invalid-focus-ring, var(--ims-color-invalid-focus-ring)),
+    var(--ims-input-field-shadow);
 }
