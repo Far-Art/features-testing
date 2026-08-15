@@ -111,7 +111,6 @@ The input class supports local overrides:
 
 ```scss
 .ims-example__filter {
-    --ims-input-min-height: 2rem;
     --ims-input-padding: 0.3rem 0.45rem;
     --ims-input-border-radius: 0.375rem;
 }
