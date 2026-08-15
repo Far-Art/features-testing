@@ -433,8 +433,7 @@ export class ImsSelect<T = unknown>
   openEditDialog(): void {
     if (this.interactionDisabled()) return;
 
-    const checked: ImsTransferRow<T>[] = [];
-    const unchecked: ImsTransferRow<T>[] = [];
+    const rows: ImsTransferRow<T>[] = [];
 
     for (const option of this.editableOptions()) {
       const optionValue = this.readOptionValue(option);
@@ -443,25 +442,25 @@ export class ImsSelect<T = unknown>
       const row: ImsTransferRow<T> = {
         id: option.id,
         label: option.selectionLabel(),
-        value: optionValue.value
+        value: optionValue.value,
+        checked: this.isOptionSelected(option)
       };
 
-      (this.isOptionSelected(option) ? checked : unchecked).push(row);
+      rows.push(row);
     }
 
-    if (checked.length === 0 && unchecked.length === 0) return;
+    if (rows.length === 0) return;
 
     this.close(false);
 
-    const dialogRef = this.transferDialog.open<T>({
-      start: {title: 'לא נבחרו', rows: unchecked},
-      end: {title: 'נבחרו', rows: checked},
+    const dialogRef = this.transferDialog.open<T, 'options'>({
+      lists: [{id: 'options', title: 'אפשרויות', rows}],
       dialogTitle: 'עריכת בחירה'
     });
 
     dialogRef.closed.subscribe((result) => {
       if (result === undefined) return;
-      this.applyEditDialogResult([...checked, ...unchecked], result.end);
+      this.applyEditDialogResult(rows, result.checked);
     });
   }
 

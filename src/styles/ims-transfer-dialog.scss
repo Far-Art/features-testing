@@ -18,14 +18,16 @@
   min-inline-size: 0;
 }
 
-.ims-transfer-dialog__columns {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.ims-transfer-dialog__lists {
+  display: flex;
   gap: 0.75rem;
+  max-inline-size: 100%;
+  overflow-x: auto;
 }
 
-.ims-transfer-dialog__column {
+.ims-transfer-dialog__list-column {
   display: flex;
+  flex: 1 0 min(16rem, 80vw);
   flex-direction: column;
   min-inline-size: 0;
   overflow: hidden;
@@ -34,7 +36,7 @@
   background: var(--ims-background-panel);
 }
 
-.ims-transfer-dialog__column-header {
+.ims-transfer-dialog__list-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -47,11 +49,11 @@
   font-weight: 650;
 }
 
-.ims-transfer-dialog__column-title {
+.ims-transfer-dialog__list-title {
   flex: 1 1 auto;
 }
 
-.ims-transfer-dialog__column-header-actions {
+.ims-transfer-dialog__list-header-actions {
   display: flex;
   flex: 0 0 auto;
   align-items: center;
@@ -95,18 +97,6 @@
   --ims-button-background-hover: var(--ims-color-interactive-alt-subtle);
   --ims-button-color: var(--ims-color-interactive-strong);
   --ims-button-border: var(--ims-color-interactive);
-}
-
-.ims-transfer-dialog__header-action--backward .ims-button__symbol {
-  transform: scaleX(-1);
-}
-
-.ims-transfer-dialog__header-action--forward:dir(rtl) .ims-button__symbol {
-  transform: scaleX(-1);
-}
-
-.ims-transfer-dialog__header-action--backward:dir(rtl) .ims-button__symbol {
-  transform: none;
 }
 
 .ims-transfer-dialog__count {
@@ -251,8 +241,13 @@
 }
 
 @media (max-width: 30rem) {
-  .ims-transfer-dialog__columns {
-    grid-template-columns: minmax(0, 1fr);
+  .ims-transfer-dialog__lists {
+    flex-direction: column;
+    overflow-x: visible;
+  }
+
+  .ims-transfer-dialog__list-column {
+    flex-basis: auto;
   }
 }
 

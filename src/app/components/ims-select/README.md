@@ -84,20 +84,17 @@ regardless of what happens in the dialog.
 
 `openEditDialog()` in `ims-select.ts`:
 
-1. Builds `checked`/`unchecked` `ImsTransferRow<T>[]` rows from
-   `editableOptions()`.
+1. Builds one `ImsTransferRow<T>[]` from `editableOptions()` and initializes
+   each row's independent `checked` state from the current selection.
 2. Closes the select's own overlay (`this.close(false)`) before opening the
    dialog, so the popover doesn't linger, covered, behind the modal.
-3. Opens `ImsTransferDialog` through the fluent `ImsDialogService`, supplies
-   the two columns with `.data()`, and lets the IMS dialog shell render the
-   title. The service sources `direction` from `Directionality` itself, so
-   `ims-select` doesn't pass it explicitly.
+3. Opens `ImsTransferDialog` with one `options` list and lets the IMS dialog
+   shell render the title. The service sources `direction` from
+   `Directionality` itself, so `ims-select` doesn't pass it explicitly.
 4. On `dialogRef.closed`, a result of `undefined` (cancel, backdrop click,
-   Escape) is a no-op. Otherwise `applyEditDialogResult(rows, result.end)`
-   merges only the **end** column's final values back with any
-   previously-selected values that were outside the dialog's row set (filtered
-   out or disabled), then emits once. `ims-select` never reads `result.start`
-   — that's the "unchecked" side, which it has no use for.
+   Escape) is a no-op. Otherwise `applyEditDialogResult(rows, result.checked)`
+   merges the dialog's checked values with previously-selected values outside
+   the dialog's row set, then emits once.
 
 **Nothing is written to the select's value until the dialog resolves with a
 result.** All in-dialog interaction happens inside `ImsTransferDialog` itself,
@@ -109,9 +106,6 @@ entirely decoupled from `ims-select`'s own state.
   `applyEditDialogResult()`'s merge logic — it assumes the dialog's row set is
   exactly the set of values that can change, and anything outside it is
   passed through untouched.
-- The dialog itself (`ImsTransferDialog`) is generic and value-comparison-free
-  — it only ever moves opaque rows between its two columns and returns their
-  final contents. Value equality (`compareWith`) and the "checked" vs.
-  "unchecked" framing are entirely `ims-select`'s own responsibility, expressed
-  only through how it maps `start`/`end` and which side of the result it reads.
-  Don't push select-specific concepts back into the shared dialog.
+- The dialog itself (`ImsTransferDialog`) is generic and value-comparison-free.
+  It tracks checked state by row ID and returns opaque values; value equality
+  (`compareWith`) remains `ims-select`'s responsibility.

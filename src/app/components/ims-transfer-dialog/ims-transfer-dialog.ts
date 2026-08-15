@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, Signal, signal, WritableSignal} from '@angular/core';
 import {CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
 import {ImsInputDirective} from '../../ims-input.directive';
 import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
@@ -6,9 +6,25 @@ import {ImsButton, ImsButtonDark, ImsButtonIcon, ImsButtonWhite} from '../ims-bu
 import {ImsCheckbox} from '../ims-checkbox/ims-checkbox';
 import {ImsAbstractDialog, ImsDialogActions, ImsDialogContent} from '../ims-dialog';
 import {ImsScrollContainer} from '../ims-scroll-container/ims-scroll-container';
-import {ImsTransferDialogData, ImsTransferDialogResult, ImsTransferRow} from './ims-transfer-dialog.types';
+import {
+    ImsTransferDialogData,
+    ImsTransferDialogResult,
+    ImsTransferList,
+    ImsTransferResultRow,
+    ImsTransferRow
+} from './ims-transfer-dialog.types';
 
 export type ImsTransferSortDirection = 'asc' | 'desc';
+
+interface ImsTransferListState<T, ListId extends string> {
+    readonly id: ListId;
+    readonly title: string;
+    readonly dropListId: string;
+    readonly rows: WritableSignal<ImsTransferResultRow<T>[]>;
+    readonly sort: WritableSignal<ImsTransferSortDirection | null>;
+    readonly filteredRows: Signal<ImsTransferResultRow<T>[]>;
+    connectedTo: string[];
+}
 
 let nextDialogInstanceId = 0;
 
@@ -36,49 +52,23 @@ let nextDialogInstanceId = 0;
     }
 })
 /**
- * Non-destructive dual-list editor for moving opaque rows between two named
- * columns ("start"/"end").
- *
- * Rows can be moved between columns by dragging, toggling the row checkbox,
- * or double-clicking a row's label, and can be reordered within a column by
- * dragging (while unfiltered). Rows can be narrowed down with the filter
- * field. Nothing is reported back to the
- * caller until `confirm()` closes the dialog with both columns' final
- * contents; cancelling or dismissing the dialog closes it with `undefined`
- * and discards all changes.
- *
- * The dialog has no notion of "selection", value equality, or ownership — it
- * only ever moves rows between two arrays and returns their final contents.
- * This is what lets the same component serve both "edit one control's
- * selection" (caller only consumes one side of the result) and "transfer
- * items between two independent sources" (caller consumes and re-applies
- * both sides) equally well.
+ * Non-destructive editor for checking rows independently and moving them
+ * between one or more named lists. The caller receives a normalized snapshot
+ * only after confirmation; cancel and dismiss leave caller-owned data untouched.
  */
-export class ImsTransferDialog<T> extends ImsAbstractDialog<
-    ImsTransferDialogData<T>,
-    ImsTransferDialogResult<T>
+export class ImsTransferDialog<T, ListId extends string = string> extends ImsAbstractDialog<
+    ImsTransferDialogData<T, ListId>,
+    ImsTransferDialogResult<T, ListId>
 > {
     private readonly data = this.dialogData;
-
     private readonly instanceId = nextDialogInstanceId++;
-    readonly startListId = `ims-transfer-start-${this.instanceId}`;
-    readonly endListId = `ims-transfer-end-${this.instanceId}`;
+    private readonly initialLists = this.data.lists.map((list) => ({
+        ...list,
+        rows: list.rows.map((row) => this.normalizeRow(row))
+    }));
 
-    readonly startTitle = this.data.start.title;
-    readonly endTitle = this.data.end.title;
-
-    readonly startRows = signal(this.data.start.rows.slice());
-    readonly endRows = signal(this.data.end.rows.slice());
     readonly filterQuery = signal('');
-    readonly startSort = signal<ImsTransferSortDirection | null>(null);
-    readonly endSort = signal<ImsTransferSortDirection | null>(null);
-
-    readonly filteredStartRows = computed(() =>
-        this.filterRows(this.sortedRows(this.startRows(), this.startSort()))
-    );
-    readonly filteredEndRows = computed(() =>
-        this.filterRows(this.sortedRows(this.endRows(), this.endSort()))
-    );
+    readonly listStates = this.createListStates(this.initialLists);
 
     onFilterInput(event: Event): void {
         const target = event.target;
@@ -87,95 +77,76 @@ export class ImsTransferDialog<T> extends ImsAbstractDialog<
         this.filterQuery.set(target.value);
     }
 
-    /** `index` inserts the row at that position in the target column; omitted, it's appended. */
-    moveToEnd(row: ImsTransferRow<T>, index?: number): void {
-        if (row.disabled || this.endRows().includes(row)) return;
+    toggleChecked(
+        list: ImsTransferListState<T, ListId>,
+        row: ImsTransferResultRow<T>
+    ): void {
+        if (row.disabled) return;
 
-        this.startRows.update((rows) => rows.filter((candidate) => candidate !== row));
-        this.endRows.update((rows) => {
-            const next = index === undefined ? rows.slice() : this.sortedRows(rows, this.endSort());
-            next.splice(index ?? next.length, 0, row);
-            return next;
-        });
-        if (index !== undefined) this.endSort.set(null);
+        list.rows.update((rows) =>
+            rows.map((candidate) =>
+                candidate === row ? {...candidate, checked: !candidate.checked} : candidate
+            )
+        );
     }
 
-    /** `index` inserts the row at that position in the target column; omitted, it's appended. */
-    moveToStart(row: ImsTransferRow<T>, index?: number): void {
-        if (row.disabled || this.startRows().includes(row)) return;
-
-        this.endRows.update((rows) => rows.filter((candidate) => candidate !== row));
-        this.startRows.update((rows) => {
-            const next = index === undefined ? rows.slice() : this.sortedRows(rows, this.startSort());
-            next.splice(index ?? next.length, 0, row);
-            return next;
-        });
-        if (index !== undefined) this.startSort.set(null);
-    }
-
-    /** Cycles the start column through Material's ascending, descending, and cleared states. */
-    toggleStartSort(): void {
-        this.startSort.update((direction) => this.nextSortDirection(direction));
-    }
-
-    /** Cycles the end column through Material's ascending, descending, and cleared states. */
-    toggleEndSort(): void {
-        this.endSort.update((direction) => this.nextSortDirection(direction));
-    }
-
-    /** Moves every non-disabled row currently visible (respecting the filter) from start to end. */
-    moveAllVisibleToEnd(): void {
-        const rows = this.filteredStartRows().filter((row) => !row.disabled);
-        if (rows.length === 0) return;
-
-        this.startRows.update((current) => current.filter((row) => !rows.includes(row)));
-        this.endRows.update((current) => [...current, ...rows]);
-    }
-
-    /** Moves every non-disabled row currently visible (respecting the filter) from end to start. */
-    moveAllVisibleToStart(): void {
-        const rows = this.filteredEndRows().filter((row) => !row.disabled);
-        if (rows.length === 0) return;
-
-        this.endRows.update((current) => current.filter((row) => !rows.includes(row)));
-        this.startRows.update((current) => [...current, ...rows]);
+    toggleSort(list: ImsTransferListState<T, ListId>): void {
+        list.sort.update((direction) => this.nextSortDirection(direction));
     }
 
     /**
-     * A drop within the same column reorders it (disabled while filtered, since
-     * filtered indices don't map onto the column's full row order). A drop onto
-     * the other column moves the row across, inserted at the dropped position
-     * (also only while unfiltered, for the same reason).
+     * Reorders an unfiltered list or transfers a row between lists. A filtered
+     * transfer is appended because rendered indices do not map to the full list.
      */
-    drop(event: CdkDragDrop<ImsTransferRow<T>[]>): void {
-        if (event.previousContainer === event.container) {
-            this.reorderColumn(event.container.id, event.previousIndex, event.currentIndex);
+    drop(
+        event: CdkDragDrop<ImsTransferResultRow<T>[]>,
+        targetList: ImsTransferListState<T, ListId>
+    ): void {
+        const sourceList = this.listStates.find(
+            (list) => list.dropListId === event.previousContainer.id
+        );
+        if (!sourceList) return;
+
+        if (sourceList === targetList) {
+            this.reorderList(targetList, event.previousIndex, event.currentIndex);
             return;
         }
 
         const movedRow = event.previousContainer.data[event.previousIndex];
-        const dropIndex = this.filterQuery().trim() ? undefined : event.currentIndex;
+        if (!movedRow || movedRow.disabled) return;
 
-        if (event.container.id === this.endListId) {
-            this.moveToEnd(movedRow, dropIndex);
-        } else {
-            this.moveToStart(movedRow, dropIndex);
-        }
+        const dropIndex = this.filterQuery().trim() ? undefined : event.currentIndex;
+        sourceList.rows.update((rows) => rows.filter((candidate) => candidate !== movedRow));
+        targetList.rows.update((rows) => {
+            const next = dropIndex === undefined ? rows.slice() : this.sortedRows(rows, targetList.sort());
+            next.splice(dropIndex ?? next.length, 0, movedRow);
+            return next;
+        });
+        if (dropIndex !== undefined) targetList.sort.set(null);
     }
 
-    /** Restores both columns and the filter to the state the dialog was opened with, without closing. */
     reset(): void {
-        this.startRows.set(this.data.start.rows.slice());
-        this.endRows.set(this.data.end.rows.slice());
+        this.listStates.forEach((list, index) => {
+            list.rows.set(this.initialLists[index].rows.map((row) => ({...row})));
+            list.sort.set(null);
+        });
         this.filterQuery.set('');
-        this.startSort.set(null);
-        this.endSort.set(null);
     }
 
     confirm(): void {
+        const entries = this.listStates.map((list) => {
+            const rows = this.sortedRows(list.rows(), list.sort()).map((row) => ({...row}));
+            return [list.id, rows] as const;
+        });
+        const checked = entries.flatMap(([, rows]) =>
+            rows.filter((row) => row.checked).map((row) => row.value)
+        );
+
         this.dialogRef.close({
-            start: this.sortedRows(this.startRows(), this.startSort()).map((row) => row.value),
-            end: this.sortedRows(this.endRows(), this.endSort()).map((row) => row.value)
+            lists: Object.fromEntries(entries) as unknown as Readonly<
+                Record<ListId, readonly ImsTransferResultRow<T>[]>
+            >,
+            checked
         });
     }
 
@@ -183,24 +154,64 @@ export class ImsTransferDialog<T> extends ImsAbstractDialog<
         this.dialogRef.close();
     }
 
-    private reorderColumn(containerId: string, previousIndex: number, currentIndex: number): void {
+    private createListStates(
+        lists: readonly ImsTransferList<T, ListId>[]
+    ): ImsTransferListState<T, ListId>[] {
+        const states = lists.map((list, index) => {
+            const rows = signal(list.rows.map((row) => this.normalizeRow(row)));
+            const sort = signal<ImsTransferSortDirection | null>(null);
+            const state: ImsTransferListState<T, ListId> = {
+                id: list.id,
+                title: list.title,
+                dropListId: `ims-transfer-list-${this.instanceId}-${index}`,
+                rows,
+                sort,
+                filteredRows: computed(() =>
+                    this.filterRows(this.sortedRows(rows(), sort()))
+                ),
+                connectedTo: []
+            };
+            return state;
+        });
+
+        for (const state of states) {
+            state.connectedTo = states
+                .filter((candidate) => candidate !== state)
+                .map((candidate) => candidate.dropListId);
+        }
+
+        return states;
+    }
+
+    private reorderList(
+        list: ImsTransferListState<T, ListId>,
+        previousIndex: number,
+        currentIndex: number
+    ): void {
         if (this.filterQuery().trim() || previousIndex === currentIndex) return;
 
-        const isEndColumn = containerId === this.endListId;
-        const rowsSignal = isEndColumn ? this.endRows : this.startRows;
-        const sortSignal = isEndColumn ? this.endSort : this.startSort;
-        rowsSignal.update((rows) => {
-            const next = this.sortedRows(rows, sortSignal());
+        list.rows.update((rows) => {
+            const next = this.sortedRows(rows, list.sort());
             moveItemInArray(next, previousIndex, currentIndex);
             return next;
         });
-        sortSignal.set(null);
+        list.sort.set(null);
+    }
+
+    private normalizeRow(row: ImsTransferRow<T>): ImsTransferResultRow<T> {
+        return {
+            id: row.id,
+            label: row.label,
+            value: row.value,
+            checked: row.checked ?? false,
+            disabled: row.disabled
+        };
     }
 
     private sortedRows(
-        rows: readonly ImsTransferRow<T>[],
+        rows: readonly ImsTransferResultRow<T>[],
         direction: ImsTransferSortDirection | null
-    ): ImsTransferRow<T>[] {
+    ): ImsTransferResultRow<T>[] {
         if (direction === null) return rows.slice();
 
         const sorted = rows
@@ -217,7 +228,7 @@ export class ImsTransferDialog<T> extends ImsAbstractDialog<
         return direction === 'asc' ? 'desc' : null;
     }
 
-    private filterRows(rows: readonly ImsTransferRow<T>[]): ImsTransferRow<T>[] {
+    private filterRows(rows: readonly ImsTransferResultRow<T>[]): ImsTransferResultRow<T>[] {
         const query = this.filterQuery().trim().replace(/\s+/g, ' ').toLocaleLowerCase();
         if (!query) return rows.slice();
 

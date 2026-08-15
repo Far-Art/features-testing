@@ -162,16 +162,26 @@ export class SelectionDemo {
     };
 
     openPlaylistTransfer(): void {
-        const dialogRef = this.transferDialog.open<DemoTrack>({
-            start: {title: 'רשימת האזנה', rows: this.tracksToRows(this.listeningPlaylist())},
-            end: {title: 'ארכיון', rows: this.tracksToRows(this.archivePlaylist())},
+        const dialogRef = this.transferDialog.open<DemoTrack, 'listening' | 'archive'>({
+            lists: [
+                {
+                    id: 'listening',
+                    title: 'רשימת האזנה',
+                    rows: this.tracksToRows(this.listeningPlaylist())
+                },
+                {
+                    id: 'archive',
+                    title: 'ארכיון',
+                    rows: this.tracksToRows(this.archivePlaylist())
+                }
+            ],
             dialogTitle: 'העברה בין רשימות'
         });
 
         dialogRef.closed.subscribe((result) => {
             if (result === undefined) return;
-            this.listeningPlaylist.set(result.start);
-            this.archivePlaylist.set(result.end);
+            this.listeningPlaylist.set(result.lists.listening.map((row) => row.value));
+            this.archivePlaylist.set(result.lists.archive.map((row) => row.value));
         });
     }
 

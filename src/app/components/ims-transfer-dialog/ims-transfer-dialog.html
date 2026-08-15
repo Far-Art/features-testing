@@ -11,166 +11,77 @@
     />
   </label>
 
-  <div class="ims-transfer-dialog__columns">
-    <section class="ims-transfer-dialog__column">
-      <header class="ims-transfer-dialog__column-header">
-        <span class="ims-transfer-dialog__column-title" [imsTextTruncate]="startTitle">{{
-          startTitle
-        }}</span>
-        <span class="ims-transfer-dialog__column-header-actions">
-          <button
-            ims-button-icon
-            icon="sort"
-            class="ims-transfer-dialog__header-action ims-transfer-dialog__header-action--sort"
-            [class.ims-transfer-dialog__header-action--desc]="startSort() === 'desc'"
-            [class.ims-transfer-dialog__header-action--active]="startSort() !== null"
-            [attr.aria-label]="
-              startSort() === 'asc'
-                ? 'מיין בסדר יורד'
-                : startSort() === 'desc'
-                  ? 'נקה מיון'
-                  : 'מיין בסדר עולה'
-            "
-            [attr.aria-pressed]="startSort() !== null"
-            [disabled]="startRows().length < 2"
-            (click)="toggleStartSort()"
-          ></button>
-          <button
-            ims-button-icon
-            icon="arrow_forward"
-            class="ims-transfer-dialog__header-action ims-transfer-dialog__header-action--forward"
-            [attr.aria-label]="'העבר הכל אל ' + endTitle"
-            [disabled]="filteredStartRows().length === 0"
-            (click)="moveAllVisibleToEnd()"
-          ></button>
-          <span class="ims-transfer-dialog__count">{{ startRows().length }}</span>
-        </span>
-      </header>
+  <div class="ims-transfer-dialog__lists">
+    @for (list of listStates; track list.id) {
+      <section class="ims-transfer-dialog__list-column">
+        <header class="ims-transfer-dialog__list-header">
+          <span class="ims-transfer-dialog__list-title" [imsTextTruncate]="list.title">{{
+            list.title
+          }}</span>
+          <span class="ims-transfer-dialog__list-header-actions">
+            <button
+              ims-button-icon
+              icon="sort"
+              class="ims-transfer-dialog__header-action ims-transfer-dialog__header-action--sort"
+              [class.ims-transfer-dialog__header-action--desc]="list.sort() === 'desc'"
+              [class.ims-transfer-dialog__header-action--active]="list.sort() !== null"
+              [attr.aria-label]="
+                list.sort() === 'asc'
+                  ? 'מיין בסדר יורד'
+                  : list.sort() === 'desc'
+                    ? 'נקה מיון'
+                    : 'מיין בסדר עולה'
+              "
+              [attr.aria-pressed]="list.sort() !== null"
+              [disabled]="list.rows().length < 2"
+              (click)="toggleSort(list)"
+            ></button>
+            <span class="ims-transfer-dialog__count">{{ list.rows().length }}</span>
+          </span>
+        </header>
 
-      <ims-scroll-container
-        class="ims-transfer-dialog__list"
-        [ariaLabel]="startTitle"
-        [hazeSize]="24"
-        cdkDropList
-        [cdkDropListSortingDisabled]="!!filterQuery().trim()"
-        [id]="startListId"
-        [cdkDropListData]="filteredStartRows()"
-        [cdkDropListConnectedTo]="[endListId]"
-        (cdkDropListDropped)="drop($event)"
-      >
-        @for (row of filteredStartRows(); track row.id) {
-          <div
-            class="ims-transfer-dialog__row"
-            [class.ims-transfer-dialog__row--disabled]="row.disabled"
-            cdkDrag
-            [cdkDragDisabled]="!!row.disabled"
-            [cdkDragData]="row"
-          >
-            <span class="ims-icon ims-transfer-dialog__handle" aria-hidden="true">
-              drag_indicator
-            </span>
-            <ims-checkbox
-              class="ims-transfer-dialog__checkbox"
-              [checked]="false"
-              [disabled]="!!row.disabled"
-              (change)="moveToEnd(row)"
+        <ims-scroll-container
+          class="ims-transfer-dialog__list"
+          [ariaLabel]="list.title"
+          [hazeSize]="24"
+          cdkDropList
+          [cdkDropListSortingDisabled]="!!filterQuery().trim()"
+          [id]="list.dropListId"
+          [cdkDropListData]="list.filteredRows()"
+          [cdkDropListConnectedTo]="list.connectedTo"
+          (cdkDropListDropped)="drop($event, list)"
+        >
+          @for (row of list.filteredRows(); track row.id) {
+            <div
+              class="ims-transfer-dialog__row"
+              [class.ims-transfer-dialog__row--disabled]="row.disabled"
+              cdkDrag
+              [cdkDragDisabled]="!!row.disabled"
+              [cdkDragData]="row"
             >
-              <span class="ims-transfer-dialog__checkbox-accessible-label">{{ row.label }}</span>
-            </ims-checkbox>
-            <span
-              class="ims-transfer-dialog__label"
-              [imsTextTruncate]="row.label"
-              (dblclick)="moveToEnd(row)"
-              >{{ row.label }}</span
-            >
-          </div>
-        } @empty {
-          <p class="ims-transfer-dialog__empty">
-            {{ filterQuery().trim() ? 'אין תוצאות' : 'אין פריטים' }}
-          </p>
-        }
-      </ims-scroll-container>
-    </section>
-
-    <section class="ims-transfer-dialog__column">
-      <header class="ims-transfer-dialog__column-header">
-        <span class="ims-transfer-dialog__column-title" [imsTextTruncate]="endTitle">{{
-          endTitle
-        }}</span>
-        <span class="ims-transfer-dialog__column-header-actions">
-          <button
-            ims-button-icon
-            icon="sort"
-            class="ims-transfer-dialog__header-action ims-transfer-dialog__header-action--sort"
-            [class.ims-transfer-dialog__header-action--desc]="endSort() === 'desc'"
-            [class.ims-transfer-dialog__header-action--active]="endSort() !== null"
-            [attr.aria-label]="
-              endSort() === 'asc'
-                ? 'מיין בסדר יורד'
-                : endSort() === 'desc'
-                  ? 'נקה מיון'
-                  : 'מיין בסדר עולה'
-            "
-            [attr.aria-pressed]="endSort() !== null"
-            [disabled]="endRows().length < 2"
-            (click)="toggleEndSort()"
-          ></button>
-          <button
-            ims-button-icon
-            icon="arrow_forward"
-            class="ims-transfer-dialog__header-action ims-transfer-dialog__header-action--backward"
-            [attr.aria-label]="'העבר הכל אל ' + startTitle"
-            [disabled]="filteredEndRows().length === 0"
-            (click)="moveAllVisibleToStart()"
-          ></button>
-          <span class="ims-transfer-dialog__count">{{ endRows().length }}</span>
-        </span>
-      </header>
-
-      <ims-scroll-container
-        class="ims-transfer-dialog__list"
-        [ariaLabel]="endTitle"
-        [hazeSize]="24"
-        cdkDropList
-        [cdkDropListSortingDisabled]="!!filterQuery().trim()"
-        [id]="endListId"
-        [cdkDropListData]="filteredEndRows()"
-        [cdkDropListConnectedTo]="[startListId]"
-        (cdkDropListDropped)="drop($event)"
-      >
-        @for (row of filteredEndRows(); track row.id) {
-          <div
-            class="ims-transfer-dialog__row"
-            [class.ims-transfer-dialog__row--disabled]="row.disabled"
-            cdkDrag
-            [cdkDragDisabled]="!!row.disabled"
-            [cdkDragData]="row"
-          >
-            <span class="ims-icon ims-transfer-dialog__handle" aria-hidden="true">
-              drag_indicator
-            </span>
-            <ims-checkbox
-              class="ims-transfer-dialog__checkbox"
-              [checked]="true"
-              [disabled]="!!row.disabled"
-              (change)="moveToStart(row)"
-            >
-              <span class="ims-transfer-dialog__checkbox-accessible-label">{{ row.label }}</span>
-            </ims-checkbox>
-            <span
-              class="ims-transfer-dialog__label"
-              [imsTextTruncate]="row.label"
-              (dblclick)="moveToStart(row)"
-              >{{ row.label }}</span
-            >
-          </div>
-        } @empty {
-          <p class="ims-transfer-dialog__empty">
-            {{ filterQuery().trim() ? 'אין תוצאות' : 'אין פריטים' }}
-          </p>
-        }
-      </ims-scroll-container>
-    </section>
+              <span class="ims-icon ims-transfer-dialog__handle" aria-hidden="true">
+                drag_indicator
+              </span>
+              <ims-checkbox
+                class="ims-transfer-dialog__checkbox"
+                [checked]="row.checked"
+                [disabled]="!!row.disabled"
+                (change)="toggleChecked(list, row)"
+              >
+                <span class="ims-transfer-dialog__checkbox-accessible-label">{{ row.label }}</span>
+              </ims-checkbox>
+              <span class="ims-transfer-dialog__label" [imsTextTruncate]="row.label">{{
+                row.label
+              }}</span>
+            </div>
+          } @empty {
+            <p class="ims-transfer-dialog__empty">
+              {{ filterQuery().trim() ? 'אין תוצאות' : 'אין פריטים' }}
+            </p>
+          }
+        </ims-scroll-container>
+      </section>
+    }
   </div>
 </ims-dialog-content>
 
