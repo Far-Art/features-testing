@@ -31,6 +31,7 @@
 @use './styles/ims-long-press';
 @use './styles/ims-buttons';
 @use './styles/ims-icon';
+@use './styles/tokens/sizing-tokens';
 
 html {
     @include mat.theme((

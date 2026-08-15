@@ -1,0 +1,43 @@
+:root {
+    --field-height: 26px;
+    --field-width-xxs: 3rem;
+    --field-width-xs: 6rem;
+    --field-width-s: 8.5rem;
+    --field-width-m: 12rem;
+    --field-width-l: 15rem;
+    --field-width-xl: 18rem;
+    --field-width-xxl: 21rem;
+    --field-width-stretch: stretch;
+}
+
+.field-xxs {
+    inline-size: var(--field-width-xxs);
+}
+
+.field-xs {
+    inline-size: var(--field-width-xs);
+}
+
+.field-s {
+    inline-size: var(--field-width-s);
+}
+
+.field-m {
+    inline-size: var(--field-width-m);
+}
+
+.field-l {
+    inline-size: var(--field-width-l);
+}
+
+.field-xl {
+    inline-size: var(--field-width-xl);
+}
+
+.field-xxl {
+    inline-size: var(--field-width-xxl);
+}
+
+.field-stretch {
+     inline-size: var(--field-width-stretch);
+}
