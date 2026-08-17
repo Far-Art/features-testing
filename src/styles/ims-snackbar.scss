@@ -169,7 +169,7 @@ ims-snackbar.ims-snackbar--soft .ims-snackbar__dismiss:hover {
 
 ims-snackbar.ims-snackbar--accent {
     padding-inline-start: 0.9375rem;
-    border: 1px solid var(--ims-color-border-subtle);
+    border: 1px solid var(--ims-color-border);
     border-inline-start: 0.25rem solid var(--ims-snackbar-accent);
     background: var(--ims-background-panel);
     box-shadow: 0 0.25rem 1rem color-mix(
