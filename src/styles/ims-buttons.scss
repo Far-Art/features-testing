@@ -1,6 +1,6 @@
 // These are placeholders, not a real "unstyled default" look — every
 // consumer directive always pairs this class with a
-// --default/--dark/--white/--danger modifier that sets
+// --default/--dark/--white/--outline/--danger modifier that sets
 // its own full set below. Keeping this neutral (instead of duplicating
 // one variant's colors here) avoids a color that only ever exists for
 // a single frame before the modifier class lands, which was visible
@@ -129,6 +129,16 @@
   --ims-button-color: var(--ims-color-primary-800);
   --ims-button-color-active: var(--ims-color-primary-900);
   --ims-button-ring-color: var(--ims-color-primary-450);
+}
+
+.ims-button--outline {
+  --ims-button-background: transparent;
+  --ims-button-background-hover: var(--ims-color-primary-50);
+  --ims-button-background-active: var(--ims-color-primary-100);
+  --ims-button-color: var(--ims-color-interactive-strong);
+  --ims-button-color-active: var(--ims-color-interactive-alt-strong);
+  --ims-button-ring-color: var(--ims-color-interactive);
+  --ims-button-border: var(--ims-color-interactive);
 }
 
 .ims-button--danger {

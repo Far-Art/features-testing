@@ -17,7 +17,7 @@ const ACTION_BLINK_MS = 110;
 
 type ImsButtonType = 'button' | 'submit' | 'reset';
 type ImsButtonActivationKey = 'Enter' | ' ';
-export type ImsButtonVariation = 'default' | 'primary' | 'secondary' | 'danger';
+export type ImsButtonVariation = 'default' | 'primary' | 'secondary' | 'outline' | 'danger';
 
 @Directive({
     host: {
@@ -160,6 +160,7 @@ export abstract class ImsButtonBase {
         '[class.ims-button--default]': 'variation() === "default"',
         '[class.ims-button--dark]': 'variation() === "primary"',
         '[class.ims-button--white]': 'variation() === "secondary"',
+        '[class.ims-button--outline]': 'variation() === "outline"',
         '[class.ims-button--danger]': 'variation() === "danger"',
         '[disabled]': 'interactionDisabled()'
     }
