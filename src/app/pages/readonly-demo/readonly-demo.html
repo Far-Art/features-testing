@@ -1,23 +1,22 @@
 <section class="readonly-demo">
-  <header class="readonly-demo__intro">
-    <p class="readonly-demo__eyebrow">Directive laboratory</p>
+  <header class="page-heading">
     <h1>Readonly is inherited, deliberately.</h1>
-    <p class="readonly-demo__lede">
+    <p>
       A provider sets the state once. Every descendant can react to the same signal, while a nested
       provider needs explicit permission before it can unlock a protected area.
     </p>
   </header>
 
   <section class="readonly-demo__controls" aria-label="Readonly demo controls">
-      <ims-grid>
-          <ims-grid-header>
-              <ims-grid-cell>sdfsdf</ims-grid-cell>
-          </ims-grid-header>
+    <ims-grid class="readonly-demo__grid-preview">
+      <ims-grid-header>
+        <ims-grid-cell>sdfsdf</ims-grid-cell>
+      </ims-grid-header>
 
-          <ims-grid-row >
-              <ims-grid-cell [ims-readonly]="pageReadonly()"></ims-grid-cell>
-          </ims-grid-row>
-      </ims-grid>
+      <ims-grid-row>
+        <ims-grid-cell [ims-readonly]="pageReadonly()"></ims-grid-cell>
+      </ims-grid-row>
+    </ims-grid>
     <div>
       <span class="readonly-demo__control-label">Page provider</span>
       <strong>{{ pageReadonly() ? 'Locked' : 'Editable' }}</strong>

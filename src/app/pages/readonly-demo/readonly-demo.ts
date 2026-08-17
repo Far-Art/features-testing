@@ -12,7 +12,7 @@ import {
 } from '../../components/ims-dialog';
 import { ImsOption, ImsSelect } from '../../components/ims-select';
 import { ReadonlyDirective } from '../../shared/readonly.directive';
-import {ImsGrid, ImsGridCell, ImsGridRow, ImsGridSortHeader} from '../../components/ims-grid';
+import {ImsGrid, ImsGridCell, ImsGridRow} from '../../components/ims-grid';
 
 type ContactMethod = 'Email' | 'Phone' | 'Text message';
 
@@ -29,7 +29,7 @@ type ContactMethod = 'Email' | 'Phone' | 'Text message';
       display: inline-flex;
       align-items: center;
       gap: 0.45rem;
-      color: #21634c;
+      color: var(--ims-color-status-success);
       font-size: 0.78rem;
       font-weight: 800;
       letter-spacing: 0.06em;
@@ -37,15 +37,15 @@ type ContactMethod = 'Email' | 'Phone' | 'Text message';
     }
 
     .readonly-state__lamp {
-      width: 0.56rem;
-      height: 0.56rem;
+      inline-size: 0.56rem;
+      block-size: 0.56rem;
       border-radius: 50%;
       background: currentColor;
       box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 12%, transparent);
     }
 
     .readonly-state--locked {
-      color: #a84132;
+      color: var(--ims-color-status-warning);
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -122,55 +122,57 @@ class ReadonlyState {
 
     .readonly-dialog-demo__content p {
       margin: 0;
-      color: #597168;
+      color: var(--ims-color-on-surface-muted);
       line-height: 1.55;
     }
 
     .readonly-dialog-demo__content code {
-      color: #9e4032;
-      font-family: 'Courier New', monospace;
+      color: var(--ims-color-interactive-alt-strong);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
     }
 
     .readonly-dialog-demo__content label {
       display: grid;
       gap: 0.4rem;
-      color: #34574d;
+      color: var(--ims-color-on-surface);
       font-size: 0.86rem;
-      font-weight: 750;
+      font-weight: 650;
     }
 
-    .readonly-dialog-demo__content input {
-      box-sizing: border-box;
-      width: 100%;
-      padding: 0.7rem 0.75rem;
-      border: 1px solid #a9c0b4;
-      border-radius: 0.4rem;
-      color: #173f36;
-      font: inherit;
-    }
-
-    .readonly-dialog-demo__content input.ims-readonly {
-      color: #6d7772;
-      background: #edf0ed;
-      border-color: #d5dbd5;
+    .readonly-dialog-demo__content .ims-input,
+    .readonly-dialog-demo__content ims-select {
+      inline-size: 100%;
     }
 
     .readonly-dialog-demo__toolbar-button,
     .readonly-dialog-demo__close-button {
-      min-height: 2.25rem;
+      min-block-size: 2.25rem;
       padding-inline: 0.8rem;
-      border: 1px solid #1d5949;
-      border-radius: 0.45rem;
-      background: #1d5949;
-      color: #fffdf8;
+      border: 1px solid var(--ims-color-interactive-strong);
+      border-radius: 0.625rem;
+      background: var(--ims-color-interactive-strong);
+      color: var(--ims-color-on-interactive);
       cursor: pointer;
       font: inherit;
-      font-weight: 700;
+      font-weight: 650;
+    }
+
+    .readonly-dialog-demo__toolbar-button:hover,
+    .readonly-dialog-demo__close-button:hover {
+      border-color: var(--ims-color-interactive-alt-strong);
+      background: var(--ims-color-interactive-alt-strong);
+    }
+
+    .readonly-dialog-demo__toolbar-button:focus-visible,
+    .readonly-dialog-demo__close-button:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--ims-color-focus-ring);
     }
 
     .readonly-dialog-demo__close-button {
-      background: #fffdf6;
-      color: #234b41;
+      border-color: var(--ims-color-border);
+      background: var(--ims-background-panel);
+      color: var(--ims-color-interactive-alt-strong);
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
