@@ -40,7 +40,7 @@
     // Default control border (inputs, buttons, cards).
     --ims-color-border: var(--ims-color-neutral-400);
     // Low-emphasis divider/border (list separators, disabled borders).
-    --ims-color-border-subtle: var(--ims-color-neutral-100);
+    --ims-color-border-subtle: var(--ims-color-neutral-150);
 
     // Border and indicator color for invalid form controls.
     --ims-color-invalid: var(--ims-color-danger-600);
@@ -86,7 +86,7 @@
     // Alternate accent from the stronger end of the primary palette for duo-tone pairings.
     --ims-color-interactive-alt: var(--ims-color-primary-600);
     // Higher-contrast alternate accent for text, icons, hover, and pressed states.
-    --ims-color-interactive-alt-strong: var(--ims-color-primary-800);
+    --ims-color-interactive-alt-strong: var(--ims-color-primary-700);
     // More saturated alternate fill, distinct from the primary subtle fill.
     --ims-color-interactive-alt-subtle: var(--ims-color-primary-100);
 }
