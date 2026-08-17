@@ -388,6 +388,7 @@ export class ImsSnackbarService implements ImsSnackbarBuilderHost {
             snackbar.config.verticalPosition === 'bottom' ? 'bottom center' : 'top center'
         );
         element.classList.toggle('ims-snackbar-stack-item--stacked', groupSize > 1);
+        element.classList.toggle('ims-snackbar-stack-item--front', age === 0);
         element.classList.toggle('ims-snackbar-stack-item--expanded', expanded);
     }
 

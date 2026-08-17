@@ -39,8 +39,8 @@ ims-snackbar.ims-snackbar {
     box-sizing: border-box;
     align-items: flex-start;
     gap: 0.8125rem;
-    min-inline-size: min(22rem, calc(100vw - 2rem));
-    max-inline-size: min(26rem, calc(100vw - 2rem));
+    min-inline-size: min(26rem, calc(100vw - 2rem));
+    max-inline-size: min(36rem, calc(100vw - 2rem));
     padding: 0.875rem;
     font: inherit;
     border-radius: 0.8125rem;
@@ -185,15 +185,15 @@ ims-snackbar.ims-snackbar--accent .ims-snackbar__icon {
 }
 
 ims-snackbar.ims-snackbar--accent .ims-snackbar__title {
-    color: var(--ims-color-on-surface);
+    color: var(--ims-snackbar-title);
 }
 
 ims-snackbar.ims-snackbar--accent .ims-snackbar__message {
-    color: var(--ims-color-on-surface-muted);
+    color: var(--ims-color-on-surface);
 }
 
 ims-snackbar.ims-snackbar--accent .ims-snackbar__dismiss {
-    color: var(--ims-color-on-surface-muted);
+    color: var(--ims-color-on-surface);
 }
 
 ims-snackbar.ims-snackbar--accent .ims-snackbar__dismiss:hover {
@@ -247,9 +247,7 @@ ims-snackbar.ims-snackbar--dark .ims-snackbar__dismiss:hover {
 
 .cdk-overlay-pane.ims-snackbar-stack-item {
     border-radius: 0.8125rem;
-    box-shadow:
-        0 0.625rem 1.5rem color-mix(in srgb, var(--ims-color-on-surface) 14%, transparent),
-        0 0.125rem 0.4375rem color-mix(in srgb, var(--ims-color-on-surface) 8%, transparent);
+    box-shadow: none;
     transform:
         translateY(var(--ims-snackbar-stack-offset, 0))
         scale(var(--ims-snackbar-stack-scale, 1));
@@ -261,13 +259,23 @@ ims-snackbar.ims-snackbar--dark .ims-snackbar__dismiss:hover {
     will-change: opacity, transform, box-shadow;
 }
 
-.cdk-overlay-pane.ims-snackbar-stack-item.ims-snackbar-stack-item--stacked {
+.cdk-overlay-pane.ims-snackbar-stack-item:not(.ims-snackbar-stack-item--front) ims-snackbar.ims-snackbar {
+    box-shadow: none;
+}
+
+.cdk-overlay-pane.ims-snackbar-stack-item.ims-snackbar-stack-item--front {
+    box-shadow:
+        0 0.625rem 1.5rem color-mix(in srgb, var(--ims-color-on-surface) 14%, transparent),
+        0 0.125rem 0.4375rem color-mix(in srgb, var(--ims-color-on-surface) 8%, transparent);
+}
+
+.cdk-overlay-pane.ims-snackbar-stack-item.ims-snackbar-stack-item--front.ims-snackbar-stack-item--stacked {
     box-shadow:
         0 0.875rem 2rem color-mix(in srgb, var(--ims-color-on-surface) 18%, transparent),
         0 0.25rem 0.625rem color-mix(in srgb, var(--ims-color-on-surface) 10%, transparent);
 }
 
-.cdk-overlay-pane.ims-snackbar-stack-item.ims-snackbar-stack-item--stacked.ims-snackbar-stack-item--expanded {
+.cdk-overlay-pane.ims-snackbar-stack-item.ims-snackbar-stack-item--front.ims-snackbar-stack-item--stacked.ims-snackbar-stack-item--expanded {
     box-shadow:
         0 0.625rem 1.5rem color-mix(in srgb, var(--ims-color-on-surface) 14%, transparent),
         0 0.125rem 0.4375rem color-mix(in srgb, var(--ims-color-on-surface) 8%, transparent);
