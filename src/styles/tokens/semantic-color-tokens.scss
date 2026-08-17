@@ -11,6 +11,8 @@
     --ims-color-surface-input-disabled: var(--ims-color-neutral-100);
     // Enabled-like background for disabled controls whose value must remain easy to read.
     --ims-color-surface-input-readonly: var(--ims-color-neutral-50);
+    // High-contrast surface used for inverse treatments such as dark notifications.
+    --ims-color-surface-inverse: var(--ims-color-brand);
 
     // Compatibility aliases for existing components.
     --ims-color-surface: var(--ims-color-surface-panel);
@@ -28,6 +30,12 @@
     --ims-color-on-surface-disabled: var(--ims-color-neutral-400);
     // Readable text for readonly controls. Higher contrast than disabled, lower emphasis than editable.
     --ims-color-on-surface-readonly: var(--ims-color-on-surface-muted);
+    --ims-color-on-surface-inverse: #FFFFFF;
+    --ims-color-on-surface-inverse-muted: color-mix(
+        in srgb,
+        var(--ims-color-on-surface-inverse) 62%,
+        transparent
+    );
 
     // Default control border (inputs, buttons, cards).
     --ims-color-border: var(--ims-color-neutral-400);
@@ -38,6 +46,31 @@
     --ims-color-invalid: var(--ims-color-danger-600);
     // Focus halo for invalid form controls.
     --ims-color-invalid-focus-ring: var(--ims-color-danger-200);
+
+    // Status treatments shared by notifications, dialogs, banners, and badges.
+    --ims-color-status-info: var(--ims-color-brand);
+    --ims-color-status-info-subtle: var(--ims-color-primary-50);
+    --ims-color-status-info-border: var(--ims-color-primary-150);
+    --ims-color-on-status-info: var(--ims-color-primary-900);
+    --ims-color-status-info-accent: var(--ims-color-primary-200);
+
+    --ims-color-status-success: var(--ims-color-success-600);
+    --ims-color-status-success-subtle: var(--ims-color-success-50);
+    --ims-color-status-success-border: var(--ims-color-success-200);
+    --ims-color-on-status-success: var(--ims-color-success-800);
+    --ims-color-status-success-accent: var(--ims-color-success-300);
+
+    --ims-color-status-warning: var(--ims-color-warning-600);
+    --ims-color-status-warning-subtle: var(--ims-color-warning-50);
+    --ims-color-status-warning-border: var(--ims-color-warning-200);
+    --ims-color-on-status-warning: var(--ims-color-warning-800);
+    --ims-color-status-warning-accent: var(--ims-color-warning-400);
+
+    --ims-color-status-danger: var(--ims-color-danger-600);
+    --ims-color-status-danger-subtle: var(--ims-color-danger-50);
+    --ims-color-status-danger-border: var(--ims-color-danger-200);
+    --ims-color-on-status-danger: var(--ims-color-danger-800);
+    --ims-color-status-danger-accent: var(--ims-color-danger-300);
 
     // Primary accent: links, primary buttons, active/selected state, checked controls.
     --ims-color-interactive: var(--ims-color-primary-500);
