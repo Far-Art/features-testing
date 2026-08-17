@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
-import { ImsButton, ImsButtonDark, ImsButtonWhite } from '../../components/ims-button';
+import { ImsButton } from '../../components/ims-button';
 import {
   type IBaseOutput,
   type IMessage,
@@ -35,7 +35,7 @@ interface RiskDialogData {
   readonly deployments: number;
 }
 
-type DialogButtonReviewResult = 'dark' | 'default' | 'white';
+type DialogButtonReviewResult = 'default' | 'primary' | 'secondary';
 
 const LONG_DIALOG_CONTENT: string[] = [
   'The content region owns all overflow while the dialog title, toolbar, and actions remain fixed in their intrinsic grid rows.',
@@ -357,7 +357,7 @@ export class DialogRiskContent {
 @Component({
   selector: 'app-dialog-button-review-content',
   standalone: true,
-  imports: [ImsButton, ImsButtonDark, ImsButtonWhite, ImsDialogActions, ImsDialogContent],
+  imports: [ImsButton, ImsDialogActions, ImsDialogContent],
   template: `
     <ims-dialog-content>
       <p class="button-review-dialog__description">
@@ -367,10 +367,10 @@ export class DialogRiskContent {
 
     <ims-dialog-actions>
       <button ims-button icon="tune" (click)="select('default')">Default action</button>
-      <button ims-button-white icon="visibility" (click)="select('white')">
-        White action
+      <button ims-button ims-button-variation="secondary" icon="visibility" (click)="select('secondary')">
+        Secondary action
       </button>
-      <button ims-button-dark icon="check" (click)="select('dark')">Dark action</button>
+      <button ims-button ims-button-variation="primary" icon="check" (click)="select('primary')">Primary action</button>
     </ims-dialog-actions>
   `,
   styles: `

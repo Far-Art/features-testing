@@ -84,11 +84,11 @@
         <button ims-button (click)="reject()">
           {{ config.confirmationLabels?.no }}
         </button>
-        <button ims-button-dark (click)="confirm()">
+        <button ims-button ims-button-variation="primary" (click)="confirm()">
           {{ config.confirmationLabels?.yes }}
         </button>
       } @else {
-        <button ims-button-dark (click)="close()">סגור</button>
+        <button ims-button ims-button-variation="primary" (click)="close()">סגור</button>
       }
     </ims-dialog-actions>
   }

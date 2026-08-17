@@ -2,7 +2,7 @@ import {ChangeDetectionStrategy, Component, computed, Signal, signal, WritableSi
 import {CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
 import {ImsInputDirective} from '../../ims-input.directive';
 import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
-import {ImsButton, ImsButtonDark, ImsButtonIcon, ImsButtonWhite} from '../ims-button';
+import {ImsButton, ImsButtonIcon} from '../ims-button';
 import {ImsCheckbox} from '../ims-checkbox/ims-checkbox';
 import {ImsAbstractDialog, ImsDialogActions, ImsDialogContent} from '../ims-dialog';
 import {ImsScrollContainer} from '../ims-scroll-container/ims-scroll-container';
@@ -35,9 +35,7 @@ let nextDialogInstanceId = 0;
         CdkDropList,
         CdkDrag,
         ImsButton,
-        ImsButtonDark,
         ImsButtonIcon,
-        ImsButtonWhite,
         ImsCheckbox,
         ImsDialogActions,
         ImsDialogContent,

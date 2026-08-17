@@ -17,6 +17,7 @@ const ACTION_BLINK_MS = 110;
 
 type ImsButtonType = 'button' | 'submit' | 'reset';
 type ImsButtonActivationKey = 'Enter' | ' ';
+export type ImsButtonVariation = 'default' | 'primary' | 'secondary' | 'danger';
 
 @Directive({
     host: {
@@ -156,41 +157,16 @@ export abstract class ImsButtonBase {
     selector: 'button[ims-button]',
     standalone: true,
     host: {
-        class: 'ims-button--default',
+        '[class.ims-button--default]': 'variation() === "default"',
+        '[class.ims-button--dark]': 'variation() === "primary"',
+        '[class.ims-button--white]': 'variation() === "secondary"',
+        '[class.ims-button--danger]': 'variation() === "danger"',
         '[disabled]': 'interactionDisabled()'
     }
 })
-export class ImsButton extends ImsButtonBase {}
-
-@Directive({
-    selector: 'button[ims-button-dark]',
-    standalone: true,
-    host: {
-        class: 'ims-button--dark',
-        '[disabled]': 'interactionDisabled()'
-    }
-})
-export class ImsButtonDark extends ImsButtonBase {}
-
-@Directive({
-    selector: 'button[ims-button-white]',
-    standalone: true,
-    host: {
-        class: 'ims-button--white',
-        '[disabled]': 'interactionDisabled()'
-    }
-})
-export class ImsButtonWhite extends ImsButtonBase {}
-
-@Directive({
-    selector: 'button[ims-button-danger]',
-    standalone: true,
-    host: {
-        class: 'ims-button--danger',
-        '[disabled]': 'interactionDisabled()'
-    }
-})
-export class ImsButtonDanger extends ImsButtonBase {}
+export class ImsButton extends ImsButtonBase {
+    readonly variation = input<ImsButtonVariation>('default', {alias: 'ims-button-variation'});
+}
 
 /** Icon-only button. Give it an accessible name with `aria-label`, since there's no visible text. */
 @Directive({

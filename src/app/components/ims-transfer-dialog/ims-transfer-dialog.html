@@ -86,9 +86,9 @@
 </ims-dialog-content>
 
 <ims-dialog-actions class="ims-transfer-dialog__actions">
-  <button ims-button-white (click)="reset()">אפס</button>
+  <button ims-button ims-button-variation="secondary" (click)="reset()">אפס</button>
   <div class="ims-transfer-dialog__actions-group">
     <button ims-button (click)="cancel()">ביטול</button>
-    <button ims-button-dark (click)="confirm()">אישור</button>
+    <button ims-button ims-button-variation="primary" (click)="confirm()">אישור</button>
   </div>
 </ims-dialog-actions>
