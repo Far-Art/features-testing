@@ -50,16 +50,16 @@ export class ImsDock {
     readonly items = input.required<readonly ImsDockItem[]>();
 
     /** Resting icon size in pixels. */
-    readonly baseSize = input(48, {transform: numberAttribute});
+    readonly baseSize = input(36, {transform: numberAttribute});
 
     /** Fully magnified icon size in pixels. */
-    readonly maxSize = input(96, {transform: numberAttribute});
+    readonly maxSize = input(46.8, {transform: numberAttribute});
 
     /** Pixel radius around the pointer over which icons are magnified. */
-    readonly influenceRange = input(140, {transform: numberAttribute});
+    readonly influenceRange = input(80, {transform: numberAttribute});
 
     /** Gap between icons in pixels. */
-    readonly gap = input(12, {transform: numberAttribute});
+    readonly gap = input(8, {transform: numberAttribute});
 
     /** Emitted when an icon is activated (click or keyboard). */
     readonly activated = output<ImsDockItem>();

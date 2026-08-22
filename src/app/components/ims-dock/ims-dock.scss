@@ -15,9 +15,9 @@
      */
     contain: layout;
     /* Bar keeps a constant height; magnified icons overflow upward (macOS style). */
-    height: calc(var(--ims-dock-base-size, 48px) + 20px);
+    height: calc(var(--ims-dock-base-size, 36px) + 20px);
     overflow: visible;
-    gap: var(--ims-dock-gap, 12px);
+    gap: var(--ims-dock-gap);
     padding: 10px 14px;
     border-radius: 26px;
     background: color-mix(in srgb, var(--ims-color-surface-panel) 62%, transparent);

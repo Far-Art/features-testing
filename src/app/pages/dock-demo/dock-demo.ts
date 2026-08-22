@@ -37,13 +37,13 @@ export class DockDemo {
     ];
 
     /** Resting icon size in pixels. */
-    readonly baseSize = signal(48);
+    readonly baseSize = signal(36);
 
     /** Peak magnification multiplier (drives {@link maxSize}). */
-    readonly maxScale = signal(1.9);
+    readonly maxScale = signal(1.3);
 
     /** Pixel radius over which neighbours are magnified. */
-    readonly influenceRange = signal(140);
+    readonly influenceRange = signal(80);
 
     /** Fully magnified size derived from base size and scale. */
     readonly maxSize = computed(() => Math.round(this.baseSize() * this.maxScale()));
