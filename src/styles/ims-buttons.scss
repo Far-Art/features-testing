@@ -152,7 +152,11 @@
 
 .ims-button-icon {
   min-inline-size: var(--field-height);
-  padding: 0.5rem;
+  // No inset here. At --field-height (26px) a 0.5rem padding leaves an 8px
+  // content box — smaller than any icon — so an explicitly sized child
+  // overflows, grid centering degrades to start alignment, and the button's
+  // own `overflow: hidden` clips it. The icon's `size` sets the inset instead.
+  padding: 0;
   background: transparent;
   aspect-ratio: 1;
 }

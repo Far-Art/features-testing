@@ -63,6 +63,11 @@ export const routes: Routes = [
             )
     },
     {
+        path: 'icons',
+        loadComponent: () =>
+            import('./pages/icons-demo/icons-demo').then((module) => module.IconsDemo)
+    },
+    {
         path: '',
         pathMatch: 'full',
         redirectTo: 'forms'

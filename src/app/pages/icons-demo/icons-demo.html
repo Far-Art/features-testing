@@ -1,0 +1,118 @@
+<header class="page-heading">
+    <h1>אייקונים</h1>
+    <p>גלריית <code>&lt;ims-icon&gt;</code> — האייקונים מוטמעים בזמן בנייה מתוך src/assets/icons.</p>
+</header>
+
+<section class="icon-demo">
+    <h2>הסט המלא</h2>
+    <div class="icon-demo__grid">
+        @for (name of names; track name) {
+            <figure class="icon-demo__cell">
+                <ims-icon [name]="name" [size]="32"/>
+                <figcaption>{{ labelFor(name) }}</figcaption>
+            </figure>
+        }
+    </div>
+</section>
+
+<section class="icon-demo">
+    <h2>גדלים</h2>
+    <div class="icon-demo__row">
+        @for (size of sizes; track size) {
+            <figure class="icon-demo__cell">
+                <ims-icon name="floppy-disk" [size]="size"/>
+                <figcaption>{{ size }}px</figcaption>
+            </figure>
+        }
+    </div>
+</section>
+
+<section class="icon-demo">
+    <h2>גוונים</h2>
+    <div class="icon-demo__row">
+        @for (tone of tones; track tone) {
+            <figure class="icon-demo__cell">
+                <ims-icon name="multi-select" [tone]="tone" [size]="32"/>
+                <figcaption>{{ tone }}</figcaption>
+            </figure>
+        }
+    </div>
+
+    <div class="icon-demo__row icon-demo__row--navy">
+        <figure class="icon-demo__cell">
+            <ims-icon name="multi-select" tone="inverse" [size]="32"/>
+            <figcaption>inverse</figcaption>
+        </figure>
+        <figure class="icon-demo__cell">
+            <ims-icon name="floppy-disk" tone="inverse" [size]="32"/>
+            <figcaption>inverse</figcaption>
+        </figure>
+    </div>
+</section>
+
+<section class="icon-demo">
+    <h2>היסט שכבת הצבע</h2>
+    <div class="icon-demo__row">
+        @for (offset of offsets; track offset) {
+            <figure class="icon-demo__cell">
+                <ims-icon name="search" [offset]="offset" [size]="32"/>
+                <figcaption>{{ offset }}u</figcaption>
+            </figure>
+        }
+    </div>
+</section>
+
+<section class="icon-demo">
+    <h2>מצבי ריחוף</h2>
+    <p class="icon-demo__note">העברו עכבר לעכבר — האפקט מונע בשכבת הצבע בלבד.</p>
+    <div class="icon-demo__row">
+        @for (mode of hovers; track mode) {
+            <figure class="icon-demo__cell">
+                <ims-icon name="multi-select" [hover]="mode" [size]="48"/>
+                <figcaption>{{ mode }}</figcaption>
+            </figure>
+        }
+    </div>
+
+    <p class="icon-demo__note">ריחוף מאב: רחפו מעל כל הכפתור, לא רק מעל האייקון.</p>
+    <div class="icon-demo__row">
+        <button ims-button class="ims-icon-hover-group">
+            <ims-icon name="floppy-disk" hover="lift"/>
+            שמירה
+        </button>
+        <button ims-button-icon class="ims-icon-hover-group" aria-label="חיפוש">
+            <ims-icon name="search" hover="lift"/>
+        </button>
+    </div>
+</section>
+
+<section class="icon-demo">
+    <h2>בתוך רכיבים</h2>
+    <div class="icon-demo__row">
+        <button ims-button-icon aria-label="הוספה">
+            <ims-icon name="add"/>
+        </button>
+        <span class="icon-demo__inline">
+            <ims-icon name="user"/>
+            טקסט לצד אייקון
+        </span>
+    </div>
+</section>
+
+<section class="icon-demo">
+    <h2>נגישות</h2>
+    <div class="icon-demo__row">
+        <figure class="icon-demo__cell">
+            <ims-icon name="user" [size]="32"/>
+            <figcaption>דקורטיבי (aria-hidden)</figcaption>
+        </figure>
+        <figure class="icon-demo__cell">
+            <ims-icon name="floppy-disk" [size]="32" label="שמירת טופס"/>
+            <figcaption>label מפורש</figcaption>
+        </figure>
+        <figure class="icon-demo__cell">
+            <ims-icon name="search" [size]="32" [label]="true"/>
+            <figcaption>label מקובץ המקור</figcaption>
+        </figure>
+    </div>
+</section>

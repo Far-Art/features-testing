@@ -1,0 +1,122 @@
+// Global styles (ViewEncapsulation.None) — every selector stays under
+// `.ims-svg-icon` so nothing leaks. Note this is a different thing from the
+// `.ims-icon` class in src/styles/ims-icon.scss, which styles Material Symbols
+// ligature spans.
+.ims-svg-icon {
+    --ims-svg-icon-size: 18px;
+
+    // Duotone contract, read by every glyph in src/assets/icons.
+    --icon-tint: var(--ims-color-primary-150);
+    --icon-contour: var(--ims-color-primary-800);
+    --icon-surface: var(--ims-color-surface-panel);
+    --icon-offset: 2;
+    --icon-stroke-width: 1.5;
+
+    // Hover targets. They resolve to the resting values, so an icon with no
+    // hover mode resolves the hover rule to exactly its resting state.
+    --icon-hover-offset: var(--icon-offset);
+    --icon-hover-tint: var(--icon-tint);
+
+    display: inline-flex;
+    flex: none;
+    inline-size: var(--ims-svg-icon-size);
+    block-size: var(--ims-svg-icon-size);
+    line-height: 0;
+    vertical-align: middle;
+}
+
+.ims-svg-icon > svg {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+}
+
+// The source files also carry `transform="translate(1.5 1.5)"` as an attribute
+// so a standalone file looks right on its own. This rule is a CSS property, so
+// it wins over that attribute and keeps `--icon-offset` live.
+.ims-svg-icon .tint {
+    transform: translate(calc(var(--icon-offset) * 1px), calc(var(--icon-offset) * 1px));
+}
+
+// The only tone off the primary ramp: muted drains the hue entirely rather than
+// stepping down within it, which is what separates it from the default.
+// neutral-200 matches the default tint's lightness, so the glyph keeps its
+// weight; neutral-700 is the same token muted body text uses.
+.ims-svg-icon--muted {
+    --icon-tint: var(--ims-color-neutral-200);
+    --icon-contour: var(--ims-color-neutral-700);
+}
+
+.ims-svg-icon--accent {
+    --icon-tint: var(--ims-color-primary-250);
+    --icon-contour: var(--ims-color-primary-600);
+}
+
+.ims-svg-icon--success {
+    --icon-tint: var(--ims-color-success-200);
+    --icon-contour: var(--ims-color-success-800);
+}
+
+.ims-svg-icon--warning {
+    --icon-tint: var(--ims-color-warning-200);
+    --icon-contour: var(--ims-color-warning-800);
+}
+
+.ims-svg-icon--danger {
+    --icon-tint: var(--ims-color-danger-200);
+    --icon-contour: var(--ims-color-danger-800);
+}
+
+// Inverted treatment for navy surfaces, per the icon spec.
+.ims-svg-icon--inverse {
+    --icon-tint: var(--ims-color-primary-600);
+    --icon-contour: var(--ims-color-primary-50);
+    --icon-surface: var(--ims-color-brand);
+}
+
+// --- Hover -------------------------------------------------------------------
+// One rule animates the tint; each mode only redefines what it animates toward.
+// Icons carry no card, so the spec's `lift` is its off-register half only.
+
+.ims-svg-icon--hover-lift .tint,
+.ims-svg-icon--hover-register .tint,
+.ims-svg-icon--hover-flip .tint,
+.ims-svg-icon--hover-ink .tint {
+    transition:
+        transform 0.22s cubic-bezier(0.2, 0.7, 0.3, 1),
+        fill 0.22s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.ims-svg-icon--hover-lift {
+    --icon-hover-offset: calc(var(--icon-offset) * 2.1);
+}
+
+.ims-svg-icon--hover-register {
+    --icon-hover-offset: 0;
+}
+
+.ims-svg-icon--hover-flip {
+    --icon-hover-offset: calc(var(--icon-offset) * -1);
+}
+
+.ims-svg-icon--hover-ink {
+    --icon-hover-tint: color-mix(in oklch, var(--icon-tint), var(--icon-contour) 45%);
+}
+
+// Hovering the icon itself, or any ancestor opted in with `.ims-icon-hover-group`
+// — the common case being an icon inside a button, where the control's whole
+// hit area should drive the glyph.
+.ims-svg-icon:hover .tint,
+.ims-icon-hover-group:hover .ims-svg-icon .tint {
+    transform: translate(
+        calc(var(--icon-hover-offset) * 1px),
+        calc(var(--icon-hover-offset) * 1px)
+    );
+    fill: var(--icon-hover-tint);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ims-svg-icon .tint {
+        transition: none;
+    }
+}
