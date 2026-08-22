@@ -23,6 +23,34 @@ export const imsIconAdd: ImsIconDefinition = {
 </svg>`
 };
 
+export const imsIconArrowBack: ImsIconDefinition = {
+    name: 'arrow-back',
+    label: 'Arrow back',
+    source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
+  <title>Arrow back</title>
+  <circle class="tint" transform="translate(2 2)" cx="16" cy="16" r="12" fill="var(--icon-tint, #BFC2F4)"></circle>
+  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="16" cy="16" r="12"></circle>
+    <path d="M21.4 16H10.6"></path>
+    <path d="M15 11.6 10.6 16l4.4 4.4"></path>
+  </g>
+</svg>`
+};
+
+export const imsIconArrowForward: ImsIconDefinition = {
+    name: 'arrow-forward',
+    label: 'Arrow forward',
+    source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
+  <title>Arrow forward</title>
+  <circle class="tint" transform="translate(2 2)" cx="16" cy="16" r="12" fill="var(--icon-tint, #BFC2F4)"></circle>
+  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="16" cy="16" r="12"></circle>
+    <path d="M10.6 16h10.8"></path>
+    <path d="M17 11.6 21.4 16 17 20.4"></path>
+  </g>
+</svg>`
+};
+
 export const imsIconAutocomplete: ImsIconDefinition = {
     name: 'autocomplete',
     label: 'Autocomplete',
@@ -139,6 +167,25 @@ export const imsIconInfo: ImsIconDefinition = {
     <g transform="rotate(8 16 17.5)"><path d="M11.6 15.6c1-2.6 5-3.6 4.4-.8l-1.3 5.5c-.35 2 2.6 2.1 4.3-.3"></path></g>
   </g>
   <path d="M16.9 9.8h.01" fill="none" stroke="var(--icon-contour, #000570)" stroke-width="2.2" stroke-linecap="round"></path>
+</svg>`
+};
+
+export const imsIconInkPen: ImsIconDefinition = {
+    name: 'ink-pen',
+    label: 'Ink pen',
+    source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
+  <title>Ink pen</title>
+  <g class="tint" transform="translate(2 2)" fill="var(--icon-tint, #BFC2F4)">
+    <g transform="translate(16 16) scale(.9) translate(-16 -16)">
+      <path d="M23.4 4L22.7 4.3L21 6L18.8 4.4L17.2 4.4L16.7 4.7L9.1 12.5L10.9 14.3L18.1 7L18.9 8.1L8.6 18.5L4 23.2L4 27.6L4.4 28L9.1 27.9L27.7 9.3L28 8.4L27.6 7.5L24.5 4.4L23.4 4Z"></path>
+    </g>
+  </g>
+  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+    <g transform="translate(16 16) scale(.9) translate(-16 -16)">
+      <path d="M23.4 4L22.7 4.3L21 6L18.8 4.4L17.2 4.4L16.7 4.7L9.1 12.5L10.9 14.3L18.1 7L18.9 8.1L8.6 18.5L4 23.2L4 27.6L4.4 28L9.1 27.9L27.7 9.3L28 8.4L27.6 7.5L24.5 4.4L23.4 4Z"></path>
+      <path d="M23.4 7.4L24.7 8.6L17.7 15.5L16.4 14.3L23.4 7.4ZM14.3 16.5L15.6 17.7L8 25.2L6.8 25.3L6.7 24L14.3 16.5Z" fill="var(--icon-contour, #000570)" stroke="none"></path>
+    </g>
+  </g>
 </svg>`
 };
 
@@ -268,6 +315,8 @@ export const imsIconZoomIn: ImsIconDefinition = {
  */
 export const IMS_ICON_ALL: readonly ImsIconDefinition[] = [
     imsIconAdd,
+    imsIconArrowBack,
+    imsIconArrowForward,
     imsIconAutocomplete,
     imsIconClear,
     imsIconDanger,
@@ -276,6 +325,7 @@ export const IMS_ICON_ALL: readonly ImsIconDefinition[] = [
     imsIconFilter,
     imsIconFloppyDisk,
     imsIconInfo,
+    imsIconInkPen,
     imsIconList,
     imsIconMultiSelect,
     imsIconRemove,
