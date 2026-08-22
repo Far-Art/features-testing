@@ -8,7 +8,7 @@ import {
     numberAttribute
 } from '@angular/core';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
-import {IMS_ICONS, ImsIconName} from './ims-icon.generated';
+import {ImsIconDefinition} from './ims-icon.generated';
 
 export type ImsIconTone =
     | 'default'
@@ -34,12 +34,13 @@ const MIN_OFFSET = 0;
 const MAX_OFFSET = 3;
 
 /**
- * The markup is a static string from our own registry — nothing user-supplied is
- * concatenated into it, so there is no injection surface to sanitize away, and
- * sanitizing would strip the very SVG attributes the glyph is made of.
- * Cached per icon so repeated instances share one SafeHtml.
+ * The markup is a static string from our own generated module — nothing
+ * user-supplied is concatenated into it, so there is no injection surface to
+ * sanitize away, and sanitizing would strip the very SVG attributes the glyph is
+ * made of. Keyed by the icon object so repeated instances share one SafeHtml;
+ * weak so a lazily-loaded icon can be collected with its chunk.
  */
-const markupCache = new Map<ImsIconName, SafeHtml>();
+const markupCache = new WeakMap<ImsIconDefinition, SafeHtml>();
 
 @Component({
     selector: 'ims-icon',
@@ -75,8 +76,14 @@ const markupCache = new Map<ImsIconName, SafeHtml>();
 export class ImsIcon {
     private readonly sanitizer = inject(DomSanitizer);
 
-    /** Which glyph to render. Restricted to the names generated from src/assets/icons. */
-    readonly name = input.required<ImsIconName>();
+    /**
+     * The glyph to render — import the icon and pass it in:
+     * `import {imsIconAdd} from '.../ims-icon'` then `<ims-icon [icon]="imsIconAdd"/>`.
+     *
+     * This takes the icon itself rather than a name so unused glyphs tree-shake:
+     * a string lookup would force the whole set into the bundle.
+     */
+    readonly icon = input.required<ImsIconDefinition>();
 
     /**
      * Rendered edge length in px. Defaults to 18 to match the Material Symbols
@@ -126,18 +133,18 @@ export class ImsIcon {
 
     protected readonly accessibleLabel = computed(() => {
         const label = this.label();
-        if (label === true) return IMS_ICONS[this.name()].label;
+        if (label === true) return this.icon().label;
         if (label === false || label == null || label === '') return null;
         return label;
     });
 
     protected readonly markup = computed(() => {
-        const name = this.name();
-        const cached = markupCache.get(name);
+        const icon = this.icon();
+        const cached = markupCache.get(icon);
         if (cached) return cached;
 
-        const trusted = this.sanitizer.bypassSecurityTrustHtml(IMS_ICONS[name].source);
-        markupCache.set(name, trusted);
+        const trusted = this.sanitizer.bypassSecurityTrustHtml(icon.source);
+        markupCache.set(icon, trusted);
         return trusted;
     });
 }

@@ -6,10 +6,10 @@
 <section class="icon-demo">
     <h2>הסט המלא</h2>
     <div class="icon-demo__grid">
-        @for (name of names; track name) {
+        @for (icon of icons; track icon.name) {
             <figure class="icon-demo__cell">
-                <ims-icon [name]="name" [size]="32"/>
-                <figcaption>{{ labelFor(name) }}</figcaption>
+                <ims-icon [icon]="icon" [size]="32"/>
+                <figcaption>{{ icon.label }}</figcaption>
             </figure>
         }
     </div>
@@ -20,7 +20,7 @@
     <div class="icon-demo__row">
         @for (size of sizes; track size) {
             <figure class="icon-demo__cell">
-                <ims-icon name="floppy-disk" [size]="size"/>
+                <ims-icon [icon]="floppyDisk" [size]="size"/>
                 <figcaption>{{ size }}px</figcaption>
             </figure>
         }
@@ -32,7 +32,7 @@
     <div class="icon-demo__row">
         @for (tone of tones; track tone) {
             <figure class="icon-demo__cell">
-                <ims-icon name="multi-select" [tone]="tone" [size]="32"/>
+                <ims-icon [icon]="multiSelect" [tone]="tone" [size]="32"/>
                 <figcaption>{{ tone }}</figcaption>
             </figure>
         }
@@ -40,11 +40,11 @@
 
     <div class="icon-demo__row icon-demo__row--navy">
         <figure class="icon-demo__cell">
-            <ims-icon name="multi-select" tone="inverse" [size]="32"/>
+            <ims-icon [icon]="multiSelect" tone="inverse" [size]="32"/>
             <figcaption>inverse</figcaption>
         </figure>
         <figure class="icon-demo__cell">
-            <ims-icon name="floppy-disk" tone="inverse" [size]="32"/>
+            <ims-icon [icon]="floppyDisk" tone="inverse" [size]="32"/>
             <figcaption>inverse</figcaption>
         </figure>
     </div>
@@ -55,7 +55,7 @@
     <div class="icon-demo__row">
         @for (offset of offsets; track offset) {
             <figure class="icon-demo__cell">
-                <ims-icon name="search" [offset]="offset" [size]="32"/>
+                <ims-icon [icon]="search" [offset]="offset" [size]="32"/>
                 <figcaption>{{ offset }}u</figcaption>
             </figure>
         }
@@ -68,7 +68,7 @@
     <div class="icon-demo__row">
         @for (mode of hovers; track mode) {
             <figure class="icon-demo__cell">
-                <ims-icon name="multi-select" [hover]="mode" [size]="48"/>
+                <ims-icon [icon]="multiSelect" [hover]="mode" [size]="48"/>
                 <figcaption>{{ mode }}</figcaption>
             </figure>
         }
@@ -77,11 +77,11 @@
     <p class="icon-demo__note">ריחוף מאב: רחפו מעל כל הכפתור, לא רק מעל האייקון.</p>
     <div class="icon-demo__row">
         <button ims-button class="ims-icon-hover-group">
-            <ims-icon name="floppy-disk" hover="lift"/>
+            <ims-icon [icon]="floppyDisk" hover="lift"/>
             שמירה
         </button>
         <button ims-button-icon class="ims-icon-hover-group" aria-label="חיפוש">
-            <ims-icon name="search" hover="lift"/>
+            <ims-icon [icon]="search" hover="lift"/>
         </button>
     </div>
 </section>
@@ -90,10 +90,10 @@
     <h2>בתוך רכיבים</h2>
     <div class="icon-demo__row">
         <button ims-button-icon aria-label="הוספה">
-            <ims-icon name="add"/>
+            <ims-icon [icon]="add"/>
         </button>
         <span class="icon-demo__inline">
-            <ims-icon name="user"/>
+            <ims-icon [icon]="user"/>
             טקסט לצד אייקון
         </span>
     </div>
@@ -103,15 +103,15 @@
     <h2>נגישות</h2>
     <div class="icon-demo__row">
         <figure class="icon-demo__cell">
-            <ims-icon name="user" [size]="32"/>
+            <ims-icon [icon]="user" [size]="32"/>
             <figcaption>דקורטיבי (aria-hidden)</figcaption>
         </figure>
         <figure class="icon-demo__cell">
-            <ims-icon name="floppy-disk" [size]="32" label="שמירת טופס"/>
+            <ims-icon [icon]="floppyDisk" [size]="32" label="שמירת טופס"/>
             <figcaption>label מפורש</figcaption>
         </figure>
         <figure class="icon-demo__cell">
-            <ims-icon name="search" [size]="32" [label]="true"/>
+            <ims-icon [icon]="search" [size]="32" [label]="true"/>
             <figcaption>label מקובץ המקור</figcaption>
         </figure>
     </div>
