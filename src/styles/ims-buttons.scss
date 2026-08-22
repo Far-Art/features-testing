@@ -20,6 +20,8 @@
   isolation: isolate;
   overflow: hidden;
   display: inline-grid;
+  grid-auto-flow: column;
+  column-gap: 0.5rem;
   place-items: center;
   box-sizing: border-box;
   block-size: var(--field-height);
@@ -161,9 +163,8 @@
   aspect-ratio: 1;
 }
 
-.ims-button--with-symbol:not([ims-button-icon]) {
-  grid-auto-flow: column;
-  column-gap: 0.5rem;
+.ims-button--with-symbol:not([ims-button-icon]),
+.ims-button:has(> ims-duo-icon):not([ims-button-icon]) {
   padding-inline: 0.4rem 0.8rem;
 }
 

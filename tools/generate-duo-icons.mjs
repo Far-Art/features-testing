@@ -1,9 +1,9 @@
 /**
- * Generates `src/app/components/ims-icon/ims-icon.generated.ts` from the SVG
- * files in `src/app/components/ims-icon/icons`.
+ * Generates `src/app/components/ims-duo-icon/ims-duo-icon.generated.ts` from the SVG
+ * files in `src/app/components/ims-duo-icon/icons`.
  *
  * The folder is the single source of truth. Each file's markup is copied in
- * verbatim, because `<ims-icon>` injects it into the DOM unchanged — see that
+ * verbatim, because `<ims-duo-icon>` injects it into the DOM unchanged — see that
  * folder's README for the required shape of the root element.
  *
  * Run via `npm run icons`; `prestart` / `prebuild` keep it in sync automatically.
@@ -11,10 +11,10 @@
 import {readdirSync, readFileSync, writeFileSync} from 'node:fs';
 import {basename, join, resolve} from 'node:path';
 
-const COMPONENT_DIR = resolve('src/app/components/ims-icon');
+const COMPONENT_DIR = resolve('src/app/components/ims-duo-icon');
 const ICONS_DIR = join(COMPONENT_DIR, 'icons');
-const OUTPUT_FILE = join(COMPONENT_DIR, 'ims-icon.generated.ts');
-const COMPONENT_STYLES = join(COMPONENT_DIR, 'ims-icon.scss');
+const OUTPUT_FILE = join(COMPONENT_DIR, 'ims-duo-icon.generated.ts');
+const COMPONENT_STYLES = join(COMPONENT_DIR, 'ims-duo-icon.scss');
 const COLOR_TOKENS = resolve('src/styles/tokens/color-tokens.scss');
 
 /** Attributes the component relies on; a file missing any of them renders wrong. */
@@ -41,7 +41,7 @@ function readShippedDefaults() {
     const styles = readFileSync(COMPONENT_STYLES, 'utf8');
     const tokens = readFileSync(COLOR_TOKENS, 'utf8');
 
-    const base = styles.match(/\.ims-svg-icon\s*\{([\s\S]*?)\n\}/)?.[1] ?? '';
+    const base = styles.match(/\.ims-duo-icon\s*\{([\s\S]*?)\n\}/)?.[1] ?? '';
     const ramp = new Map(
         [...tokens.matchAll(/(--ims-color-[a-z0-9-]+):\s*(#[0-9A-Fa-f]{3,8});/g)]
             .map((m) => [m[1], m[2].toUpperCase()])
@@ -55,10 +55,10 @@ function readShippedDefaults() {
     };
 
     return {
-        tint: read('--icon-tint'),
-        contour: read('--icon-contour'),
-        strokeWidth: read('--icon-stroke-width'),
-        offset: read('--icon-offset')
+        tint: read('--ims-duo-icon-tint'),
+        contour: read('--ims-duo-icon-contour'),
+        strokeWidth: read('--ims-duo-icon-stroke-width'),
+        offset: read('--ims-duo-icon-offset')
     };
 }
 
@@ -95,13 +95,13 @@ function readIcon(file, defaults) {
         const pattern = new RegExp(String.raw`var\(${token},\s*([^)]*)\)`, 'g');
         for (const [, found] of source.matchAll(pattern)) {
             if (found.trim() !== expected) {
-                warn(`${token} fallback is ${found.trim()}, but ims-icon.scss ships ${expected}.`);
+                warn(`${token} fallback is ${found.trim()}, but ims-duo-icon.scss ships ${expected}.`);
             }
         }
     };
-    checkFallback('--icon-tint', defaults.tint);
-    checkFallback('--icon-contour', defaults.contour);
-    checkFallback('--icon-stroke-width', defaults.strokeWidth);
+    checkFallback('--ims-duo-icon-tint', defaults.tint);
+    checkFallback('--ims-duo-icon-contour', defaults.contour);
+    checkFallback('--ims-duo-icon-stroke-width', defaults.strokeWidth);
 
     const translate = source.match(/class="tint"[^>]*transform="translate\(([^)]*)\)"/)?.[1];
     if (!translate) {
@@ -110,7 +110,7 @@ function readIcon(file, defaults) {
         const [x, y] = translate.trim().split(/\s+/);
         if (x !== y) warn(`tint offset ${x}/${y} is not equal on both axes.`);
         else if (defaults.offset != null && x !== defaults.offset) {
-            warn(`tint offset is ${x}, but ims-icon.scss ships ${defaults.offset}.`);
+            warn(`tint offset is ${x}, but ims-duo-icon.scss ships ${defaults.offset}.`);
         }
     }
 
@@ -126,19 +126,19 @@ const icons = files.map((file) => readIcon(file, defaults)).filter(Boolean);
 for (const warning of warnings) console.warn(`  warn  ${warning}`);
 if (errors.length) {
     for (const error of errors) console.error(`  FAIL  ${error}`);
-    console.error(`\nims-icon: ${errors.length} icon(s) do not match the spec in ${ICONS_DIR}/README.md.`);
+    console.error(`\nims-duo-icon: ${errors.length} icon(s) do not match the spec in ${ICONS_DIR}/README.md.`);
     process.exit(1);
 }
 
 const toConstName = (name) =>
-    'imsIcon' + name.split('-').map((part) => part[0].toUpperCase() + part.slice(1)).join('');
+    'imsDuoIcon' + name.split('-').map((part) => part[0].toUpperCase() + part.slice(1)).join('');
 
 // One top-level const per icon, so a bundler can drop the ones nobody imports.
 // A single lookup object would be indivisible: reaching into it by a dynamic
 // name forces every glyph into the bundle.
 const declarations = icons
     .map(
-        (icon) => `export const ${toConstName(icon.name)}: ImsIconDefinition = {
+        (icon) => `export const ${toConstName(icon.name)}: ImsDuoIconDefinition = {
     name: '${icon.name}',
     label: '${icon.label}',
     source: \`${icon.source}\`
@@ -150,10 +150,10 @@ const allEntries = icons.map((icon) => `    ${toConstName(icon.name)}`).join(',\
 
 writeFileSync(
     OUTPUT_FILE,
-    `// AUTO-GENERATED by tools/generate-icons.mjs — do not edit by hand.
-// Source: src/app/components/ims-icon/icons/*.svg. Regenerate with \`npm run icons\`.
+    `// AUTO-GENERATED by tools/generate-duo-icons.mjs — do not edit by hand.
+// Source: src/app/components/ims-duo-icon/icons/*.svg. Regenerate with \`npm run icons\`.
 
-export interface ImsIconDefinition {
+export interface ImsDuoIconDefinition {
     /** Source filename without its extension. */
     readonly name: string;
     /** Human-readable name, used when an instance opts into \`label="true"\`. */
@@ -167,9 +167,9 @@ ${declarations}
 /**
  * Every icon, for galleries that genuinely need the whole set.
  * Importing this defeats tree-shaking by design — import the individual
- * \`imsIcon*\` consts instead unless you really do want all of them.
+ * \`imsDuoIcon*\` consts instead unless you really do want all of them.
  */
-export const IMS_ICON_ALL: readonly ImsIconDefinition[] = [
+export const IMS_DUO_ICON_ALL: readonly ImsDuoIconDefinition[] = [
 ${allEntries}
 ];
 `,
@@ -177,4 +177,4 @@ ${allEntries}
 );
 
 const suffix = warnings.length ? ` (${warnings.length} warning(s))` : '';
-console.log(`ims-icon: generated ${icons.length} icons -> ${OUTPUT_FILE}${suffix}`);
+console.log(`ims-duo-icon: generated ${icons.length} icons -> ${OUTPUT_FILE}${suffix}`);

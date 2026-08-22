@@ -1,6 +1,6 @@
 <header class="page-heading">
     <h1>אייקונים</h1>
-    <p>גלריית <code>&lt;ims-icon&gt;</code> — האייקונים מוטמעים בזמן בנייה מתוך src/assets/icons.</p>
+    <p>גלריית <code>&lt;ims-duo-icon&gt;</code> — האייקונים מוטמעים בזמן בנייה מתוך ims-duo-icon/icons.</p>
 </header>
 
 <section class="icon-demo">
@@ -8,7 +8,13 @@
     <div class="icon-demo__grid">
         @for (icon of icons; track icon.name) {
             <figure class="icon-demo__cell">
-                <ims-icon [icon]="icon" [size]="32"/>
+                @if (icon.name === 'warning') {
+                    <ims-duo-icon [icon]="icon" tone="warning" hover />
+                } @else if (icon.name === 'danger') {
+                    <ims-duo-icon [icon]="icon" tone="danger" hover />
+                } @else {
+                    <ims-duo-icon [icon]="icon" hover />
+                }
                 <figcaption>{{ icon.label }}</figcaption>
             </figure>
         }
@@ -20,7 +26,7 @@
     <div class="icon-demo__row">
         @for (size of sizes; track size) {
             <figure class="icon-demo__cell">
-                <ims-icon [icon]="floppyDisk" [size]="size"/>
+                <ims-duo-icon [icon]="floppyDisk" [size]="size" />
                 <figcaption>{{ size }}px</figcaption>
             </figure>
         }
@@ -32,7 +38,7 @@
     <div class="icon-demo__row">
         @for (tone of tones; track tone) {
             <figure class="icon-demo__cell">
-                <ims-icon [icon]="multiSelect" [tone]="tone" [size]="32"/>
+                <ims-duo-icon [icon]="multiSelect" [tone]="tone" />
                 <figcaption>{{ tone }}</figcaption>
             </figure>
         }
@@ -40,11 +46,11 @@
 
     <div class="icon-demo__row icon-demo__row--navy">
         <figure class="icon-demo__cell">
-            <ims-icon [icon]="multiSelect" tone="inverse" [size]="32"/>
+            <ims-duo-icon [icon]="multiSelect" tone="inverse" />
             <figcaption>inverse</figcaption>
         </figure>
         <figure class="icon-demo__cell">
-            <ims-icon [icon]="floppyDisk" tone="inverse" [size]="32"/>
+            <ims-duo-icon [icon]="floppyDisk" tone="inverse" />
             <figcaption>inverse</figcaption>
         </figure>
     </div>
@@ -55,7 +61,7 @@
     <div class="icon-demo__row">
         @for (offset of offsets; track offset) {
             <figure class="icon-demo__cell">
-                <ims-icon [icon]="search" [offset]="offset" [size]="32"/>
+                <ims-duo-icon [icon]="search" [offset]="offset" [size]="32"/>
                 <figcaption>{{ offset }}u</figcaption>
             </figure>
         }
@@ -63,25 +69,27 @@
 </section>
 
 <section class="icon-demo">
-    <h2>מצבי ריחוף</h2>
-    <p class="icon-demo__note">העברו עכבר לעכבר — האפקט מונע בשכבת הצבע בלבד.</p>
+    <h2>ריחוף</h2>
+    <p class="icon-demo__note">העברו עכבר — שכבת הצבע נדחפת לפי 2.1 מההיסט.</p>
     <div class="icon-demo__row">
-        @for (mode of hovers; track mode) {
-            <figure class="icon-demo__cell">
-                <ims-icon [icon]="multiSelect" [hover]="mode" [size]="48"/>
-                <figcaption>{{ mode }}</figcaption>
-            </figure>
-        }
+        <figure class="icon-demo__cell">
+            <ims-duo-icon [icon]="multiSelect" />
+            <figcaption>ללא ריחוף</figcaption>
+        </figure>
+        <figure class="icon-demo__cell">
+            <ims-duo-icon [icon]="multiSelect" hover />
+            <figcaption>hover</figcaption>
+        </figure>
     </div>
 
     <p class="icon-demo__note">ריחוף מאב: רחפו מעל כל הכפתור, לא רק מעל האייקון.</p>
     <div class="icon-demo__row">
-        <button ims-button class="ims-icon-hover-group">
-            <ims-icon [icon]="floppyDisk" hover="lift"/>
+        <button ims-button class="ims-duo-icon-hover-group">
+            <ims-duo-icon [icon]="floppyDisk" hover />
             שמירה
         </button>
-        <button ims-button-icon class="ims-icon-hover-group" aria-label="חיפוש">
-            <ims-icon [icon]="search" hover="lift"/>
+        <button ims-button-icon class="ims-duo-icon-hover-group" aria-label="חיפוש">
+            <ims-duo-icon [icon]="search" hover />
         </button>
     </div>
 </section>
@@ -90,10 +98,10 @@
     <h2>בתוך רכיבים</h2>
     <div class="icon-demo__row">
         <button ims-button-icon aria-label="הוספה">
-            <ims-icon [icon]="add"/>
+            <ims-duo-icon [icon]="add" />
         </button>
         <span class="icon-demo__inline">
-            <ims-icon [icon]="user"/>
+            <ims-duo-icon [icon]="user" />
             טקסט לצד אייקון
         </span>
     </div>
@@ -101,18 +109,21 @@
 
 <section class="icon-demo">
     <h2>נגישות</h2>
+    <p class="icon-demo__note">האייקון דקורטיבי תמיד. השם הנגיש שייך לפקד שמסביבו.</p>
     <div class="icon-demo__row">
         <figure class="icon-demo__cell">
-            <ims-icon [icon]="user" [size]="32"/>
-            <figcaption>דקורטיבי (aria-hidden)</figcaption>
+            <ims-duo-icon [icon]="user" [size]="120" offset="1" hover />
+            <figcaption>דקורטיבי</figcaption>
         </figure>
         <figure class="icon-demo__cell">
-            <ims-icon [icon]="floppyDisk" [size]="32" label="שמירת טופס"/>
-            <figcaption>label מפורש</figcaption>
+            <button ims-button-icon aria-label="שמירת טופס">
+                <ims-duo-icon [icon]="floppyDisk" />
+            </button>
+            <figcaption>aria-label על הכפתור</figcaption>
         </figure>
         <figure class="icon-demo__cell">
-            <ims-icon [icon]="search" [size]="32" [label]="true"/>
-            <figcaption>label מקובץ המקור</figcaption>
+            <ims-duo-icon [icon]="search" [size]="32" role="img" aria-label="חיפוש" />
+            <figcaption>role + aria-label על האייקון</figcaption>
         </figure>
     </div>
 </section>

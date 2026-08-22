@@ -2,15 +2,16 @@ import {
     ChangeDetectionStrategy,
     Component,
     ViewEncapsulation,
+    booleanAttribute,
     computed,
     inject,
     input,
     numberAttribute
 } from '@angular/core';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
-import {ImsIconDefinition} from './ims-icon.generated';
+import {ImsDuoIconDefinition} from './ims-duo-icon.generated';
 
-export type ImsIconTone =
+export type ImsDuoIconTone =
     | 'default'
     | 'muted'
     | 'accent'
@@ -18,17 +19,6 @@ export type ImsIconTone =
     | 'warning'
     | 'danger'
     | 'inverse';
-
-/**
- * Hover treatments from the icon spec, all driven by the off-register tint —
- * `lift` pushes it to 2.1x offset, `register` pulls it back into register,
- * `flip` throws it to the opposite corner, `ink` deepens it toward the contour.
- *
- * Defaults to `none`: most icons are decorative and sit inside a control that
- * owns the hover feedback, so an icon that animates on its own is usually wrong.
- * Opt in per instance, or hover an ancestor marked `.ims-icon-hover-group`.
- */
-export type ImsIconHover = 'none' | 'lift' | 'register' | 'flip' | 'ink';
 
 const MIN_OFFSET = 0;
 const MAX_OFFSET = 3;
@@ -40,78 +30,92 @@ const MAX_OFFSET = 3;
  * made of. Keyed by the icon object so repeated instances share one SafeHtml;
  * weak so a lazily-loaded icon can be collected with its chunk.
  */
-const markupCache = new WeakMap<ImsIconDefinition, SafeHtml>();
+const markupCache = new WeakMap<ImsDuoIconDefinition, SafeHtml>();
 
+/**
+ * A duotone icon. Purely presentational: the glyph is always decorative, because
+ * every source file's `<svg>` root carries `aria-hidden="true"` and the host adds
+ * no role of its own.
+ *
+ * Naming is the consumer's job, which is where it belongs — an icon-only control
+ * should be named on the control, not the glyph:
+ *
+ * ```html
+ * <button ims-button-icon aria-label="Save"><ims-duo-icon [icon]="save"/></button>
+ * ```
+ *
+ * For a standalone icon that must carry meaning with no control around it, put
+ * the role and name on the element itself:
+ *
+ * ```html
+ * <ims-duo-icon [icon]="warning" role="img" aria-label="Overdue"/>
+ * ```
+ */
 @Component({
-    selector: 'ims-icon',
+    selector: 'ims-duo-icon',
     standalone: true,
     template: '',
-    styleUrl: './ims-icon.scss',
+    styleUrl: './ims-duo-icon.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
     // The glyph is injected as innerHTML, so it never receives the component's
     // scoping attribute. Styles are global and every selector is prefixed with
-    // `.ims-svg-icon` to keep them contained.
+    // `.ims-duo-icon` to keep them contained.
     encapsulation: ViewEncapsulation.None,
     host: {
-        class: 'ims-svg-icon',
-        '[class.ims-svg-icon--muted]': 'tone() === "muted"',
-        '[class.ims-svg-icon--accent]': 'tone() === "accent"',
-        '[class.ims-svg-icon--success]': 'tone() === "success"',
-        '[class.ims-svg-icon--warning]': 'tone() === "warning"',
-        '[class.ims-svg-icon--danger]': 'tone() === "danger"',
-        '[class.ims-svg-icon--inverse]': 'tone() === "inverse"',
-        '[class.ims-svg-icon--hover-lift]': 'hover() === "lift"',
-        '[class.ims-svg-icon--hover-register]': 'hover() === "register"',
-        '[class.ims-svg-icon--hover-flip]': 'hover() === "flip"',
-        '[class.ims-svg-icon--hover-ink]': 'hover() === "ink"',
-        '[style.--ims-svg-icon-size]': 'sizePx()',
-        '[style.--icon-stroke-width]': 'resolvedStrokeWidth()',
-        '[style.--icon-offset]': 'resolvedOffset()',
-        '[attr.role]': 'accessibleLabel() ? "img" : null',
-        '[attr.aria-label]': 'accessibleLabel()',
-        '[attr.aria-hidden]': 'accessibleLabel() ? null : "true"',
+        class: 'ims-duo-icon',
+        '[class.ims-duo-icon--muted]': 'tone() === "muted"',
+        '[class.ims-duo-icon--accent]': 'tone() === "accent"',
+        '[class.ims-duo-icon--success]': 'tone() === "success"',
+        '[class.ims-duo-icon--warning]': 'tone() === "warning"',
+        '[class.ims-duo-icon--danger]': 'tone() === "danger"',
+        '[class.ims-duo-icon--inverse]': 'tone() === "inverse"',
+        '[class.ims-duo-icon--hover]': 'hover()',
+        '[style.--ims-duo-icon-size]': 'sizePx()',
+        '[style.--ims-duo-icon-stroke-width]': 'resolvedStrokeWidth()',
+        '[style.--ims-duo-icon-offset]': 'resolvedOffset()',
         '[innerHTML]': 'markup()'
     }
 })
-export class ImsIcon {
+export class ImsDuoIcon {
     private readonly sanitizer = inject(DomSanitizer);
 
     /**
      * The glyph to render — import the icon and pass it in:
-     * `import {imsIconAdd} from '.../ims-icon'` then `<ims-icon [icon]="imsIconAdd"/>`.
+     * `import {imsDuoIconAdd} from '.../ims-icon'` then `<ims-duo-icon [icon]="imsDuoIconAdd"/>`.
      *
      * This takes the icon itself rather than a name so unused glyphs tree-shake:
      * a string lookup would force the whole set into the bundle.
      */
-    readonly icon = input.required<ImsIconDefinition>();
+    readonly icon = input.required<ImsDuoIconDefinition>();
 
     /**
      * Rendered edge length in px. Defaults to 18 to match the Material Symbols
      * ligature size used elsewhere in the system (`--ims-icon-size: 1.125rem`).
      */
-    readonly size = input(18, {transform: numberAttribute});
+    readonly size = input(22, {transform: numberAttribute});
 
     /** Duotone palette, resolved from the `--ims-color-*` ramps. */
-    readonly tone = input<ImsIconTone>('default');
-
-    /**
-     * Accessible name. Leave unset for decorative icons — the host is then
-     * `aria-hidden`, which is the right default next to a visible text label.
-     * Pass `true` to reuse the glyph's own name from the source `<title>`.
-     */
-    readonly label = input<string | boolean | null>(null);
+    readonly tone = input<ImsDuoIconTone>('default');
 
     /**
      * Off-register distance of the tint layer, in user units. Spec range 0–3.
-     * Unset defers to `--icon-offset` in the stylesheet, so the house default
-     * lives in one place and can be themed per surface.
+     * Unset defers to `--ims-duo-icon-offset` in the stylesheet, so the house
+     * default lives in one place and can be themed per surface.
      */
     readonly offset = input<number | null, unknown>(null, {
         transform: (value): number | null => (value == null ? null : numberAttribute(value))
     });
 
-    /** Hover treatment. Also fires when an ancestor marked `.ims-icon-hover-group` is hovered. */
-    readonly hover = input<ImsIconHover>('none');
+    /**
+     * Opt into the lift treatment: on hover the tint pushes to 2.1x its offset.
+     *
+     * Off by default — most icons are decorative and sit inside a control that
+     * already owns the hover feedback, so an icon that animates on its own is
+     * usually wrong. Also fires when an ancestor marked
+     * `.ims-duo-icon-hover-group` is hovered, which is what you want for an icon
+     * inside a button.
+     */
+    readonly hover = input(false, {transform: booleanAttribute});
 
 /** Per-instance stroke weight. Unset defers to `--icon-stroke-width`. */
     readonly strokeWidth = input<number | null, unknown>(null, {
@@ -129,13 +133,6 @@ export class ImsIcon {
     protected readonly resolvedStrokeWidth = computed(() => {
         const strokeWidth = this.strokeWidth();
         return strokeWidth === null ? null : String(strokeWidth);
-    });
-
-    protected readonly accessibleLabel = computed(() => {
-        const label = this.label();
-        if (label === true) return this.icon().label;
-        if (label === false || label == null || label === '') return null;
-        return label;
     });
 
     protected readonly markup = computed(() => {

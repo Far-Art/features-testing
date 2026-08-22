@@ -1,0 +1,98 @@
+// Global styles (ViewEncapsulation.None) — the glyph is injected as innerHTML
+// and so never gets the component's scoping attribute. Every selector stays
+// under `.ims-duo-icon` to keep them contained. Unrelated to the `.ims-icon`
+// class in src/styles/ims-icon.scss, which styles Material Symbols ligatures.
+.ims-duo-icon {
+    --ims-duo-icon-size: 18px;
+
+    // Duotone contract, read by every glyph in src/assets/icons.
+    --ims-duo-icon-tint: var(--ims-color-primary-150);
+    --ims-duo-icon-contour: var(--ims-color-primary-800);
+    --ims-duo-icon-surface: var(--ims-color-surface-panel);
+    --ims-duo-icon-offset: 2;
+    --ims-duo-icon-stroke-width: 1.5;
+
+    // Where the tint travels on hover. Only applied when the icon opts in.
+    --ims-duo-icon-hover-offset: calc(var(--ims-duo-icon-offset) * 2.1);
+
+    display: inline-flex;
+    flex: none;
+    inline-size: var(--ims-duo-icon-size);
+    block-size: var(--ims-duo-icon-size);
+    line-height: 0;
+    vertical-align: middle;
+}
+
+.ims-duo-icon > svg {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+}
+
+// The source files also carry `transform="translate(1.5 1.5)"` as an attribute
+// so a standalone file looks right on its own. This rule is a CSS property, so
+// it wins over that attribute and keeps `--ims-duo-icon-offset` live.
+.ims-duo-icon .tint {
+    transform: translate(calc(var(--ims-duo-icon-offset) * 1px), calc(var(--ims-duo-icon-offset) * 1px));
+}
+
+// The only tone off the primary ramp: muted drains the hue entirely rather than
+// stepping down within it, which is what separates it from the default.
+// neutral-200 matches the default tint's lightness, so the glyph keeps its
+// weight; neutral-700 is the same token muted body text uses.
+.ims-duo-icon--muted {
+    --ims-duo-icon-tint: var(--ims-color-neutral-200);
+    --ims-duo-icon-contour: var(--ims-color-neutral-700);
+}
+
+.ims-duo-icon--accent {
+    --ims-duo-icon-tint: var(--ims-color-primary-250);
+    --ims-duo-icon-contour: var(--ims-color-primary-600);
+}
+
+.ims-duo-icon--success {
+    --ims-duo-icon-tint: var(--ims-color-success-200);
+    --ims-duo-icon-contour: var(--ims-color-success-800);
+}
+
+.ims-duo-icon--warning {
+    --ims-duo-icon-tint: var(--ims-color-warning-200);
+    --ims-duo-icon-contour: var(--ims-color-warning-800);
+}
+
+.ims-duo-icon--danger {
+    --ims-duo-icon-tint: var(--ims-color-danger-200);
+    --ims-duo-icon-contour: var(--ims-color-danger-800);
+}
+
+// Inverted treatment for navy surfaces, per the icon spec.
+.ims-duo-icon--inverse {
+    --ims-duo-icon-tint: var(--ims-color-primary-600);
+    --ims-duo-icon-contour: var(--ims-color-primary-50);
+    --ims-duo-icon-surface: var(--ims-color-brand);
+}
+
+// --- Hover -------------------------------------------------------------------
+// One treatment: the tint pushes further off-register, which reads as the glyph
+// lifting off the page. Icons carry no card, so there is nothing else to move.
+
+.ims-duo-icon--hover .tint {
+    transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+// Hovering the icon itself, or any ancestor opted in with
+// `.ims-duo-icon-hover-group` — the common case being an icon inside a button,
+// where the control's whole hit area should drive the glyph.
+.ims-duo-icon--hover:hover .tint,
+.ims-duo-icon-hover-group:hover .ims-duo-icon--hover .tint {
+    transform: translate(
+        calc(var(--ims-duo-icon-hover-offset) * 1px),
+        calc(var(--ims-duo-icon-hover-offset) * 1px)
+    );
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ims-duo-icon .tint {
+        transition: none;
+    }
+}
