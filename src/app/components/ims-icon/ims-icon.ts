@@ -8,7 +8,7 @@ import {
     numberAttribute
 } from '@angular/core';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
-import {IMS_ICONS, ImsIconName} from './ims-icon.registry';
+import {IMS_ICONS, ImsIconName} from './ims-icon.generated';
 
 export type ImsIconTone =
     | 'default'

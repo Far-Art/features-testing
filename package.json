@@ -3,7 +3,10 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "icons": "node tools/generate-icons.mjs",
+    "prestart": "npm run icons",
     "start": "ng serve",
+    "prebuild": "npm run icons",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",

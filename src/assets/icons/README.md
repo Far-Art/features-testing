@@ -1,10 +1,12 @@
 # Duotone icon construction rules
 
-Every new icon in this library must follow the spec below. Live reference: `Insurance Icons.dc.html`.
+Every new icon in this library must follow the spec below. Live reference: the
+`/icons` demo page (`src/app/pages/icons-demo`), which renders the whole set
+from the registry along with every tone, size and hover mode.
 
 ## The file shape
 `<ims-icon>` injects each file's markup into the DOM **verbatim** — the strings in
-`ims-icon.registry.ts` are byte-for-byte copies of these files, with nothing
+`ims-icon.generated.ts` are byte-for-byte copies of these files, with nothing
 stripped, rewritten, or wrapped. So the file is not just a design asset: it is
 the rendered markup. It must look exactly like this:
 
@@ -34,10 +36,12 @@ Every attribute on that root element is load-bearing:
 into the registry's `label`. It is inert at runtime because the root is
 `aria-hidden`.
 
-Colors, stroke weight and offset are written as `var(--token, fallback)`. The
-fallback is what a designer sees opening the file directly, so it must match the
-shipped default — if you retune a default in `ims-icon.scss`, update the
-fallbacks here too.
+Colors, stroke weight and offset are written as `var(--token, fallback)`. There
+is no stylesheet in this folder — the fallback **is** the entire standalone
+appearance, and it is what a designer sees opening the file directly. So it must
+match the shipped default. `npm run icons` checks this for you: it resolves the
+real defaults out of `ims-icon.scss` and warns on any file whose fallback or tint
+offset has fallen behind.
 
 ## Grid & geometry
 - Canvas: `viewBox="0 0 32 32"`. Live area 4–28; **2u minimum clear space** on all sides (an icon may touch 4 / 28 but never cross).
@@ -47,7 +51,7 @@ fallbacks here too.
 - Counters (gaps between strokes) never below 1.6u so the glyph survives 16px.
 
 ## Two layers, in this order
-1. **Tint layer** — the glyph's *silhouette only* (outer body shapes, no interior detail), `class="tint"`, `fill="var(--icon-tint, #BFC2F4)"`. The `.tint` class carries the off-register translate as a CSS rule; the same `transform="translate(2 2)"` attribute is kept on the element so a standalone file still reads correctly, and the CSS property overrides it wherever the stylesheet is loaded.
+1. **Tint layer** — the glyph's *silhouette only* (outer body shapes, no interior detail), `class="tint"`, `fill="var(--icon-tint, #BFC2F4)"`. The `.tint` class carries the off-register translate as a CSS rule; the same `transform="translate(2 2)"` attribute is kept on the element so a standalone file still reads correctly. In the app `ims-icon.scss` restates it as a CSS property, which outranks the attribute and keeps `--icon-offset` live.
 2. **Contour layer** — `fill="none"`, `stroke="var(--icon-contour, #000570)"`, `stroke-width="var(--icon-stroke-width, 1.5)"`. Outer contour repeats the silhouette path exactly, then interior detail.
 
 Optional **mask layer** between them: `fill="var(--icon-surface, #fff)"` shapes that knock the tint out of interior windows (floppy shutter, label panel, front checkbox). Use only when the interior must read as a separate plane.
@@ -60,7 +64,15 @@ Never add: gradients, drop shadows, white specular highlights, extra mid-tone sh
 | Tint | `#BFC2F4` (primary-150) | primary-100 → primary-250 |
 | Contour | `#000570` (primary-800) | brand, primary-800, primary-700 |
 | Muted | tint `#C8C8CD` (neutral-200), contour `#454550` (neutral-700) | neutral ramp only |
+| Accent | tint primary-250, contour primary-600 | — |
+| Success / Warning / Danger | tint `<ramp>-200`, contour `<ramp>-800` | the matching semantic ramp |
 | Inverted on navy | tint `#000AD2`, contour `#EAEBFB` | — |
+
+Tones are classes on the host, not something you draw in — a glyph is authored
+once in the default palette and re-toned via `tone="…"`. The semantic ramps are
+the second documented exception to the primary-only rule below, and exist so
+`danger` / `warning` / `info` glyphs can carry their own hue where the meaning
+depends on it.
 
 Only tokens from the `--ims-color-primary-*` ramp and `--ims-color-brand`. No new hues — with one exception: the **muted** tone drops to `--ims-color-neutral-*` instead of stepping down within the primary ramp. Stepping down kept it too close to the default to read as a separate tone; draining the hue is what makes it legible as "muted".
 
@@ -83,9 +95,9 @@ somewhere below ~16px. Keep the counters rule above (never below 1.6u) and treat
 - Detail must be structural (seams, slots, tick marks, checks), never texture.
 
 ## Naming & markup
-- Card label: sentence case, one or two words ("Floppy disk", "Multi-select").
-- Icons ship as standalone `<svg>` files in this folder. `tools/generate-icons.mjs` inlines them into `ims-icon.generated.ts`; render them with `<ims-icon name="…">`. They carry no card, frame, or hover treatment — the consumer owns any surface around the glyph.
-- Metaphor consistency: reuse existing primitives across the set — the 12u circle (add / remove), the 5.6u chip (list / select), the 3.2u-radius card (containers).
+- `<title>`: sentence case, one or two words ("Floppy disk", "Multi-select"). It becomes the registry `label`.
+- Icons live as standalone `<svg>` files here and are inlined into `ims-icon.generated.ts` by `tools/generate-icons.mjs`; render them with `<ims-icon name="…">`. This folder is the single source of truth — never edit the generated file. They carry no card, frame, or hover treatment of their own; the consumer owns any surface around the glyph.
+- Metaphor consistency: reuse existing primitives across the set — the r=12 circle (add / remove / clear / danger / expand / info), the 5.6u chip with rx=1.4 (list), the 9.6u rounded square with rx=2 (multi-select), the r=9.8 lens (search / zoom-in).
 
 ## Using the component
 `<ims-icon>` takes the defaults below; each maps to one custom property, and
@@ -125,16 +137,13 @@ moves the glyph, not just the icon's own box — mark the ancestor
 ## Adding an icon
 1. Draw it to the rules above and save as `kebab-case.svg` here, matching **The
    file shape** exactly, with a `<title>` holding the sentence-case label.
-2. Paste the file's full contents into `IMS_ICONS` in
-   `src/app/components/ims-icon/ims-icon.registry.ts`, keyed by the filename
-   without its extension:
+2. Run `npm run icons` (also wired to `prestart` / `prebuild`, so a normal
+   `npm start` or `npm run build` picks it up on its own).
+3. The name joins the `ImsIconName` union automatically — a typo at a call site
+   is then a compile error.
 
-   ```ts
-   'my-icon': {
-       label: 'My icon',
-       source: `<svg …>…</svg>`
-   }
-   ```
-3. That's it — the key joins the `ImsIconName` union automatically, so a typo at
-   a call site is a compile error. There is no build step and no generator; the
-   copy is deliberate, which is why the two must be kept identical by hand.
+The generator validates before it writes. It **fails the build** on anything that
+would render wrong — a missing root attribute, a name that isn't kebab-case, an
+absent `<title>`, or other than exactly one `.tint` layer — and **warns** on
+anything that only affects the standalone file, such as a colour fallback or tint
+offset that no longer matches `ims-icon.scss`.
