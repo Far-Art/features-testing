@@ -1,4 +1,15 @@
 import {ChangeDetectionStrategy, Component, computed, signal} from '@angular/core';
+import {
+    imsDuoIconEdit,
+    imsDuoIconFilter,
+    imsDuoIconFloppyDisk,
+    imsDuoIconInfo,
+    imsDuoIconList,
+    imsDuoIconMultiSelect,
+    imsDuoIconRemove,
+    imsDuoIconSearch,
+    imsDuoIconUser
+} from '../../components/ims-duo-icon';
 import {ImsDock} from '../../components/ims-dock/ims-dock';
 import {ImsDockItem} from '../../components/ims-dock/ims-dock.model';
 
@@ -14,15 +25,15 @@ import {ImsDockItem} from '../../components/ims-dock/ims-dock.model';
 export class DockDemo {
     /** Demo icons rendered in the dock. */
     readonly items: readonly ImsDockItem[] = [
-        {id: 'finder', label: 'מאתר', icon: '🧭'},
-        {id: 'mail', label: 'דואר', icon: '✉️'},
-        {id: 'calendar', label: 'יומן', icon: '📅'},
-        {id: 'photos', label: 'תמונות', icon: '🌄'},
-        {id: 'music', label: 'מוזיקה', icon: '🎵'},
-        {id: 'maps', label: 'מפות', icon: '🗺️'},
-        {id: 'notes', label: 'פתקים', icon: '📝'},
-        {id: 'settings', label: 'הגדרות', icon: '⚙️'},
-        {id: 'trash', label: 'אשפה', icon: '🗑️', disabled: true}
+        {id: 'search', label: 'חיפוש', icon: imsDuoIconSearch},
+        {id: 'profile', label: 'פרופיל', icon: imsDuoIconUser},
+        {id: 'list', label: 'רשימה', icon: imsDuoIconList},
+        {id: 'selection', label: 'בחירה', icon: imsDuoIconMultiSelect},
+        {id: 'save', label: 'שמירה', icon: imsDuoIconFloppyDisk},
+        {id: 'edit', label: 'עריכה', icon: imsDuoIconEdit},
+        {id: 'filter', label: 'סינון', icon: imsDuoIconFilter},
+        {id: 'info', label: 'מידע', icon: imsDuoIconInfo},
+        {id: 'remove', label: 'הסרה', icon: imsDuoIconRemove, disabled: true}
     ];
 
     /** Resting icon size in pixels. */

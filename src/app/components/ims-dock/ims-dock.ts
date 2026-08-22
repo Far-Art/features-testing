@@ -17,6 +17,9 @@ import {magnifiedSize} from './dock-magnify';
 import {ImsDockItem as ImsDockItemComponent} from './ims-dock-item';
 import {ImsDockItem} from './ims-dock.model';
 
+const ENTER_RAMP_DURATION_MS = 140;
+const LEAVE_RAMP_DURATION_MS = 200;
+
 /**
  * A macOS Dock-style navbar.
  *
@@ -38,8 +41,7 @@ import {ImsDockItem} from './ims-dock.model';
     host: {
         class: 'ims-dock',
         '[style.--ims-dock-gap.px]': 'gap()',
-        '[style.--ims-dock-base-size.px]': 'baseSize()',
-        '[style.--ims-dock-transition]': 'itemTransition()'
+        '[style.--ims-dock-base-size.px]': 'baseSize()'
     },
     changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -84,15 +86,11 @@ export class ImsDock {
     /** True when the user prefers reduced motion — magnification is then disabled. */
     private readonly reducedMotion = signal(false);
 
-    /** Eased size tween used when the wave ramps in (enter) and out (leave). */
-    private readonly easedTransition =
-        'width 200ms cubic-bezier(0.22, 1, 0.36, 1), height 200ms cubic-bezier(0.22, 1, 0.36, 1)';
+    /** Current magnification amplitude; pointer position remains independently responsive. */
+    private readonly magnificationProgress = signal(0);
 
-    /** True once the enter ramp has finished, so live tracking becomes instant. */
-    private readonly tracking = signal(false);
-
-    /** Timer that flips {@link tracking} on after the enter ramp completes. */
-    private trackTimer: ReturnType<typeof setTimeout> | null = null;
+    /** Active animation frame for the entry/exit amplitude ramp. */
+    private rampFrame: number | null = null;
 
     /** Keeps the wave alive when the cursor passes through gaps above the row. */
     private readonly globalPointerMove = (event: MouseEvent) => this.onGlobalPointerMove(event);
@@ -102,16 +100,6 @@ export class ImsDock {
 
     /** True while global pointer listeners are installed for the active hover gesture. */
     private trackingPointerGlobally = false;
-
-    /**
-     * Size transition for icons:
-     * - entering / leaving → eased ramp so the wave grows and settles smoothly;
-     * - actively tracking the pointer → instant, so the wave stays glued to the cursor.
-     * Inherited by items through a CSS variable.
-     */
-    readonly itemTransition = computed(() =>
-        this.pointer() !== null && this.tracking() ? 'none' : this.easedTransition
-    );
 
     /** Magnified pixel size for each icon, in item order. */
     readonly sizes = computed<readonly number[]>(() => {
@@ -123,9 +111,11 @@ export class ImsDock {
         }
         const range = this.influenceRange();
         const max = this.maxSize();
+        const progress = this.magnificationProgress();
         return this.items().map((_, index) => {
             const center = centers[index] ?? 0;
-            return magnifiedSize(Math.abs(pointer - center), range, base, max);
+            const target = magnifiedSize(Math.abs(pointer - center), range, base, max);
+            return base + (target - base) * progress;
         });
     });
 
@@ -151,28 +141,22 @@ export class ImsDock {
             this.destroyRef.onDestroy(() => {
                 media.removeEventListener('change', syncMotion);
                 window.removeEventListener('resize', onResize);
-                this.endPointerGesture();
+                this.endPointerGesture(false);
             });
         });
     }
 
     onPointerEnter(event: MouseEvent): void {
-        if (this.pointer() !== null) {
-            this.startGlobalPointerTracking();
+        if (this.trackingPointerGlobally) {
             this.onPointerMove(event);
             return;
         }
-        // Snapshot the rest frame now, while the dock is still at rest, so the pointer
-        // and the resting centres share one coordinate frame for this whole gesture.
-        this.measureRestingCenters();
-        // Ramp the wave in smoothly, then switch to instant tracking once it settles.
-        this.tracking.set(false);
+        if (this.pointer() === null) {
+            this.measureRestingCenters();
+        }
         this.startGlobalPointerTracking();
         this.onPointerMove(event);
-        if (this.trackTimer !== null) {
-            clearTimeout(this.trackTimer);
-        }
-        this.trackTimer = setTimeout(() => this.tracking.set(true), 200);
+        this.animateMagnification(1, ENTER_RAMP_DURATION_MS);
     }
 
     onPointerMove(event: MouseEvent): void {
@@ -217,22 +201,26 @@ export class ImsDock {
         this.trackingPointerGlobally = false;
     }
 
-    private endPointerGesture(): void {
-        if (this.trackTimer !== null) {
-            clearTimeout(this.trackTimer);
-            this.trackTimer = null;
-        }
+    private endPointerGesture(measureAfterSettle = true): void {
         this.stopGlobalPointerTracking();
-        this.tracking.set(false);
-        this.pointer.set(null);
+        if (!measureAfterSettle) {
+            this.cancelMagnificationAnimation();
+            this.magnificationProgress.set(0);
+            this.pointer.set(null);
+            return;
+        }
+        this.animateMagnification(0, LEAVE_RAMP_DURATION_MS, () => this.pointer.set(null));
     }
 
     onItemFocus(index: number): void {
         // Keyboard focus arrives with the dock at rest — snapshot before centring.
-        this.measureRestingCenters();
+        if (this.pointer() === null) {
+            this.measureRestingCenters();
+        }
         const center = this.restingCenters()[index];
         if (center !== undefined) {
             this.pointer.set(center);
+            this.animateMagnification(1, ENTER_RAMP_DURATION_MS);
         }
     }
 
@@ -253,6 +241,51 @@ export class ImsDock {
             event.clientY >= rect.top - iconOverflow &&
             event.clientY <= rect.bottom
         );
+    }
+
+    /**
+     * Ramps only the wave's amplitude. Pointer movement continues to update the wave
+     * position directly, so moving during entry never restarts or stalls the animation.
+     */
+    private animateMagnification(
+        target: 0 | 1,
+        fullDurationMs: number,
+        onComplete?: () => void
+    ): void {
+        this.cancelMagnificationAnimation();
+
+        const start = this.magnificationProgress();
+        const distance = Math.abs(target - start);
+        if (distance === 0 || this.reducedMotion()) {
+            this.magnificationProgress.set(target);
+            onComplete?.();
+            return;
+        }
+
+        const startedAt = performance.now();
+        const duration = fullDurationMs * distance;
+        const step = (now: number) => {
+            const elapsed = Math.min((now - startedAt) / duration, 1);
+            const eased = 1 - Math.pow(1 - elapsed, 3);
+            this.magnificationProgress.set(start + (target - start) * eased);
+
+            if (elapsed < 1) {
+                this.rampFrame = requestAnimationFrame(step);
+                return;
+            }
+
+            this.rampFrame = null;
+            onComplete?.();
+        };
+
+        this.rampFrame = requestAnimationFrame(step);
+    }
+
+    private cancelMagnificationAnimation(): void {
+        if (this.rampFrame !== null) {
+            cancelAnimationFrame(this.rampFrame);
+            this.rampFrame = null;
+        }
     }
 
     /** Snapshots each icon's centre, and the anchor they're relative to, while at rest. */

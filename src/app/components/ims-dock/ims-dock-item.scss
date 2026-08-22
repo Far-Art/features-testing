@@ -11,17 +11,6 @@
      * magnified icon intentionally overflow the host bounds.
      */
     contain: layout;
-    /*
-     * Transition is driven by the dock: `none` while tracking the pointer (instant,
-     * responsive wave) and an eased tween on leave (smooth shrink to rest).
-     */
-    transition: var(--ims-dock-transition, width 220ms ease, height 220ms ease);
-}
-
-@media (prefers-reduced-motion: reduce) {
-    :host {
-        transition: none;
-    }
 }
 
 .ims-dock-item__button {
@@ -53,9 +42,9 @@
     box-shadow: none;
 }
 
-.ims-dock-item__glyph {
-    /* Scale the glyph with the icon box. */
-    font-size: calc(var(--ims-dock-item-size, 48px) * 0.52);
+.ims-dock-item__icon {
+    inline-size: 62%;
+    block-size: 62%;
 }
 
 .ims-dock-item__tooltip {

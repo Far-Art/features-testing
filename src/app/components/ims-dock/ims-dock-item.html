@@ -9,7 +9,7 @@
         (blur)="blurred.emit()"
         (click)="onActivate($event)"
     >
-        <span class="ims-dock-item__glyph" aria-hidden="true">{{ data.icon }}</span>
+        <ims-duo-icon class="ims-dock-item__icon" [icon]="data.icon" />
     </a>
 } @else {
     <button
@@ -21,7 +21,7 @@
         (blur)="blurred.emit()"
         (click)="onActivate($event)"
     >
-        <span class="ims-dock-item__glyph" aria-hidden="true">{{ data.icon }}</span>
+        <ims-duo-icon class="ims-dock-item__icon" [icon]="data.icon" />
     </button>
 }
 

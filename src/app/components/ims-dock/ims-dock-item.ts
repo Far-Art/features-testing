@@ -1,5 +1,14 @@
-import {ChangeDetectionStrategy, Component, ElementRef, inject, input, numberAttribute, output} from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    inject,
+    input,
+    numberAttribute,
+    output
+} from '@angular/core';
 import {RouterLink} from '@angular/router';
+import {ImsDuoIcon} from '../ims-duo-icon';
 import {ImsDockItem as ImsDockItemData} from './ims-dock.model';
 
 /**
@@ -12,7 +21,7 @@ import {ImsDockItem as ImsDockItemData} from './ims-dock.model';
 @Component({
     selector: 'ims-dock-item',
     standalone: true,
-    imports: [RouterLink],
+    imports: [RouterLink, ImsDuoIcon],
     templateUrl: './ims-dock-item.html',
     styleUrl: './ims-dock-item.scss',
     host: {
