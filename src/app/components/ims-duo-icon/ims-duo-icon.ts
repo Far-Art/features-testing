@@ -9,16 +9,7 @@ import {
     numberAttribute
 } from '@angular/core';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
-import {ImsDuoIconDefinition} from './ims-duo-icon.generated';
-
-export type ImsDuoIconTone =
-    | 'default'
-    | 'muted'
-    | 'accent'
-    | 'success'
-    | 'warning'
-    | 'danger'
-    | 'inverse';
+import {ImsDuoIconDefinition, ImsDuoIconTone} from './ims-duo-icon.types';
 
 const MIN_OFFSET = 0;
 const MAX_OFFSET = 3;
@@ -63,12 +54,12 @@ const markupCache = new WeakMap<ImsDuoIconDefinition, SafeHtml>();
     encapsulation: ViewEncapsulation.None,
     host: {
         class: 'ims-duo-icon',
-        '[class.ims-duo-icon--muted]': 'tone() === "muted"',
-        '[class.ims-duo-icon--accent]': 'tone() === "accent"',
-        '[class.ims-duo-icon--success]': 'tone() === "success"',
-        '[class.ims-duo-icon--warning]': 'tone() === "warning"',
-        '[class.ims-duo-icon--danger]': 'tone() === "danger"',
-        '[class.ims-duo-icon--inverse]': 'tone() === "inverse"',
+        '[class.ims-duo-icon--muted]': 'resolvedTone() === "muted"',
+        '[class.ims-duo-icon--accent]': 'resolvedTone() === "accent"',
+        '[class.ims-duo-icon--success]': 'resolvedTone() === "success"',
+        '[class.ims-duo-icon--warning]': 'resolvedTone() === "warning"',
+        '[class.ims-duo-icon--danger]': 'resolvedTone() === "danger"',
+        '[class.ims-duo-icon--inverse]': 'resolvedTone() === "inverse"',
         '[class.ims-duo-icon--hover]': 'hover()',
         '[style.--ims-duo-icon-size]': 'sizePx()',
         '[style.--ims-duo-icon-stroke-width]': 'resolvedStrokeWidth()',
@@ -94,8 +85,12 @@ export class ImsDuoIcon {
      */
     readonly size = input(22, {transform: numberAttribute});
 
-    /** Duotone palette, resolved from the `--ims-color-*` ramps. */
-    readonly tone = input<ImsDuoIconTone>('default');
+    /**
+     * Duotone palette, resolved from the `--ims-color-*` ramps. Unset defers to
+     * the glyph's own `data-tone` if it declares one — `warning` and `danger`
+     * do — and falls back to the default palette otherwise.
+     */
+    readonly tone = input<ImsDuoIconTone | null>(null);
 
     /**
      * Off-register distance of the tint layer, in user units. Spec range 0–3.
@@ -123,6 +118,11 @@ export class ImsDuoIcon {
     });
 
     protected readonly sizePx = computed(() => `${this.size()}px`);
+
+    /** Call site wins, then the glyph's declared tone, then the default palette. */
+    protected readonly resolvedTone = computed<ImsDuoIconTone>(
+        () => this.tone() ?? this.icon().tone ?? 'default'
+    );
 
     // Null removes the inline style, letting the stylesheet's value apply.
     protected readonly resolvedOffset = computed(() => {

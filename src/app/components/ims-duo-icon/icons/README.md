@@ -32,6 +32,12 @@ Every attribute on that root element is load-bearing:
 | `focusable="false"` | Keeps the glyph out of the tab order |
 | `aria-hidden="true"` | The **host** carries the accessible name; without this a labelled icon can be announced twice |
 
+One attribute is **optional**: `data-tone="warning"` declares the tone a glyph
+takes when the call site does not set one. Use it only where the meaning implies
+the palette — `warning` and `danger` carry their own; everything else stays on
+the default palette and is toned by the consumer. The generator validates the
+value against the `ImsDuoIconTone` union and fails the build on an unknown tone.
+
 `<title>` is kept as the human record of the icon's name, and is what gets copied
 into the registry's `label`. That label is informational only — the gallery uses
 it for captions. It is inert at runtime because the root is `aria-hidden`.
@@ -69,7 +75,10 @@ Never add: gradients, drop shadows, white specular highlights, extra mid-tone sh
 | Inverted on navy | tint `#000AD2`, contour `#EAEBFB` | — |
 
 Tones are classes on the host, not something you draw in — a glyph is authored
-once in the default palette and re-toned via `tone="…"`. The semantic ramps are
+once in the default palette and re-toned via `tone="…"`. Resolution order is
+**call site → the glyph's own `data-tone` → default**, so `<ims-duo-icon
+[icon]="warning"/>` comes out amber with nothing else said, and
+`tone="muted"` still wins over it. The semantic ramps are
 the second documented exception to the primary-only rule below, and exist so
 `danger` / `warning` / `info` glyphs can carry their own hue where the meaning
 depends on it.
@@ -128,7 +137,7 @@ leaving a prop unset defers to the stylesheet so the house default lives in
 |---|---|---|
 | `icon` | — (required) | The imported icon object, not a name — see above |
 | `size` | `18` | px; matches the Material Symbols ligature size used elsewhere |
-| `tone` | `default` | `muted` · `accent` · `success` · `warning` · `danger` · `inverse` |
+| `tone` | the glyph's `data-tone`, else `default` | `muted` · `accent` · `success` · `warning` · `danger` · `inverse` |
 | `offset` | `2` | Unset defers to `--ims-duo-icon-offset` |
 | `strokeWidth` | `1.5` | Unset defers to `--ims-duo-icon-stroke-width` |
 | `hover` | `false` | Boolean attribute; opts into the lift treatment |

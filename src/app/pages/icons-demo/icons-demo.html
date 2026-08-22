@@ -8,13 +8,7 @@
     <div class="icon-demo__grid">
         @for (icon of icons; track icon.name) {
             <figure class="icon-demo__cell">
-                @if (icon.name === 'warning') {
-                    <ims-duo-icon [icon]="icon" tone="warning" hover />
-                } @else if (icon.name === 'danger') {
-                    <ims-duo-icon [icon]="icon" tone="danger" hover />
-                } @else {
-                    <ims-duo-icon [icon]="icon" hover />
-                }
+                <ims-duo-icon [icon]="icon" hover />
                 <figcaption>{{ icon.label }}</figcaption>
             </figure>
         }
@@ -57,11 +51,34 @@
 </section>
 
 <section class="icon-demo">
+    <h2>גוון ברירת מחדל</h2>
+    <p class="icon-demo__note">אייקון סמנטי נושא את הגוון שלו — ללא צורך ב-tone בכל שימוש. ערך מפורש גובר.</p>
+    <div class="icon-demo__row">
+        <figure class="icon-demo__cell">
+            <ims-duo-icon [icon]="warning" [size]="32" />
+            <figcaption>warning — אוטומטי</figcaption>
+        </figure>
+        <figure class="icon-demo__cell">
+            <ims-duo-icon [icon]="danger" [size]="32" />
+            <figcaption>danger — אוטומטי</figcaption>
+        </figure>
+        <figure class="icon-demo__cell">
+            <ims-duo-icon [icon]="warning" tone="muted" [size]="32" />
+            <figcaption>tone="muted" גובר</figcaption>
+        </figure>
+        <figure class="icon-demo__cell">
+            <ims-duo-icon [icon]="search" [size]="32" />
+            <figcaption>ללא גוון מוצהר</figcaption>
+        </figure>
+    </div>
+</section>
+
+<section class="icon-demo">
     <h2>היסט שכבת הצבע</h2>
     <div class="icon-demo__row">
         @for (offset of offsets; track offset) {
             <figure class="icon-demo__cell">
-                <ims-duo-icon [icon]="search" [offset]="offset" [size]="32"/>
+                <ims-duo-icon [icon]="search" [offset]="offset" [size]="32" />
                 <figcaption>{{ offset }}u</figcaption>
             </figure>
         }

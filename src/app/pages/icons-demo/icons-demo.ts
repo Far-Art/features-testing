@@ -6,9 +6,11 @@ import {
     ImsDuoIconDefinition,
     ImsDuoIconTone,
     imsDuoIconAdd,
+    imsDuoIconDanger,
     imsDuoIconFloppyDisk,
     imsDuoIconMultiSelect,
     imsDuoIconSearch,
+    imsDuoIconWarning,
     imsDuoIconUser
 } from '../../components/ims-duo-icon';
 
@@ -24,9 +26,11 @@ export class IconsDemo {
     readonly icons: readonly ImsDuoIconDefinition[] = IMS_DUO_ICON_ALL;
 
     readonly add = imsDuoIconAdd;
+    readonly danger = imsDuoIconDanger;
     readonly floppyDisk = imsDuoIconFloppyDisk;
     readonly multiSelect = imsDuoIconMultiSelect;
     readonly search = imsDuoIconSearch;
+    readonly warning = imsDuoIconWarning;
     readonly user = imsDuoIconUser;
 
     readonly sizes = [18, 24, 32, 48] as const;
