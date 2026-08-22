@@ -9,7 +9,11 @@
         (blur)="blurred.emit()"
         (click)="onActivate($event)"
     >
-        <ims-duo-icon class="ims-dock-item__icon" [icon]="data.icon" />
+        <ims-duo-icon
+            class="ims-dock-item__icon"
+            [icon]="data.icon"
+            [tone]="data.disabled ? 'muted' : (data.tone ?? null)"
+        />
     </a>
 } @else {
     <button
@@ -21,7 +25,11 @@
         (blur)="blurred.emit()"
         (click)="onActivate($event)"
     >
-        <ims-duo-icon class="ims-dock-item__icon" [icon]="data.icon" />
+        <ims-duo-icon
+            class="ims-dock-item__icon"
+            [icon]="data.icon"
+            [tone]="data.disabled ? 'muted' : (data.tone ?? null)"
+        />
     </button>
 }
 

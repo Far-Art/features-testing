@@ -1,4 +1,4 @@
-import type {ImsDuoIconDefinition} from '../ims-duo-icon';
+import type {ImsDuoIconDefinition, ImsDuoIconTone} from '../ims-duo-icon';
 
 /** A single icon shown in the {@link ImsDock}. */
 export interface ImsDockItem {
@@ -8,6 +8,8 @@ export interface ImsDockItem {
     label: string;
     /** Duotone icon painted inside the item. */
     icon: ImsDuoIconDefinition;
+    /** Optional palette override for the duotone icon. */
+    tone?: ImsDuoIconTone;
     /** Optional router target; when set the item renders as a router link. */
     routerLink?: string;
     /** When true the item is dimmed and excluded from activation. */
