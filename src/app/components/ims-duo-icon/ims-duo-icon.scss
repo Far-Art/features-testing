@@ -27,6 +27,13 @@
     display: block;
     inline-size: 100%;
     block-size: 100%;
+
+    // Each source file keeps a <title> as its human record, and a browser renders
+    // <title> as a native tooltip on hover. Taking the glyph out of hit-testing
+    // suppresses that without touching the markup; `pointer-events` inherits, so
+    // the whole subtree goes with it. The host is a separate box and still takes
+    // :hover, so the lift treatment is unaffected.
+    pointer-events: none;
 }
 
 // The source files also carry `transform="translate(1.5 1.5)"` as an attribute
