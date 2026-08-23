@@ -83,8 +83,23 @@
 // One treatment: the tint pushes further off-register, which reads as the glyph
 // lifting off the page. Icons carry no card, so there is nothing else to move.
 
+// Icon colours are inherited from, or derived from, whatever encloses the glyph
+// — inside a button both layers follow the label and the mask follows the
+// background. Left untransitioned the mask snaps to its hover colour the moment
+// the pointer lands, while the button's fill sweep behind it takes 260ms, so a
+// patch inside the glyph arrives before its own background does. Matching the
+// sweep's duration and easing keeps them in step.
+.ims-duo-icon svg * {
+    transition:
+        fill 260ms cubic-bezier(0.4, 0, 0.2, 1),
+        stroke 260ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .ims-duo-icon--hover .tint {
-    transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.3, 1);
+    transition:
+        transform 0.22s cubic-bezier(0.2, 0.7, 0.3, 1),
+        fill 260ms cubic-bezier(0.4, 0, 0.2, 1),
+        stroke 260ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 // Hovering the icon itself, or any ancestor opted in with
@@ -98,8 +113,11 @@
     );
 }
 
+// A colour fade is not motion, so only the lift is suppressed here.
 @media (prefers-reduced-motion: reduce) {
-    .ims-duo-icon .tint {
-        transition: none;
+    .ims-duo-icon--hover .tint {
+        transition:
+            fill 260ms cubic-bezier(0.4, 0, 0.2, 1),
+            stroke 260ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 }

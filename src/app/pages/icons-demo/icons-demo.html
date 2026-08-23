@@ -86,6 +86,33 @@
 </section>
 
 <section class="icon-demo">
+    <h2>אייקונים בתוך כפתורים</h2>
+    <p class="icon-demo__note">האייקון יורש את צבע הטקסט של הכפתור, ולכן נשאר קריא בכל ווריאנט ובכל מצב.</p>
+    <div class="icon-demo__row">
+        <button ims-button class="ims-duo-icon-hover-group">
+            <ims-duo-icon [icon]="floppyDisk"/>
+            Default
+        </button>
+        <button ims-button ims-button-variation="primary" class="ims-duo-icon-hover-group">
+            <ims-duo-icon [icon]="floppyDisk" />
+            Primary
+        </button>
+        <button ims-button ims-button-variation="secondary" class="ims-duo-icon-hover-group">
+            <ims-duo-icon [icon]="floppyDisk" />
+            Secondary
+        </button>
+        <button ims-button ims-button-variation="outline" class="ims-duo-icon-hover-group">
+            <ims-duo-icon [icon]="floppyDisk" />
+            Outline
+        </button>
+        <button ims-button ims-button-variation="danger" class="ims-duo-icon-hover-group">
+            <ims-duo-icon [icon]="clear" />
+            Danger
+        </button>
+    </div>
+</section>
+
+<section class="icon-demo">
     <h2>ריחוף</h2>
     <p class="icon-demo__note">העברו עכבר — שכבת הצבע נדחפת לפי 2.1 מההיסט.</p>
     <div class="icon-demo__row">

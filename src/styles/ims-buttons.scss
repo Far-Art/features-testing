@@ -181,6 +181,30 @@
   padding-inline: 0.4rem 0.8rem;
 }
 
+// A duo icon inside a button adopts the button's own colours instead of the
+// brand palette. The icon's fixed periwinkle collides with almost every button
+// surface: the tint washes out on the light variants (1.2:1 against
+// --default's hover fill) and the contour disappears on the dark ones (1.1:1
+// against brand navy, even at rest). Deriving both layers from the label colour
+// keeps them readable on every variant and state, including ones added later,
+// and matches how the label itself already inverts.
+.ims-button .ims-duo-icon {
+  --ims-duo-icon-contour: currentColor;
+  --ims-duo-icon-tint: color-mix(in oklab, currentColor 30%, transparent);
+  // The mask knocks the tint out of interior windows, so it has to paint
+  // whatever is actually behind the glyph — which the fill sweep changes.
+  --ims-duo-icon-surface: var(--ims-button-background);
+}
+
+.ims-button:hover .ims-duo-icon,
+.ims-button:focus-visible .ims-duo-icon {
+  --ims-duo-icon-surface: var(--ims-button-background-hover);
+}
+
+.ims-button:active .ims-duo-icon {
+  --ims-duo-icon-surface: var(--ims-button-background-active);
+}
+
 .ims-icon.ims-button__symbol {
   --ims-icon-size: 1.125rem;
 

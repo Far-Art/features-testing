@@ -6,6 +6,7 @@ import {
     ImsDuoIconDefinition,
     ImsDuoIconTone,
     imsDuoIconAdd,
+    imsDuoIconClear,
     imsDuoIconDanger,
     imsDuoIconFloppyDisk,
     imsDuoIconMultiSelect,
@@ -26,6 +27,7 @@ export class IconsDemo {
     readonly icons: readonly ImsDuoIconDefinition[] = IMS_DUO_ICON_ALL;
 
     readonly add = imsDuoIconAdd;
+    readonly clear = imsDuoIconClear;
     readonly danger = imsDuoIconDanger;
     readonly floppyDisk = imsDuoIconFloppyDisk;
     readonly multiSelect = imsDuoIconMultiSelect;
