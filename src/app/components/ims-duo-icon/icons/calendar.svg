@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
+  <title>Calendar</title>
+  <rect class="tint" transform="translate(2 2)" x="4" y="7.6" width="24" height="20.4" rx="2" fill="var(--icon-tint, #BFC2F4)"></rect>
+  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="4" y="7.6" width="24" height="20.4" rx="2"></rect>
+    <path d="M4 13.6h24"></path>
+    <path d="M10.4 4.6v5.4M21.6 4.6v5.4"></path>
+    <path d="M10 18.2h2.4M14.8 18.2h2.4M19.6 18.2h2.4M10 22.8h2.4M14.8 22.8h2.4"></path>
+  </g>
+</svg>

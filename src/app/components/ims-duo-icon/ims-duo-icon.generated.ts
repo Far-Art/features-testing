@@ -62,6 +62,21 @@ export const imsDuoIconAutocomplete: ImsDuoIconDefinition = {
 </svg>`
 };
 
+export const imsDuoIconCalendar: ImsDuoIconDefinition = {
+    name: 'calendar',
+    label: 'Calendar',
+    source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
+  <title>Calendar</title>
+  <rect class="tint" transform="translate(2 2)" x="4" y="7.6" width="24" height="20.4" rx="2" fill="var(--icon-tint, #BFC2F4)"></rect>
+  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="4" y="7.6" width="24" height="20.4" rx="2"></rect>
+    <path d="M4 13.6h24"></path>
+    <path d="M10.4 4.6v5.4M21.6 4.6v5.4"></path>
+    <path d="M10 18.2h2.4M14.8 18.2h2.4M19.6 18.2h2.4M10 22.8h2.4M14.8 22.8h2.4"></path>
+  </g>
+</svg>`
+};
+
 export const imsDuoIconClear: ImsDuoIconDefinition = {
     name: 'clear',
     label: 'Clear',
@@ -90,6 +105,20 @@ export const imsDuoIconDanger: ImsDuoIconDefinition = {
 </svg>`
 };
 
+export const imsDuoIconDocument: ImsDuoIconDefinition = {
+    name: 'document',
+    label: 'Document',
+    source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
+  <title>Document</title>
+  <path class="tint" transform="translate(2 2)" d="M8 4h10.4L25.6 11.2V26a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" fill="var(--icon-tint, #BFC2F4)"></path>
+  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 4h10.4L25.6 11.2V26a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"></path>
+    <path d="M18.4 4v7.2h7.2"></path>
+    <path d="M9.6 14.4h12.8M9.6 18h12.8M9.6 21.6h8.8"></path>
+  </g>
+</svg>`
+};
+
 export const imsDuoIconEdit: ImsDuoIconDefinition = {
     name: 'edit',
     label: 'Edit',
@@ -103,6 +132,34 @@ export const imsDuoIconEdit: ImsDuoIconDefinition = {
     <path d="M5.6 26.4 8.9 23.2"></path>
     <path d="M10.6 24.8 7.2 21.4"></path>
     <path d="M20.8 14.6 17.4 11.2"></path>
+  </g>
+</svg>`
+};
+
+export const imsDuoIconEnvelopeOpen: ImsDuoIconDefinition = {
+    name: 'envelope-open',
+    label: 'Envelope open',
+    source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
+  <title>Envelope open</title>
+  <path class="tint" transform="translate(2 2)" d="M4 11.6 16 4l12 7.6V26a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z" fill="var(--icon-tint, #BFC2F4)"></path>
+  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 11.6 16 4l12 7.6V26a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"></path>
+    <path d="M4.8 12.4 16 21.2 27.2 12.4"></path>
+    <path d="M4.8 27 12.4 19.2M27.2 27 19.6 19.2"></path>
+  </g>
+</svg>`
+};
+
+export const imsDuoIconEnvelope: ImsDuoIconDefinition = {
+    name: 'envelope',
+    label: 'Envelope',
+    source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
+  <title>Envelope</title>
+  <rect class="tint" transform="translate(2 2)" x="4" y="7.2" width="24" height="17.6" rx="2" fill="var(--icon-tint, #BFC2F4)"></rect>
+  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="4" y="7.2" width="24" height="17.6" rx="2"></rect>
+    <path d="M4.8 8.4 16 17.2 27.2 8.4"></path>
+    <path d="M4.8 23.6 12.4 15.8M27.2 23.6 19.6 15.8"></path>
   </g>
 </svg>`
 };
@@ -183,6 +240,22 @@ export const imsDuoIconInkPen: ImsDuoIconDefinition = {
 </svg>`
 };
 
+export const imsDuoIconKyc: ImsDuoIconDefinition = {
+    name: 'kyc',
+    label: 'KYC',
+    source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
+  <title>KYC</title>
+  <path class="tint" transform="translate(2 2)" d="M8 4h10.4L25.6 11.2V26a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" fill="var(--icon-tint, #BFC2F4)"></path>
+  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 4h10.4L25.6 11.2V26a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"></path>
+    <path d="M18.4 4v7.2h7.2"></path>
+    <path d="M9.6 14.4h12.8M9.6 18h9.6"></path>
+    <path d="M6 21.4h19.6V26a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2Z" fill="var(--icon-contour, #000570)"></path>
+    <text x="15.8" y="26.2" text-anchor="middle" font-family="Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="4.4" font-weight="700" letter-spacing="0.1" fill="var(--icon-surface, #fff)" stroke="none">KYC</text>
+  </g>
+</svg>`
+};
+
 export const imsDuoIconList: ImsDuoIconDefinition = {
     name: 'list',
     label: 'List',
@@ -224,6 +297,50 @@ export const imsDuoIconMultiSelect: ImsDuoIconDefinition = {
 </svg>`
 };
 
+export const imsDuoIconProcessClose: ImsDuoIconDefinition = {
+    name: 'process-close',
+    label: 'Process close',
+    source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
+  <title>Process close</title>
+  <g class="tint" transform="translate(2 2)" fill="var(--icon-tint, #BFC2F4)"><circle cx="7.6" cy="22.6" r="2.6"></circle><circle cx="16" cy="22.6" r="2.6"></circle><circle cx="24.4" cy="22.6" r="2.6"></circle><path d="M11 5.6 21 15.6M21 5.6 11 15.6" fill="none" stroke="var(--icon-tint, #BFC2F4)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round"></path></g>
+  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="7.6" cy="22.6" r="2.6"></circle><circle cx="16" cy="22.6" r="2.6"></circle><circle cx="24.4" cy="22.6" r="2.6"></circle>
+    <path d="M10.6 22.6h2.8M18.6 22.6h2.8"></path>
+    <path d="M11 5.6 21 15.6M21 5.6 11 15.6"></path>
+  </g>
+</svg>`
+};
+
+export const imsDuoIconProcessForward: ImsDuoIconDefinition = {
+    name: 'process-forward',
+    label: 'Process forward',
+    source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
+  <title>Process forward</title>
+  <g class="tint" transform="translate(2 2)" fill="var(--icon-tint, #BFC2F4)"><circle cx="7.6" cy="22.6" r="2.6"></circle><circle cx="16" cy="22.6" r="2.6"></circle><circle cx="24.4" cy="22.6" r="2.6"></circle><path d="M22 4 20.4 9.5 16.5 5.6Z"></path><path d="M10.4 15.6 18.4 7.6" fill="none" stroke="var(--icon-tint, #BFC2F4)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round"></path></g>
+  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="7.6" cy="22.6" r="2.6"></circle><circle cx="16" cy="22.6" r="2.6"></circle><circle cx="24.4" cy="22.6" r="2.6"></circle>
+    <path d="M10.6 22.6h2.8M18.6 22.6h2.8"></path>
+    <path d="M10.4 15.6 18.4 7.6"></path>
+    <path d="M22 4 20.4 9.5 16.5 5.6Z" fill="var(--icon-contour, #000570)"></path>
+  </g>
+</svg>`
+};
+
+export const imsDuoIconProcessSplit: ImsDuoIconDefinition = {
+    name: 'process-split',
+    label: 'Process split',
+    source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
+  <title>Process split</title>
+  <g class="tint" transform="translate(2 2)" fill="var(--icon-tint, #BFC2F4)"><circle cx="7.6" cy="22.6" r="2.6"></circle><circle cx="16" cy="22.6" r="2.6"></circle><circle cx="24.4" cy="22.6" r="2.6"></circle><path d="M25.4 7.6 23.8 12.5 20.4 9.1Z"></path><path d="M6.6 7.6 8.2 12.5 11.6 9.1Z"></path><path d="M16 16.8 22.1 10.8M16 16.8 9.9 10.8" fill="none" stroke="var(--icon-tint, #BFC2F4)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round"></path></g>
+  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="7.6" cy="22.6" r="2.6"></circle><circle cx="16" cy="22.6" r="2.6"></circle><circle cx="24.4" cy="22.6" r="2.6"></circle>
+    <path d="M10.6 22.6h2.8M18.6 22.6h2.8"></path>
+    <path d="M16 16.8 22.1 10.8M16 16.8 9.9 10.8"></path>
+    <path d="M25.4 7.6 23.8 12.5 20.4 9.1ZM6.6 7.6 8.2 12.5 11.6 9.1Z" fill="var(--icon-contour, #000570)"></path>
+  </g>
+</svg>`
+};
+
 export const imsDuoIconRemove: ImsDuoIconDefinition = {
     name: 'remove',
     label: 'Remove',
@@ -249,6 +366,57 @@ export const imsDuoIconSearch: ImsDuoIconDefinition = {
   <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="13.8" cy="13.8" r="9.8"></circle>
     <path d="M19.3 21.9 24.3 26.9a1.9 1.9 0 0 0 2.7-2.7L21.9 19.3"></path>
+  </g>
+</svg>`
+};
+
+export const imsDuoIconUpload: ImsDuoIconDefinition = {
+    name: 'upload',
+    label: 'Upload',
+    source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
+  <title>Upload</title>
+  <path class="tint" transform="translate(2 2)" d="M7.2 13.6h17.6a2.4 2.4 0 0 1 2.4 2.4v9.6a2.4 2.4 0 0 1-2.4 2.4H7.2a2.4 2.4 0 0 1-2.4-2.4V16a2.4 2.4 0 0 1 2.4-2.4Z" fill="var(--icon-tint, #BFC2F4)"></path>
+  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10.4 13.6H7.2a2.4 2.4 0 0 0-2.4 2.4v9.6a2.4 2.4 0 0 0 2.4 2.4h17.6a2.4 2.4 0 0 0 2.4-2.4V16a2.4 2.4 0 0 0-2.4-2.4h-3.2"></path>
+    <path d="M16 20V4.8M10.6 10.2 16 4.8 21.4 10.2"></path>
+  </g>
+</svg>`
+};
+
+export const imsDuoIconUserEdit: ImsDuoIconDefinition = {
+    name: 'user-edit',
+    label: 'User edit',
+    source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
+  <title>User edit</title>
+  <g class="tint" transform="translate(2 2)" fill="var(--icon-tint, #BFC2F4)">
+    <circle cx="16" cy="10.6" r="5.8"></circle>
+    <path d="M4.6 28c0-5.8 5.1-9.4 11.4-9.4S27.4 22.2 27.4 28Z"></path>
+  </g>
+  <path d="M15.4 26.8 18.4 25.8 26.8 17.4a1.4 1.4 0 0 0-2-2L16.4 23.8Z" fill="var(--icon-surface, #fff)" stroke="var(--icon-surface, #fff)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>
+  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="16" cy="10.6" r="5.8"></circle>
+    <path d="M4.6 28c0-5.8 5.1-9.4 11.4-9.4S27.4 22.2 27.4 28"></path>
+    <path d="M15.4 26.8 18.4 25.8 26.8 17.4a1.4 1.4 0 0 0-2-2L16.4 23.8Z" fill="var(--icon-tint, #BFC2F4)"></path>
+    <path d="M15.4 26.8 17.4 24.8M18.4 25.8 16.4 23.8"></path>
+  </g>
+</svg>`
+};
+
+export const imsDuoIconUserHelp: ImsDuoIconDefinition = {
+    name: 'user-help',
+    label: 'User help',
+    source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
+  <title>User help</title>
+  <g class="tint" transform="translate(2 2)" fill="var(--icon-tint, #BFC2F4)">
+    <circle cx="16" cy="10.6" r="5.8"></circle>
+    <path d="M4.6 28c0-5.8 5.1-9.4 11.4-9.4S27.4 22.2 27.4 28Z"></path>
+  </g>
+  <circle cx="22" cy="22" r="6" fill="var(--icon-surface, #fff)"></circle>
+  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="16" cy="10.6" r="5.8"></circle>
+    <path d="M4.6 28c0-5.8 5.1-9.4 11.4-9.4S27.4 22.2 27.4 28"></path>
+    <circle cx="22" cy="22" r="5.2" fill="var(--icon-contour, #000570)"></circle>
+    <path d="M20.3 20.5a1.7 1.7 0 1 1 1.7 1.9v.8M22 25.8v0" stroke="var(--icon-surface, #fff)"></path>
   </g>
 </svg>`
 };
@@ -313,18 +481,29 @@ export const IMS_DUO_ICON_ALL: readonly ImsDuoIconDefinition[] = [
     imsDuoIconArrowBack,
     imsDuoIconArrowForward,
     imsDuoIconAutocomplete,
+    imsDuoIconCalendar,
     imsDuoIconClear,
     imsDuoIconDanger,
+    imsDuoIconDocument,
     imsDuoIconEdit,
+    imsDuoIconEnvelopeOpen,
+    imsDuoIconEnvelope,
     imsDuoIconExpand,
     imsDuoIconFilter,
     imsDuoIconFloppyDisk,
     imsDuoIconInfo,
     imsDuoIconInkPen,
+    imsDuoIconKyc,
     imsDuoIconList,
     imsDuoIconMultiSelect,
+    imsDuoIconProcessClose,
+    imsDuoIconProcessForward,
+    imsDuoIconProcessSplit,
     imsDuoIconRemove,
     imsDuoIconSearch,
+    imsDuoIconUpload,
+    imsDuoIconUserEdit,
+    imsDuoIconUserHelp,
     imsDuoIconUser,
     imsDuoIconWarning,
     imsDuoIconZoomIn
