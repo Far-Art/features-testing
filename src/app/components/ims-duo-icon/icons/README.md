@@ -90,13 +90,29 @@ Only tokens from the `--ims-color-primary-*` ramp and `--ims-color-brand`. No ne
 - Driven by the single `--ims-duo-icon-offset` custom property — the tint is one flat copy, never a duplicated "extrude" stack.
 
 ## Stroke weight
-Flat **1.5u at every rendered size** — the same paths, the same weight, no
-per-size compensation. Override one instance with the `strokeWidth` prop, or
-retune the whole set by changing `--ims-duo-icon-stroke-width` in `../ims-duo-icon.scss`.
+Resting weight is **1.5u**, held in `--ims-duo-icon-stroke-width` in
+`../ims-duo-icon.scss` and mirrored by every file's fallback here.
 
-Because the weight no longer thickens at small sizes, glyphs stop holding up
-somewhere below ~16px. Keep the counters rule above (never below 1.6u) and treat
-16px as the practical floor.
+A stroke declared in user units paints at `width x size / 32`, so a flat 1.5u
+collapses to 0.84px at 18px and 0.75px at 16px — under one device pixel on a 1x
+display, where it reads as a washed-out grey line rather than a contour. The
+component therefore rounds the **painted** width to whole pixels, never below one:
+
+| rendered | user units | painted |
+|---|---|---|
+| 16–24px | 2.0 → 1.33 | **1px** |
+| 32–48px | 2.0 → 1.33 | **2px** |
+| 120px | 1.6 | 6px |
+
+So the whole small-size band reads at one consistent weight instead of fading out
+as it shrinks. This buys consistent weight, not pixel-crisp edges — crisp edges
+would need the path geometry on the pixel grid too, which a 32-unit viewBox at
+22px does not give.
+
+Override one instance with the `strokeWidth` prop, which skips the scaling
+entirely. Retune the whole set by changing both `--ims-duo-icon-stroke-width` and
+`BASE_STROKE_WIDTH` in `../ims-duo-icon.ts` — `npm run icons` fails the build if
+the two disagree.
 
 ## Detail budget
 - Interior detail is drawn in the **same weight** as the contour — no hairlines.
@@ -136,10 +152,10 @@ leaving a prop unset defers to the stylesheet so the house default lives in
 | Prop | Default | Notes |
 |---|---|---|
 | `icon` | — (required) | The imported icon object, not a name — see above |
-| `size` | `18` | px; matches the Material Symbols ligature size used elsewhere |
+| `size` | `22` | px; keeps the 1.5u contour painting at ~1px, the crisp-rendering floor |
 | `tone` | the glyph's `data-tone`, else `default` | `muted` · `accent` · `success` · `warning` · `danger` · `inverse` |
 | `offset` | `2` | Unset defers to `--ims-duo-icon-offset` |
-| `strokeWidth` | `1.5` | Unset defers to `--ims-duo-icon-stroke-width` |
+| `strokeWidth` | derived from `size` | Unset scales with size (see **Stroke weight**) |
 | `hover` | `false` | Boolean attribute; opts into the lift treatment |
 
 ### Accessibility

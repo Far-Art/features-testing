@@ -16,6 +16,7 @@ const ICONS_DIR = join(COMPONENT_DIR, 'icons');
 const OUTPUT_FILE = join(COMPONENT_DIR, 'ims-duo-icon.generated.ts');
 const COMPONENT_STYLES = join(COMPONENT_DIR, 'ims-duo-icon.scss');
 const COMPONENT_TYPES = join(COMPONENT_DIR, 'ims-duo-icon.types.ts');
+const COMPONENT_SOURCE = join(COMPONENT_DIR, 'ims-duo-icon.ts');
 const COLOR_TOKENS = resolve('src/styles/tokens/color-tokens.scss');
 
 /** Attributes the component relies on; a file missing any of them renders wrong. */
@@ -136,6 +137,19 @@ const files = readdirSync(ICONS_DIR).filter((file) => file.endsWith('.svg')).sor
 if (files.length === 0) throw new Error(`No .svg files found in ${ICONS_DIR}.`);
 
 const defaults = readShippedDefaults();
+
+// The component scales the contour per size from its own copy of the resting
+// weight. If that drifts from the stylesheet, every rendered icon silently
+// disagrees with what the source files fall back to.
+const declaredBase = readFileSync(COMPONENT_SOURCE, 'utf8')
+    .match(/const BASE_STROKE_WIDTH = ([\d.]+);/)?.[1];
+if (declaredBase !== defaults.strokeWidth) {
+    errors.push(
+        `ims-duo-icon.ts BASE_STROKE_WIDTH is ${declaredBase}, but ims-duo-icon.scss ` +
+            `ships --ims-duo-icon-stroke-width: ${defaults.strokeWidth}.`
+    );
+}
+
 const tones = readTones();
 const icons = files.map((file) => readIcon(file, defaults, tones)).filter(Boolean);
 
