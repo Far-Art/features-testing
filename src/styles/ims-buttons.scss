@@ -88,26 +88,30 @@
     --ims-button-fill-radius 0s linear 180ms;
 }
 
-// Optical centering. Roboto reserves 3.4px of descent below the baseline that a
-// label like “Save” never uses, so a line box centered by geometry leaves the
-// letters sitting ~1.4px high — small, but plain to see in a 26px control. The
-// fix is to center the text's cap-height box rather than its line box, which is
-// what `text-box: trim-both cap alphabetic` produces.
+// Optical centering. Roboto reserves descent below the baseline that a label
+// like “Save” never uses, so a line box centered by geometry still leaves the
+// letters reading high — small, but plain to see in a 26px control.
+// `text-box-trim` was tried here first: it centers on cap-height directly and
+// needs nothing else, but it's unsupported in the CPU-rendered environment
+// this ships to, so it silently no-ops there and the label stays high. This
+// nudges the box itself instead, which is plain layout and behaves the same
+// on every renderer.
 //
-// It needs the button to be a block container, hence the display switch. A bare
-// label inside a grid is an anonymous item, and text-box-trim does not inherit,
-// so an anonymous box always takes the initial value — the trim would compute
-// on the button and never reach the text. `overflow: hidden` already pins the
-// external baseline to the bottom margin edge in both display modes, so
-// neighbouring content does not shift.
-//
-// Scoped to buttons whose content is only text: anything with an icon needs the
-// grid for its column track, and its label keeps the geometric centering.
-.ims-button:not(:has(> *)) {
-  display: inline-block;
-  align-content: center;
-  text-align: center;
-  text-box: trim-both cap alphabetic;
+// Pushing padding-block-start down shifts the content area — and everything
+// place-items: center centers within it — by half that amount. It's not
+// scoped to text-only buttons: an icon alongside the label would get the same
+// downward nudge, so the pairing below cancels it back out on the icon alone
+// (a negative margin-block-start of the same size), leaving only the label
+// with any net shift. Icon-only buttons opt out via [ims-button-icon], which
+// already zeroes all padding for its own layout reasons — there's no label
+// there for the push to correct in the first place.
+.ims-button:not([ims-button-icon]) {
+  padding-block-start: 2px;
+}
+
+.ims-button:not([ims-button-icon]) > ims-duo-icon,
+.ims-button:not([ims-button-icon]) > .ims-icon.ims-button__symbol {
+  margin-block-start: -2px;
 }
 
 // Fill ripple, the way *in*: a deeper tone expands from the center. The radius
@@ -270,10 +274,6 @@
 .ims-button--with-symbol:not([ims-button-icon]),
 .ims-button:has(> ims-duo-icon):not([ims-button-icon]) {
   padding-inline: 0.4rem 0.8rem;
-  padding-top: 2px;
-  > ims-duo-icon {
-    margin-top: -2px;
-  }
 }
 
 // A duo icon inside a button adopts the button's own colours instead of the
@@ -286,14 +286,35 @@
 .ims-button .ims-duo-icon {
   --ims-duo-icon-contour: currentColor;
   --ims-duo-icon-tint: color-mix(in oklab, currentColor 30%, transparent);
-  // The mask knocks the tint out of interior windows, so it has to paint
-  // whatever is actually behind the glyph — which the fill ripple changes.
-  --ims-duo-icon-surface: var(--ims-button-background);
+  // The mask paints this into interior windows — see the label/slider
+  // cutouts in floppy-disk.svg — as a stand-in for whatever's behind the
+  // glyph. White is the default because it's opaque on every light surface,
+  // which most variants are; it can't just track --ims-button-background the
+  // way the override below does, because --outline's is transparent — the
+  // “window” would stop masking anything and the tint underneath would
+  // show through uncut, which looks just as broken as the wrong colour did.
+  //
+  // Not tied to any interaction state: :hover/:active never touch this
+  // variable, so the surface can't snap the way it did when it briefly
+  // tracked -hover/-active backgrounds.
+  --ims-duo-icon-surface: var(--ims-color-on-interactive);
   // Pins the hover lift to the resting offset, so the tint's transform
   // resolves to the same value in both states and the layer never travels.
   // Cheaper than overriding the transform itself, which would also have to
   // restate the resting offset to avoid collapsing the duotone.
   --ims-duo-icon-hover-offset: var(--ims-duo-icon-offset);
+}
+
+// --dark and --danger are the only variants whose label (and so the icon's
+// currentColor contour) flips to on-interactive white; the default white
+// surface above would put a white window behind a white contour and erase it
+// the same way a light surface did. These use their own opaque background —
+// never transparent, unlike --outline's — so the mask stays solid. Same
+// cascade requirement as the base rule: no interaction state sets this, so
+// swapping variants is the only thing that can change it.
+.ims-button--dark .ims-duo-icon,
+.ims-button--danger .ims-duo-icon {
+  --ims-duo-icon-surface: var(--ims-button-background);
 }
 
 // Nothing about a duo icon animates inside a button. A glyph is the one part of
@@ -303,15 +324,6 @@
 .ims-button .ims-duo-icon svg *,
 .ims-button .ims-duo-icon.ims-duo-icon--hover .tint {
   transition: none;
-}
-
-.ims-button:hover .ims-duo-icon,
-.ims-button:focus-visible .ims-duo-icon {
-  --ims-duo-icon-surface: var(--ims-button-background-hover);
-}
-
-.ims-button:active .ims-duo-icon {
-  --ims-duo-icon-surface: var(--ims-button-background-active);
 }
 
 .ims-icon.ims-button__symbol {
