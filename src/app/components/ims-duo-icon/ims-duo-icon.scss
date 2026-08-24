@@ -83,12 +83,11 @@
 // One treatment: the tint pushes further off-register, which reads as the glyph
 // lifting off the page. Icons carry no card, so there is nothing else to move.
 
-// Icon colours are inherited from, or derived from, whatever encloses the glyph
-// — inside a button both layers follow the label and the mask follows the
-// background. Left untransitioned the mask snaps to its hover colour the moment
-// the pointer lands, while the button's fill sweep behind it takes 260ms, so a
-// patch inside the glyph arrives before its own background does. Matching the
-// sweep's duration and easing keeps them in step.
+// Icon colours are inherited from, or derived from, whatever encloses the glyph,
+// so they fade in step with whatever surface encloses them rather than snapping
+// ahead of it. Buttons are the exception and opt out entirely — see the
+// `.ims-button .ims-duo-icon` rules in src/styles/ims-buttons.scss, which
+// suppress both the fade and the lift.
 .ims-duo-icon svg * {
     transition:
         fill 260ms cubic-bezier(0.4, 0, 0.2, 1),

@@ -1,3 +1,27 @@
+// The fill ripple is driven by three registered custom properties instead of
+// an animated pseudo-element. Registration is what makes them interpolate at
+// all — an unregistered custom property has no type, so the browser can only
+// flip it between discrete values. Animating these repaints the button's own
+// background-image, which on the CPU-rendered targets this ships to is
+// markedly smoother than transforming a stacked layer.
+@property --ims-button-fill-radius {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
+@property --ims-button-fill-alpha {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
+@property --ims-button-fill-color {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: transparent;
+}
+
 // These are placeholders, not a real "unstyled default" look — every
 // consumer directive always pairs this class with a
 // --default/--dark/--white/--outline/--danger modifier that sets
@@ -12,9 +36,12 @@
   --ims-button-color: inherit;
   --ims-button-color-active: inherit;
   --ims-button-focus-ring: var(--ims-color-focus-ring);
-  --ims-button-radius: 0.375rem;
+  --ims-button-radius: 4px;
   --ims-button-ring-color: var(--ims-color-primary-600);
   --ims-button-border: transparent;
+  --ims-button-fill-color: var(--ims-button-background-hover);
+  --ims-button-fill-radius: 0%;
+  --ims-button-fill-alpha: 0%;
 
   position: relative;
   isolation: isolate;
@@ -29,81 +56,141 @@
   border: 1px solid var(--ims-button-border);
   border-radius: var(--ims-button-radius);
   background: var(--ims-button-background);
+  // Must stay after the `background` shorthand, which resets background-image.
+  // `farthest-corner` makes 100% land exactly on the corners, so the ripple
+  // finishes flush with the border box and never overshoots. The 1.5% feather
+  // past the hard stop is what keeps the expanding edge from looking stepped
+  // without a GPU to smooth it.
+  background-image: radial-gradient(
+    circle farthest-corner at 50% 50%,
+    color-mix(in oklab, var(--ims-button-fill-color) var(--ims-button-fill-alpha), transparent)
+      var(--ims-button-fill-radius),
+    transparent calc(var(--ims-button-fill-radius) + 1.5%)
+  );
   color: var(--ims-button-color);
   font: inherit;
-  font-weight: 650;
+  font-weight: normal;
   line-height: 1.2;
   cursor: pointer;
   user-select: none;
   outline: 2px solid transparent;
   outline-offset: 8px;
-  // No outline transition here on purpose: the shrink-in animation belongs
-  // to :hover alone, so hover-out drops the ring instantly instead of
-  // replaying the same travel in reverse (a ring growing outward).
-  transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+  // The outline is never transitioned, in any state. Animating outline-offset
+  // forces a full repaint every frame, which tears visibly on the
+  // CPU-rendered targets this ships to — the ring snaps instead.
+  //
+  // Rest state, i.e. the way *out*: alpha fades the ripple away where it
+  // stands, and the radius reset is a 0s change delayed until that fade has
+  // finished, so the circle snaps back to the center only once it is already
+  // invisible. Without the delay the ripple would visibly contract again.
+  transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease,
+    --ims-button-fill-color 320ms ease-out, --ims-button-fill-alpha 180ms ease-out,
+    --ims-button-fill-radius 0s linear 180ms;
 }
 
-// Fill sweep: a deeper tone wipes in from the inline start on hover. Plain
-// transform + the button's own overflow: hidden keep it contained —
-// no clip-path needed, so it stays cheap to animate.
-// The sweep is one-directional: it travels only on the way in, and on the
-// way out it fades in place. That is why the resting state animates
-// opacity alone and defers the transform reset — a 0s transform change
-// delayed until the fade has finished snaps the fill back to its start
-// position while it is already invisible, so it never slides back out.
-.ims-button::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  background: var(--ims-button-background-hover);
-  transform: translateX(-100%);
-  opacity: 0;
-  transition: opacity 200ms ease-out, transform 0s linear 200ms, background-color 320ms ease-out;
-  pointer-events: none;
+// Optical centering. Roboto reserves 3.4px of descent below the baseline that a
+// label like “Save” never uses, so a line box centered by geometry leaves the
+// letters sitting ~1.4px high — small, but plain to see in a 26px control. The
+// fix is to center the text's cap-height box rather than its line box, which is
+// what `text-box: trim-both cap alphabetic` produces.
+//
+// It needs the button to be a block container, hence the display switch. A bare
+// label inside a grid is an anonymous item, and text-box-trim does not inherit,
+// so an anonymous box always takes the initial value — the trim would compute
+// on the button and never reach the text. `overflow: hidden` already pins the
+// external baseline to the bottom margin edge in both display modes, so
+// neighbouring content does not shift.
+//
+// Scoped to buttons whose content is only text: anything with an icon needs the
+// grid for its column track, and its label keeps the geometric centering.
+.ims-button:not(:has(> *)) {
+  display: inline-block;
+  align-content: center;
+  text-align: center;
+  text-box: trim-both cap alphabetic;
 }
 
-.ims-button:dir(rtl)::before {
-  transform: translateX(100%);
+// Fill ripple, the way *in*: a deeper tone expands from the center. The radius
+// carries the whole motion on a decelerating curve — fast off the mark, easing
+// out as it reaches the corners — while alpha snaps to full on the first frame
+// so the ripple is at its final color the entire way out from the center.
+// It has no direction, so there is no RTL variant to mirror.
+.ims-button:hover,
+.ims-button:active,
+.ims-button:focus-visible {
+  --ims-button-fill-radius: 100%;
+  --ims-button-fill-alpha: 100%;
+  transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease,
+    --ims-button-fill-color 320ms ease-out, --ims-button-fill-alpha 0s,
+    --ims-button-fill-radius 320ms cubic-bezier(0.05, 0.7, 0.1, 1);
 }
 
-.ims-button:hover::before,
-.ims-button:active::before,
-.ims-button:focus-visible::before {
-  transform: translateX(0);
-  opacity: 1;
-  transition: transform 260ms cubic-bezier(0.4, 0, 0.2, 1), opacity 0s, background-color 320ms ease-out;
-}
-
-.ims-button:active::before {
-  background: var(--ims-button-background-active);
-  transition: transform 260ms cubic-bezier(0.4, 0, 0.2, 1), opacity 0s, background-color 90ms ease-out;
-}
-
-// Action ring: a faint ring sits just outside the button on hover,
-// then flashes solid when a completed interaction is released. Built with outline
-// rather than a positioned pseudo-element so it isn't clipped by the
-// button's own overflow: hidden (outline always paints outside the
-// border box, and follows border-radius in evergreen browsers).
+// Action ring: a faint ring appears instantly on hover, then flashes solid
+// when a completed interaction is released. Built with outline rather than a
+// positioned pseudo-element so it isn't clipped by the button's own
+// overflow: hidden (outline always paints outside the border box, and
+// follows border-radius in evergreen browsers).
 .ims-button:hover {
   outline-color: color-mix(in oklab, var(--ims-button-ring-color) 25%, transparent);
   outline-offset: -1px;
   outline-width: 1px;
-  transition: background-color 160ms ease, color 160ms ease, outline-color 260ms ease-out,
-    outline-offset 260ms ease-out, box-shadow 160ms ease;
 }
 
 .ims-button:active {
   color: var(--ims-button-color-active);
-  transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+  --ims-button-fill-color: var(--ims-button-background-active);
+  // Same list as the hover group, only the tone swap is quicker — press
+  // feedback should read as immediate. Registering --ims-button-fill-color as
+  // a <color> is what lets it cross-fade here at all.
+  transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease,
+    --ims-button-fill-color 90ms ease-out, --ims-button-fill-alpha 0s,
+    --ims-button-fill-radius 320ms cubic-bezier(0.05, 0.7, 0.1, 1);
 }
 
+// The press ring holds solid for a beat, then fades. A transition cannot do
+// this: transition timing comes from the state being entered, and the state
+// entered when the blink class drops is plain :hover — so fading it that way
+// would drag the same fade onto every hover, which is exactly what the ring is
+// not supposed to do. Keyframes keep the fade attached to the press alone.
+// Only outline-color moves; the geometry stays put, so this is a 1px repaint
+// per frame rather than a growing ring.
+//
+// Each keyframe set lands on the value the button will rest at once the class
+// drops — the faint hover ring under a pointer, nothing at all after a
+// keyboard press — so the handoff is seamless either way.
+@keyframes ims-button-action-blink {
+  0%,
+  24% {
+    outline-color: var(--ims-button-ring-color);
+  }
+
+  100% {
+    outline-color: transparent;
+  }
+}
+
+@keyframes ims-button-action-blink-hover {
+  0%,
+  24% {
+    outline-color: var(--ims-button-ring-color);
+  }
+
+  100% {
+    outline-color: color-mix(in oklab, var(--ims-button-ring-color) 25%, transparent);
+  }
+}
+
+// Kept in step with ACTION_BLINK_MS in ims-button.ts, which is how long the
+// class stays on — shorter there would cut the fade off mid-way.
 .ims-button.ims-button--action-blink {
   outline-color: var(--ims-button-ring-color);
   outline-offset: -1px;
   outline-width: 1px;
-  transition: none;
+  animation: ims-button-action-blink 450ms ease-out forwards;
+}
+
+.ims-button.ims-button--action-blink:hover {
+  animation-name: ims-button-action-blink-hover;
 }
 
 // Keyboard focus rides on box-shadow, deliberately a different channel
@@ -130,7 +217,9 @@
 
 .ims-button--dark {
   --ims-button-background: var(--ims-color-brand);
-  --ims-button-background-hover: var(--ims-color-primary-700);
+  // One step lighter than the rest of the ramp's hover tones: brand navy is the
+  // darkest surface here, so the ripple needs the extra lift to read at all.
+  --ims-button-background-hover: var(--ims-color-primary-650);
   --ims-button-background-active: var(--ims-color-primary-850);
   --ims-button-color: var(--ims-color-on-interactive);
   --ims-button-color-active: var(--ims-color-on-interactive);
@@ -172,13 +261,19 @@
   // overflows, grid centering degrades to start alignment, and the button's
   // own `overflow: hidden` clips it. The icon's `size` sets the inset instead.
   padding: 0;
-  background: transparent;
+  // background-color, not the shorthand: the shorthand would reset
+  // background-image and take the ripple gradient with it.
+  background-color: transparent;
   aspect-ratio: 1;
 }
 
 .ims-button--with-symbol:not([ims-button-icon]),
 .ims-button:has(> ims-duo-icon):not([ims-button-icon]) {
   padding-inline: 0.4rem 0.8rem;
+  padding-top: 2px;
+  > ims-duo-icon {
+    margin-top: -2px;
+  }
 }
 
 // A duo icon inside a button adopts the button's own colours instead of the
@@ -192,8 +287,22 @@
   --ims-duo-icon-contour: currentColor;
   --ims-duo-icon-tint: color-mix(in oklab, currentColor 30%, transparent);
   // The mask knocks the tint out of interior windows, so it has to paint
-  // whatever is actually behind the glyph — which the fill sweep changes.
+  // whatever is actually behind the glyph — which the fill ripple changes.
   --ims-duo-icon-surface: var(--ims-button-background);
+  // Pins the hover lift to the resting offset, so the tint's transform
+  // resolves to the same value in both states and the layer never travels.
+  // Cheaper than overriding the transform itself, which would also have to
+  // restate the resting offset to avoid collapsing the duotone.
+  --ims-duo-icon-hover-offset: var(--ims-duo-icon-offset);
+}
+
+// Nothing about a duo icon animates inside a button. A glyph is the one part of
+// the surface where a half-resolved colour reads as a rendering fault rather
+// than a transition, and fill/stroke fades on a mask this detailed are exactly
+// what steps visibly without a GPU. Both layers snap with the state instead.
+.ims-button .ims-duo-icon svg *,
+.ims-button .ims-duo-icon.ims-duo-icon--hover .tint {
+  transition: none;
 }
 
 .ims-button:hover .ims-duo-icon,
@@ -227,10 +336,10 @@
   cursor: not-allowed;
 }
 
-.ims-button--disabled::before,
-.ims-button--readonly::before,
-.ims-button:disabled::before {
-  display: none;
+.ims-button--disabled,
+.ims-button--readonly,
+.ims-button:disabled {
+  background-image: none;
 }
 
 .ims-button--disabled:hover,
@@ -251,10 +360,6 @@
 .ims-button--mounting,
 .ims-button--mounting:hover,
 .ims-button--mounting:active,
-.ims-button--mounting:focus-visible,
-.ims-button--mounting::before,
-.ims-button--mounting:hover::before,
-.ims-button--mounting:active::before,
-.ims-button--mounting:focus-visible::before {
+.ims-button--mounting:focus-visible {
   transition: none;
 }

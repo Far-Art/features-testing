@@ -13,7 +13,11 @@ import {
 } from '@angular/core';
 import {ReadonlyDirective} from '../../shared/readonly.directive';
 
-const ACTION_BLINK_MS = 110;
+// How long the press ring stays on. The class carries a CSS animation that
+// holds the ring solid for its first quarter and fades it out over the rest,
+// so this has to match that animation's duration in ims-buttons.scss — drop
+// it and the fade is cut off mid-way.
+const ACTION_BLINK_MS = 450;
 
 type ImsButtonType = 'button' | 'submit' | 'reset';
 type ImsButtonActivationKey = 'Enter' | ' ';
