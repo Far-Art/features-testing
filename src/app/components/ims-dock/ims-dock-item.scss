@@ -21,19 +21,36 @@
     height: 100%;
     padding: 0;
     border: 0;
-    border-radius: 24%;
-    background: linear-gradient(
-        155deg,
-        var(--ims-color-surface-panel),
-        var(--ims-color-interactive-subtle) 60%,
-        var(--ims-color-interactive-alt-subtle)
-    );
-    box-shadow:
-        inset 0 1px 0 color-mix(in srgb, var(--ims-color-surface-panel) 90%, transparent),
-        0 3px 8px color-mix(in srgb, var(--ims-color-on-surface) 12%, transparent);
+    border-radius: 0.8rem;
+    /*
+     * Transparent at rest; hover and press are plain background-colour swaps on
+     * the button itself. No overlay layers, gradients, shadows or transforms —
+     * this runs without a GPU, so every state change stays a flat repaint of one
+     * small box rather than a composited layer.
+     */
+    background-color: transparent;
     cursor: pointer;
     font: inherit;
     line-height: 1;
+    transition: background-color 140ms ease;
+}
+
+/*
+ * Hover is matched on the button rather than on :host — the button fills the host
+ * exactly, so the two are equivalent to point at, but the host form drags an extra
+ * attribute selector into the specificity and would then outrank the press rule
+ * below (a mouse press is always hovering too). Same weight here, press last wins.
+ */
+.ims-dock-item__button:hover:not(:disabled),
+.ims-dock-item__button:focus-visible {
+    background-color: var(--ims-color-interactive-subtle);
+}
+
+/* Press is one step deeper on the same ramp, and arrives quicker than the hover
+   fade — press feedback should read as immediate. */
+.ims-dock-item__button:active:not(:disabled) {
+    background-color: var(--ims-color-interactive-alt-subtle);
+    transition-duration: 90ms;
 }
 
 .ims-dock-item__button:focus-visible {
@@ -44,7 +61,6 @@
 .ims-dock-item__button:disabled {
     cursor: not-allowed;
     opacity: 0.4;
-    box-shadow: none;
 }
 
 :host(.ims-dock-item--disabled) {
