@@ -11,7 +11,14 @@ export type ImsDuoIconTone =
     | 'success'
     | 'warning'
     | 'danger'
-    | 'inverse';
+    | 'inverse'
+    /**
+     * Both layers derive from the surrounding `color`, so the glyph follows its
+     * control the way a label does. For icons sitting inside an input, a select
+     * trigger or anything that already recolours itself for invalid/disabled
+     * states.
+     */
+    | 'inherit';
 
 export interface ImsDuoIconDefinition {
     /** Source filename without its extension. */

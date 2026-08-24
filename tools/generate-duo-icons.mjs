@@ -16,7 +16,6 @@ const ICONS_DIR = join(COMPONENT_DIR, 'icons');
 const OUTPUT_FILE = join(COMPONENT_DIR, 'ims-duo-icon.generated.ts');
 const COMPONENT_STYLES = join(COMPONENT_DIR, 'ims-duo-icon.scss');
 const COMPONENT_TYPES = join(COMPONENT_DIR, 'ims-duo-icon.types.ts');
-const COMPONENT_SOURCE = join(COMPONENT_DIR, 'ims-duo-icon.ts');
 const COLOR_TOKENS = resolve('src/styles/tokens/color-tokens.scss');
 
 /** Attributes the component relies on; a file missing any of them renders wrong. */
@@ -101,6 +100,18 @@ function readIcon(file, defaults, tones) {
         fail(`data-tone="${tone}" is not a tone (${tones.join(', ')}).`);
     }
 
+    // A glyph that references no token, or a stale one, renders its hardcoded
+    // fallbacks and silently ignores tones, hover and every theme override. The
+    // fallback check below cannot catch that — it only fires on a token that is
+    // present — so require the tokens outright.
+    for (const token of ['--ims-duo-icon-tint', '--ims-duo-icon-contour', '--ims-duo-icon-stroke-width']) {
+        if (!source.includes(`var(${token}`)) {
+            fail(`never references ${token}; the glyph will ignore every theme override.`);
+        }
+    }
+    const stale = source.match(/var\(--icon-[a-z-]+/)?.[0];
+    if (stale) fail(`uses the pre-namespace token ${stale}, renamed to --ims-duo-${stale.slice(6)}.`);
+
     const tintLayers = (source.match(/class="tint"/g) ?? []).length;
     if (tintLayers !== 1) fail(`expected exactly one class="tint" layer, found ${tintLayers}.`);
 
@@ -137,18 +148,6 @@ const files = readdirSync(ICONS_DIR).filter((file) => file.endsWith('.svg')).sor
 if (files.length === 0) throw new Error(`No .svg files found in ${ICONS_DIR}.`);
 
 const defaults = readShippedDefaults();
-
-// The component scales the contour per size from its own copy of the resting
-// weight. If that drifts from the stylesheet, every rendered icon silently
-// disagrees with what the source files fall back to.
-const declaredBase = readFileSync(COMPONENT_SOURCE, 'utf8')
-    .match(/const BASE_STROKE_WIDTH = ([\d.]+);/)?.[1];
-if (declaredBase !== defaults.strokeWidth) {
-    errors.push(
-        `ims-duo-icon.ts BASE_STROKE_WIDTH is ${declaredBase}, but ims-duo-icon.scss ` +
-            `ships --ims-duo-icon-stroke-width: ${defaults.strokeWidth}.`
-    );
-}
 
 const tones = readTones();
 const icons = files.map((file) => readIcon(file, defaults, tones)).filter(Boolean);

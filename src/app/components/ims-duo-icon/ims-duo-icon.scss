@@ -10,7 +10,7 @@
     --ims-duo-icon-contour: var(--ims-color-primary-800);
     --ims-duo-icon-surface: var(--ims-color-surface-panel);
     --ims-duo-icon-offset: 2;
-    --ims-duo-icon-stroke-width: 1.5;
+    --ims-duo-icon-stroke-width: 1.3;
 
     // Where the tint travels on hover. Only applied when the icon opts in.
     --ims-duo-icon-hover-offset: calc(var(--ims-duo-icon-offset) * 2.1);
@@ -70,6 +70,13 @@
 .ims-duo-icon--danger {
     --ims-duo-icon-tint: var(--ims-color-danger-200);
     --ims-duo-icon-contour: var(--ims-color-danger-800);
+}
+
+// Follows the surrounding text colour. The same derivation the button
+// integration applies, exposed as a tone so any control can opt in.
+.ims-duo-icon--inherit {
+    --ims-duo-icon-contour: currentColor;
+    --ims-duo-icon-tint: color-mix(in oklab, currentColor 30%, transparent);
 }
 
 // Inverted treatment for navy surfaces, per the icon spec.

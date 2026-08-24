@@ -9,7 +9,7 @@ export const imsDuoIconAdd: ImsDuoIconDefinition = {
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
   <title>Add</title>
   <circle class="tint" transform="translate(2 2)" cx="16" cy="16" r="12" fill="var(--ims-duo-icon-tint, #BFC2F4)"></circle>
-  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="16" cy="16" r="12"></circle>
     <path d="M16 10.4v11.2M10.4 16h11.2"></path>
   </g>
@@ -22,7 +22,7 @@ export const imsDuoIconArrowBack: ImsDuoIconDefinition = {
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
   <title>Arrow back</title>
   <circle class="tint" transform="translate(2 2)" cx="16" cy="16" r="12" fill="var(--ims-duo-icon-tint, #BFC2F4)"></circle>
-  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="16" cy="16" r="12"></circle>
     <path d="M21.4 16H10.6"></path>
     <path d="M15 11.6 10.6 16l4.4 4.4"></path>
@@ -36,7 +36,7 @@ export const imsDuoIconArrowForward: ImsDuoIconDefinition = {
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
   <title>Arrow forward</title>
   <circle class="tint" transform="translate(2 2)" cx="16" cy="16" r="12" fill="var(--ims-duo-icon-tint, #BFC2F4)"></circle>
-  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="16" cy="16" r="12"></circle>
     <path d="M10.6 16h10.8"></path>
     <path d="M17 11.6 21.4 16 17 20.4"></path>
@@ -54,7 +54,7 @@ export const imsDuoIconAutocomplete: ImsDuoIconDefinition = {
     <path d="M18.9 21.5 23.9 26.5a1.9 1.9 0 0 0 2.7-2.7L21.5 18.9Z"></path>
     <path d="M24 4 25.1 6.9 28 8 25.1 9.1 24 12 22.9 9.1 20 8 22.9 6.9Z"></path>
   </g>
-  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="13.4" cy="13.4" r="9.4"></circle>
     <path d="M18.9 21.5 23.9 26.5a1.9 1.9 0 0 0 2.7-2.7L21.5 18.9"></path>
     <path d="M24 4 25.1 6.9 28 8 25.1 9.1 24 12 22.9 9.1 20 8 22.9 6.9Z"></path>
@@ -67,8 +67,8 @@ export const imsDuoIconCalendar: ImsDuoIconDefinition = {
     label: 'Calendar',
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
   <title>Calendar</title>
-  <rect class="tint" transform="translate(2 2)" x="4" y="7.6" width="24" height="20.4" rx="2" fill="var(--icon-tint, #BFC2F4)"></rect>
-  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <rect class="tint" transform="translate(2 2)" x="4" y="7.6" width="24" height="20.4" rx="2" fill="var(--ims-duo-icon-tint, #BFC2F4)"></rect>
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <rect x="4" y="7.6" width="24" height="20.4" rx="2"></rect>
     <path d="M4 13.6h24"></path>
     <path d="M10.4 4.6v5.4M21.6 4.6v5.4"></path>
@@ -83,7 +83,7 @@ export const imsDuoIconClear: ImsDuoIconDefinition = {
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
   <title>Clear</title>
   <circle class="tint" transform="translate(2 2)" cx="16" cy="16" r="12" fill="var(--ims-duo-icon-tint, #BFC2F4)"></circle>
-  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="16" cy="16" r="12"></circle>
     <path d="M11.8 11.8 20.2 20.2M20.2 11.8 11.8 20.2"></path>
   </g>
@@ -97,7 +97,7 @@ export const imsDuoIconDanger: ImsDuoIconDefinition = {
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true" data-tone="danger">
   <title>Danger</title>
   <circle class="tint" transform="translate(2 2)" cx="16" cy="16" r="12" fill="var(--ims-duo-icon-tint, #BFC2F4)"></circle>
-  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="16" cy="16" r="12"></circle>
     <path d="M16 10.4v7.2"></path>
     <path d="M16 21.4h.01"></path>
@@ -110,8 +110,8 @@ export const imsDuoIconDocument: ImsDuoIconDefinition = {
     label: 'Document',
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
   <title>Document</title>
-  <path class="tint" transform="translate(2 2)" d="M8 4h10.4L25.6 11.2V26a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" fill="var(--icon-tint, #BFC2F4)"></path>
-  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <path class="tint" transform="translate(2 2)" d="M8 4h10.4L25.6 11.2V26a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" fill="var(--ims-duo-icon-tint, #BFC2F4)"></path>
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <path d="M8 4h10.4L25.6 11.2V26a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"></path>
     <path d="M18.4 4v7.2h7.2"></path>
     <path d="M9.6 14.4h12.8M9.6 18h12.8M9.6 21.6h8.8"></path>
@@ -127,7 +127,7 @@ export const imsDuoIconEdit: ImsDuoIconDefinition = {
   <g class="tint" transform="translate(2 2)" fill="var(--ims-duo-icon-tint, #BFC2F4)">
     <path d="M5.6 26.4 10.6 24.8 24.4 11a2.4 2.4 0 0 0-3.4-3.4L7.2 21.4Z"></path>
   </g>
-  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <path d="M5.6 26.4 10.6 24.8 24.4 11a2.4 2.4 0 0 0-3.4-3.4L7.2 21.4Z"></path>
     <path d="M5.6 26.4 8.9 23.2"></path>
     <path d="M10.6 24.8 7.2 21.4"></path>
@@ -141,8 +141,8 @@ export const imsDuoIconEnvelopeOpen: ImsDuoIconDefinition = {
     label: 'Envelope open',
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
   <title>Envelope open</title>
-  <path class="tint" transform="translate(2 2)" d="M4 11.6 16 4l12 7.6V26a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z" fill="var(--icon-tint, #BFC2F4)"></path>
-  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <path class="tint" transform="translate(2 2)" d="M4 11.6 16 4l12 7.6V26a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z" fill="var(--ims-duo-icon-tint, #BFC2F4)"></path>
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <path d="M4 11.6 16 4l12 7.6V26a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"></path>
     <path d="M4.8 12.4 16 21.2 27.2 12.4"></path>
     <path d="M4.8 27 12.4 19.2M27.2 27 19.6 19.2"></path>
@@ -155,8 +155,8 @@ export const imsDuoIconEnvelope: ImsDuoIconDefinition = {
     label: 'Envelope',
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
   <title>Envelope</title>
-  <rect class="tint" transform="translate(2 2)" x="4" y="7.2" width="24" height="17.6" rx="2" fill="var(--icon-tint, #BFC2F4)"></rect>
-  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <rect class="tint" transform="translate(2 2)" x="4" y="7.2" width="24" height="17.6" rx="2" fill="var(--ims-duo-icon-tint, #BFC2F4)"></rect>
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <rect x="4" y="7.2" width="24" height="17.6" rx="2"></rect>
     <path d="M4.8 8.4 16 17.2 27.2 8.4"></path>
     <path d="M4.8 23.6 12.4 15.8M27.2 23.6 19.6 15.8"></path>
@@ -170,7 +170,7 @@ export const imsDuoIconExpand: ImsDuoIconDefinition = {
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
   <title>Expand</title>
   <circle class="tint" transform="translate(2 2)" cx="16" cy="16" r="12" fill="var(--ims-duo-icon-tint, #BFC2F4)"></circle>
-  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="16" cy="16" r="12"></circle>
     <path d="M11.2 14.2 16 19 20.8 14.2"></path>
   </g>
@@ -183,7 +183,7 @@ export const imsDuoIconFilter: ImsDuoIconDefinition = {
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
   <title>Filter</title>
   <path class="tint" transform="translate(2 2)" d="M4.6 6.4h22.8l-8.8 9.8v9.4l-5.2-2.6v-6.8Z" fill="var(--ims-duo-icon-tint, #BFC2F4)"></path>
-  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <path d="M4.6 6.4h22.8l-8.8 9.8v9.4l-5.2-2.6v-6.8Z"></path>
     <path d="M13.4 16.2h5.2"></path>
   </g>
@@ -197,7 +197,7 @@ export const imsDuoIconFloppyDisk: ImsDuoIconDefinition = {
   <title>Floppy disk</title>
   <path class="tint" transform="translate(2 2)" d="M6 4h16.4L28 9.6V26a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" fill="var(--ims-duo-icon-tint, #BFC2F4)"></path>
   <path d="M9.4 19.2h13.2V28H9.4zM10 4h9.6v7.6h-9.6z" fill="var(--ims-duo-icon-surface, #fff)"></path>
-  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <path d="M6 4h16.4L28 9.6V26a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"></path>
     <path d="M11.2 4v8h9.6V4"></path>
     <path d="M17.6 6v4"></path>
@@ -213,7 +213,7 @@ export const imsDuoIconInfo: ImsDuoIconDefinition = {
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
   <title>Info</title>
   <circle class="tint" transform="translate(2 2)" cx="16" cy="16" r="12" fill="var(--ims-duo-icon-tint, #BFC2F4)"></circle>
-  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="16" cy="16" r="12"></circle>
     <g transform="rotate(8 16 17.5)"><path d="M11.6 15.6c1-2.6 5-3.6 4.4-.8l-1.3 5.5c-.35 2 2.6 2.1 4.3-.3"></path></g>
   </g>
@@ -231,7 +231,7 @@ export const imsDuoIconInkPen: ImsDuoIconDefinition = {
       <path d="M23.4 4L22.7 4.3L21 6L18.8 4.4L17.2 4.4L16.7 4.7L9.1 12.5L10.9 14.3L18.1 7L18.9 8.1L8.6 18.5L4 23.2L4 27.6L4.4 28L9.1 27.9L27.7 9.3L28 8.4L27.6 7.5L24.5 4.4L23.4 4Z"></path>
     </g>
   </g>
-  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <g transform="translate(16 16) scale(.9) translate(-16 -16)">
       <path d="M23.4 4L22.7 4.3L21 6L18.8 4.4L17.2 4.4L16.7 4.7L9.1 12.5L10.9 14.3L18.1 7L18.9 8.1L8.6 18.5L4 23.2L4 27.6L4.4 28L9.1 27.9L27.7 9.3L28 8.4L27.6 7.5L24.5 4.4L23.4 4Z"></path>
       <path d="M23.4 7.4L24.7 8.6L17.7 15.5L16.4 14.3L23.4 7.4ZM14.3 16.5L15.6 17.7L8 25.2L6.8 25.3L6.7 24L14.3 16.5Z" fill="var(--ims-duo-icon-contour, #000570)" stroke="none"></path>
@@ -245,13 +245,13 @@ export const imsDuoIconKyc: ImsDuoIconDefinition = {
     label: 'KYC',
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
   <title>KYC</title>
-  <path class="tint" transform="translate(2 2)" d="M8 4h10.4L25.6 11.2V26a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" fill="var(--icon-tint, #BFC2F4)"></path>
-  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <path class="tint" transform="translate(2 2)" d="M8 4h10.4L25.6 11.2V26a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" fill="var(--ims-duo-icon-tint, #BFC2F4)"></path>
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <path d="M8 4h10.4L25.6 11.2V26a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"></path>
     <path d="M18.4 4v7.2h7.2"></path>
     <path d="M9.6 14.4h12.8M9.6 18h9.6"></path>
-    <path d="M6 21.4h19.6V26a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2Z" fill="var(--icon-contour, #000570)"></path>
-    <text x="15.8" y="26.2" text-anchor="middle" font-family="Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="4.4" font-weight="700" letter-spacing="0.1" fill="var(--icon-surface, #fff)" stroke="none">KYC</text>
+    <path d="M6 21.4h19.6V26a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2Z" fill="var(--ims-duo-icon-contour, #000570)"></path>
+    <text x="15.8" y="26.2" text-anchor="middle" font-family="Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="4.4" font-weight="700" letter-spacing="0.1" fill="var(--ims-duo-icon-surface, #fff)" stroke="none">KYC</text>
   </g>
 </svg>`
 };
@@ -266,7 +266,7 @@ export const imsDuoIconList: ImsDuoIconDefinition = {
     <rect x="4" y="13.2" width="5.6" height="5.6" rx="1.4"></rect>
     <rect x="4" y="20.8" width="5.6" height="5.6" rx="1.4"></rect>
   </g>
-  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <rect x="4" y="5.6" width="5.6" height="5.6" rx="1.4"></rect>
     <rect x="4" y="13.2" width="5.6" height="5.6" rx="1.4"></rect>
     <rect x="4" y="20.8" width="5.6" height="5.6" rx="1.4"></rect>
@@ -287,7 +287,7 @@ export const imsDuoIconMultiSelect: ImsDuoIconDefinition = {
     <rect x="4" y="5.6" width="9.6" height="9.6" rx="2"></rect>
     <rect x="4" y="17.6" width="9.6" height="9.6" rx="2"></rect>
   </g>
-  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <rect x="4" y="5.6" width="9.6" height="9.6" rx="2"></rect>
     <rect x="4" y="17.6" width="9.6" height="9.6" rx="2"></rect>
     <path d="M7.2 10.4 8.8 12 10.4 8.8"></path>
@@ -302,8 +302,8 @@ export const imsDuoIconProcessClose: ImsDuoIconDefinition = {
     label: 'Process close',
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
   <title>Process close</title>
-  <g class="tint" transform="translate(2 2)" fill="var(--ims-duo-icon-tint, #BFC2F4)"><circle cx="7.6" cy="22.6" r="2.6"></circle><circle cx="16" cy="22.6" r="2.6"></circle><circle cx="24.4" cy="22.6" r="2.6"></circle><path d="M11 5.6 21 15.6M21 5.6 11 15.6" fill="none" stroke="var(--ims-color-danger-200, #EBB1C1)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round"></path></g>
-  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g class="tint" transform="translate(2 2)" fill="var(--ims-duo-icon-tint, #BFC2F4)"><circle cx="7.6" cy="22.6" r="2.6"></circle><circle cx="16" cy="22.6" r="2.6"></circle><circle cx="24.4" cy="22.6" r="2.6"></circle><path d="M11 5.6 21 15.6M21 5.6 11 15.6" fill="none" stroke="var(--ims-color-danger-200, #EBB1C1)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round"></path></g>
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="7.6" cy="22.6" r="2.6"></circle><circle cx="16" cy="22.6" r="2.6"></circle><circle cx="24.4" cy="22.6" r="2.6"></circle>
     <path d="M10.6 22.6h2.8M18.6 22.6h2.8"></path>
     <path d="M11 5.6 21 15.6M21 5.6 11 15.6" stroke="var(--ims-color-danger-800, #690B25)"></path>
@@ -316,12 +316,12 @@ export const imsDuoIconProcessForward: ImsDuoIconDefinition = {
     label: 'Process forward',
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
   <title>Process forward</title>
-  <g class="tint" transform="translate(2 2)" fill="var(--icon-tint, #BFC2F4)"><circle cx="7.6" cy="22.6" r="2.6"></circle><circle cx="16" cy="22.6" r="2.6"></circle><circle cx="24.4" cy="22.6" r="2.6"></circle><path d="M22 4 20.4 9.5 16.5 5.6Z"></path><path d="M10.4 15.6 18.4 7.6" fill="none" stroke="var(--icon-tint, #BFC2F4)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round"></path></g>
-  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g class="tint" transform="translate(2 2)" fill="var(--ims-duo-icon-tint, #BFC2F4)"><circle cx="7.6" cy="22.6" r="2.6"></circle><circle cx="16" cy="22.6" r="2.6"></circle><circle cx="24.4" cy="22.6" r="2.6"></circle><path d="M22 4 20.4 9.5 16.5 5.6Z"></path><path d="M10.4 15.6 18.4 7.6" fill="none" stroke="var(--ims-duo-icon-tint, #BFC2F4)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round"></path></g>
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="7.6" cy="22.6" r="2.6"></circle><circle cx="16" cy="22.6" r="2.6"></circle><circle cx="24.4" cy="22.6" r="2.6"></circle>
     <path d="M10.6 22.6h2.8M18.6 22.6h2.8"></path>
     <path d="M10.4 15.6 18.4 7.6"></path>
-    <path d="M22 4 20.4 9.5 16.5 5.6Z" fill="var(--icon-contour, #000570)"></path>
+    <path d="M22 4 20.4 9.5 16.5 5.6Z" fill="var(--ims-duo-icon-contour, #000570)"></path>
   </g>
 </svg>`
 };
@@ -331,12 +331,12 @@ export const imsDuoIconProcessSplit: ImsDuoIconDefinition = {
     label: 'Process split',
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
   <title>Process split</title>
-  <g class="tint" transform="translate(2 2)" fill="var(--icon-tint, #BFC2F4)"><circle cx="7.6" cy="22.6" r="2.6"></circle><circle cx="16" cy="22.6" r="2.6"></circle><circle cx="24.4" cy="22.6" r="2.6"></circle><path d="M25.4 7.6 23.8 12.5 20.4 9.1Z"></path><path d="M6.6 7.6 8.2 12.5 11.6 9.1Z"></path><path d="M16 16.8 22.1 10.8M16 16.8 9.9 10.8" fill="none" stroke="var(--icon-tint, #BFC2F4)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round"></path></g>
-  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g class="tint" transform="translate(2 2)" fill="var(--ims-duo-icon-tint, #BFC2F4)"><circle cx="7.6" cy="22.6" r="2.6"></circle><circle cx="16" cy="22.6" r="2.6"></circle><circle cx="24.4" cy="22.6" r="2.6"></circle><path d="M25.4 7.6 23.8 12.5 20.4 9.1Z"></path><path d="M6.6 7.6 8.2 12.5 11.6 9.1Z"></path><path d="M16 16.8 22.1 10.8M16 16.8 9.9 10.8" fill="none" stroke="var(--ims-duo-icon-tint, #BFC2F4)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round"></path></g>
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="7.6" cy="22.6" r="2.6"></circle><circle cx="16" cy="22.6" r="2.6"></circle><circle cx="24.4" cy="22.6" r="2.6"></circle>
     <path d="M10.6 22.6h2.8M18.6 22.6h2.8"></path>
     <path d="M16 16.8 22.1 10.8M16 16.8 9.9 10.8"></path>
-    <path d="M25.4 7.6 23.8 12.5 20.4 9.1ZM6.6 7.6 8.2 12.5 11.6 9.1Z" fill="var(--icon-contour, #000570)"></path>
+    <path d="M25.4 7.6 23.8 12.5 20.4 9.1ZM6.6 7.6 8.2 12.5 11.6 9.1Z" fill="var(--ims-duo-icon-contour, #000570)"></path>
   </g>
 </svg>`
 };
@@ -347,7 +347,7 @@ export const imsDuoIconRemove: ImsDuoIconDefinition = {
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
   <title>Remove</title>
   <circle class="tint" transform="translate(2 2)" cx="16" cy="16" r="12" fill="var(--ims-duo-icon-tint, #BFC2F4)"></circle>
-  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="16" cy="16" r="12"></circle>
     <path d="M10.4 16h11.2"></path>
   </g>
@@ -363,7 +363,7 @@ export const imsDuoIconSearch: ImsDuoIconDefinition = {
     <circle cx="13.8" cy="13.8" r="9.8"></circle>
     <path d="M19.3 21.9 24.3 26.9a1.9 1.9 0 0 0 2.7-2.7L21.9 19.3Z"></path>
   </g>
-  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="13.8" cy="13.8" r="9.8"></circle>
     <path d="M19.3 21.9 24.3 26.9a1.9 1.9 0 0 0 2.7-2.7L21.9 19.3"></path>
   </g>
@@ -375,8 +375,8 @@ export const imsDuoIconUpload: ImsDuoIconDefinition = {
     label: 'Upload',
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
   <title>Upload</title>
-  <path class="tint" transform="translate(2 2)" d="M7.2 13.6h17.6a2.4 2.4 0 0 1 2.4 2.4v9.6a2.4 2.4 0 0 1-2.4 2.4H7.2a2.4 2.4 0 0 1-2.4-2.4V16a2.4 2.4 0 0 1 2.4-2.4Z" fill="var(--icon-tint, #BFC2F4)"></path>
-  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <path class="tint" transform="translate(2 2)" d="M7.2 13.6h17.6a2.4 2.4 0 0 1 2.4 2.4v9.6a2.4 2.4 0 0 1-2.4 2.4H7.2a2.4 2.4 0 0 1-2.4-2.4V16a2.4 2.4 0 0 1 2.4-2.4Z" fill="var(--ims-duo-icon-tint, #BFC2F4)"></path>
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <path d="M10.4 13.6H7.2a2.4 2.4 0 0 0-2.4 2.4v9.6a2.4 2.4 0 0 0 2.4 2.4h17.6a2.4 2.4 0 0 0 2.4-2.4V16a2.4 2.4 0 0 0-2.4-2.4h-3.2"></path>
     <path d="M16 20V4.8M10.6 10.2 16 4.8 21.4 10.2"></path>
   </g>
@@ -388,15 +388,15 @@ export const imsDuoIconUserEdit: ImsDuoIconDefinition = {
     label: 'User edit',
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
   <title>User edit</title>
-  <g class="tint" transform="translate(2 2)" fill="var(--icon-tint, #BFC2F4)">
+  <g class="tint" transform="translate(2 2)" fill="var(--ims-duo-icon-tint, #BFC2F4)">
     <circle cx="16" cy="10.6" r="5.8"></circle>
     <path d="M4.6 28c0-5.8 5.1-9.4 11.4-9.4S27.4 22.2 27.4 28Z"></path>
   </g>
-  <path d="M15.4 26.8 18.4 25.8 26.8 17.4a1.4 1.4 0 0 0-2-2L16.4 23.8Z" fill="var(--icon-surface, #fff)" stroke="var(--icon-surface, #fff)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>
-  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M15.4 26.8 18.4 25.8 26.8 17.4a1.4 1.4 0 0 0-2-2L16.4 23.8Z" fill="var(--ims-duo-icon-surface, #fff)" stroke="var(--ims-duo-icon-surface, #fff)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="16" cy="10.6" r="5.8"></circle>
     <path d="M4.6 28c0-5.8 5.1-9.4 11.4-9.4S27.4 22.2 27.4 28"></path>
-    <path d="M15.4 26.8 18.4 25.8 26.8 17.4a1.4 1.4 0 0 0-2-2L16.4 23.8Z" fill="var(--icon-tint, #BFC2F4)"></path>
+    <path d="M15.4 26.8 18.4 25.8 26.8 17.4a1.4 1.4 0 0 0-2-2L16.4 23.8Z" fill="var(--ims-duo-icon-tint, #BFC2F4)"></path>
     <path d="M15.4 26.8 17.4 24.8M18.4 25.8 16.4 23.8"></path>
   </g>
 </svg>`
@@ -407,16 +407,16 @@ export const imsDuoIconUserHelp: ImsDuoIconDefinition = {
     label: 'User help',
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false" aria-hidden="true">
   <title>User help</title>
-  <g class="tint" transform="translate(2 2)" fill="var(--icon-tint, #BFC2F4)">
+  <g class="tint" transform="translate(2 2)" fill="var(--ims-duo-icon-tint, #BFC2F4)">
     <circle cx="16" cy="10.6" r="5.8"></circle>
     <path d="M4.6 28c0-5.8 5.1-9.4 11.4-9.4S27.4 22.2 27.4 28Z"></path>
   </g>
-  <circle cx="22" cy="22" r="6" fill="var(--icon-surface, #fff)"></circle>
-  <g fill="none" stroke="var(--icon-contour, #000570)" stroke-width="var(--icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="22" cy="22" r="6" fill="var(--ims-duo-icon-surface, #fff)"></circle>
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="16" cy="10.6" r="5.8"></circle>
     <path d="M4.6 28c0-5.8 5.1-9.4 11.4-9.4S27.4 22.2 27.4 28"></path>
-    <circle cx="22" cy="22" r="5.2" fill="var(--icon-contour, #000570)"></circle>
-    <path d="M20.3 20.5a1.7 1.7 0 1 1 1.7 1.9v.8M22 25.8v0" stroke="var(--icon-surface, #fff)"></path>
+    <circle cx="22" cy="22" r="5.2" fill="var(--ims-duo-icon-contour, #000570)"></circle>
+    <path d="M20.3 20.5a1.7 1.7 0 1 1 1.7 1.9v.8M22 25.8v0" stroke="var(--ims-duo-icon-surface, #fff)"></path>
   </g>
 </svg>`
 };
@@ -430,7 +430,7 @@ export const imsDuoIconUser: ImsDuoIconDefinition = {
     <circle cx="16" cy="10.6" r="5.8"></circle>
     <path d="M4.6 28c0-5.8 5.1-9.4 11.4-9.4S27.4 22.2 27.4 28Z"></path>
   </g>
-  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="16" cy="10.6" r="5.8"></circle>
     <path d="M4.6 28c0-5.8 5.1-9.4 11.4-9.4S27.4 22.2 27.4 28"></path>
   </g>
@@ -446,7 +446,7 @@ export const imsDuoIconWarning: ImsDuoIconDefinition = {
   <g class="tint" transform="translate(2 2)" fill="var(--ims-duo-icon-tint, #BFC2F4)">
     <path d="M14.7 5.4 4.5 23.2a1.5 1.5 0 0 0 1.3 2.2h20.4a1.5 1.5 0 0 0 1.3-2.2L17.3 5.4a1.5 1.5 0 0 0-2.6 0Z"></path>
   </g>
-  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <path d="M14.7 5.4 4.5 23.2a1.5 1.5 0 0 0 1.3 2.2h20.4a1.5 1.5 0 0 0 1.3-2.2L17.3 5.4a1.5 1.5 0 0 0-2.6 0Z"></path>
     <path d="M16 12.4v5.6"></path>
     <path d="M16 21.4h.01"></path>
@@ -463,7 +463,7 @@ export const imsDuoIconZoomIn: ImsDuoIconDefinition = {
     <circle cx="13.8" cy="13.8" r="9.8"></circle>
     <path d="M19.3 21.9 24.3 26.9a1.9 1.9 0 0 0 2.7-2.7L21.9 19.3Z"></path>
   </g>
-  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.5)" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="var(--ims-duo-icon-contour, #000570)" stroke-width="var(--ims-duo-icon-stroke-width, 1.3)" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="13.8" cy="13.8" r="9.8"></circle>
     <path d="M13.8 9.4v8.8M9.4 13.8h8.8"></path>
     <path d="M19.3 21.9 24.3 26.9a1.9 1.9 0 0 0 2.7-2.7L21.9 19.3"></path>

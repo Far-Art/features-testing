@@ -11,16 +11,6 @@ import {
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import {ImsDuoIconDefinition, ImsDuoIconTone} from './ims-duo-icon.types';
 
-/** Width of the drawing grid, from the icon spec's `viewBox="0 0 32 32"`. */
-const ICON_GRID = 32;
-
-/**
- * Resting contour weight in user units. Must match `--ims-duo-icon-stroke-width`
- * in ims-duo-icon.scss, which is what the source SVGs fall back to when rendered
- * standalone; `npm run icons` fails the build if the two drift apart.
- */
-const BASE_STROKE_WIDTH = 1.5;
-
 const MIN_OFFSET = 0;
 const MAX_OFFSET = 3;
 
@@ -70,6 +60,7 @@ const markupCache = new WeakMap<ImsDuoIconDefinition, SafeHtml>();
         '[class.ims-duo-icon--warning]': 'resolvedTone() === "warning"',
         '[class.ims-duo-icon--danger]': 'resolvedTone() === "danger"',
         '[class.ims-duo-icon--inverse]': 'resolvedTone() === "inverse"',
+        '[class.ims-duo-icon--inherit]': 'resolvedTone() === "inherit"',
         '[class.ims-duo-icon--hover]': 'hover()',
         '[style.--ims-duo-icon-size]': 'sizePx()',
         '[style.--ims-duo-icon-stroke-width]': 'resolvedStrokeWidth()',
@@ -90,10 +81,12 @@ export class ImsDuoIcon {
     readonly icon = input.required<ImsDuoIconDefinition>();
 
     /**
-     * Rendered edge length in px. Defaults to 18 to match the Material Symbols
-     * ligature size used elsewhere in the system (`--ims-icon-size: 1.125rem`).
+     * Rendered edge length in px. Unset defers to `--ims-duo-icon-size` in the
+     * stylesheet, which is where the house default lives.
      */
-    readonly size = input(22, {transform: numberAttribute});
+    readonly size = input<number | null, unknown>(null, {
+        transform: (value): number | null => (value == null ? null : numberAttribute(value))
+    });
 
     /**
      * Duotone palette, resolved from the `--ims-color-*` ramps. Unset defers to
@@ -122,12 +115,18 @@ export class ImsDuoIcon {
      */
     readonly hover = input(false, {transform: booleanAttribute});
 
-/** Per-instance stroke weight. Unset defers to `--icon-stroke-width`. */
+    /** Per-instance contour weight. Unset defers to `--ims-duo-icon-stroke-width`. */
     readonly strokeWidth = input<number | null, unknown>(null, {
         transform: (value): number | null => (value == null ? null : numberAttribute(value))
     });
 
-    protected readonly sizePx = computed(() => `${this.size()}px`);
+    // Every one of these returns null when the input is unset, which removes the
+    // inline style and lets the stylesheet's value apply. The stylesheet is the
+    // single source for defaults; TS only overrides what a call site asks for.
+    protected readonly sizePx = computed(() => {
+        const size = this.size();
+        return size === null ? null : `${size}px`;
+    });
 
     /** Call site wins, then the glyph's declared tone, then the default palette. */
     protected readonly resolvedTone = computed<ImsDuoIconTone>(
@@ -140,9 +139,10 @@ export class ImsDuoIcon {
         return offset === null ? null : String(clamp(offset, MIN_OFFSET, MAX_OFFSET));
     });
 
-    protected readonly resolvedStrokeWidth = computed(() =>
-        String(this.strokeWidth() ?? strokeWidthForSize(this.size()))
-    );
+    protected readonly resolvedStrokeWidth = computed(() => {
+        const strokeWidth = this.strokeWidth();
+        return strokeWidth === null ? null : String(strokeWidth);
+    });
 
     protected readonly markup = computed(() => {
         const icon = this.icon();
@@ -157,22 +157,4 @@ export class ImsDuoIcon {
 
 function clamp(value: number, min: number, max: number): number {
     return Math.min(Math.max(value, min), max);
-}
-
-/**
- * Contour weight for a rendered size, in user units.
- *
- * A stroke declared in user units paints at `width * size / 32`, so a flat 1.5
- * collapses to 0.84px at 18px and 0.75px at 16px — below one device pixel on a
- * 1x display, where it renders as a washed-out grey line rather than a contour.
- *
- * Rounding the *painted* width to whole pixels (never below one) keeps every
- * size on a solid line and holds the apparent weight steady: 16-24px all paint a
- * 1px contour, 32-48px a 2px one. Note this does not guarantee pixel-crisp
- * edges — that needs the path geometry to land on the grid too, which a 32-unit
- * viewBox at 22px does not. It buys consistent weight, not hairlines.
- */
-function strokeWidthForSize(size: number): number {
-    const painted = Math.max(1, Math.round((BASE_STROKE_WIDTH * size) / ICON_GRID));
-    return Math.round(((painted * ICON_GRID) / size) * 100) / 100;
 }
