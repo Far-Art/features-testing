@@ -105,7 +105,7 @@
 // with any net shift. Icon-only buttons opt out via [ims-button-icon], which
 // already zeroes all padding for its own layout reasons — there's no label
 // there for the push to correct in the first place.
-.ims-button:not([ims-button-icon]) {
+.ims-button:not([ims-button-icon]):has(> ims-duo-icon, .ims-icon.ims-button__symbol) {
   padding-block-start: 2px;
 }
 
@@ -256,6 +256,82 @@
   --ims-button-color: var(--ims-color-on-interactive);
   --ims-button-color-active: var(--ims-color-on-interactive);
   --ims-button-ring-color: var(--ims-color-danger-500);
+}
+
+// Call to action: the halo that marks the one button on a view that has to be
+// found without being looked for. Not a variation — it says nothing about what
+// kind of action this is, only that this is the one being called for, so it
+// composes onto any variation (and onto an icon-only button) and takes its
+// colour from whichever it lands on.
+//
+// The halo rides on box-shadow because the button's other two ring channels
+// are already spoken for: outline carries the hover/press ring and
+// background-image carries the ripple. A pseudo-element is not an option
+// either — the base clips its children with `overflow: hidden`, while an
+// outer box-shadow paints past the border box untouched by it, and its spread
+// costs no layout.
+//
+// Keyframes rather than a transition because nothing is changing state here:
+// the button is at rest the entire time. The hold from 70% to 100% is the gap
+// between pulses — without it the halo would restart the instant it faded,
+// which reads as a flicker rather than a beat.
+@keyframes ims-button-cta-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--ims-button-pulse-color) 55%, transparent);
+  }
+
+  70%,
+  100% {
+    box-shadow: 0 0 0 var(--ims-button-pulse-spread) transparent;
+  }
+}
+
+.ims-button--cta {
+  // Tracks the press ring rather than naming a colour of its own. Every
+  // variation already had to pick a tone that reads against its own surface
+  // for that ring, which is the same problem the halo has — and it means a
+  // variation added later gets a working halo without touching this rule.
+  --ims-button-pulse-color: var(--ims-button-ring-color);
+  --ims-button-pulse-spread: 6px;
+  --ims-button-pulse-duration: 2.4s;
+}
+
+// The halo is declared only while the button is *un*engaged, rather than being
+// switched off in the engaged states. Both spellings stop the pulse once the
+// button has been found — which is the whole point of it — but only this one
+// keeps the press ring: `.ims-button--action-blink` is an animation too, and
+// `animation` is a single channel, so whichever rule wins takes the element's
+// only animation slot. A later `animation: none` in the engaged states would
+// win that tie and leave the press with no ring at all.
+//
+// The blink class has to be named here in its own right, not left to the
+// pointer and keyboard states to imply. A press usually arrives with `:hover`
+// (mouse) or `:focus-visible` (keyboard) already true, either of which fails
+// the match on its own — but a touch tap carries neither, and there the halo
+// would outrank the blink and swallow it.
+//
+// Disabled and readonly are excluded for the obvious reason: nothing should
+// beckon toward a control that will not respond.
+.ims-button--cta:not(
+    :hover,
+    :active,
+    :focus-visible,
+    :disabled,
+    .ims-button--action-blink,
+    .ims-button--disabled,
+    .ims-button--readonly
+  ) {
+  animation: ims-button-cta-pulse var(--ims-button-pulse-duration) ease-out infinite;
+}
+
+// Doubled class for specificity, not for effect — a media query adds none of
+// its own, and the rule above is a class plus a :not() holding a class, so a
+// bare `.ims-button--cta` here would lose to it and the halo would keep
+// pulsing.
+@media (prefers-reduced-motion: reduce) {
+  .ims-button.ims-button--cta {
+    animation: none;
+  }
 }
 
 .ims-button-icon {

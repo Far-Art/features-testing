@@ -32,6 +32,18 @@
         </button>
         <button ims-button [ims-readonly]="true">Readonly</button>
     </div>
+
+    <div class="button-demo__ims-buttons" aria-label="IMS call to action">
+        <button ims-button call-to-action>Default</button>
+        <button ims-button ims-button-variation="primary" call-to-action>
+            המשך לתשלום
+        </button>
+        <button ims-button ims-button-variation="danger" call-to-action>Danger</button>
+        <button ims-button-icon call-to-action aria-label="הוספה">
+            <span class="ims-icon" aria-hidden="true">add</span>
+        </button>
+        <button ims-button ims-button-variation="primary" call-to-action disabled>Disabled</button>
+    </div>
 </section>
 
 <section class="button-demo">

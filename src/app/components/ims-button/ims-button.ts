@@ -29,6 +29,7 @@ export type ImsButtonVariation = 'default' | 'primary' | 'secondary' | 'outline'
         '[class.ims-button--mounting]': 'justMounted()',
         '[class.ims-button--action-blink]': 'actionBlink()',
         '[class.ims-button--with-symbol]': 'normalizedIcon().length > 0',
+        '[class.ims-button--cta]': 'callToAction()',
         '[class.ims-readonly]': 'readonlyMode()',
         '[class.ims-button--disabled]': 'disabledInput()',
         '[class.ims-button--readonly]': 'readonlyMode()',
@@ -78,6 +79,17 @@ export abstract class ImsButtonBase {
 
     /** Optional decorative Material Symbols ligature rendered before the button label. */
     readonly icon = input<string | null>(null);
+
+    /**
+     * Marks this button as the way forward, adding a slow halo that pulses
+     * outward until the button is engaged. Orthogonal to `variation`, which
+     * says what kind of action this is — any variation can be the one being
+     * called for, including an icon-only button.
+     *
+     * At most one per view. The halo works by being the only thing moving;
+     * a second one turns both into noise.
+     */
+    readonly callToAction = input(false, {alias: 'call-to-action', transform: booleanAttribute});
 
     protected readonly normalizedIcon = computed(() => this.icon()?.trim() ?? '');
 
