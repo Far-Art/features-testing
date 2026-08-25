@@ -9,18 +9,18 @@
         <p>שני גלים מדורגים מושכים תשומת לב לפעולה המרכזית בלי להזיז את הכפתור עצמו.</p>
     </div>
 
-    <button type="button" class="call-to-action cta-demo__button">
-        המשך לתשלום
-    </button>
-
     <div class="button-demo__ims-buttons" aria-label="IMS button variants">
         <button ims-button>Default</button>
         <button ims-button ims-button-variation="primary">Primary</button>
         <button ims-button ims-button-variation="secondary">Secondary</button>
         <button ims-button ims-button-variation="outline">Outline</button>
         <button ims-button ims-button-variation="danger">Danger</button>
+        <button ims-button ims-button-variation="primary">
+            <ims-icon class="ims-button__symbol">add</ims-icon>
+            Add
+        </button>
         <button ims-button-icon aria-label="הוספה">
-            <span class="ims-icon" aria-hidden="true">add</span>
+            <ims-icon>add</ims-icon>
         </button>
         <button ims-button disabled>Disabled</button>
         <button ims-button ims-button-variation="primary" disabled>Disabled</button>
@@ -28,7 +28,7 @@
         <button ims-button ims-button-variation="outline" disabled>Disabled</button>
         <button ims-button ims-button-variation="danger" disabled>Disabled</button>
         <button ims-button-icon disabled aria-label="הוספה מושבתת">
-            <span class="ims-icon" aria-hidden="true">add</span>
+            <ims-icon>add</ims-icon>
         </button>
         <button ims-button [ims-readonly]="true">Readonly</button>
     </div>
@@ -40,7 +40,7 @@
         </button>
         <button ims-button ims-button-variation="danger" call-to-action>Danger</button>
         <button ims-button-icon call-to-action aria-label="הוספה">
-            <span class="ims-icon" aria-hidden="true">add</span>
+            <ims-icon>add</ims-icon>
         </button>
         <button ims-button ims-button-variation="primary" call-to-action disabled>Disabled</button>
     </div>

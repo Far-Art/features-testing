@@ -1,5 +1,6 @@
 import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {ImsButton, ImsButtonIcon} from '../../components/ims-button';
+import {ImsIcon} from '../../components/ims-icon';
 import {ImsLongPressDirective} from '../../ims-long-press.directive';
 import {ReadonlyDirective} from '../../shared/readonly.directive';
 
@@ -8,6 +9,7 @@ import {ReadonlyDirective} from '../../shared/readonly.directive';
     imports: [
         ImsButton,
         ImsButtonIcon,
+        ImsIcon,
         ImsLongPressDirective,
         ReadonlyDirective
     ],

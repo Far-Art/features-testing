@@ -70,11 +70,11 @@
   color: var(--ims-button-color);
   font: inherit;
   font-weight: normal;
-  line-height: 1.2;
+  line-height: 1;
   cursor: pointer;
   user-select: none;
-  outline: 2px solid transparent;
-  outline-offset: 8px;
+  outline: 1px solid transparent;
+  outline-offset: -1px;
   // The outline is never transitioned, in any state. Animating outline-offset
   // forces a full repaint every frame, which tears visibly on the
   // CPU-rendered targets this ships to — the ring snaps instead.
@@ -86,6 +86,14 @@
   transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease,
     --ims-button-fill-color 320ms ease-out, --ims-button-fill-alpha 180ms ease-out,
     --ims-button-fill-radius 0s linear 180ms;
+}
+
+.ims-button:not(.ims-button-icon) {
+  min-width: 64px;
+}
+
+.ims-button.ims-button-icon {
+  border-radius: 0.5rem;
 }
 
 // Optical centering. Roboto reserves descent below the baseline that a label
@@ -127,17 +135,6 @@
   transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease,
     --ims-button-fill-color 320ms ease-out, --ims-button-fill-alpha 0s,
     --ims-button-fill-radius 320ms cubic-bezier(0.05, 0.7, 0.1, 1);
-}
-
-// Action ring: a faint ring appears instantly on hover, then flashes solid
-// when a completed interaction is released. Built with outline rather than a
-// positioned pseudo-element so it isn't clipped by the button's own
-// overflow: hidden (outline always paints outside the border box, and
-// follows border-radius in evergreen browsers).
-.ims-button:hover {
-  outline-color: color-mix(in oklab, var(--ims-button-ring-color) 25%, transparent);
-  outline-offset: -1px;
-  outline-width: 1px;
 }
 
 .ims-button:active {
@@ -188,8 +185,6 @@
 // class stays on — shorter there would cut the fade off mid-way.
 .ims-button.ims-button--action-blink {
   outline-color: var(--ims-button-ring-color);
-  outline-offset: -1px;
-  outline-width: 1px;
   animation: ims-button-action-blink 450ms ease-out forwards;
 }
 
@@ -348,7 +343,8 @@
 }
 
 .ims-button--with-symbol:not([ims-button-icon]),
-.ims-button:has(> ims-duo-icon):not([ims-button-icon]) {
+.ims-button:has(> ims-duo-icon):not([ims-button-icon]),
+.ims-button:has(> .ims-icon.ims-button__symbol):not([ims-button-icon]) {
   padding-inline: 0.4rem 0.8rem;
 }
 
@@ -437,7 +433,6 @@
 .ims-button:disabled:hover,
 .ims-button:disabled:active {
   outline-color: transparent;
-  outline-offset: 8px;
 }
 
 // See ImsButtonBase.justMounted — a freshly mounted button can pick up a

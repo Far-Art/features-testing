@@ -39,39 +39,6 @@
     color: #52627d;
 }
 
-.cta-demo__button {
-    --cta-wave-color: #2563eb;
-    --cta-wave-scale: 1.45;
-
-    min-height: 46px;
-    padding: 0 26px;
-    border: 0;
-    border-radius: 999px;
-    background: linear-gradient(135deg, #1d4ed8, #3b82f6);
-    color: #fff;
-    font: inherit;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 14px 30px rgba(37, 99, 235, 0.24);
-    transition:
-        translate 160ms ease,
-        box-shadow 160ms ease;
-}
-
-.cta-demo__button:hover {
-    translate: 0 -1px;
-    box-shadow: 0 17px 34px rgba(37, 99, 235, 0.3);
-}
-
-.cta-demo__button:active {
-    translate: 0 1px;
-}
-
-.cta-demo__button:focus-visible {
-    outline: 3px solid rgba(59, 130, 246, 0.28);
-    outline-offset: 4px;
-}
-
 .long-press-demo__actions {
     display: grid;
     justify-items: center;
