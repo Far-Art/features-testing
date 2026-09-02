@@ -29,6 +29,7 @@ export type ImsButtonVariation = 'default' | 'primary' | 'secondary' | 'outline'
         '[class.ims-button--mounting]': 'justMounted()',
         '[class.ims-button--action-blink]': 'actionBlink()',
         '[class.ims-button--with-symbol]': 'normalizedIcon().length > 0',
+        '[style.--ims-button-symbol-size]': 'iconSize()',
         '[class.ims-button--cta]': 'callToAction()',
         '[class.ims-readonly]': 'readonlyMode()',
         '[class.ims-button--disabled]': 'disabledInput()',
@@ -81,6 +82,36 @@ export abstract class ImsButtonBase {
     readonly icon = input<string | null>(null);
 
     /**
+     * Rendered size of that symbol. A bare number means px (`icon-size="14"`);
+     * anything else is passed through as written, so any CSS length works
+     * (`icon-size="1.25rem"`, `"1em"`, `"clamp(…)"`).
+     *
+     * Unset defers to `--ims-button-symbol-size` in ims-buttons.scss, which is
+     * where the house default lives and where each action preset sets its own
+     * — so this is an override for the odd call site, not the place to restyle
+     * a preset.
+     *
+     * A malformed length can't be caught here or by the compiler: CSS drops
+     * the invalid value and the button falls back to that same preset size.
+     */
+    readonly iconSize = input<string | null, unknown>(null, {
+        alias: 'icon-size',
+        transform: (value): string | null => {
+            if (value === null || value === undefined) return null;
+
+            const raw = String(value).trim();
+            if (raw === '') return null;
+
+            // A unitless number is the one thing CSS can't use as a length, so
+            // it's the one thing worth interpreting — px, matching ImsIcon's
+            // `size`. Everything else is already a length; passing it through
+            // untouched is what lets rem (the unit the presets are written in)
+            // work here too.
+            return /^-?\d*\.?\d+$/.test(raw) ? `${raw}px` : raw;
+        }
+    });
+
+    /**
      * Marks this button as the way forward, adding a slow halo that pulses
      * outward until the button is engaged. Orthogonal to `variation`, which
      * says what kind of action this is — any variation can be the one being
@@ -91,7 +122,20 @@ export abstract class ImsButtonBase {
      */
     readonly callToAction = input(false, {alias: 'call-to-action', transform: booleanAttribute});
 
-    protected readonly normalizedIcon = computed(() => this.icon()?.trim() ?? '');
+    protected readonly normalizedIcon = computed(() => this.resolveIcon(this.icon()?.trim() ?? ''));
+
+    /**
+     * Last say over the rendered symbol. A specialized subclass pins its own
+     * glyph here, so a call site cannot drift from the preset.
+     *
+     * A method rather than a field: the base's `normalizedIcon` computed is
+     * built during base field initialization, before any subclass field
+     * exists, but it only *calls* this at the first effect flush — by which
+     * point the override is in place.
+     */
+    protected resolveIcon(requested: string): string {
+        return requested;
+    }
 
     /** Readonly state inherited from the nearest `ims-readonly` provider. */
     readonly readonlyMode = this.inheritedReadonly;

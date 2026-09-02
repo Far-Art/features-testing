@@ -115,13 +115,17 @@
 // (a negative margin-block-start of the same size), leaving only the label
 // with any net shift. Icon-only buttons opt out via [ims-button-icon], which
 // already zeroes all padding for its own layout reasons — there's no label
-// there for the push to correct in the first place.
-.ims-button:not([ims-button-icon]):has(> ims-duo-icon, .ims-icon.ims-button__symbol) {
+// there for the push to correct in the first place. That opt-out keys on the
+// `.ims-button-icon` class rather than the attribute of the same name: the
+// attribute is only ever typed at a call site using `ims-button-icon`, while
+// the class is what every icon-only button actually carries, including the
+// action presets further down, which are never spelled that way.
+.ims-button:not(.ims-button-icon):has(> ims-duo-icon, .ims-icon.ims-button__symbol) {
   padding-block-start: 2px;
 }
 
-.ims-button:not([ims-button-icon]) > ims-duo-icon,
-.ims-button:not([ims-button-icon]) > .ims-icon.ims-button__symbol {
+.ims-button:not(.ims-button-icon) > ims-duo-icon,
+.ims-button:not(.ims-button-icon) > .ims-icon.ims-button__symbol {
   margin-block-start: -2px;
 }
 
@@ -243,6 +247,64 @@
   --ims-button-ring-color: var(--ims-color-danger-500);
 }
 
+// Row actions. Presets rather than variations: the glyph is pinned by the
+// directive that applies these (see ims-button-actions.ts), so the pair reads
+// identically everywhere it lands, which is the whole reason they exist.
+//
+// Both rest quiet on a transparent surface and only take their tone under a
+// pointer. A column of rows carries one of these per line, and colouring them
+// at rest turns the list into a wall of red; the glyph already says which
+// action this is, so the colour's job is to confirm it once you are on it.
+//
+// Custom properties only — the ripple, the border press ring and the focus
+// halo all read these, so the hover tone below is the one real rule either
+// preset needs.
+.ims-button--delete {
+  // Under the 1.125rem default: the filled glyph lays down noticeably more ink
+  // than the outlined pencil beside it, so matching the two by font size makes
+  // delete read as the larger of the pair. A call site can still override this
+  // for one button with `icon-size`.
+  --ims-button-symbol-size: 0.7rem;
+  --ims-button-background: transparent;
+  --ims-button-background-hover: var(--ims-color-danger-50);
+  --ims-button-background-active: var(--ims-color-danger-100);
+  --ims-button-color: var(--ims-color-on-surface-muted);
+  --ims-button-color-active: var(--ims-color-danger-700);
+  --ims-button-ring-color: var(--ims-color-danger-450);
+}
+
+// Delete takes the filled glyph: at 18px the outlined `cancel` is a thin ring
+// around a thin X, and it reads as noise next to the solid pencil. Scoped to
+// the preset rather than set on the button, because `.ims-icon` declares
+// --ims-icon-fill on the span itself — a value on the button can never reach
+// it — and scoping it here leaves an explicit `.ims-icon--filled` working
+// everywhere else.
+.ims-button--delete .ims-icon.ims-button__symbol {
+  --ims-icon-fill: 1;
+}
+
+// `color` is already in the base transition, so the tone fades in over 160ms
+// instead of snapping. :focus-visible is in the same rule so a keyboard user
+// gets the tone too, not only the focus halo.
+.ims-button--delete:hover,
+.ims-button--delete:focus-visible {
+  color: var(--ims-color-status-danger);
+}
+
+.ims-button--edit {
+  --ims-button-background: transparent;
+  --ims-button-background-hover: var(--ims-color-primary-50);
+  --ims-button-background-active: var(--ims-color-primary-100);
+  --ims-button-color: var(--ims-color-on-surface-muted);
+  --ims-button-color-active: var(--ims-color-interactive-alt-strong);
+  --ims-button-ring-color: var(--ims-color-interactive);
+}
+
+.ims-button--edit:hover,
+.ims-button--edit:focus-visible {
+  color: var(--ims-color-interactive-strong);
+}
+
 // Call to action: the halo that marks the one button on a view that has to be
 // found without being looked for. Not a variation — it says nothing about what
 // kind of action this is, only that this is the one being called for, so it
@@ -332,9 +394,13 @@
   aspect-ratio: 1;
 }
 
-.ims-button--with-symbol:not([ims-button-icon]),
-.ims-button:has(> ims-duo-icon):not([ims-button-icon]),
-.ims-button:has(> .ims-icon.ims-button__symbol):not([ims-button-icon]) {
+// Class, not attribute, for the same reason as the optical-centering rules
+// above — and here it decides layout: this rule outranks `.ims-button-icon`,
+// so an icon-only button that fails the :not() gets label padding and renders
+// as a pill.
+.ims-button--with-symbol:not(.ims-button-icon),
+.ims-button:has(> ims-duo-icon):not(.ims-button-icon),
+.ims-button:has(> .ims-icon.ims-button__symbol):not(.ims-button-icon) {
   padding-inline: 0.4rem 0.8rem;
 }
 
@@ -389,7 +455,11 @@
 }
 
 .ims-icon.ims-button__symbol {
-  --ims-icon-size: 1.125rem;
+  // The span sets --ims-icon-size on itself, so a size inherited from the
+  // button could never reach it. This indirection is what lets a preset pick
+  // its own glyph size — and the `icon-size` input write one per instance —
+  // while the default stays here, in the stylesheet.
+  --ims-icon-size: var(--ims-button-symbol-size, 1.125rem);
 
   pointer-events: none;
 }

@@ -48,6 +48,25 @@
 
 <section class="button-demo">
     <div>
+        <h2>כפתורי פעולה</h2>
+        <p>מחיקה ועריכה עם אייקון, גודל וצבע קבועים, כך שהם נראים זהים בכל מסך.</p>
+    </div>
+
+    <div class="button-demo__ims-buttons" aria-label="IMS action buttons">
+        <button ims-button-delete ></button>
+        <button ims-button-edit></button>
+        <button ims-button-delete aria-label="מחיקת פוליסה 4821"></button>
+        <button ims-button-delete disabled></button>
+        <button ims-button-edit disabled></button>
+        <button ims-button-delete [ims-readonly]="true"></button>
+        <button ims-button-edit call-to-action></button>
+        <button ims-button-delete icon-size="1.5rem"></button>
+        <button ims-button-icon icon="search" icon-size="12" aria-label="חיפוש קטן"></button>
+    </div>
+</section>
+
+<section class="button-demo">
+    <div>
         <h2>כפתור לחיצה ממושכת</h2>
         <p>הכפתור מפעיל את הפעולה רק אחרי החזקה של שנייה ושחרור לאחר שהטבעת התמלאה.</p>
     </div>
