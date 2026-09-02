@@ -73,11 +73,14 @@
   line-height: 1;
   cursor: pointer;
   user-select: none;
-  outline: 1px solid transparent;
-  outline-offset: -1px;
-  // The outline is never transitioned, in any state. Animating outline-offset
-  // forces a full repaint every frame, which tears visibly on the
-  // CPU-rendered targets this ships to — the ring snaps instead.
+  // Nothing rides on the outline any more: the press ring is border-color and
+  // keyboard focus is box-shadow, so the only thing an outline can still add
+  // here is the UA focus ring stacked on top of ours — which this suppresses.
+  outline: none;
+  // border-color is deliberately absent from the list below, in every state.
+  // The press ring is a keyframe animation that already ends on the resting
+  // border colour, and a transition on the same property would only fight it
+  // on the way out — the ring snaps into place and fades out on the keyframes.
   //
   // Rest state, i.e. the way *out*: alpha fades the ripple away where it
   // stands, and the radius reset is a 0s change delayed until that fade has
@@ -153,54 +156,38 @@
 // entered when the blink class drops is plain :hover — so fading it that way
 // would drag the same fade onto every hover, which is exactly what the ring is
 // not supposed to do. Keyframes keep the fade attached to the press alone.
-// Only outline-color moves; the geometry stays put, so this is a 1px repaint
-// per frame rather than a growing ring.
+// Only border-color moves — the 1px border is already there in every variation
+// and every state, so this is a repaint of a line that exists rather than a
+// ring appearing, and the box never changes size.
 //
-// Each keyframe set lands on the value the button will rest at once the class
-// drops — the faint hover ring under a pointer, nothing at all after a
-// keyboard press — so the handoff is seamless either way.
+// The last frame lands on the variation's own resting border colour, which is
+// the value the element goes back to the instant the class drops. That is the
+// same colour whether the press came from a pointer or the keyboard, so one
+// keyframe set covers both and the handoff is invisible either way.
 @keyframes ims-button-action-blink {
   0%,
   24% {
-    outline-color: var(--ims-button-ring-color);
+    border-color: var(--ims-button-ring-color);
   }
 
   100% {
-    outline-color: transparent;
-  }
-}
-
-@keyframes ims-button-action-blink-hover {
-  0%,
-  24% {
-    outline-color: var(--ims-button-ring-color);
-  }
-
-  100% {
-    outline-color: color-mix(in oklab, var(--ims-button-ring-color) 25%, transparent);
+    border-color: var(--ims-button-border);
   }
 }
 
 // Kept in step with ACTION_BLINK_MS in ims-button.ts, which is how long the
 // class stays on — shorter there would cut the fade off mid-way.
 .ims-button.ims-button--action-blink {
-  outline-color: var(--ims-button-ring-color);
+  border-color: var(--ims-button-ring-color);
   animation: ims-button-action-blink 450ms ease-out forwards;
 }
 
-.ims-button.ims-button--action-blink:hover {
-  animation-name: ims-button-action-blink-hover;
-}
-
 // Keyboard focus rides on box-shadow, deliberately a different channel
-// from the outline the hover/press ring uses, so the two never fight.
-// Never reset `outline` here: the shorthand would also reset
-// outline-color to its initial currentColor and outline-style to none,
-// which both clobbers the hover/press ring (equal specificity, later in
-// the cascade) and flashes a currentColor ring on blur as the color
-// transitions back out from under a no-longer-none style.
-// Plain :focus needs no rule at all — the base sets a transparent
-// outline, which already suppresses the UA focus ring.
+// from the border the press ring uses, so the two never fight: a button
+// pressed with the keyboard shows both at once, the focus halo outside
+// the border box and the ring on the border itself.
+// Plain :focus needs no rule at all — the base sets `outline: none`,
+// which already suppresses the UA focus ring.
 .ims-button:focus-visible {
   box-shadow: 0 0 0 3px var(--ims-button-focus-ring);
 }
@@ -240,7 +227,10 @@
   --ims-button-background-active: var(--ims-color-primary-100);
   --ims-button-color: var(--ims-color-interactive-strong);
   --ims-button-color-active: var(--ims-color-interactive-alt-strong);
-  --ims-button-ring-color: var(--ims-color-interactive);
+  // Two steps down the ramp from the resting border, not the same token:
+  // this is the only variation with a border you can already see, so the
+  // press has to read as that line darkening.
+  --ims-button-ring-color: var(--ims-color-interactive-alt-strong);
   --ims-button-border: var(--ims-color-interactive);
 }
 
@@ -260,7 +250,7 @@
 // colour from whichever it lands on.
 //
 // The halo rides on box-shadow because the button's other two ring channels
-// are already spoken for: outline carries the hover/press ring and
+// are already spoken for: the border carries the press ring and
 // background-image carries the ripple. A pseudo-element is not an option
 // either — the base clips its children with `overflow: hidden`, while an
 // outer box-shadow paints past the border box untouched by it, and its spread
@@ -424,15 +414,6 @@
 .ims-button--readonly,
 .ims-button:disabled {
   background-image: none;
-}
-
-.ims-button--disabled:hover,
-.ims-button--disabled:active,
-.ims-button--readonly:hover,
-.ims-button--readonly:active,
-.ims-button:disabled:hover,
-.ims-button:disabled:active {
-  outline-color: transparent;
 }
 
 // See ImsButtonBase.justMounted — a freshly mounted button can pick up a
