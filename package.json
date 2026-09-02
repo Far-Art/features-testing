@@ -3,8 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "icons": "node tools/generate-duo-icons.mjs",
-    "prestart": "npm run icons",
+    "icons": "node tools/ generate-duo-icons.mjs",
     "start": "ng serve",
     "prebuild": "npm run icons",
     "build": "ng build",
