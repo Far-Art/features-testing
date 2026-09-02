@@ -259,7 +259,7 @@ ims-snackbar.ims-snackbar--dark .ims-snackbar__dismiss:hover {
     will-change: opacity, transform, box-shadow;
 }
 
-.cdk-overlay-pane.ims-snackbar-stack-item:not(.ims-snackbar-stack-item--front) ims-snackbar.ims-snackbar {
+.cdk-overlay-pane.ims-snackbar-stack-item:not(.ims-snackbar-stack-item--front):not(.ims-snackbar-stack-item--expanded) ims-snackbar.ims-snackbar {
     box-shadow: none;
 }
 
@@ -275,14 +275,11 @@ ims-snackbar.ims-snackbar--dark .ims-snackbar__dismiss:hover {
         0 0.25rem 0.625rem color-mix(in srgb, var(--ims-color-on-surface) 10%, transparent);
 }
 
-.cdk-overlay-pane.ims-snackbar-stack-item.ims-snackbar-stack-item--front.ims-snackbar-stack-item--stacked.ims-snackbar-stack-item--expanded {
+.cdk-overlay-pane.ims-snackbar-stack-item.ims-snackbar-stack-item--expanded {
+    transform-origin: center;
     box-shadow:
         0 0.625rem 1.5rem color-mix(in srgb, var(--ims-color-on-surface) 14%, transparent),
         0 0.125rem 0.4375rem color-mix(in srgb, var(--ims-color-on-surface) 8%, transparent);
-}
-
-.cdk-overlay-pane.ims-snackbar-stack-item.ims-snackbar-stack-item--expanded {
-    transform-origin: center;
 }
 
 .cdk-overlay-pane.ims-snackbar-stack-item.ims-snackbar-stack-item--leaving {
