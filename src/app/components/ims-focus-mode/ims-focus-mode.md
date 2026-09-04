@@ -198,6 +198,13 @@ same size on every screen instead of growing to fill a tall one. Change it with
 Vertical-only resizing applies in both places the field can be. In the dialog it protects the
 width clamp above; in the form row it keeps the field inside its `.ims-input-action` track.
 
+Dragging stops where the dialog does. Growing past what the dialog can show would not reveal
+more of the field — the content area would simply start scrolling, taking the field's own top
+edge out of view — so the textarea is capped at the height the dialog has left over after its
+chrome. Override that allowance with `--ims-focus-mode-dialog-chrome` if a caller changes the
+dialog's height. On a viewport short enough for the cap to fall under the eight-row minimum,
+the minimum wins and the content area scrolls.
+
 ## Layout
 
 The host uses the shared `.ims-input-action` contract, so the field keeps its own width and

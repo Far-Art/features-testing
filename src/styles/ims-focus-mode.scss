@@ -157,6 +157,17 @@
     // so an override on any ancestor inherits in instead of losing to a local
     // value.
     min-block-size: calc((var(--ims-focus-mode-textarea-rows, 8) * 1lh) + 1rem + 2px);
+    // Growing past what the dialog can show would not show more of the field —
+    // the content area would simply start scrolling, taking the field's own top
+    // edge out of view. So the drag stops where the dialog does.
+    //
+    // The surface is capped at `100vh - 2rem`; the chrome is everything else in
+    // the dialog around the field — title, content padding and its scroll
+    // spacer, footer, borders — measured with a hint present, which is the
+    // tallest the footer gets. On a viewport short enough for this to land
+    // under the minimum, the minimum wins and the content area scrolls as
+    // before.
+    max-block-size: calc(100vh - 2rem - var(--ims-focus-mode-dialog-chrome, 10.5rem));
     padding: 0.5rem 0.75rem;
     resize: vertical;
 }
