@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ImsButton } from '../../components/ims-button';
 import { ImsFocusMode } from '../../components/ims-focus-mode';
+import { ImsGrid, ImsGridCell, ImsGridRow } from '../../components/ims-grid';
 import {
   ImsFormField,
   ImsFormFieldGrid,
@@ -26,6 +27,9 @@ const LONG_NOTE = [
     ImsFormField,
     ImsFormFieldGrid,
     ImsFormFieldRow,
+    ImsGrid,
+    ImsGridCell,
+    ImsGridRow,
     ImsInputDirective,
     ReactiveFormsModule,
     ReadonlyDirective,
@@ -78,6 +82,24 @@ export class FocusModeDemo {
     'שדה שנכתב כשורה אחת בטופס, ונפתח במצב מיקוד בארבע שורות.',
     { nonNullable: true },
   );
+
+  /** Rows whose field and focus-mode action live in different columns. */
+  readonly lineItems = [
+    {
+      name: 'ייעוץ טכנולוגי',
+      note: new FormControl('הוסכם על שלוש פגישות ליווי בחודש הראשון, כולל דוח מסכם.', {
+        nonNullable: true,
+        validators: [Validators.required, Validators.maxLength(180)],
+      }),
+    },
+    {
+      name: 'פיתוח ממשק',
+      note: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required, Validators.maxLength(180)],
+      }),
+    },
+  ];
 
   readonly pageReadonly = signal(false);
 

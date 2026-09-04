@@ -63,7 +63,11 @@ import {
   templateUrl: './ims-focus-mode.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'ims-focus-mode ims-input-action',
+    class: 'ims-focus-mode',
+    // The adjacent-action layout exists to seat a field and its button
+    // together. A named field is seated by its own container instead, and the
+    // host is then nothing but the trigger.
+    '[class.ims-input-action]': '!external()',
     '[class.ims-focus-mode--open]': 'open()',
   },
 })
@@ -96,6 +100,33 @@ export class ImsFocusMode {
    */
   readonly hint = input('');
 
+  /**
+   * The field to open, when it does not sit inside this host.
+   *
+   * Projection is the common case and needs nothing here. Some layouts cannot
+   * put the two together though — a grid row that carries the field in one
+   * column and its actions in another — and there the field is named instead.
+   *
+   * @example
+   * ```html
+   * <ims-grid-cell><input imsInput #amount [formControl]="cost"/></ims-grid-cell>
+   * <ims-grid-cell><ims-focus-mode [field]="amount" [control]="cost"/></ims-grid-cell>
+   * ```
+   */
+  readonly field = input<ImsTextFieldElement | ElementRef<ImsTextFieldElement> | null>(null);
+
+  /**
+   * The control behind a named field.
+   *
+   * Optional, and only meaningful alongside `field`: a named element carries no
+   * reference back to its directives, so the control cannot be discovered the
+   * way a projected one can. Without it the dialog still buffers, applies and
+   * reads the field's native constraints — it just has no validators to report
+   * on, so the required note and any validator-declared length limit are
+   * unavailable.
+   */
+  readonly control = input<AbstractControl | NgControl | null>(null);
+
   private readonly projectedControl = contentChild(NgControl);
   private readonly projectedControlRef = contentChild(NgControl, { read: ElementRef });
   /** Resolved field for a projected control without an Angular form binding. */
@@ -103,21 +134,37 @@ export class ImsFocusMode {
   /** Bumped once rendering settles, when `NgControl.control` is finally set. */
   private readonly controlRevision = signal(0);
 
-  /** The projected field this component drives. */
+  /** True while this host drives a field that lives somewhere else. */
+  readonly external = computed(() => this.field() !== null);
+
+  /** The field this component drives, named or projected. */
   readonly fieldElement: Signal<ImsTextFieldElement | null> = computed(() => {
+    const named = this.field();
+
+    if (named !== null) {
+      const element = named instanceof ElementRef ? named.nativeElement : named;
+      return isImsTextField(element) ? element : null;
+    }
+
     const projected = this.projectedControlRef()?.nativeElement;
     return isImsTextField(projected) ? projected : this.fallbackElement();
   });
 
-  /** The Angular control bound to the projected field, when it has one. */
-  readonly control: Signal<AbstractControl | null> = computed(() => {
+  /** The Angular control bound to that field, when one can be reached. */
+  readonly resolvedControl: Signal<AbstractControl | null> = computed(() => {
     this.controlRevision();
+    const named = this.control();
+
+    if (named !== null) {
+      return named instanceof NgControl ? named.control : named;
+    }
+
     return this.projectedControl()?.control ?? null;
   });
 
   private readonly state = imsControlState({
     element: this.fieldElement,
-    control: this.control,
+    control: this.resolvedControl,
   });
 
   /** True only while the projected field accepts user edits. */
@@ -150,11 +197,11 @@ export class ImsFocusMode {
    * be recomputed when it changed.
    */
   readonly maxLength = computed(
-    () => this.state.nativeMaxLength() ?? readValidatorMaxLength(this.control()),
+    () => this.state.nativeMaxLength() ?? readValidatorMaxLength(this.resolvedControl()),
   );
 
   /** Errors the field's own validators report for the buffered value. */
-  private readonly draftErrors = computed(() => runValidator(this.control(), this.draft()));
+  private readonly draftErrors = computed(() => runValidator(this.resolvedControl(), this.draft()));
 
   /** True while the buffered value satisfies the field's own validators. */
   readonly draftValid = computed(() => this.draftErrors() === null);
@@ -167,7 +214,7 @@ export class ImsFocusMode {
    * an empty value by design, so they cannot be mistaken for this one.
    */
   readonly required = computed(
-    () => this.state.nativeRequired() || runValidator(this.control(), '')?.['required'] === true,
+    () => this.state.nativeRequired() || runValidator(this.resolvedControl(), '')?.['required'] === true,
   );
 
   /** True while the buffered value leaves that requirement unmet. */
@@ -201,7 +248,7 @@ export class ImsFocusMode {
     afterNextRender(() => {
       this.controlRevision.update((revision) => revision + 1);
 
-      if (!this.projectedControlRef()) {
+      if (!this.external() && !this.projectedControlRef()) {
         this.fallbackElement.set(
           this.hostElement.querySelector<ImsTextFieldElement>('input, textarea'),
         );
@@ -213,7 +260,7 @@ export class ImsFocusMode {
     effect((onCleanup) => {
       const element = this.fieldElement();
 
-      if (!element) {
+      if (!element || this.external()) {
         return;
       }
 
@@ -381,7 +428,7 @@ export class ImsFocusMode {
    * then "restore" the very edits it is supposed to discard.
    */
   private watchExternalValueChanges(): void {
-    const control = this.control();
+    const control = this.resolvedControl();
 
     if (!control) {
       return;

@@ -27,8 +27,36 @@ Works the same with reactive and template-driven bindings, and with a plain unbo
 | `label` | `string` | `''` | Dialog title. Falls back to the trigger's accessible name. |
 | `labels` | `Partial<ImsFocusModeLabels> \| null` | `null` | Per-instance overrides merged over `IMS_FOCUS_MODE_LABELS`. |
 | `hint` | `string` | `''` | Note describing what the field expects. |
+| `field` | `HTMLInputElement \| HTMLTextAreaElement \| ElementRef \| null` | `null` | A field that does not sit inside this host. |
+| `control` | `AbstractControl \| NgControl \| null` | `null` | The control behind a named field. |
 
 Application-wide text comes from the `IMS_FOCUS_MODE_LABELS` token.
+
+## When the field cannot be projected
+
+Some layouts cannot put a field and its actions together. A grid row carries the field in one
+column and the actions in another, and wrapping across a row is not available. Name the field
+instead:
+
+```html
+<ims-grid-row>
+    <ims-grid-cell><input imsInput #note [formControl]="row.note"/></ims-grid-cell>
+    <ims-grid-cell>
+        <ims-focus-mode [field]="note" [control]="row.note" label="הערה"/>
+    </ims-grid-cell>
+</ims-grid-row>
+```
+
+Everything else is unchanged: the same element is moved into the dialog, and its stand-in
+appears in the field's own column rather than the trigger's, so the row does not move. The
+host drops the adjacent-action layout, since it has no field of its own to seat — it is
+nothing but the trigger.
+
+`control` is separate because a named element carries no reference back to its directives, so
+the control cannot be discovered the way a projected one can. It is optional. Without it the
+dialog still buffers, applies and reads the field's native constraints; it just has no
+validators to report on, so the required note and a validator-declared length limit are
+unavailable.
 
 ## The dialog hosts the real control
 

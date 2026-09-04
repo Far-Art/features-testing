@@ -176,6 +176,46 @@
     </ims-form-field-row>
   </section>
 
+  <section class="focus-mode-demo__layout">
+    <h2>Field and action in different columns</h2>
+    <p class="focus-mode-demo__hint">
+      A grid row cannot wrap its field and its actions together — the field belongs to one
+      column and the action to another. Naming the field with <code>[field]</code> drives it
+      from wherever the trigger happens to sit. The stand-in still appears in the field's own
+      column, so the row does not move while the dialog is open.
+    </p>
+
+    <ims-grid columnGap="12">
+      <ims-grid-header>
+        <ims-grid-cell>שירות</ims-grid-cell>
+        <ims-grid-cell>הערה</ims-grid-cell>
+        <ims-grid-cell>מיקוד</ims-grid-cell>
+      </ims-grid-header>
+
+      @for (item of lineItems; track item.name) {
+        <ims-grid-row>
+          <ims-grid-cell>{{ item.name }}</ims-grid-cell>
+          <ims-grid-cell>
+            <input imsInput type="text" class="field-stretch" #note [formControl]="item.note"/>
+          </ims-grid-cell>
+          <ims-grid-cell>
+            <ims-focus-mode
+              [field]="note"
+              [control]="item.note"
+              [label]="item.name"
+              hint="עד מאה ושמונים תווים"
+            />
+          </ims-grid-cell>
+        </ims-grid-row>
+      }
+    </ims-grid>
+
+    <p class="focus-mode-demo__hint">
+      The second row starts empty, so its trigger opens a dialog whose Apply is disabled until
+      the required note is written.
+    </p>
+  </section>
+
   <section class="focus-mode-demo__scope" [ims-readonly]="pageReadonly()">
     <h2>Inside a readonly scope</h2>
     <p class="focus-mode-demo__hint">

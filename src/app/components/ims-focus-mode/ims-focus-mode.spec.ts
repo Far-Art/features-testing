@@ -59,7 +59,7 @@ class FocusModeHost {
  * component through a `MutationObserver`, whose callbacks are delivered on the
  * microtask queue. Rendering before that drain would read stale state.
  */
-async function settle(fixture: ComponentFixture<FocusModeHost>): Promise<void> {
+async function settle(fixture: ComponentFixture<unknown>): Promise<void> {
   fixture.detectChanges();
   await fixture.whenStable();
   await new Promise((resolve) => setTimeout(resolve, 0));
@@ -69,11 +69,11 @@ async function settle(fixture: ComponentFixture<FocusModeHost>): Promise<void> {
 }
 
 /** The fixture root, typed so DOM queries stay checked. */
-function root(fixture: ComponentFixture<FocusModeHost>): HTMLElement {
+function root(fixture: ComponentFixture<unknown>): HTMLElement {
   return fixture.nativeElement as HTMLElement;
 }
 
-function triggers(fixture: ComponentFixture<FocusModeHost>): HTMLButtonElement[] {
+function triggers(fixture: ComponentFixture<unknown>): HTMLButtonElement[] {
   return Array.from(
     root(fixture).querySelectorAll<HTMLButtonElement>('[data-ims-focus-mode-trigger]'),
   );
@@ -124,6 +124,100 @@ function typeInto(field: HTMLTextAreaElement | HTMLInputElement, value: string):
   field.value = value;
   field.dispatchEvent(new Event('input', { bubbles: true }));
 }
+
+@Component({
+  imports: [ImsFocusMode, ImsInputDirective, ReactiveFormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  template: `
+    <div class="value-column"><input imsInput type="text" #amount [formControl]="cost"/></div>
+    <div class="action-column">
+      <ims-focus-mode [field]="amount" [control]="cost" label="Cost" [labels]="labels"/>
+    </div>
+  `,
+})
+class SeparatedHost {
+  readonly labels = {
+    apply: 'Apply',
+    cancel: 'Cancel',
+    characters: 'characters',
+    required: 'Required',
+  };
+  readonly cost = new FormControl('120', {
+    nonNullable: true,
+    validators: [Validators.required, Validators.maxLength(8)],
+  });
+}
+
+describe('ImsFocusMode with a named field', () => {
+  let fixture: ComponentFixture<SeparatedHost>;
+  let host: SeparatedHost;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({ imports: [SeparatedHost] }).compileComponents();
+    fixture = TestBed.createComponent(SeparatedHost);
+    host = fixture.componentInstance;
+    await settle(fixture);
+  });
+
+  afterEach(async () => {
+    if (stage()) {
+      clickAction('Cancel');
+      await settle(fixture);
+    }
+
+    fixture.destroy();
+  });
+
+  async function openCost(): Promise<void> {
+    triggers(fixture)[0].click();
+    await settle(fixture);
+  }
+
+  it('opens a field that lives outside the host', async () => {
+    const named = root(fixture).querySelector('.value-column input');
+
+    await openCost();
+
+    expect(stageField()).toBe(named);
+  });
+
+  it('drops the adjacent-action layout it has no field to seat', async () => {
+    const element = root(fixture).querySelector('ims-focus-mode')!;
+
+    expect(element.classList.contains('ims-focus-mode')).toBe(true);
+    expect(element.classList.contains('ims-input-action')).toBe(false);
+  });
+
+  it('stands in for the field in its own column, not the trigger\'s', async () => {
+    await openCost();
+
+    const placeholder = root(fixture).querySelector('[data-ims-focus-mode-placeholder]');
+
+    expect(placeholder?.closest('.value-column')).not.toBeNull();
+    expect(placeholder?.closest('.action-column')).toBeNull();
+  });
+
+  it('reads metadata from the control it was handed', async () => {
+    await openCost();
+
+    expect(characterCount()).toBe('3 / 8');
+    expect(document.querySelector('.ims-focus-mode__required')).not.toBeNull();
+  });
+
+  it('commits to the control it was handed', async () => {
+    await openCost();
+    typeInto(stageField()!, '450');
+    await settle(fixture);
+
+    expect(host.cost.value).toBe('120');
+
+    clickAction('Apply');
+    await settle(fixture);
+
+    expect(host.cost.value).toBe('450');
+    expect(root(fixture).querySelector('.value-column input')).not.toBeNull();
+  });
+});
 
 describe('ImsFocusMode', () => {
   let fixture: ComponentFixture<FocusModeHost>;
