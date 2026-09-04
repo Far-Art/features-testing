@@ -39,6 +39,15 @@ export class ImsButtonDelete extends ImsButtonBase {
  * Same contract as {@link ImsButtonDelete} — visual only, glyph pinned,
  * `aria-label` overridable at the call site.
  */
+/**
+ * The glyph pinned by {@link ImsButtonEdit}.
+ *
+ * Exported so chrome that sits alongside an edit affordance — a dialog title
+ * over the same action, say — shows the same glyph without re-typing it, and
+ * cannot drift if the preset ever picks a different one.
+ */
+export const IMS_BUTTON_EDIT_ICON = 'ink_pen';
+
 @Directive({
     selector: 'button[ims-button-edit]',
     standalone: true,
@@ -50,6 +59,6 @@ export class ImsButtonDelete extends ImsButtonBase {
 })
 export class ImsButtonEdit extends ImsButtonBase {
     protected override resolveIcon(): string {
-        return 'ink_pen';
+        return IMS_BUTTON_EDIT_ICON;
     }
 }

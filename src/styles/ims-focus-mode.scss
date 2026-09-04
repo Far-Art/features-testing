@@ -1,0 +1,227 @@
+/**
+ * Focus mode moves the caller's real field into a dialog and back. These rules
+ * cover the two places that element can be: its own form layout, and the
+ * dialog stage. The field keeps its own `.ims-input` styling in both.
+ */
+.ims-focus-mode {
+    display: inline-block;
+}
+
+/**
+ * The action belongs to the row it sits in, so it matches the field's own
+ * height rather than the shared 2.5rem default. Both classes are on this same
+ * host, so the selector is doubled to outrank `.ims-input-action`'s own value
+ * rather than depend on stylesheet order.
+ */
+.ims-focus-mode.ims-input-action {
+    --ims-input-action-size: var(--field-height);
+}
+
+/**
+ * Give both trigger states the same quiet rest tone.
+ *
+ * The editable trigger is `ims-button-edit`, which rests on the muted ramp;
+ * the zoom-in trigger is a plain icon button, which rests on the stronger
+ * default one. They occupy the same slot and are two states of one control, so
+ * a user switching between them should see the glyph change and nothing else.
+ *
+ * Only the rest colour is restated — matching the whole ramp would duplicate
+ * the preset and invite exactly the drift the preset exists to prevent. The
+ * selector is doubled because `ims-buttons.scss` is loaded after this file.
+ */
+.ims-focus-mode .ims-focus-mode__trigger {
+    --ims-button-color: var(--ims-color-on-surface-muted);
+}
+
+/**
+ * Pin the action to the top of the field.
+ *
+ * `.ims-input-action` centres it with `inset-block: 0` plus `margin-block:
+ * auto`, which is right for a single-line field and wrong for a textarea: the
+ * taller the field, the further the button drifts from the line the user is
+ * actually looking at.
+ */
+.ims-focus-mode > .ims-input-action__button {
+    inset-block: 0 auto;
+    margin-block: 0;
+}
+
+/**
+ * Holds the form layout open while the field is away in the dialog.
+ *
+ * This is a clone of the field, so it already carries `.ims-input` and every
+ * other class the original had and needs no box styling of its own: it lays out
+ * identically because it is the same kind of element. It is disabled, so it
+ * picks up the shared low-emphasis disabled treatment.
+ *
+ * What it does change is that it reads as an empty slot rather than as a field
+ * holding a value: a transparent ground and a dotted outline, so the row is
+ * visibly a place the control has left rather than a second copy of it.
+ *
+ * The selector carries two classes so it outweighs the vertical-resize rule
+ * below.
+ */
+.ims-focus-mode .ims-focus-mode__placeholder {
+    // `.ims-input` exposes its disabled treatment as variables, so the stand-in
+    // is restyled through that contract instead of out-specifying
+    // `.ims-input:disabled`. The subtle disabled border would nearly vanish
+    // once the fill is gone, so it takes the standard border colour.
+    //
+    // The text colour is deliberately left alone: with no `.ims-readonly` on
+    // the clone, the shared disabled treatment already supplies the muted
+    // `--ims-color-on-surface-disabled`, which is the subtle reading wanted
+    // here — a value being held, not a value being presented.
+    --ims-input-disabled-background: transparent;
+    --ims-input-disabled-border: var(--ims-color-border);
+
+    // Only the border *style* changes. The width stays 1px, so the stand-in
+    // still occupies exactly the box the field left behind.
+    border-style: dashed;
+    box-shadow: none;
+    resize: none;
+    cursor: default;
+    user-select: none;
+}
+
+/**
+ * The projection target. It owns the sizing of whatever is moved into it,
+ * because that element arrives carrying sizing meant for a form row rather
+ * than for a dialog.
+ */
+/**
+ * A projected textarea stretches vertically only, in its form row just as in
+ * the dialog. A horizontal drag would push it out of its `.ims-input-action`
+ * track and past the column the form gave it, which no amount of dialog-side
+ * clamping can undo.
+ *
+ * While focus mode is open the field is not a descendant of this host, so the
+ * stage rule below owns it instead.
+ */
+.ims-focus-mode textarea {
+    resize: vertical;
+}
+
+.ims-focus-mode__stage {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+}
+
+/**
+ * Nothing projected may exceed the dialog's width.
+ *
+ * A field arrives with sizing that was right for a form row: `.ims-input` sets
+ * a `min-width`, a `textarea` has an intrinsic `cols` width, and a caller may
+ * have given it a fixed field-width class. Any of those can be wider than a
+ * narrow dialog. That matters because `.ims-dialog-content` sets
+ * `overflow-y: auto`, which resolves its `overflow-x` to `auto` as well — so an
+ * unconstrained field does not just overhang, it gives the dialog a horizontal
+ * scrollbar. Clamping every projected child keeps the dialog to one axis.
+ *
+ * The selector is doubled on purpose. A caller may have sized the field with a
+ * shared width class such as `.field-xxl`, and those are declared after this
+ * file in `styles.scss`; at equal specificity they would win and leave the
+ * field narrower than the dialog it was opened to fill. Focus mode owns the
+ * sizing here, so it takes the extra specificity to say so.
+ */
+.ims-focus-mode__stage.ims-focus-mode__stage > * {
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+}
+
+/**
+ * A projected textarea gets room to work: never fewer than four rows, whatever
+ * `rows` the caller wrote for its form row, and more than that on a tall
+ * viewport.
+ *
+ * `block-size: auto` is required because `.ims-input` pins every field to
+ * `--field-height`; without it the textarea would arrive one row tall.
+ *
+ * Resizing is vertical only. A horizontal drag would take the field straight
+ * past the dialog width that the rule above exists to protect.
+ */
+.ims-focus-mode__stage > textarea {
+    block-size: auto;
+    // Fallback for engines without the `lh` unit; the line below wins elsewhere.
+    min-block-size: 11rem;
+    // Sized in rows rather than viewport height, so the field is the same on
+    // every screen and never grows to dominate its own dialog.
+    //
+    // `1rem + 2px` is this rule's own vertical padding plus `.ims-input`'s
+    // borders. The row count is read with a fallback rather than declared here,
+    // so an override on any ancestor inherits in instead of losing to a local
+    // value.
+    min-block-size: calc((var(--ims-focus-mode-textarea-rows, 8) * 1lh) + 1rem + 2px);
+    padding: 0.5rem 0.75rem;
+    resize: vertical;
+}
+
+/**
+ * A projected single-line input keeps its own control type; focus mode gives it
+ * room and a larger type size rather than changing what it is.
+ */
+.ims-focus-mode__stage > input {
+    block-size: auto;
+    min-block-size: var(--field-height);
+    padding: 0.5rem 0.75rem;
+    font-size: 1.05rem;
+    resize: none;
+}
+
+/**
+ * Footer metadata sits opposite the actions. The shared actions row packs its
+ * columns to the end, so the first column is made flexible to hold the counter
+ * at the other side of the row rather than beside the buttons.
+ */
+.ims-focus-mode-dialog .ims-dialog-actions {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+/** Footer metadata, grouped so the actions row keeps two columns. */
+.ims-focus-mode__meta {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    justify-self: start;
+    min-inline-size: 0;
+}
+
+.ims-focus-mode__required {
+    color: var(--ims-color-on-surface-muted);
+    font-size: 0.8rem;
+}
+
+/** The requirement is stated at rest and called out only once it is unmet. */
+.ims-focus-mode__required--unmet {
+    color: var(--ims-color-invalid);
+    font-weight: 700;
+}
+
+.ims-focus-mode__count {
+    color: var(--ims-color-on-surface-muted);
+    font-size: 0.8rem;
+    // The count changes on every keystroke; tabular figures keep it from
+    // shifting width as the digits change.
+    font-variant-numeric: tabular-nums;
+}
+
+/**
+ * The count is a numeric expression, so it is isolated from the surrounding
+ * direction. Left alone in an RTL dialog, `12 / 240` reorders on screen and
+ * renders as `240 / 12` — the limit reads as the count and the count as the
+ * limit. Any label beside it stays in the ambient direction.
+ */
+.ims-focus-mode__count-value {
+    direction: ltr;
+    unicode-bidi: isolate;
+}
+
+.ims-focus-mode__count--over {
+    color: var(--ims-color-invalid);
+    font-weight: 700;
+}

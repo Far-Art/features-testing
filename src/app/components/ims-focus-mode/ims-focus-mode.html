@@ -1,0 +1,22 @@
+<ng-content/>
+
+@if (editable()) {
+  <button
+    class="ims-input-action__button ims-focus-mode__trigger"
+    ims-button-edit
+    ims-focus-mode-trigger
+    [disabled]="open()"
+    [attr.aria-label]="triggerLabel()"
+    (click)="openFocusMode()"
+  ></button>
+} @else {
+  <button
+    class="ims-input-action__button ims-focus-mode__trigger"
+    ims-button-icon
+    ims-focus-mode-trigger
+    icon="zoom_in"
+    [disabled]="open()"
+    [attr.aria-label]="triggerLabel()"
+    (click)="openFocusMode()"
+  ></button>
+}

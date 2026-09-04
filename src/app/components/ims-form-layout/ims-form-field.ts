@@ -333,13 +333,23 @@ export class ImsFormField {
      * Returns the first supported control descendant owned by this field.
      *
      * Supported controls are buttons, non-hidden inputs, selects, and textareas.
+     *
+     * Two kinds of element are skipped. A focus-mode trigger is an adjacent
+     * action rather than a field's primary control, so a field whose control is
+     * away in a dialog does not adopt its own trigger button. Anything hidden
+     * from assistive technology is skipped for the same reason it is hidden: a
+     * label pointing at it would name a control that, as far as a screen reader
+     * is concerned, is not there.
      */
     private findFirstLabelableControl(): HTMLElement | null {
         const controls = this.hostElement.querySelectorAll<HTMLElement>(
-            'button, input:not([type="hidden"]), select, textarea'
+            'button:not([data-ims-focus-mode-trigger]), input:not([type="hidden"]), select, textarea'
         );
 
-        return Array.from(controls).find((control) => this.belongsToThisField(control)) ?? null;
+        return Array.from(controls).find((control) =>
+            this.belongsToThisField(control) &&
+            control.getAttribute('aria-hidden') !== 'true'
+        ) ?? null;
     }
 
     /** Prevents controls inside nested form fields from being claimed by this field. */

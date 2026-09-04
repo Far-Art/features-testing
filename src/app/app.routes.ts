@@ -56,6 +56,11 @@ export const routes: Routes = [
             import('./pages/readonly-demo/readonly-demo').then((module) => module.ReadonlyDemo)
     },
     {
+        path: 'focus-mode',
+        loadComponent: () =>
+            import('./pages/focus-mode-demo/focus-mode-demo').then((module) => module.FocusModeDemo)
+    },
+    {
         path: 'component-states',
         loadComponent: () =>
             import('./pages/component-states-demo/component-states-demo').then(

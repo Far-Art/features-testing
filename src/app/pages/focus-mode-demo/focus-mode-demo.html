@@ -1,0 +1,207 @@
+<section class="focus-mode-demo">
+  <header class="page-heading">
+    <h1>Focus mode hosts the real control.</h1>
+    <p>
+      The dialog does not rebuild the field. A CDK <code>DomPortal</code> moves the actual element
+      in and puts it back on close, so validators, the value accessor and every live state stay the
+      same instances. Edits are buffered — nothing reaches the control until Apply.
+    </p>
+  </header>
+
+  <section class="focus-mode-demo__controls" aria-label="Focus mode demo controls">
+    <button ims-button (click)="toggleNotesDisabled()">
+      {{ notes.disabled ? 'אפשר עריכת הערות' : 'נטרל את שדה ההערות' }}
+    </button>
+    <button ims-button (click)="toggleLocked()">
+      {{ locked.disabled ? 'אפשר עריכת הסכום' : 'נעל את הסכום' }}
+    </button>
+    <button ims-button (click)="togglePageReadonly()">
+      {{ pageReadonly() ? 'בטל מצב קריאה בלבד' : 'הפעל מצב קריאה בלבד' }}
+    </button>
+    <p class="focus-mode-demo__hint">
+      Open a dialog, then press one of these. The dialog follows the control: it turns readonly and
+      its Apply action disappears, without closing.
+    </p>
+  </section>
+
+  <section class="focus-mode-demo__fields">
+    <p class="focus-mode-demo__hint">
+      The dialog footer counts the buffered characters. Where the control carries a
+      <code>maxLength</code> validator it counts against that limit — read from the validator
+      itself, so no <code>maxlength</code> attribute is needed. Apply stays disabled while the
+      buffered value fails validation: shorten the notes below twenty characters, or break the
+      reference pattern, and it greys out.
+    </p>
+
+    <ims-form-field span="stretch">
+      <label>הערות</label>
+      <ims-focus-mode label="הערות">
+        <textarea imsInput rows="2" [formControl]="notes"></textarea>
+      </ims-focus-mode>
+    </ims-form-field>
+
+    <ims-form-field span="stretch">
+      <label>מספר אסמכתא</label>
+      <ims-focus-mode label="מספר אסמכתא">
+        <input imsInput type="text" [formControl]="reference"/>
+      </ims-focus-mode>
+    </ims-form-field>
+
+    <ims-form-field span="stretch">
+      <label>סכום מאושר</label>
+      <ims-focus-mode label="סכום מאושר">
+        <input imsInput type="text" [formControl]="locked"/>
+      </ims-focus-mode>
+    </ims-form-field>
+
+    <ims-form-field span="stretch">
+      <label>סיכום שיחה</label>
+      <ims-focus-mode label="סיכום שיחה">
+        <textarea imsInput rows="2" [(ngModel)]="summary"></textarea>
+      </ims-focus-mode>
+    </ims-form-field>
+
+    <ims-form-field span="stretch">
+      <label>שדה לקריאה בלבד</label>
+      <ims-focus-mode label="פרטי מסמך">
+        <input imsInput type="text" value="מסמך 4471 — הופק ב-12/03/2026" [ims-readonly]="true"/>
+      </ims-focus-mode>
+    </ims-form-field>
+  </section>
+
+  <section class="focus-mode-demo__layout">
+    <h2>Fields that would overflow the dialog</h2>
+    <p class="focus-mode-demo__hint">
+      These arrive carrying sizing meant for a form row: an explicit <code>cols</code>, a fixed
+      field-width class, and a single unbroken value. The stage clamps every projected child to
+      the dialog width, so the dialog scrolls on one axis only. Narrow the window and reopen
+      them to push it harder.
+    </p>
+
+    <ims-form-field span="stretch">
+      <label>טקסט רחב (cols=90)</label>
+      <ims-focus-mode label="טקסט רחב">
+        <textarea imsInput rows="1" cols="90" [formControl]="wideText"></textarea>
+      </ims-focus-mode>
+    </ims-form-field>
+
+    <ims-form-field span="stretch">
+      <label>שדה ברוחב קבוע</label>
+      <ims-focus-mode label="שדה ברוחב קבוע">
+        <input imsInput class="field-xxl" type="text" [formControl]="fixedWidth"/>
+      </ims-focus-mode>
+    </ims-form-field>
+
+    <ims-form-field span="stretch">
+      <label>ערך רציף ללא רווחים</label>
+      <ims-focus-mode label="ערך רציף ללא רווחים">
+        <input imsInput type="text" [formControl]="unbroken"/>
+      </ims-focus-mode>
+    </ims-form-field>
+
+    <ims-form-field span="stretch">
+      <label>שורה אחת בלבד (rows=1)</label>
+      <ims-focus-mode label="שורה אחת בלבד">
+        <textarea imsInput rows="1" [formControl]="singleRow"></textarea>
+      </ims-focus-mode>
+    </ims-form-field>
+
+    <p class="focus-mode-demo__hint">
+      The last one is written as <code>rows="1"</code>. Focus mode still opens it at four rows,
+      and it can be dragged taller but never wider.
+    </p>
+  </section>
+
+  <section class="focus-mode-demo__layout">
+    <h2>Placeholder inside a form grid</h2>
+    <p class="focus-mode-demo__hint">
+      While a field is away in the dialog a placeholder, measured from that field before it
+      moves, holds its track open. Open any field here and watch the grid: the neighbouring
+      columns keep their positions and nothing below reflows. The label also stays on its own
+      field rather than jumping to the trigger button.
+    </p>
+
+    <ims-form-field-grid columns="3" [minColumnWidth]="240">
+      <ims-form-field>
+        <label>שם פרטי</label>
+        <input imsInput type="text" [formControl]="firstName"/>
+      </ims-form-field>
+
+      <ims-form-field>
+        <label>שם משפחה</label>
+        <ims-focus-mode label="שם משפחה">
+          <input imsInput type="text" [formControl]="lastName"/>
+        </ims-focus-mode>
+      </ims-form-field>
+
+      <ims-form-field>
+        <label>טלפון</label>
+        <input imsInput type="text" [formControl]="phone"/>
+      </ims-form-field>
+
+      <ims-form-field span="stretch">
+        <label>כתובת</label>
+        <ims-focus-mode label="כתובת">
+          <textarea imsInput rows="4" [formControl]="address"></textarea>
+        </ims-focus-mode>
+      </ims-form-field>
+    </ims-form-field-grid>
+
+    <p class="focus-mode-demo__hint">
+      The address field is four rows tall and the ones above it are single-line, so the
+      placeholder has to match two very different measured heights.
+    </p>
+  </section>
+
+  <section class="focus-mode-demo__layout">
+    <h2>Placeholder in an inline row</h2>
+    <p class="focus-mode-demo__hint">
+      In a row the fields share one line, so a collapsing field would pull its neighbour
+      sideways.
+    </p>
+
+    <ims-form-field-row>
+      <ims-form-field>
+        <label>עיר</label>
+        <ims-focus-mode label="עיר">
+          <input imsInput type="text" [formControl]="city"/>
+        </ims-focus-mode>
+      </ims-form-field>
+
+      <ims-form-field>
+        <label>מיקוד</label>
+        <input imsInput type="text" [formControl]="postalCode"/>
+      </ims-form-field>
+    </ims-form-field-row>
+  </section>
+
+  <section class="focus-mode-demo__scope" [ims-readonly]="pageReadonly()">
+    <h2>Inside a readonly scope</h2>
+    <p class="focus-mode-demo__hint">
+      The field inherits the scope and stops accepting edits, while the trigger stays usable and
+      switches to zoom-in — reading a locked value is still allowed.
+    </p>
+
+    <ims-form-field span="stretch">
+      <label>תנאי התקשרות</label>
+      <ims-focus-mode label="תנאי התקשרות">
+        <textarea imsInput rows="2" [ims-readonly]="null">
+תנאי ההתקשרות נקבעו מול הלקוח ואושרו על ידי מחלקת האשראי.</textarea>
+      </ims-focus-mode>
+    </ims-form-field>
+  </section>
+
+  <section class="focus-mode-demo__state" aria-live="polite">
+    <h2>Live control state</h2>
+    <dl class="focus-mode-demo__readout">
+      <dt>notes.value</dt>
+      <dd>{{ notes.value }}</dd>
+      <dt>notes</dt>
+      <dd>{{ notes.status }} · {{ notes.pristine ? 'pristine' : 'dirty' }} · {{ notes.touched ? 'touched' : 'untouched' }}</dd>
+      <dt>reference</dt>
+      <dd>{{ reference.value }} · {{ reference.status }}</dd>
+      <dt>summary (ngModel)</dt>
+      <dd>{{ summary }}</dd>
+    </dl>
+  </section>
+</section>

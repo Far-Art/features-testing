@@ -1,0 +1,54 @@
+.focus-mode-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
+}
+
+.focus-mode-demo__controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 1px solid var(--ims-color-border);
+    border-radius: 0.75rem;
+    background: var(--ims-background-panel);
+}
+
+.focus-mode-demo__fields,
+.focus-mode-demo__layout,
+.focus-mode-demo__scope {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--ims-color-border);
+    border-radius: 0.75rem;
+}
+
+.focus-mode-demo__hint {
+    flex-basis: 100%;
+    margin: 0;
+    color: var(--ims-color-on-surface-muted);
+    font-size: 0.85rem;
+}
+
+.focus-mode-demo__readout {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.4rem 1rem;
+    margin: 0;
+}
+
+.focus-mode-demo__readout dt {
+    color: var(--ims-color-on-surface-muted);
+    font-family: monospace;
+    font-size: 0.8rem;
+}
+
+.focus-mode-demo__readout dd {
+    margin: 0;
+    color: var(--ims-color-on-surface);
+    overflow-wrap: anywhere;
+}
