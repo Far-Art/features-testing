@@ -30,19 +30,20 @@
       <code>maxLength</code> validator it counts against that limit — read from the validator
       itself, so no <code>maxlength</code> attribute is needed. Apply stays disabled while the
       buffered value fails validation: shorten the notes below twenty characters, or break the
-      reference pattern, and it greys out.
+      reference pattern, and it greys out. A <code>hint</code> adds whatever the derived
+      metadata cannot know — here, the pattern the reference expects, spelled out.
     </p>
 
     <ims-form-field span="stretch">
       <label>הערות</label>
-      <ims-focus-mode label="הערות">
+      <ims-focus-mode label="הערות" hint="לפחות עשרים תווים, עד מאתיים וארבעים">
         <textarea imsInput rows="2" [formControl]="notes"></textarea>
       </ims-focus-mode>
     </ims-form-field>
 
     <ims-form-field span="stretch">
       <label>מספר אסמכתא</label>
-      <ims-focus-mode label="מספר אסמכתא">
+      <ims-focus-mode label="מספר אסמכתא" hint="בפורמט REF-0000-0000, למשל REF-2026-0041">
         <input imsInput type="text" [formControl]="reference"/>
       </ims-focus-mode>
     </ims-form-field>

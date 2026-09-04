@@ -9,23 +9,29 @@
 
 <ims-dialog-actions>
   <span class="ims-focus-mode__meta">
-    @if (session.required()) {
-      <span
-        class="ims-focus-mode__required"
-        [class.ims-focus-mode__required--unmet]="session.requiredUnmet()"
-      >{{ session.labels.required }}</span>
+    @if (session.hint(); as hint) {
+      <span class="ims-focus-mode__hint" [id]="hintId">{{ hint }}</span>
     }
 
-    <span
-      class="ims-focus-mode__count"
-      [class.ims-focus-mode__count--over]="maxLength !== null && length > maxLength"
-    >
-      @if (maxLength === null) {
-        <span class="ims-focus-mode__count-value">{{ length }}</span>
-        {{ session.labels.characters }}
-      } @else {
-        <span class="ims-focus-mode__count-value">{{ length }} / {{ maxLength }}</span>
+    <span class="ims-focus-mode__meta-row">
+      @if (session.required()) {
+        <span
+          class="ims-focus-mode__required"
+          [class.ims-focus-mode__required--unmet]="session.requiredUnmet()"
+        >{{ session.labels.required }}</span>
       }
+
+      <span
+        class="ims-focus-mode__count"
+        [class.ims-focus-mode__count--over]="maxLength !== null && length > maxLength"
+      >
+        @if (maxLength === null) {
+          <span class="ims-focus-mode__count-value">{{ length }}</span>
+          {{ session.labels.characters }}
+        } @else {
+          <span class="ims-focus-mode__count-value">{{ length }} / {{ maxLength }}</span>
+        }
+      </span>
     </span>
   </span>
 

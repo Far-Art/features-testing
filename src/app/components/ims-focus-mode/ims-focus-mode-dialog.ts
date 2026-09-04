@@ -5,12 +5,20 @@ import {
   DestroyRef,
   ElementRef,
   afterNextRender,
+  effect,
   inject,
   viewChild,
 } from '@angular/core';
 import { ImsButton } from '../ims-button';
 import { ImsAbstractDialog, ImsDialogActions, ImsDialogContent } from '../ims-dialog';
 import { IMS_FOCUS_MODE_BUFFERED_EVENTS, ImsFocusModeSession } from './ims-focus-mode.types';
+
+let nextHintId = 0;
+
+/** Reads the current `aria-describedby` references as a list. */
+function describedByIds(element: HTMLElement): string[] {
+  return (element.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(Boolean);
+}
 
 /**
  * Renders one focus-mode session.
@@ -36,6 +44,9 @@ export class ImsFocusModeDialog extends ImsAbstractDialog<ImsFocusModeSession, b
   /** The session created by the `ims-focus-mode` host that opened this dialog. */
   readonly session = this.dialogData;
 
+  /** Identifies the hint so the projected field can point at it. */
+  readonly hintId = `ims-focus-mode-hint-${nextHintId++}`;
+
   constructor() {
     super();
 
@@ -54,6 +65,36 @@ export class ImsFocusModeDialog extends ImsAbstractDialog<ImsFocusModeSession, b
       });
 
       this.session.portal.element.focus();
+    });
+
+    // A hint in the footer is read by whoever can see the footer. Pointing the
+    // field at it makes it the field's description, so it reaches someone who
+    // arrives at the control by keyboard or screen reader instead.
+    //
+    // The reference is added to any that are already there and removed again by
+    // id: `ImsErrorPopoverDirective` maintains its own on the same element, and
+    // overwriting the attribute would silence it.
+    effect((onCleanup) => {
+      if (!this.session.hint()) {
+        return;
+      }
+
+      const element = this.session.portal.element;
+      element.setAttribute(
+        'aria-describedby',
+        [...describedByIds(element), this.hintId].join(' '),
+      );
+
+      onCleanup(() => {
+        const remaining = describedByIds(element).filter((id) => id !== this.hintId);
+
+        if (remaining.length === 0) {
+          element.removeAttribute('aria-describedby');
+          return;
+        }
+
+        element.setAttribute('aria-describedby', remaining.join(' '));
+      });
     });
   }
 

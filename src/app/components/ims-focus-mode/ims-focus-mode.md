@@ -26,6 +26,7 @@ Works the same with reactive and template-driven bindings, and with a plain unbo
 | --- | --- | --- | --- |
 | `label` | `string` | `''` | Dialog title. Falls back to the trigger's accessible name. |
 | `labels` | `Partial<ImsFocusModeLabels> \| null` | `null` | Per-instance overrides merged over `IMS_FOCUS_MODE_LABELS`. |
+| `hint` | `string` | `''` | Note describing what the field expects. |
 
 Application-wide text comes from the `IMS_FOCUS_MODE_LABELS` token.
 
@@ -100,6 +101,27 @@ focus mode's call to make.
 
 A field carrying a `required` validator says so in the footer, stated plainly at rest and
 called out once the buffered value leaves it unmet.
+
+### Hints
+
+Everything else in the footer is derived from the field. `hint` is the one part that is not,
+for what the field cannot say about itself — a readable spelling of a pattern, a unit, an
+example value:
+
+```html
+<ims-focus-mode label="אסמכתא" hint="בפורמט REF-0000-0000">
+    <input imsInput [formControl]="reference"/>
+</ims-focus-mode>
+```
+
+It takes its own line above the required note and the count, since it is the only one of the
+three whose length is unknown here and sharing a line would push the count around as the text
+changed.
+
+The hint also becomes the field's `aria-describedby`, so it reaches someone who arrives at the
+control by keyboard or screen reader rather than by reading the footer. The reference is added
+to any already on the field and removed again by id — `ImsErrorPopoverDirective` maintains its
+own on the same attribute, and overwriting it would silence the errors.
 
 **Apply is disabled while the buffered value fails validation.** Because edits are buffered,
 the control's own `status` describes the value the user started from, not the one they are

@@ -182,13 +182,32 @@
     grid-template-columns: minmax(0, 1fr);
 }
 
-/** Footer metadata, grouped so the actions row keeps two columns. */
+/**
+ * Footer metadata, grouped so the actions row keeps two columns.
+ *
+ * A caller's hint gets its own line above the derived state: it is the longest
+ * of the three and the only one whose length is not known here, so sharing a
+ * line would push the count around as the text changed.
+ */
 .ims-focus-mode__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 0.15rem;
+    justify-self: start;
+    min-inline-size: 0;
+}
+
+.ims-focus-mode__meta-row {
     display: flex;
     align-items: baseline;
     gap: 0.6rem;
-    justify-self: start;
-    min-inline-size: 0;
+}
+
+.ims-focus-mode__hint {
+    color: var(--ims-color-on-surface-muted);
+    font-size: 0.8rem;
+    text-wrap: pretty;
 }
 
 .ims-focus-mode__required {

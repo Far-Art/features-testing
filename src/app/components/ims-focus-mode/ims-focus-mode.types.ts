@@ -70,6 +70,8 @@ export interface ImsFocusModeSession {
    * evaluated against the draft instead.
    */
   readonly draftValid: Signal<boolean>;
+  /** Free-form note describing what the field expects, when the caller gave one. */
+  readonly hint: Signal<string>;
   /** True when the field must be filled in. */
   readonly required: Signal<boolean>;
   /** True while the buffered value leaves that requirement unmet. */

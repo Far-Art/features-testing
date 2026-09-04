@@ -79,6 +79,23 @@ export class ImsFocusMode {
   /** Per-instance label overrides merged over the injected label set. */
   readonly labels = input<Partial<ImsFocusModeLabels> | null>(null);
 
+  /**
+   * Free-form note describing what the field expects — a readable spelling of a
+   * pattern, a unit, an example value.
+   *
+   * Shown in the dialog footer and announced as the field's description, so it
+   * reaches someone who cannot see the footer. This is the caller's own text;
+   * the required note and character count are derived and need no input.
+   *
+   * @example
+   * ```html
+   * <ims-focus-mode label="אסמכתא" hint="בפורמט REF-0000-0000">
+   *     <input imsInput [formControl]="reference"/>
+   * </ims-focus-mode>
+   * ```
+   */
+  readonly hint = input('');
+
   private readonly projectedControl = contentChild(NgControl);
   private readonly projectedControlRef = contentChild(NgControl, { read: ElementRef });
   /** Resolved field for a projected control without an Angular form binding. */
@@ -278,6 +295,7 @@ export class ImsFocusMode {
       length: this.draftLength,
       maxLength: this.maxLength,
       draftValid: this.draftValid,
+      hint: this.hint,
       required: this.required,
       requiredUnmet: this.requiredUnmet,
       labels: this.effectiveLabels(),

@@ -10,8 +10,13 @@ import { ImsFocusMode } from './ims-focus-mode';
   imports: [FormsModule, ImsFocusMode, ImsInputDirective, ReactiveFormsModule, ReadonlyDirective],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <ims-focus-mode label="Notes" [labels]="labels" [ims-readonly]="scopeReadonly">
-      <textarea imsInput [formControl]="notes"></textarea>
+    <ims-focus-mode
+      label="Notes"
+      hint="Between six and forty characters"
+      [labels]="labels"
+      [ims-readonly]="scopeReadonly"
+    >
+      <textarea imsInput aria-describedby="external-note" [formControl]="notes"></textarea>
     </ims-focus-mode>
 
     <ims-focus-mode label="Summary" [labels]="labels">
@@ -479,6 +484,34 @@ describe('ImsFocusMode', () => {
     await settle(fixture);
 
     expect(document.querySelector('.ims-focus-mode__required')).toBeNull();
+  });
+
+  it('shows a caller hint and makes it the field\'s description', async () => {
+    const original = root(fixture).querySelector('textarea')!;
+
+    await openNotes();
+
+    const hint = document.querySelector('.ims-focus-mode__hint');
+    expect(hint?.textContent?.trim()).toBe('Between six and forty characters');
+
+    // Added to the description the field already had, not written over it:
+    // other directives maintain references on the same attribute.
+    const describedBy = stageField()?.getAttribute('aria-describedby')?.split(' ') ?? [];
+    expect(describedBy).toContain('external-note');
+    expect(describedBy).toContain(hint?.id);
+
+    clickAction('Cancel');
+    await settle(fixture);
+
+    expect(original.getAttribute('aria-describedby')).toBe('external-note');
+  });
+
+  it('shows no hint when the caller gave none', async () => {
+    triggers(fixture)[1].click();
+    await settle(fixture);
+
+    expect(document.querySelector('.ims-focus-mode__hint')).toBeNull();
+    expect(stageField()?.hasAttribute('aria-describedby')).toBe(false);
   });
 
   it('commits through the view-to-model pipeline for template-driven fields', async () => {
