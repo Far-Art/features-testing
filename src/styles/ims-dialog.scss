@@ -103,8 +103,10 @@ ims-dialog-shell.ims-dialog {
   height: 100%;
   max-height: calc(100vh - 2rem);
   overflow: hidden;
-  border: 1px solid var(--ims-color-border-subtle);
-  border-block-start: 0.25rem solid var(--ims-dialog-accent);
+  // One accent colour all the way round; the top edge is the same border, just
+  // heavier. Declaring the colour once keeps the four severities from drifting.
+  border: 1px solid var(--ims-dialog-accent);
+  border-block-start-width: 0.25rem;
   border-radius: 0.875rem;
   background: var(--ims-background-dialog);
   box-shadow:
