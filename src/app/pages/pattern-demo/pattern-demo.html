@@ -1,0 +1,298 @@
+<section class="pattern-demo">
+  <header class="page-heading">
+    <h1>imsPattern · מה שלא תואם לא נכנס</h1>
+    <p>
+      הדירקטיבה יושבת על <code>input</code> ו־<code>textarea</code>, מקבלת שם של פריסט,
+      מחרוזת או <code>RegExp</code>, ובודקת מה הערך <em>עומד</em> להיות. הקשה שתשבור את
+      התבנית מבוטלת ב־<code>beforeinput</code>, כך שהערך והמודל לעולם לא רואים אותה.
+    </p>
+  </header>
+
+  <section class="pattern-demo__playground" aria-labelledby="pattern-playground-title">
+    <div class="pattern-demo__section-heading">
+      <p class="pattern-demo__eyebrow">Playground</p>
+      <h2 id="pattern-playground-title">בדיקת תבנית חיה</h2>
+      <p>ערכו את התבנית, הקלידו בשדה הבדיקה ונסו גם להדביק טקסט לא תואם.</p>
+    </div>
+
+    <div class="pattern-demo__playground-grid">
+      <label class="pattern-demo__field">
+        <span class="pattern-demo__field-label">התבנית</span>
+        <input
+          imsInput
+          dir="ltr"
+          spellcheck="false"
+          autocomplete="off"
+          [value]="patternDraft()"
+          (input)="onPatternDraft($event)"
+        />
+        @if (patternIsBroken()) {
+          <span class="pattern-demo__field-note pattern-demo__field-note--warning">
+            ביטוי לא תקין — השדה ממשיך עם <code dir="ltr">{{ activePattern() }}</code>
+          </span>
+        } @else {
+          <span class="pattern-demo__field-note">
+            נבדק כ־<code dir="ltr">^(?:{{ activePattern() }})$</code>
+          </span>
+        }
+      </label>
+
+      <label class="pattern-demo__field" (beforeinput)="recordAttempt($event)">
+        <span class="pattern-demo__field-label">שדה הבדיקה</span>
+        <input
+          imsInput
+          dir="auto"
+          autocomplete="off"
+          placeholder="הקלידו כאן"
+          [imsPattern]="activePattern()"
+          [ngModel]="playgroundValue()"
+          (ngModelChange)="playgroundValue.set($event)"
+        />
+        <span class="pattern-demo__field-note">
+          ערך המודל: <strong dir="auto">{{ playgroundValue() || '—' }}</strong>
+        </span>
+      </label>
+    </div>
+
+    <div class="pattern-demo__log">
+      <div class="pattern-demo__log-header">
+        <h3>הקלדות אחרונות</h3>
+        <button
+          type="button"
+          class="pattern-demo__clear-button"
+          [disabled]="attempts().length === 0"
+          (click)="clearAttempts()"
+        >
+          ניקוי
+        </button>
+      </div>
+
+      @if (attempts().length === 0) {
+        <p class="pattern-demo__log-empty">עדיין לא נקלטה הקלדה בשדה הבדיקה.</p>
+      } @else {
+        <ul class="pattern-demo__log-list">
+          @for (attempt of attempts(); track attempt.id) {
+            <li
+              class="pattern-demo__log-item"
+              [class.pattern-demo__log-item--rejected]="!attempt.accepted"
+            >
+              <code dir="ltr">{{ attempt.text }}</code>
+              <span>{{ attempt.accepted ? 'התקבל' : 'נחסם' }}</span>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </section>
+
+  <section class="pattern-demo__numeric" aria-labelledby="pattern-numeric-title">
+    <div class="pattern-demo__section-heading">
+      <p class="pattern-demo__eyebrow">Built-in</p>
+      <h2 id="pattern-numeric-title">שני פריסטים מובנים</h2>
+      <p>
+        <code>integer</code> ו־<code>decimal</code> מכסים את רוב השדות המספריים, ולצידם
+        <code>signedInteger</code> ו־<code>signedDecimal</code> למי שצריך מינוס. אפשר לנקוב
+        בשם הפריסט, או לקשור את הערך עצמו מתוך <code>IMS_PATTERN</code> — שתי הכתיבות מגיעות
+        לאותה תבנית ולאותה התנהגות.
+      </p>
+    </div>
+
+    <div class="pattern-demo__preset-grid">
+      @for (card of numericPresets; track card.source) {
+        <article class="pattern-demo__preset">
+          <h3>{{ card.title }}</h3>
+          <code class="pattern-demo__preset-pattern" dir="ltr">{{ card.source }}</code>
+          <input
+            imsInput
+            dir="ltr"
+            autocomplete="off"
+            [imsPattern]="card.pattern"
+            [placeholder]="card.placeholder"
+          />
+          <p>{{ card.hint }}</p>
+        </article>
+      }
+
+      <article class="pattern-demo__preset">
+        <h3>סכום שמגיע כאפס</h3>
+        <code class="pattern-demo__preset-pattern" dir="ltr">imsPattern="decimal"</code>
+        <input
+          imsInput
+          dir="ltr"
+          autocomplete="off"
+          imsPattern="decimal"
+          [ngModel]="amount()"
+          (ngModelChange)="amount.set($event)"
+        />
+        <p>
+          מיקוד בשדה בוחר את האפס כולו, כך שההקלדה מחליפה אותו במקום להיתקע אחריו. ערך המודל:
+          <strong dir="ltr">{{ amount() }}</strong>
+        </p>
+      </article>
+
+      <article class="pattern-demo__preset">
+        <h3>אותו פריסט, בלי תיקון</h3>
+        <code class="pattern-demo__preset-pattern" dir="ltr">[imsPatternCorrect]="false"</code>
+        <input
+          imsInput
+          dir="ltr"
+          autocomplete="off"
+          placeholder="1250.75"
+          imsPattern="decimal"
+          [imsPatternCorrect]="false"
+        />
+        <p>אותה תבנית בדיוק, אבל בלי לכתוב לעולם: 0 ואז ספרה נחסם במקום להחליף את האפס.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="pattern-demo__presets" aria-labelledby="pattern-presets-title">
+    <div class="pattern-demo__section-heading">
+      <p class="pattern-demo__eyebrow">Presets</p>
+      <h2 id="pattern-presets-title">תבניות משלכם</h2>
+      <p>מה שאינו מספרי נכתב כביטוי רגולרי ועובר כמחרוזת ישירות ב־HTML.</p>
+    </div>
+
+    <div class="pattern-demo__preset-grid">
+      @for (preset of presets; track preset.pattern) {
+        <article class="pattern-demo__preset">
+          <h3>{{ preset.title }}</h3>
+          <code class="pattern-demo__preset-pattern" dir="ltr">{{ preset.pattern }}</code>
+          <input
+            imsInput
+            dir="auto"
+            autocomplete="off"
+            [imsPattern]="preset.pattern"
+            [placeholder]="preset.placeholder"
+          />
+          <p>{{ preset.hint }}</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="pattern-demo__sources" aria-labelledby="pattern-sources-title">
+    <div class="pattern-demo__section-heading">
+      <p class="pattern-demo__eyebrow">String · RegExp</p>
+      <h2 id="pattern-sources-title">שתי דרכים להעביר תבנית</h2>
+      <p>
+        מחרוזת מתקמפלת ב־<code>new RegExp()</code> ללא דגלים; אובייקט <code>RegExp</code> שומר
+        על הדגלים שלו, למעט <code>g</code> ו־<code>y</code> שמנוטרלים כי הם הופכים את
+        <code>test</code> לתלוי־מצב.
+      </p>
+    </div>
+
+    <div class="pattern-demo__source-grid">
+      <article class="pattern-demo__preset">
+        <h3>מחרוזת סטטית</h3>
+        <code class="pattern-demo__preset-pattern" dir="ltr">imsPattern="[0-9]*"</code>
+        <input imsInput dir="ltr" autocomplete="off" imsPattern="[0-9]*" placeholder="2026" />
+        <p>אין צורך בסוגריים מרובעים בתבנית מחייבת — הערך מעוגן ממילא.</p>
+      </article>
+
+      <article class="pattern-demo__preset">
+        <h3>אובייקט RegExp עם דגל i</h3>
+        <code class="pattern-demo__preset-pattern" dir="ltr">/#?[0-9a-f]&#123;0,6&#125;/i</code>
+        <input imsInput dir="ltr" autocomplete="off" [imsPattern]="hexColor" placeholder="#A1B2C3" />
+        <p>הדגל <code>i</code> מאפשר גם אותיות גדולות; כל תו מחוץ ל־hex נחסם.</p>
+      </article>
+
+      <article class="pattern-demo__preset pattern-demo__preset--wide">
+        <h3>textarea עם שורות חדשות</h3>
+        <code class="pattern-demo__preset-pattern" dir="ltr">/[א-ת0-9 ,.\n-]*/</code>
+        <textarea
+          imsInput
+          rows="3"
+          dir="auto"
+          class="pattern-demo__textarea"
+          placeholder="הערה בעברית, כולל מעבר שורה"
+          [imsPattern]="noteText"
+        ></textarea>
+        <p>
+          מעבר שורה מגיע כ־<code>insertLineBreak</code>, ולכן <code>\n</code> חייב להיות חלק
+          מהתבנית.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section class="pattern-demo__partial" aria-labelledby="pattern-partial-title">
+    <div class="pattern-demo__section-heading">
+      <p class="pattern-demo__eyebrow">Gotcha</p>
+      <h2 id="pattern-partial-title">התבנית חייבת לקבל קלט חלקי</h2>
+      <p>
+        הבדיקה רצה על הערך המלא בכל הקשה, ולכן תבנית שמתארת רק ערך גמור חוסמת את הדרך אליו.
+      </p>
+    </div>
+
+    <div class="pattern-demo__source-grid">
+      <article class="pattern-demo__preset pattern-demo__preset--danger">
+        <h3>לא עובד</h3>
+        <code class="pattern-demo__preset-pattern" dir="ltr">[0-9]&#123;3&#125;</code>
+        <input imsInput dir="ltr" autocomplete="off" imsPattern="[0-9]{3}" placeholder="נסו להקליד" />
+        <p>הספרה הראשונה כבר נדחית, כי <code>5</code> אינו שלוש ספרות.</p>
+      </article>
+
+      <article class="pattern-demo__preset pattern-demo__preset--success">
+        <h3>עובד</h3>
+        <code class="pattern-demo__preset-pattern" dir="ltr">[0-9]&#123;0,3&#125;</code>
+        <input
+          imsInput
+          dir="ltr"
+          autocomplete="off"
+          imsPattern="[0-9]{0,3}"
+          placeholder="עד שלוש ספרות"
+        />
+        <p>הטווח מקבל גם מצבי ביניים, והגבול העליון עוצר בשלוש.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="pattern-demo__rules" aria-labelledby="pattern-rules-title">
+    <div class="pattern-demo__section-heading">
+      <p class="pattern-demo__eyebrow">Behaviour</p>
+      <h2 id="pattern-rules-title">מה הדירקטיבה מבטיחה</h2>
+    </div>
+
+    <ul class="pattern-demo__rule-list">
+      <li>
+        <strong>פריסט מוסיף התנהגות, לא חוזה חדש.</strong> <code>integer</code> ו־
+        <code>decimal</code> נבדקים כמו כל תבנית אחרת, ובנוסף מתקנים אפס מוביל ובוחרים ערך
+        אפס בעת מיקוד.
+      </li>
+      <li>
+        <strong>סימן מינוס הוא פריסט נפרד.</strong> <code>signedInteger</code> ו־
+        <code>signedDecimal</code> מקבלים מינוס פותח, וגם מינוס לבדו בזמן ההקלדה, בעוד
+        <code>integer</code> ו־<code>decimal</code> ממשיכים לחסום אותו. מינוס שני, או מינוס
+        שאינו בתחילת הערך, נחסם.
+      </li>
+      <li>
+        <strong>שני תיקונים במקום סירוב.</strong> <code>0</code> שאחריו ספרה מאבד את האפס
+        (<code dir="ltr">01</code> → <code dir="ltr">1</code>), ונקודה פותחת מקבלת אפס לפניה
+        (<code dir="ltr">.</code> → <code dir="ltr">0.</code>). התיקון חל על טקסט שנכנס, בהקלדה
+        או בהדבקה — מחיקה לעולם לא מתוקנת, אחרת אי אפשר היה למחוק את האפס.
+        <code>imsPatternCorrect</code> מחליף את התיקון בשלכם או מכבה אותו לגמרי.
+      </li>
+      <li>
+        <strong>עוגן מלא.</strong> התבנית נבדקת כ־<code dir="ltr">^(?:…)$</code>, בדיוק כמו
+        התכונה <code>pattern</code> הטבעית.
+      </li>
+      <li>
+        <strong>מחיקה תמיד מותרת.</strong> גם ערך שהגיע מבחוץ ולא תואם אפשר לתקן — הדירקטיבה
+        מחזירה לאחור רק הוספות.
+      </li>
+      <li>
+        <strong>הדבקה וגרירה באותו מסלול.</strong> <code>insertFromPaste</code> ו־
+        <code>insertFromDrop</code> נבדקים כמו הקלדה רגילה.
+      </li>
+      <li>
+        <strong>IME לא נשבר.</strong> טקסט חיבור שלא ניתן לביטול נבדק ב־
+        <code>compositionend</code>, ומוחזר לערך האחרון שהתקבל יחד עם מיקום הסמן.
+      </li>
+      <li>
+        <strong>המודל נשאר נקי.</strong> הקשה שנחסמה לא משנה את ה־DOM ולכן לא משדרת
+        <code>input</code> — <code>ngModel</code> ו־<code>formControl</code> לא רואים אותה.
+      </li>
+    </ul>
+  </section>
+</section>

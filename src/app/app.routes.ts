@@ -68,6 +68,11 @@ export const routes: Routes = [
             )
     },
     {
+        path: 'pattern',
+        loadComponent: () =>
+            import('./pages/pattern-demo/pattern-demo').then((module) => module.PatternDemo)
+    },
+    {
         path: 'icons',
         loadComponent: () =>
             import('./pages/icons-demo/icons-demo').then((module) => module.IconsDemo)
