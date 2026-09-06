@@ -13,6 +13,56 @@ export interface ImsDialogBuilderHost {
 }
 
 /**
+ * Reduced builder surface returned by `ImsDialogService.error()`.
+ *
+ * An error dialog renders text rather than a component and always closes
+ * without a result, so the data, confirmation, and readonly options of the
+ * full builder are not offered.
+ */
+export interface ImsDialogErrorBuilder {
+  /**
+   * Replaces the default `תקלה` title.
+   *
+   * @param text Text displayed in the generated title section, or an empty
+   * string to open the dialog without a title row.
+   * @returns This builder for continued chaining.
+   */
+  title(text: string): ImsDialogErrorBuilder;
+
+  /**
+   * Adds an icon to the generated title.
+   *
+   * @param materialSymbolName Optional Material icon ligature name; the danger
+   * icon is used when it is omitted.
+   * @returns This builder for continued chaining.
+   */
+  withIcon(materialSymbolName?: string): ImsDialogErrorBuilder;
+
+  /**
+   * Opens the dialog inside an element instead of the viewport.
+   *
+   * @param className A single class name without a leading period.
+   * @returns This builder for continued chaining.
+   */
+  inside(className: string): ImsDialogErrorBuilder;
+
+  /**
+   * Applies Angular CDK dialog configuration.
+   *
+   * @param config CDK configuration used when opening the dialog.
+   * @returns This builder for continued chaining.
+   */
+  config<D = unknown>(config: DialogConfig<D>): ImsDialogErrorBuilder;
+
+  /**
+   * Opens the configured dialog.
+   *
+   * @returns A reference whose `closed` observable emits `undefined`.
+   */
+  open(): ImsDialogRef<undefined>;
+}
+
+/**
  * Fluent configuration object returned by the severity methods on
  * `ImsDialogService`.
  *

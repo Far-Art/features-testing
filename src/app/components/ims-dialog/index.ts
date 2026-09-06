@@ -1,6 +1,6 @@
 export { ImsAbstractDialog } from './ims-abstract-dialog';
 export { ImsDialogBuilder } from './ims-dialog-builder';
-export type { ImsDialogBuilderHost } from './ims-dialog-builder';
+export type { ImsDialogBuilderHost, ImsDialogErrorBuilder } from './ims-dialog-builder';
 export { ImsDialogRef } from './ims-dialog-ref';
 export {
   ImsDialogActions,

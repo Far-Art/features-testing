@@ -154,6 +154,26 @@
       </div>
       <button type="button" (click)="openTimedReadonlyConfirmation()">Watch actions switch</button>
     </article>
+
+    <article class="dialog-demo-card dialog-demo-card--danger">
+      <div class="dialog-demo-card__index">11</div>
+      <div class="dialog-demo-card__body">
+        <span class="dialog-demo-card__tag">Caught values</span>
+        <h2>Any thrown shape, one dialog</h2>
+        <p>
+          A caught value goes straight to the dialog. Renderable content is kept, an
+          <code>HttpErrorResponse</code> payload is unwrapped, an <code>Error</code> shows its
+          message, and anything else falls back to a generic line. The generated title defaults to
+          תקלה.
+        </p>
+        <code>.error(value: unknown)</code>
+      </div>
+      <div class="dialog-demo-card__actions">
+        <button type="button" (click)="openError('error')">Error</button>
+        <button type="button" (click)="openError('http')">HTTP failure</button>
+        <button type="button" (click)="openError('opaque')">Opaque value</button>
+      </div>
+    </article>
   </section>
 
   <app-dialog-inside-playground (dialogClosed)="lastEvent.set($event)" />

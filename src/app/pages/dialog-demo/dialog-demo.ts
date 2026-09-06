@@ -157,7 +157,7 @@ export class DialogMergeContent {
 
         <label>
           <span>Display name</span>
-          <input  type="text" [value]="displayName()" (input)="updateDisplayName($event)" />
+          <input type="text" [value]="displayName()" (input)="updateDisplayName($event)" />
         </label>
 
         <p>
@@ -367,10 +367,17 @@ export class DialogRiskContent {
 
     <ims-dialog-actions>
       <button ims-button icon="tune" (click)="select('default')">Default action</button>
-      <button ims-button ims-button-variation="secondary" icon="visibility" (click)="select('secondary')">
+      <button
+        ims-button
+        ims-button-variation="secondary"
+        icon="visibility"
+        (click)="select('secondary')"
+      >
         Secondary action
       </button>
-      <button ims-button ims-button-variation="primary" icon="check" (click)="select('primary')">Primary action</button>
+      <button ims-button ims-button-variation="primary" icon="check" (click)="select('primary')">
+        Primary action
+      </button>
     </ims-dialog-actions>
   `,
   styles: `
@@ -962,6 +969,35 @@ export class DialogDemo {
           ? 'Timed confirmation approved.'
           : 'Timed confirmation rejected or closed while readonly.',
       );
+    });
+  }
+
+  openError(kind: 'error' | 'http' | 'opaque'): void {
+    const failure: unknown =
+      kind === 'error'
+        ? new Error('The policy service rejected the request.')
+        : kind === 'http'
+          ? {
+              status: 409,
+              message: 'Http failure response for /api/policies: 409 Conflict',
+              error: {
+                resultCode: -409,
+                resultDesc: 'The policy was changed by another user.',
+                messages: [
+                  { level: 3, message: 'Reload the policy before saving again.' },
+                  { level: 1, message: 'No local changes were written.' },
+                ],
+              },
+            }
+          : { code: 'ENOTFOUND' };
+
+    const ref = this.dialog
+      .error(failure)
+      .config({ direction: 'ltr', width: 'min(34rem, calc(100vw - 2rem))' })
+      .open();
+
+    ref.closed.subscribe(() => {
+      this.lastEvent.set(`Error dialog for a ${kind} value closed.`);
     });
   }
 

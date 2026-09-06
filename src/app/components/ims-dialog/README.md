@@ -54,6 +54,9 @@ dialog.warning(content?);
 dialog.danger(content?);
 ```
 
+A fifth entrypoint, `dialog.error(value)`, opens a danger dialog for a value of
+unknown shape.
+
 Each method accepts `ImsDialogContentType<C>` and returns an
 `ImsDialogBuilder`. Content can be a component type, `IBaseOutput`, an
 `IMessage[]`, a string, or an array of strings:
@@ -105,6 +108,49 @@ const messages: IMessage[] = [
 dialog.warning(messages).title('Validation messages').open();
 ```
 
+### `error(value)`
+
+Opens a danger dialog for a caught value. The parameter is `unknown`, so a
+`catch` binding or any `any`-typed error can be passed without a cast and
+without an explicit `any` in the signature.
+
+```ts
+try {
+  await save();
+} catch (failure) {
+  dialog.error(failure).open(); // Titled "תקלה", with the danger icon.
+}
+```
+
+The value is reduced to content before the dialog opens:
+
+| Value | Rendered content |
+| --- | --- |
+| A non-empty `string`, `string[]`, `IMessage[]`, or `IBaseOutput` | Used unchanged |
+| An object with a numeric `status` and an `error` payload, such as `HttpErrorResponse` | The `error` payload, when it is itself renderable content |
+| An `Error` | `message`, falling back to `name` |
+| Any other object with a string `message` | That message |
+| A `number` or `boolean` | Its text form |
+| Anything else, including `null`, `undefined`, and empty content | `אירעה שגיאה בלתי צפויה.` |
+
+Because an `IBaseOutput` payload keeps its own styling rules, a negative
+`resultCode` unwrapped from an HTTP failure renders as a danger result with its
+sorted message rows.
+
+Unlike the severity methods, `error()` starts with the title `תקלה` and the
+danger icon. A later `title()` call replaces the title, and `title('')` opens
+the dialog without a title row.
+
+An error dialog renders text rather than a component and always closes without
+a result, so `error()` returns the reduced `ImsDialogErrorBuilder` surface:
+
+```ts
+dialog.error(value).title(text).withIcon(name?).inside(className).config(config).open();
+```
+
+`data()`, `asConfirmation()`, and `asReadonly()` are not offered, and `open()`
+takes no result type; it returns `ImsDialogRef<undefined>`.
+
 ### `data(value)`
 
 Supplies data to the opened component through both `IMS_DIALOG_DATA` and CDK
@@ -138,17 +184,31 @@ dialog
 Generates `ims-dialog-title` when the supplied component does not provide its
 own title section.
 
+Severity methods have no default title. Without this call, and without
+`withIcon()`, the shell renders only its small drag strip above the content.
+`error()` is the one exception; see below.
+
 ### `withIcon(materialSymbolName?)`
 
 Adds an icon to the generated title. Without a name, the icon is derived from
 severity:
 
-| Severity  | Default icon   |
-| --------- | -------------- |
-| `info`    | `info`         |
-| `success` | `check_circle` |
-| `warning` | `warning`      |
-| `danger`  | `error`        |
+| Severity  | Icon           | Applied without `withIcon()` |
+| --------- | -------------- | ---------------------------- |
+| `info`    | `info`         | No                           |
+| `success` | `check_circle` | Yes                          |
+| `warning` | `warning`      | Yes                          |
+| `danger`  | `error`        | Yes                          |
+
+Success, warning, and danger dialogs therefore show their icon automatically,
+and `error()` shows the danger icon. Informational dialogs stay unadorned
+unless `withIcon()` asks for an icon.
+
+The automatic icon only joins an existing generated title; it never creates a
+title row on its own. A dialog with no title keeps the plain drag strip, and a
+component-provided `ims-dialog-title` supplies its own icon. Calling
+`withIcon()` explicitly still renders the title row even when the title is
+empty.
 
 The dialog and its demo use the Material Symbols Sharp ligature font.
 
@@ -545,9 +605,10 @@ For custom-title-only dialogs, callers should provide the appropriate
 
 ## File map
 
-- `ims-dialog.service.ts`: CDK integration, data merging, providers, and
-  severity entrypoints.
-- `ims-dialog-builder.ts`: fluent builder and result typing.
+- `ims-dialog.service.ts`: CDK integration, data merging, providers, severity
+  entrypoints, and error-value normalization.
+- `ims-dialog-builder.ts`: fluent builder, the reduced error builder surface,
+  and result typing.
 - `ims-abstract-dialog.ts`: injectable base directive for dialog components.
 - `ims-dialog-ref.ts`: dedicated close reference and confirmation mapping.
 - `ims-dialog-shell.ts` / `ims-dialog-shell.html`: private internal shell.

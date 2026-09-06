@@ -79,3 +79,30 @@ export function resolveConfirmationLabels(
 
   return labels;
 }
+
+/** Narrows a value to the structured result content rendered by the shell. */
+export function isImsDialogBaseOutput(content: unknown): content is IBaseOutput {
+  if (typeof content !== 'object' || content === null || Array.isArray(content)) return false;
+
+  const candidate = content as Partial<IBaseOutput>;
+  return (
+    typeof candidate.resultCode === 'number' &&
+    typeof candidate.resultDesc === 'string');
+}
+
+/** Narrows a value to the message-row content rendered by the shell. */
+export function isImsDialogMessageArray(content: unknown): content is IMessage[] {
+  return Array.isArray(content) && content.every(isImsDialogMessage);
+}
+
+/** Narrows a value to the plain text content rendered by the shell. */
+export function isImsDialogStringArray(content: unknown): content is string[] {
+  return Array.isArray(content) && content.every((item) => typeof item === 'string');
+}
+
+function isImsDialogMessage(content: unknown): content is IMessage {
+  if (typeof content !== 'object' || content === null) return false;
+
+  const candidate = content as Partial<IMessage>;
+  return typeof candidate.level === 'number' && typeof candidate.message === 'string';
+}

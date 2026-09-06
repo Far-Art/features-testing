@@ -3,18 +3,31 @@ import { Directionality } from '@angular/cdk/bidi';
 import { Overlay } from '@angular/cdk/overlay';
 import { DOCUMENT } from '@angular/common';
 import { Injectable, inject, signal } from '@angular/core';
-import { ImsDialogBuilder, ImsDialogBuilderHost } from './ims-dialog-builder';
+import {
+  ImsDialogBuilder,
+  ImsDialogBuilderHost,
+  ImsDialogErrorBuilder,
+} from './ims-dialog-builder';
 import { ImsDialogRef } from './ims-dialog-ref';
 import { ImsDialogShell } from './ims-dialog-shell';
 import {
+  IBaseOutput,
+  IMessage,
   IMS_DIALOG_CONFIG,
   IMS_DIALOG_DATA,
   ImsDialogContentType,
   ImsDialogOpenOptions,
   ImsDialogRuntimeConfig,
   ImsDialogSeverity,
+  isImsDialogBaseOutput,
+  isImsDialogMessageArray,
+  isImsDialogStringArray,
   resolveConfirmationLabels,
 } from './ims-dialog.types';
+
+const DEFAULT_ERROR_TITLE = 'תקלה';
+
+const DEFAULT_ERROR_TEXT = 'אירעה שגיאה בלתי צפויה.';
 
 const DEFAULT_ICONS: Record<ImsDialogSeverity, string> = {
   info: 'info',
@@ -46,6 +59,28 @@ export class ImsDialogService implements ImsDialogBuilderHost {
     return this.createBuilder(content, 'danger');
   }
 
+  /**
+   * Opens a danger dialog for a value of unknown shape.
+   *
+   * Intended for `catch` blocks and error callbacks, where the caught value is
+   * typed `any` or `unknown` and cannot be narrowed at the call site. A value
+   * the shell already renders is used unchanged; an `Error`, an
+   * `HttpErrorResponse`, or any other object carrying a string `message` is
+   * reduced to that text, and anything else falls back to a generic message.
+   *
+   * The title defaults to `תקלה`; a later `title()` call replaces it, and an
+   * empty title opens the dialog without a title row.
+   *
+   * @param error Thrown, rejected, or returned value describing the failure.
+   * @returns A reduced builder without the data, confirmation, and readonly
+   * options, which an error dialog cannot use.
+   */
+  error(error: unknown): ImsDialogErrorBuilder {
+    return this.createBuilder<never>(resolveErrorContent(error), 'danger').title(
+      DEFAULT_ERROR_TITLE,
+    );
+  }
+
   openFromBuilder(options: ImsDialogOpenOptions): ImsDialogRef<unknown> {
     const confirmationMode = isConfirmationMode(options.mode);
     const readonlyState = signal(isReadonlyMode(options.mode));
@@ -63,7 +98,9 @@ export class ImsDialogService implements ImsDialogBuilderHost {
       readonlySignal: readonlyState,
       content: options.content,
       title: options.title,
-      icon: options.iconRequested ? (options.iconName ?? DEFAULT_ICONS[options.severity]) : null,
+      icon: options.iconRequested
+        ? (options.iconName ?? DEFAULT_ICONS[options.severity])
+        : resolveDefaultIcon(options.severity, options.title),
       confirmationLabels: options.confirmationLabels
         ? resolveConfirmationLabels(options.confirmationLabels)
         : null,
@@ -187,6 +224,61 @@ export class ImsDialogService implements ImsDialogBuilderHost {
   ): ImsDialogBuilder<C> {
     return new ImsDialogBuilder(this, content, severity);
   }
+}
+
+function resolveDefaultIcon(severity: ImsDialogSeverity, title: string): string | null {
+  if (severity === 'info' || !title) {
+    return null;
+  }
+
+  return DEFAULT_ICONS[severity];
+}
+
+function resolveErrorContent(error: unknown): ImsDialogContentType<never> {
+  if (isRenderableContent(error)) {
+    return error;
+  }
+
+  if (isHttpErrorLike(error) && isRenderableContent(error.error)) {
+    return error.error;
+  }
+
+  return readErrorText(error) || DEFAULT_ERROR_TEXT;
+}
+
+function isRenderableContent(
+  value: unknown,
+): value is IBaseOutput | IMessage[] | string[] | string {
+  if (typeof value === 'string') {
+    return value.trim().length > 0;
+  }
+
+  if (Array.isArray(value)) {
+    return value.length > 0 && (isImsDialogStringArray(value) || isImsDialogMessageArray(value));
+  }
+
+  return isImsDialogBaseOutput(value);
+}
+
+function isHttpErrorLike(value: unknown): value is { status: number; error: unknown } {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  return typeof (value as { status?: unknown }).status === 'number' && 'error' in value;
+}
+
+function readErrorText(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message.trim() || error.name;
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const candidate = error as { message?: unknown };
+    return typeof candidate.message === 'string' ? candidate.message.trim() : '';
+  }
+
+  return typeof error === 'number' || typeof error === 'boolean' ? String(error) : '';
 }
 
 function mergeDialogData(

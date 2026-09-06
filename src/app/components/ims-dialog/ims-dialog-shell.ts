@@ -7,11 +7,13 @@ import { ImsDialogRef } from './ims-dialog-ref';
 import { ImsDialogActions, ImsDialogTitle } from './ims-dialog-section';
 import { ImsDialogSectionRegistry } from './ims-dialog-section-registry';
 import {
-  IBaseOutput,
   IMessage,
   IMS_DIALOG_CONFIG,
   IMS_DIALOG_READONLY,
   ImsDialogRuntimeConfig,
+  isImsDialogBaseOutput,
+  isImsDialogMessageArray,
+  isImsDialogStringArray,
 } from './ims-dialog.types';
 
 type ImsDialogMessageStyle = 'danger' | 'info' | 'warning';
@@ -70,16 +72,16 @@ export class ImsDialogShell {
   })();
   readonly baseOutput = (() => {
     const content = this.config.content;
-    return isBaseOutput(content) ? content : null;
+    return isImsDialogBaseOutput(content) ? content : null;
   })();
   readonly effectiveSeverity =
     (this.baseOutput?.resultCode ?? 0) < 0 ? 'danger' : this.config.severity;
-  readonly isMessageListContent = isMessageArray(this.config.content);
+  readonly isMessageListContent = isImsDialogMessageArray(this.config.content);
   readonly messages: readonly IMessage[] = (() => {
     const content = this.config.content;
-    const messages = isBaseOutput(content)
+    const messages = isImsDialogBaseOutput(content)
       ? content.messages
-      : isMessageArray(content)
+      : isImsDialogMessageArray(content)
         ? content
         : [];
 
@@ -92,7 +94,7 @@ export class ImsDialogShell {
       return [content];
     }
 
-    return isStringArray(content) ? content : [];
+    return isImsDialogStringArray(content) ? content : [];
   })();
 
   constructor() {
@@ -125,30 +127,4 @@ export class ImsDialogShell {
     if (style === 'warning') return 'warning';
     return 'info';
   }
-}
-
-function isBaseOutput(content: unknown): content is IBaseOutput {
-  if (typeof content !== 'object' || content === null || Array.isArray(content)) return false;
-
-  const candidate = content as Partial<IBaseOutput>;
-  return (
-    typeof candidate.resultCode === 'number' &&
-    typeof candidate.resultDesc === 'string' &&
-    isMessageArray(candidate.messages)
-  );
-}
-
-function isMessageArray(content: unknown): content is IMessage[] {
-  return Array.isArray(content) && content.every(isMessage);
-}
-
-function isMessage(content: unknown): content is IMessage {
-  if (typeof content !== 'object' || content === null) return false;
-
-  const candidate = content as Partial<IMessage>;
-  return typeof candidate.level === 'number' && typeof candidate.message === 'string';
-}
-
-function isStringArray(content: unknown): content is string[] {
-  return Array.isArray(content) && content.every((item) => typeof item === 'string');
 }
