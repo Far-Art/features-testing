@@ -1,0 +1,229 @@
+<section class="format-demo">
+  <header class="page-heading">
+    <h1>imsFormat · התצוגה מתפרקת, הערך לא</h1>
+    <p>
+      הדירקטיבה יושבת על <code>input</code> ו־<code>textarea</code> ומציגה מספר מקובץ כשהשדה במנוחה.
+      ברגע שהוא מקבל מיקוד הוא חוזר לערך הגולמי, וכשהוא מאבד אותו הוא מתפרמט שוב. שני החילופים לא
+      משגרים <code>input</code>, ולכן <code>ngModel</code> לעולם לא רואה פסיק או סימן מטבע.
+    </p>
+  </header>
+
+  <section class="format-demo__playground" aria-labelledby="format-playground-title">
+    <div class="format-demo__section-heading">
+      <p class="format-demo__eyebrow">Playground</p>
+      <h2 id="format-playground-title">מה בשדה, ומה במודל</h2>
+      <p>
+        החליפו טוקן, הקליקו לתוך השדה וצאו ממנו. שורת הקריאה מציגה בכל רגע את שני הערכים זה לצד זה —
+        זו כל הנקודה של הדירקטיבה.
+      </p>
+    </div>
+
+    <div class="format-demo__token-picker" role="group" aria-label="בחירת טוקן">
+      @for (choice of tokenChoices; track choice) {
+        <button
+          type="button"
+          class="format-demo__token-button"
+          [class.format-demo__token-button--active]="activeToken() === choice"
+          [attr.aria-pressed]="activeToken() === choice"
+          (click)="activeToken.set(choice)"
+        >
+          <code dir="ltr">{{ choice }}</code>
+        </button>
+      }
+    </div>
+
+    <div class="format-demo__playground-grid">
+      <label class="format-demo__field">
+        <span class="format-demo__field-label">שדה מספרי</span>
+        <input
+          #numberField
+          imsInput
+          dir="ltr"
+          autocomplete="off"
+          placeholder="1234.56"
+          [imsFormat]="activeToken()"
+          [ngModel]="playgroundValue()"
+          (ngModelChange)="playgroundValue.set($event)"
+        />
+        <span class="format-demo__readout">
+          <span>תצוגה</span>
+          <code dir="ltr">{{ numberDisplay() || '—' }}</code>
+        </span>
+        <span class="format-demo__readout format-demo__readout--model">
+          <span>מודל</span>
+          <code dir="ltr">{{ playgroundValue() || '—' }}</code>
+        </span>
+      </label>
+
+      <label class="format-demo__field">
+        <span class="format-demo__field-label">שדה מטבע</span>
+        <input
+          #currencyField
+          imsInput
+          imsFormatCurrency
+          dir="ltr"
+          autocomplete="off"
+          placeholder="1234.5"
+          [ngModel]="currencyValue()"
+          (ngModelChange)="currencyValue.set($event)"
+        />
+        <span class="format-demo__readout">
+          <span>תצוגה</span>
+          <code dir="ltr">{{ currencyDisplay() || '—' }}</code>
+        </span>
+        <span class="format-demo__readout format-demo__readout--model">
+          <span>מודל</span>
+          <code dir="ltr">{{ currencyValue() || '—' }}</code>
+        </span>
+      </label>
+    </div>
+  </section>
+
+  <section class="format-demo__tokens" aria-labelledby="format-tokens-title">
+    <div class="format-demo__section-heading">
+      <p class="format-demo__eyebrow">Tokens</p>
+      <h2 id="format-tokens-title">הטוקן מתאר צורה, לא ערך</h2>
+      <p>
+        פסיק בחלק השלם מדליק מפרידי אלפים, ומספר ה־<code>#</code> אחרי הנקודה קובע כמה ספרות שבר
+        יוצגו. טוקן שלא אומר דבר על השבר — <code dir="ltr">#,###</code> — רק מקבץ, ומשאיר את הספרות
+        שכבר יש בערך. כל שדה כאן נזרע ב־<code>value</code> רגיל, בלי שום קשירת טופס.
+      </p>
+    </div>
+
+    <div class="format-demo__card-grid">
+      @for (card of tokenCards; track card.source) {
+        <article class="format-demo__card">
+          <h3>{{ card.token }}</h3>
+          <code class="format-demo__card-source" dir="ltr">{{ card.source }}</code>
+          <input
+            imsInput
+            dir="ltr"
+            autocomplete="off"
+            [imsFormat]="card.token"
+            [value]="card.seed"
+          />
+          <p>{{ card.hint }}</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="format-demo__currency" aria-labelledby="format-currency-title">
+    <div class="format-demo__section-heading">
+      <p class="format-demo__eyebrow">Currency</p>
+      <h2 id="format-currency-title">מטבע היא דירקטיבה נפרדת</h2>
+      <p>
+        <code>imsFormatCurrency</code> קובעת <code dir="ltr">#,###.##</code> ומוסיפה סימן בסוף.
+        הסימן נוסף כטקסט רגיל ולא דרך <code>Intl</code>, שהיה עוטף אותו בסימני
+        <code dir="ltr">U+200F</code> — תווים בלתי נראים שהיו יושבים בתוך שדה עריכה ונוסעים עם כל
+        העתקה ממנו.
+      </p>
+    </div>
+
+    <div class="format-demo__card-grid">
+      @for (card of currencyCards; track card.source) {
+        <article class="format-demo__card">
+          <h3>{{ card.title }}</h3>
+          <code class="format-demo__card-source" dir="ltr">{{ card.source }}</code>
+          <input
+            imsInput
+            dir="ltr"
+            autocomplete="off"
+            [imsFormatCurrency]="card.symbol"
+            [value]="card.seed"
+          />
+          <p>{{ card.hint }}</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="format-demo__guarded" aria-labelledby="format-guarded-title">
+    <div class="format-demo__section-heading">
+      <p class="format-demo__eyebrow">imsPattern</p>
+      <h2 id="format-guarded-title">מעצב ושומר, זה לצד זה</h2>
+      <p>
+        <code>imsFormat</code> לא חוסמת כלום — היא התמונה הראית של <code>imsPattern</code>, שחוסמת
+        ולא מעצבת. שדה שצריך את שתיהן פשוט נושא את שתיהן: התבנית שולטת בהקלדה, הפורמט משתלט ברגע
+        היציאה מהשדה.
+      </p>
+    </div>
+
+    <div class="format-demo__playground-grid">
+      <label class="format-demo__field">
+        <span class="format-demo__field-label">סכום עשרוני שמור</span>
+        <input
+          #guardedField
+          imsInput
+          dir="ltr"
+          autocomplete="off"
+          imsPattern="decimal"
+          imsFormat="#,###.##"
+          [ngModel]="guardedValue()"
+          (ngModelChange)="guardedValue.set($event)"
+        />
+        <span class="format-demo__readout">
+          <span>תצוגה</span>
+          <code dir="ltr">{{ guardedDisplay() || '—' }}</code>
+        </span>
+        <span class="format-demo__readout format-demo__readout--model">
+          <span>מודל</span>
+          <code dir="ltr">{{ guardedValue() || '—' }}</code>
+        </span>
+      </label>
+
+      <div class="format-demo__notes">
+        <p>נסו את שלוש אלה בשדה שמשמאל:</p>
+        <ul class="format-demo__note-list">
+          <li>אות או נקודה שנייה — <strong>נחסמות בהקלדה</strong> על ידי התבנית.</li>
+          <li>יציאה מהשדה — הפורמט נכנס, והמודל נשאר בלי פסיקים.</li>
+          <li>חזרה לשדה — הפסיקים נעלמים ואפשר להמשיך לערוך מהמקום.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="format-demo__pipes" aria-labelledby="format-pipes-title">
+    <div class="format-demo__section-heading">
+      <p class="format-demo__eyebrow">Pipes</p>
+      <h2 id="format-pipes-title">אותה צורה, בטקסט בלבד</h2>
+      <p>
+        לטקסט שרק מוצג — תא בטבלה, סיכום, כותרת — יש שני פייפים שקוראים לאותה פונקציה שהדירקטיבות
+        קוראות לה, ולכן אי אפשר שיציגו דבר אחר.
+      </p>
+    </div>
+
+    <dl class="format-demo__pipe-list">
+      <div class="format-demo__pipe-row">
+        <dt>
+          <code dir="ltr">{{ '{{ total | imsFormat }}' }}</code>
+        </dt>
+        <dd dir="ltr">{{ total | imsFormat }}</dd>
+      </div>
+      <div class="format-demo__pipe-row">
+        <dt>
+          <code dir="ltr">{{ "{{ total | imsFormat: '#,###.##' }}" }}</code>
+        </dt>
+        <dd dir="ltr">{{ total | imsFormat: '#,###.##' }}</dd>
+      </div>
+      <div class="format-demo__pipe-row">
+        <dt>
+          <code dir="ltr">{{ "{{ total | imsFormat: '###.#' }}" }}</code>
+        </dt>
+        <dd dir="ltr">{{ total | imsFormat: '###.#' }}</dd>
+      </div>
+      <div class="format-demo__pipe-row">
+        <dt>
+          <code dir="ltr">{{ '{{ total | imsFormatCurrency }}' }}</code>
+        </dt>
+        <dd dir="ltr">{{ total | imsFormatCurrency }}</dd>
+      </div>
+      <div class="format-demo__pipe-row">
+        <dt>
+          <code dir="ltr">{{ "{{ total | imsFormatCurrency: '$' }}" }}</code>
+        </dt>
+        <dd dir="ltr">{{ total | imsFormatCurrency: '$' }}</dd>
+      </div>
+    </dl>
+  </section>
+</section>

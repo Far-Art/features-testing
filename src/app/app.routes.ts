@@ -73,6 +73,11 @@ export const routes: Routes = [
             import('./pages/pattern-demo/pattern-demo').then((module) => module.PatternDemo)
     },
     {
+        path: 'format',
+        loadComponent: () =>
+            import('./pages/format-demo/format-demo').then((module) => module.FormatDemo)
+    },
+    {
         path: 'icons',
         loadComponent: () =>
             import('./pages/icons-demo/icons-demo').then((module) => module.IconsDemo)
