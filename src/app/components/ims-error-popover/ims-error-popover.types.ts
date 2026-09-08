@@ -60,6 +60,21 @@ export interface ImsErrorPopoverComponentHost {
 export const IMS_ERROR_POPOVER_COMPONENT_HOST =
     new InjectionToken<ImsErrorPopoverComponentHost>('IMS_ERROR_POPOVER_COMPONENT_HOST');
 
+/** Contract through which a same-host directive reports errors of its own. */
+export interface ImsErrorPopoverTarget {
+    /**
+     * Shows errors of the caller's own for one automatic visibility window, after which
+     * they are forgotten: hover and focus never bring an announcement back.
+     *
+     * @param errors Errors to announce, or `null` to withdraw an open announcement early.
+     */
+    announceErrors(errors: ValidationErrors | null): void;
+}
+
+/** Popover on the same element, resolved by directives that report their own errors. */
+export const IMS_ERROR_POPOVER_TARGET =
+    new InjectionToken<ImsErrorPopoverTarget>('IMS_ERROR_POPOVER_TARGET');
+
 /** Built-in English mappings for common Angular and IMS datepicker errors. */
 export const IMS_ERROR_POPOVER_DEFAULT_MAPPER: ImsErrorMapper = {
     required: 'This field is required.',
@@ -70,6 +85,7 @@ export const IMS_ERROR_POPOVER_DEFAULT_MAPPER: ImsErrorMapper = {
     min: 'Enter a value of at least {min}.',
     max: 'Enter a value no greater than {max}.',
     pattern: 'Enter a value in the required format.',
+    imsPattern: '{message}',
     imsDatepickerParse: 'Enter a valid date.',
     imsDatepickerMin: 'The date cannot be earlier than {minFormatted}.',
     imsDatepickerMax: 'The date cannot be later than {maxFormatted}.',

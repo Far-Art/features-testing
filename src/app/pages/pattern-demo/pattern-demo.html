@@ -146,6 +146,105 @@
     </div>
   </section>
 
+  <section class="pattern-demo__refusals" aria-labelledby="pattern-refusals-title">
+    <div class="pattern-demo__section-heading">
+      <p class="pattern-demo__eyebrow">Error popover</p>
+      <h2 id="pattern-refusals-title">להסביר הקשה שנחסמה</h2>
+      <p>
+        הקשה שנחסמה לא משאירה זכר על המסך, ולכן <code>ims-error-popover</code> על אותו שדה
+        מקבל הודעה בכל סירוב ומציג אותה פעם אחת: היא נשארת למשך זמן התצוגה של הפופאובר, ואינה
+        חוזרת במעבר עכבר או במיקוד. פריסט מנסח את הסירוב לפי מה שהוקלד — אות אינה מקבלת את
+        אותה הודעה כמו ספרה עשרונית שלישית — ושולח גם את הסיבה, כך שהניסוח בעברית נכתב פעם
+        אחת ב־<code>errorMapper</code> הגלובלי. <code>imsPatternMessage</code> מחליף את כולן
+        במשפט אחד, מספק משפט לתבנית משלכם, או מכבה אותו לגמרי.
+      </p>
+    </div>
+
+    <div class="pattern-demo__preset-grid">
+      <article class="pattern-demo__preset">
+        <h3>חיווט אוטומטי</h3>
+        <code class="pattern-demo__preset-pattern" dir="ltr"
+          >imsPattern="integer" ims-error-popover</code
+        >
+        <input
+          imsInput
+          dir="ltr"
+          autocomplete="off"
+          placeholder="2026"
+          imsPattern="integer"
+          ims-error-popover
+        />
+        <p>נסו אות, נקודה ומינוס: ההקשה נחסמת כרגיל, וכל אחת מהן מקבלת הסבר משלה.</p>
+      </article>
+
+      <article class="pattern-demo__preset">
+        <h3>סכום עשרוני</h3>
+        <code class="pattern-demo__preset-pattern" dir="ltr">imsPattern="decimal"</code>
+        <input
+          imsInput
+          dir="ltr"
+          autocomplete="off"
+          placeholder="1250.75"
+          imsPattern="decimal"
+          ims-error-popover
+        />
+        <p>
+          אות מקבלת הודעה על מספרים בלבד, נקודה שנייה מקבלת הודעה על נקודה עשרונית אחת,
+          והספרה השלישית אחרי הנקודה מקבלת את מגבלת העשרוניות.
+        </p>
+      </article>
+
+      <article class="pattern-demo__preset">
+        <h3>תבנית משלכם</h3>
+        <code class="pattern-demo__preset-pattern" dir="ltr">imsPatternMessage="…"</code>
+        <input
+          imsInput
+          dir="ltr"
+          autocomplete="off"
+          placeholder="123456"
+          imsPattern="[0-9]{0,6}"
+          imsPatternMessage="עד שש ספרות, בלי אותיות."
+          ims-error-popover
+        />
+        <p>תבנית שאינה פריסט שותקת עד שנותנים לה משפט — היא לא יודעת מה היא מתארת.</p>
+      </article>
+
+      <article class="pattern-demo__preset">
+        <h3>סירוב ושגיאת ולידציה יחד</h3>
+        <code class="pattern-demo__preset-pattern" dir="ltr">required + imsPattern="integer"</code>
+        <input
+          imsInput
+          dir="ltr"
+          required
+          autocomplete="off"
+          imsPattern="integer"
+          ims-error-popover
+          [ngModel]="quantity()"
+          (ngModelChange)="quantity.set($event)"
+        />
+        <p>
+          מחקו את הערך ואז הקלידו נקודה: הסירוב מוצג מתחת לשגיאת החובה של הפקד, וכשחלון
+          התצוגה שלו נסגר נשארת רק שגיאת הפקד.
+        </p>
+      </article>
+
+      <article class="pattern-demo__preset">
+        <h3>סירוב שקט</h3>
+        <code class="pattern-demo__preset-pattern" dir="ltr">[imsPatternMessage]="false"</code>
+        <input
+          imsInput
+          dir="ltr"
+          autocomplete="off"
+          placeholder="2026"
+          imsPattern="integer"
+          [imsPatternMessage]="false"
+          ims-error-popover
+        />
+        <p>הפריסט ממשיך לחסום, בלי להסביר. זו גם התנהגות ברירת המחדל בלי פופאובר על השדה.</p>
+      </article>
+    </div>
+  </section>
+
   <section class="pattern-demo__presets" aria-labelledby="pattern-presets-title">
     <div class="pattern-demo__section-heading">
       <p class="pattern-demo__eyebrow">Presets</p>

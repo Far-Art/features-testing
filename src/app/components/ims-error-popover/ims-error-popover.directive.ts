@@ -8,6 +8,7 @@ import {
     booleanAttribute,
     computed,
     effect,
+    forwardRef,
     inject,
     input,
     isSignal,
@@ -22,9 +23,11 @@ import {ImsErrorPopoverPanel} from './ims-error-popover-panel';
 import {
     IMS_ERROR_POPOVER_COMPONENT_HOST,
     IMS_ERROR_POPOVER_CONFIG,
+    IMS_ERROR_POPOVER_TARGET,
     ImsErrorMapper,
     ImsErrorPopoverPosition,
-    ImsErrorPopoverSource
+    ImsErrorPopoverSource,
+    ImsErrorPopoverTarget
 } from './ims-error-popover.types';
 
 let nextErrorPopoverId = 0;
@@ -34,10 +37,19 @@ let nextErrorPopoverId = 0;
  *
  * A bare directive resolves `NgControl` from its host. Binding the directive
  * value supplies either an explicit `AbstractControl` or an error signal.
+ *
+ * A directive on the same element may announce errors of its own through
+ * `IMS_ERROR_POPOVER_TARGET`, which are shown once and then forgotten.
  */
 @Directive({
     selector: '[ims-error-popover]',
     standalone: true,
+    providers: [
+        {
+            provide: IMS_ERROR_POPOVER_TARGET,
+            useExisting: forwardRef(() => ImsErrorPopoverDirective)
+        }
+    ],
     host: {
         '(pointerenter)': 'onHostPointerEnter($event)',
         '(pointermove)': 'onHostPointerMove($event)',
@@ -48,7 +60,8 @@ let nextErrorPopoverId = 0;
     }
 })
 export class ImsErrorPopoverDirective
-    extends ImsConnectedPopoverBase<ImsErrorPopoverPanel> {
+    extends ImsConnectedPopoverBase<ImsErrorPopoverPanel>
+    implements ImsErrorPopoverTarget {
     /** Explicit control or error signal; an empty value uses the host `NgControl`. */
     readonly source = input<ImsErrorPopoverSource | ''>(undefined, {
         alias: 'ims-error-popover'
@@ -105,6 +118,9 @@ export class ImsErrorPopoverDirective
 
     private controlSubscription: Subscription | null = null;
     private timeoutHandle: ReturnType<typeof setTimeout> | null = null;
+    private announcementHandle: ReturnType<typeof setTimeout> | null = null;
+    /** Rows of an open announcement; empty once its window closes. */
+    private announcedRows: readonly string[] = [];
     private positionFrame: number | null = null;
     private hostHovered = false;
     private hostFocused = false;
@@ -196,6 +212,7 @@ export class ImsErrorPopoverDirective
             mutationObserver.disconnect();
             this.unbindControl();
             this.clearTimeoutWindow();
+            this.clearAnnouncement();
             this.cancelPositionFrame();
             this.removePanelListeners();
             this.restoreAriaState();
@@ -238,12 +255,60 @@ export class ImsErrorPopoverDirective
         this.reconcileVisibility();
     }
 
+    /**
+     * Shows rows for a directive sharing this element, such as a keystroke the host refused.
+     *
+     * An announcement describes something that just happened rather than the state of the
+     * value, so it is shown once, for one automatic window, and then forgotten: hover and
+     * focus never bring it back, and it never marks the control `aria-invalid`. Moving the
+     * pointer onto the panel dismisses it as it does any other, focused host included. A
+     * further announcement replaces it and reopens the window; `null` withdraws it early.
+     *
+     * A duration of `0` disables automatic display altogether, and with it announcements —
+     * there is no window left to show one in.
+     */
+    announceErrors(errors: ValidationErrors | null): void {
+        this.clearAnnouncement();
+        const duration = this.resolveDuration();
+        const rows = duration > 0 && !this.effectiveDisabled()
+            ? mapErrors(errors, this.effectiveMapper(), this.resolvedControl())
+            : [];
+
+        if (rows.length > 0) {
+            this.announcedRows = rows;
+            this.announcementHandle = setTimeout(() => {
+                this.announcementHandle = null;
+                this.announcedRows = [];
+                this.reconcileVisibility();
+            }, duration);
+        }
+
+        this.reconcileVisibility();
+    }
+
     /** Dismisses timed visibility without overriding the focused-state guarantee. */
     hideFromUser(): void {
-        if (this.hostFocused) return;
+        // An announcement is dismissible even while focused: nothing else keeps it on screen.
+        this.clearAnnouncement();
+
+        if (this.hostFocused) {
+            this.reconcileVisibility();
+            return;
+        }
+
         this.autoVisible = false;
         this.clearTimeoutWindow();
         this.reconcileVisibility();
+    }
+
+    /** Closes an open announcement window without reconciling visibility. */
+    private clearAnnouncement(): void {
+        if (this.announcementHandle !== null) {
+            clearTimeout(this.announcementHandle);
+            this.announcementHandle = null;
+        }
+
+        this.announcedRows = [];
     }
 
     /** Stable listener reference used to refresh native disabled state after page restore. */
@@ -300,7 +365,9 @@ export class ImsErrorPopoverDirective
         if (disabled || mappedErrors.length === 0) {
             this.autoVisible = false;
             this.clearTimeoutWindow();
-            this.hidePopover();
+            // A disabled host says nothing at all; an announcement of its own may still stand.
+            if (disabled) this.clearAnnouncement();
+            this.reconcileVisibility();
             return;
         }
 
@@ -310,9 +377,6 @@ export class ImsErrorPopoverDirective
             return;
         }
 
-        if (this.connectedPopoverAttached()) {
-            this.updatePanel(mappedErrors);
-        }
         this.reconcileVisibility();
     }
 
@@ -348,12 +412,13 @@ export class ImsErrorPopoverDirective
     /** Reconciles error, disabled, timer, hover, and focus state into visibility. */
     private reconcileVisibility(): void {
         const errors = this.mappedErrors();
-        const shouldShow = !this.effectiveDisabled()
-            && errors.length > 0
+        const sourceVisible = errors.length > 0
             && (this.autoVisible || this.hostHovered || this.hostFocused);
+        // An open announcement is shown on its own terms, under the rows of the source.
+        const rows = sourceVisible ? [...errors, ...this.announcedRows] : this.announcedRows;
 
-        if (shouldShow) {
-            this.showOrUpdatePopover(errors);
+        if (!this.effectiveDisabled() && rows.length > 0) {
+            this.showOrUpdatePopover(rows);
         } else {
             this.hidePopover();
         }
@@ -380,11 +445,6 @@ export class ImsErrorPopoverDirective
             this.addPanelListeners();
             this.prepareInitialPointerGuard();
         }
-    }
-
-    /** Refreshes visible rows without detaching or recreating the panel. */
-    private updatePanel(errors: readonly string[]): void {
-        this.showOrUpdatePopover(errors);
     }
 
     /** Detaches the panel and removes only ARIA references owned by this directive. */
@@ -421,7 +481,17 @@ export class ImsErrorPopoverDirective
 
     /** Dismisses on deliberate panel entry after the initial pointer guard is armed. */
     private readonly onPanelPointerEnter = (): void => {
-        if (!this.panelEntryArmed || this.hostFocused) return;
+        if (!this.panelEntryArmed) return;
+
+        // The focused host keeps showing its own errors, but never an announcement: that is
+        // one-way, and a panel the pointer has to move around has outstayed its welcome.
+        this.clearAnnouncement();
+
+        if (this.hostFocused) {
+            this.reconcileVisibility();
+            return;
+        }
+
         this.hostHovered = false;
         this.autoVisible = false;
         this.clearTimeoutWindow();

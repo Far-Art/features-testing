@@ -13,6 +13,16 @@ import {provideImsTooltipConfig} from './components/ims-tooltip';
 
 registerLocaleData(localeHe);
 
+/** Hebrew wording for every reason an `imsPattern` field refuses a change. */
+const IMS_PATTERN_MESSAGES: Readonly<Record<string, string>> = {
+    wholeNumber: 'ניתן להזין מספרים שלמים בלבד.',
+    number: 'ניתן להזין מספרים בלבד.',
+    sign: 'לא ניתן להזין ערך שלילי.',
+    signPlacement: 'סימן מינוס מותר רק בתחילת הערך.',
+    decimalPoint: 'ניתן להזין נקודה עשרונית אחת בלבד.',
+    decimals: 'ניתן להזין עד שתי ספרות אחרי הנקודה.'
+};
+
 export const appConfig: ApplicationConfig = {
     providers: [
         provideBrowserGlobalErrorListeners(),
@@ -59,7 +69,12 @@ export const appConfig: ApplicationConfig = {
                 imsDatepickerParse: 'יש להזין תאריך תקין.',
                 imsDatepickerMin: 'התאריך לא יכול להיות מוקדם מ-{minFormatted}.',
                 imsDatepickerMax: 'התאריך לא יכול להיות מאוחר מ-{maxFormatted}.',
-                imsDatepickerFilter: 'לא ניתן לבחור בתאריך זה.'
+                imsDatepickerFilter: 'לא ניתן לבחור בתאריך זה.',
+                imsPattern: (error) => {
+                    const refusal = error as {readonly message: string; readonly reason: string};
+                    // A sentence written on the field itself is already in the right words.
+                    return IMS_PATTERN_MESSAGES[refusal.reason] ?? refusal.message;
+                }
             }
         }),
         provideImsSnackbarConfig({

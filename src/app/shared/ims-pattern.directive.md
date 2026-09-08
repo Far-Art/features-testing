@@ -29,6 +29,7 @@ Because the keystroke is cancelled before the DOM changes, no `input` event fire
 | --- | --- | --- | --- |
 | `imsPattern` | `ImsPatternPreset \| RegExp \| string` | required | What the value must match. A preset name, a regular expression, or its source text. |
 | `imsPatternCorrect` | `ImsPatternCorrector \| false \| undefined` | `undefined` | Replaces the correction a preset applies. A function corrects with your own rule and is the only way a custom pattern corrects at all; `false` guards without ever rewriting. |
+| `imsPatternMessage` | `string \| false \| undefined` | `undefined` | What a refusal says. A preset supplies its own sentence, which this replaces; a custom pattern says nothing until given one, and `false` refuses in silence. |
 
 The pattern is always anchored to the whole value, as `^(?:…)$`, matching the semantics of the
 native `pattern` attribute. `g` and `y` flags are stripped, because they make `test` stateful and
@@ -134,6 +135,61 @@ keystroke.
 <input imsPattern="decimal" [imsPatternCorrect]="false" />
 ```
 
+## Explaining a refusal
+
+A cancelled keystroke leaves nothing behind: no character, no `input` event, and nothing on
+screen that says why. Put an `ims-error-popover` on the same element and the directive tells it
+about every refusal, so the field explains itself.
+
+```html
+<input imsPattern="integer" ims-error-popover />
+```
+
+Typing `.` there is refused exactly as before, and the popover says *Only whole numbers are
+allowed.*
+
+A preset reads the refusal from the text that was turned down, so a letter and a third decimal
+are not told the same thing:
+
+| Refused | Reason | What it says |
+| --- | --- | --- |
+| anything that is not part of a number, and a `.` in an integer shape | `wholeNumber` / `number` | Only whole numbers are allowed. / Only numbers are allowed. |
+| `-` in an unsigned shape | `sign` | A negative value is not allowed. |
+| `-` after the first character | `signPlacement` | A minus sign is only allowed at the start. |
+| a second `.` | `decimalPoint` | Only one decimal point is allowed. |
+| a third fraction digit | `decimals` | Up to two decimals are allowed. |
+| anything, under a custom pattern | — | nothing, until `imsPatternMessage` gives it a sentence |
+
+The reason travels with the message, in the payload `{imsPattern: {message, reason}}`, so an
+application can word every refusal in its own language from one place — the `imsPattern` entry
+of the error-popover mapper — rather than spelling out a sentence on each field:
+
+```ts
+provideImsErrorPopoverConfig({
+  errorMapper: {
+    imsPattern: (error) => {
+      const refusal = error as {message: string; reason: string};
+      return MESSAGES[refusal.reason] ?? refusal.message;
+    },
+  },
+});
+```
+
+A sentence given with `imsPatternMessage` reports the reason `custom`, which is what lets the
+fallback above leave it alone: the call site has already chosen its words.
+
+The message is **announced once**. It stays for the popover's own duration and then goes, and
+hovering or focusing the field afterwards does not bring it back — it describes a keystroke that
+happened, not a state the field is in. Moving the pointer onto the panel dismisses it early, as
+with any error popover, so it never sits in the way of the field it is explaining. Another
+refusal announces again and reopens the window; an accepted change, deletion included, withdraws
+it early. A popover configured with a duration of `0` has no automatic window at all, and so
+shows nothing.
+
+A refusal never marks the control `aria-invalid`, because the value is not the thing that was
+wrong. It is a row like any other, so a field that is also invalid shows its validation errors
+with the refusal underneath them, until the refusal's window closes and its own errors remain.
+
 ## A zero is selected on focus
 
 For a preset, focusing a field whose value reads as zero — `0`, `0.00`, `-0` — selects it whole, so
@@ -151,4 +207,6 @@ is unaffected.
   field into being rewritten.
 - **Never traps a value.** Deletion, undo, and outside writes are always adopted, even when they do
   not match, so a field can always be edited back into shape.
+- **Never explains a refusal unasked.** Without an `ims-error-popover` on the element, a refused
+  keystroke is simply gone.
 - **Never lets a correction bypass the pattern.** Step 3 above runs on the corrected value.

@@ -1,4 +1,5 @@
 import { Directive, ElementRef, computed, inject, input } from '@angular/core';
+import { IMS_ERROR_POPOVER_TARGET } from '../components/ims-error-popover/ims-error-popover.types';
 
 type ImsPatternElement = HTMLInputElement | HTMLTextAreaElement;
 
@@ -65,6 +66,76 @@ const correctNumeric: ImsPatternCorrector = (value) => {
     : sign + magnitude.replace(/^0+(?=[0-9])/, '');
 };
 
+/**
+ * Why a change was refused. A preset diagnoses its own refusals; `custom` is what a message
+ * supplied at the call site reports, because it needs no diagnosis.
+ *
+ * The reason travels with the message, so an application can word all of them in its own
+ * language from one place — the `imsPattern` entry of the error-popover mapper — instead of
+ * spelling out a sentence on every field.
+ */
+export type ImsPatternReason =
+  | 'wholeNumber'
+  | 'number'
+  | 'sign'
+  | 'signPlacement'
+  | 'decimalPoint'
+  | 'decimals'
+  | 'custom';
+
+/** The sentence each diagnosed reason stands for. */
+const REASON_MESSAGE: Record<Exclude<ImsPatternReason, 'custom'>, string> = {
+  wholeNumber: 'Only whole numbers are allowed.',
+  number: 'Only numbers are allowed.',
+  sign: 'A negative value is not allowed.',
+  signPlacement: 'A minus sign is only allowed at the start.',
+  decimalPoint: 'Only one decimal point is allowed.',
+  decimals: 'Up to two decimals are allowed.',
+};
+
+/** What a refusal carries into an error popover: the sentence, and the reason behind it. */
+export interface ImsPatternRefusal {
+  readonly message: string;
+  readonly reason: ImsPatternReason;
+}
+
+/**
+ * Reads a preset's refusal from the text that was turned down, so a letter and a third
+ * decimal are not told the same thing.
+ *
+ * The insertion is what the change would have added, and the shape of the preset says what
+ * that character could have been. Text that is not part of a number at all — and a dot where
+ * the shape has no fraction — is a question of what the field holds, not of any one rule.
+ * Everything else is a rule the value has already used up: its sign, its decimal point, or
+ * its two fraction digits.
+ */
+const presetReason = (
+  preset: ImsPatternPreset,
+  insertion: string,
+): Exclude<ImsPatternReason, 'custom'> => {
+  const fractional = preset === 'decimal' || preset === 'signedDecimal';
+  const signed = preset === 'signedInteger' || preset === 'signedDecimal';
+  const shape = fractional ? 'number' : 'wholeNumber';
+
+  if (insertion === '' || /[^0-9.-]/.test(insertion)) {
+    return shape;
+  }
+
+  if (insertion.includes('.') && !fractional) {
+    return shape;
+  }
+
+  if (insertion.includes('-')) {
+    return signed ? 'signPlacement' : 'sign';
+  }
+
+  if (insertion.includes('.')) {
+    return 'decimalPoint';
+  }
+
+  return fractional ? 'decimals' : shape;
+};
+
 /** Every preset is numeric, so all of them correct a leading zero the same way. */
 const PRESET_CORRECT: Record<ImsPatternPreset, ImsPatternCorrector> = {
   integer: correctNumeric,
@@ -83,6 +154,26 @@ const firstDifference = (value: string, corrected: string): number => {
   }
 
   return index;
+};
+
+/**
+ * The text one value gained over another, read as the run between their common prefix and
+ * their common suffix. It recovers the insertion behind a change that could not be cancelled
+ * up front, which is the only place the inserted text is not already at hand.
+ */
+const insertedBetween = (previous: string, next: string): string => {
+  const start = firstDifference(previous, next);
+  let end = 0;
+
+  while (
+    end < next.length - start &&
+    end < previous.length - start &&
+    previous[previous.length - 1 - end] === next[next.length - 1 - end]
+  ) {
+    end++;
+  }
+
+  return next.slice(start, next.length - end);
 };
 
 /**
@@ -152,10 +243,20 @@ const insertedText = (event: InputEvent): string | null => {
  * itself wrote. `imsPatternCorrect` replaces the correction with one of your own, or switches
  * it off entirely.
  *
+ * A refusal is silent by default, because a cancelled keystroke leaves nothing on screen to
+ * explain it. An `ims-error-popover` on the same element is told about every refusal and says
+ * why, once: the message appears for the popover's own duration and is not brought back by
+ * hovering or focusing the field afterwards. A preset words the refusal from what was typed,
+ * so a letter and a third decimal are not told the same thing, and sends the reason along with
+ * it for an application that words refusals itself. `imsPatternMessage` supplies the sentence
+ * for a custom pattern, replaces a preset's wording with one of your own, or switches it off.
+ *
  * ```html
  * <input imsPattern="decimal" />
  * <input [imsPattern]="IMS_PATTERN.integer" />
  * <textarea [imsPattern]="/[a-z ]+/i"></textarea>
+ *
+ * <input imsPattern="integer" ims-error-popover />
  * ```
  */
 @Directive({
@@ -188,6 +289,15 @@ export class ImsPatternDirective {
     alias: 'imsPatternCorrect',
   });
 
+  /**
+   * What a refusal says. A preset words its own refusals, which this replaces with one
+   * sentence for all of them; a custom pattern says nothing until given one, and `false`
+   * refuses in silence.
+   */
+  readonly message = input<string | false | undefined>(undefined, {
+    alias: 'imsPatternMessage',
+  });
+
   /** The correction in force: an explicit one, the preset's own, or none at all. */
   private readonly corrector = computed<ImsPatternCorrector | null>(() => {
     const correction = this.correction();
@@ -201,9 +311,43 @@ export class ImsPatternDirective {
     return preset === null ? null : PRESET_CORRECT[preset];
   });
 
+  /**
+   * What to say about a refused insertion: the message in force with the reason behind it,
+   * or `null` when the field refuses in silence.
+   */
+  private describeRefusal(insertion: string): ImsPatternRefusal | null {
+    const message = this.message();
+
+    if (message === false) {
+      return null;
+    }
+
+    if (message !== undefined) {
+      return { message, reason: 'custom' };
+    }
+
+    const preset = presetOf(this.pattern());
+
+    if (preset === null) {
+      return null;
+    }
+
+    const reason = presetReason(preset, insertion);
+
+    return { message: REASON_MESSAGE[reason], reason };
+  }
+
+  /** An error popover on the same element, told about a refusal as it happens. */
+  private readonly errorPopover = inject(IMS_ERROR_POPOVER_TARGET, {
+    self: true,
+    optional: true,
+  });
+
   /** Last value the pattern accepted, restored when a change cannot be cancelled up front. */
   private acceptedValue = this.element.value;
   private acceptedCaret: number | null = null;
+  /** Whether a refusal is standing on the popover, so it is withdrawn only once. */
+  private announced = false;
   private composing = false;
   private pressing = false;
   private keepSelection = false;
@@ -235,6 +379,7 @@ export class ImsPatternDirective {
 
     if (!this.accepts(corrected)) {
       event.preventDefault();
+      this.refuse(insertion);
       return;
     }
 
@@ -335,10 +480,42 @@ export class ImsPatternDirective {
 
     if (!revertable || this.accepts(value) || value === this.acceptedValue) {
       this.rememberAcceptedState();
+      this.withdrawRefusal();
       return;
     }
 
+    // The rollback writes, which re-enters here and withdraws; the refusal has to outlive it.
     this.write(this.acceptedValue, this.acceptedCaret ?? this.acceptedValue.length);
+    this.refuse(insertedBetween(this.acceptedValue, value));
+  }
+
+  /**
+   * Announces a refused insertion on a popover sharing the element. The popover shows it once
+   * and forgets it, so a refusal that is never followed by another simply fades.
+   */
+  private refuse(insertion: string): void {
+    const refusal = this.describeRefusal(insertion);
+
+    if (refusal === null) {
+      return;
+    }
+
+    this.announced = true;
+    this.errorPopover?.announceErrors({ imsPattern: refusal });
+  }
+
+  /**
+   * Takes back an announcement the field has moved on from. Any accepted change withdraws it,
+   * deletion included: the message explains what the field would not hold, and the field just
+   * held something else.
+   */
+  private withdrawRefusal(): void {
+    if (!this.announced) {
+      return;
+    }
+
+    this.announced = false;
+    this.errorPopover?.announceErrors(null);
   }
 
   private accepts(value: string): boolean {

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, linkedSignal, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ImsErrorPopoverDirective } from '../../components/ims-error-popover';
 import { ImsInputDirective } from '../../ims-input.directive';
 import {
   IMS_PATTERN,
@@ -47,7 +48,7 @@ const compile = (pattern: string): RegExp | null => {
 @Component({
   selector: 'app-pattern-demo',
   standalone: true,
-  imports: [FormsModule, ImsInputDirective, ImsPatternDirective],
+  imports: [FormsModule, ImsErrorPopoverDirective, ImsInputDirective, ImsPatternDirective],
   templateUrl: './pattern-demo.html',
   styleUrl: './pattern-demo.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -76,6 +77,9 @@ export class PatternDemo {
 
   /** An amount that arrives as zero, the case the preset selects on focus. */
   readonly amount = signal('0');
+
+  /** A required field, so a refusal and a validation error can share one popover. */
+  readonly quantity = signal('5');
 
   readonly numericPresets: readonly NumericPresetCard[] = [
     {

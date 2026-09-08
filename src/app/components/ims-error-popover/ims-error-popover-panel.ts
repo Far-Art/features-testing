@@ -7,7 +7,12 @@ import {ChangeDetectionStrategy, Component, signal} from '@angular/core';
     template: `
         <ul class="ims-error-popover__list">
             @for (error of errors(); track $index) {
-                <li class="ims-error-popover__error">{{ error }}</li>
+                <!--
+                    A message follows its own script, not the field's: a Hebrew sentence in a
+                    numeric, left-to-right field still needs its bullet and its full stop on
+                    the right side.
+                -->
+                <li class="ims-error-popover__error" dir="auto">{{ error }}</li>
             }
         </ul>
     `,

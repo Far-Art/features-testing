@@ -6,6 +6,7 @@ export {
     IMS_ERROR_POPOVER_CONFIG,
     IMS_ERROR_POPOVER_DEFAULT_CONFIG,
     IMS_ERROR_POPOVER_DEFAULT_MAPPER,
+    IMS_ERROR_POPOVER_TARGET,
     provideImsErrorPopoverConfig
 } from './ims-error-popover.types';
 export type {
@@ -16,5 +17,6 @@ export type {
     ImsErrorPopoverComponentHost,
     ImsErrorPopoverConfig,
     ImsErrorPopoverPosition,
-    ImsErrorPopoverSource
+    ImsErrorPopoverSource,
+    ImsErrorPopoverTarget
 } from './ims-error-popover.types';
