@@ -1,5 +1,5 @@
 import { Directive, ElementRef, computed, inject, input } from '@angular/core';
-import { IMS_ERROR_POPOVER_TARGET } from '../components/ims-error-popover/ims-error-popover.types';
+import { IMS_ERROR_POPOVER_TARGET } from '../components/ims-error-popover';
 
 type ImsPatternElement = HTMLInputElement | HTMLTextAreaElement;
 
