@@ -131,9 +131,10 @@ button next to its primary field:
     <button
         class="ims-input-action__button"
         ims-button-icon
-        icon="search"
         aria-label="Search"
-    ></button>
+    >
+        <ims-icon>search</ims-icon>
+    </button>
 </div>
 ```
 

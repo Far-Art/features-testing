@@ -8,6 +8,7 @@ import {routes} from './app.routes';
 import {provideImsDatepickerConfig} from './components/ims-datepicker';
 import {provideImsErrorPopoverConfig} from './components/ims-error-popover';
 import {provideImsSnackbarConfig} from './components/ims-snackbar';
+import {provideImsTooltipConfig} from './components/ims-tooltip';
 
 
 registerLocaleData(localeHe);
@@ -64,6 +65,10 @@ export const appConfig: ApplicationConfig = {
         provideImsSnackbarConfig({
             visualStyle: 'accent',
             stackSize: 100
+        }),
+        provideImsTooltipConfig({
+            showDelay: 300,
+            hideDelay: 100
         }),
         {
             provide: LOCALE_ID,

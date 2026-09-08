@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
 import { ImsButton } from '../../components/ims-button';
+import { ImsIcon } from '../../components/ims-icon';
 import {
   type IBaseOutput,
   type IMessage,
@@ -357,7 +358,7 @@ export class DialogRiskContent {
 @Component({
   selector: 'app-dialog-button-review-content',
   standalone: true,
-  imports: [ImsButton, ImsDialogActions, ImsDialogContent],
+  imports: [ImsButton, ImsDialogActions, ImsDialogContent, ImsIcon],
   template: `
     <ims-dialog-content>
       <p class="button-review-dialog__description">
@@ -366,16 +367,16 @@ export class DialogRiskContent {
     </ims-dialog-content>
 
     <ims-dialog-actions>
-      <button ims-button icon="tune" (click)="select('default')">Default action</button>
-      <button
-        ims-button
-        ims-button-variation="secondary"
-        icon="visibility"
-        (click)="select('secondary')"
-      >
+      <button ims-button (click)="select('default')">
+        <ims-icon class="ims-button__symbol">tune</ims-icon>
+        Default action
+      </button>
+      <button ims-button ims-button-variation="secondary" (click)="select('secondary')">
+        <ims-icon class="ims-button__symbol">visibility</ims-icon>
         Secondary action
       </button>
-      <button ims-button ims-button-variation="primary" icon="check" (click)="select('primary')">
+      <button ims-button ims-button-variation="primary" (click)="select('primary')">
+        <ims-icon class="ims-button__symbol">check</ims-icon>
         Primary action
       </button>
     </ims-dialog-actions>

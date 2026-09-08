@@ -12,9 +12,20 @@
  * height rather than the shared 2.5rem default. Both classes are on this same
  * host, so the selector is doubled to outrank `.ims-input-action`'s own value
  * rather than depend on stylesheet order.
+ *
+ * The box model is restated for a second reason. `.ims-input-action` declares
+ * `content-box` so that a width given to the host describes the field rather
+ * than the field plus its action; inside a form layout that loses to
+ * `ims-form-field > :not(label)`. `ims-input.scss` already anticipates this and
+ * wins it back on `.ims-input-host.ims-input-action`, but this host is not an
+ * input host — it wraps the caller's own field — so the same guarantee has to
+ * be claimed here. Without it a sized host is a whole action too narrow, and
+ * the field it holds runs underneath the trigger.
  */
 .ims-focus-mode.ims-input-action {
     --ims-input-action-size: var(--field-height);
+
+    box-sizing: content-box;
 }
 
 /**

@@ -16,11 +16,12 @@
 
   <button
     ims-button-icon
-    icon="close"
     class="ims-dialog__close"
     aria-label="Close dialog"
     (click)="close()"
-  ></button>
+  >
+    <ims-icon>close</ims-icon>
+  </button>
 
   @if (config.content !== null) {
     <div

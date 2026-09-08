@@ -34,7 +34,6 @@
 
 <button
     ims-button-icon
-    icon="calendar_month"
     type="button"
     class="ims-input-action__button ims-datepicker__toggle"
     [attr.aria-label]="open() ? 'Close calendar' : 'Open calendar'"
@@ -42,7 +41,9 @@
     [attr.aria-expanded]="open()"
     [disabled]="interactionDisabled()"
     (click)="togglePicker()"
-></button>
+>
+    <ims-icon>calendar_month</ims-icon>
+</button>
 
 <ng-template
     cdkConnectedOverlay

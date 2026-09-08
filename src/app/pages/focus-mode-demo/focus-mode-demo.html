@@ -88,8 +88,14 @@
 
     <ims-form-field span="stretch">
       <label>שדה ברוחב קבוע</label>
-      <ims-focus-mode label="שדה ברוחב קבוע">
-        <input imsInput class="field-xxl" type="text" [formControl]="fixedWidth"/>
+      <!--
+        The width class goes on the host, not on the field: it sizes the whole
+        adjacent-action track, so the trigger stays beside the field rather than
+        at the far end of a stretched row, and the field still shrinks with the
+        column when the window is narrow.
+      -->
+      <ims-focus-mode label="שדה ברוחב קבוע" class="field-xxl">
+        <input imsInput type="text" [formControl]="fixedWidth"/>
       </ims-focus-mode>
     </ims-form-field>
 

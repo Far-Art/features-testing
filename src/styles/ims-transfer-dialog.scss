@@ -75,7 +75,7 @@
   padding: 0.25rem;
 }
 
-.ims-transfer-dialog__header-action .ims-button__symbol {
+.ims-transfer-dialog__header-action .ims-icon {
   --ims-icon-size: 1.125rem;
 }
 
@@ -83,12 +83,12 @@
   --ims-button-color: var(--ims-color-on-surface-muted);
 }
 
-.ims-transfer-dialog__header-action--sort .ims-button__symbol {
+.ims-transfer-dialog__header-action--sort .ims-icon {
   transition: transform 150ms ease;
 }
 
 .ims-transfer-dialog__header-action--sort.ims-transfer-dialog__header-action--desc
-  .ims-button__symbol {
+  .ims-icon {
   transform: scaleY(-1);
 }
 
@@ -252,7 +252,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ims-transfer-dialog__header-action--sort .ims-button__symbol,
+  .ims-transfer-dialog__header-action--sort .ims-icon,
   .ims-transfer-dialog__row,
   .ims-transfer-dialog__list.cdk-drop-list-dragging
     .ims-transfer-dialog__row:not(.cdk-drag-placeholder) {

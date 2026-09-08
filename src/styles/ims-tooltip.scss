@@ -1,0 +1,43 @@
+// Severity treatments for the tooltip that ImsTooltip attaches through
+// MatTooltip. Global rather than component-scoped because the tooltip renders
+// in the CDK overlay container, outside every component's host; the :root
+// tokens it consumes still reach there.
+//
+// `ims-tooltip-severity` writes both classes onto the tooltip element, so a
+// modifier only ever needs to move a variable — the base rule below owns every
+// actual declaration.
+.ims-tooltip {
+    // Overrides the Roboto the theme hands every other surface. Temporary —
+    // this is the only place in the application that does not use the house
+    // typeface, so it should either become a decision the theme makes or go
+    // back to matching everything else.
+    --mat-tooltip-supporting-text-font: Arial, "Helvetica Neue", sans-serif;
+    --mat-tooltip-container-shape: 0.375rem;
+    --mat-tooltip-container-color: var(--ims-color-status-info);
+    --mat-tooltip-supporting-text-color: var(--ims-color-on-interactive);
+}
+
+.ims-tooltip--info {
+    --mat-tooltip-container-color: var(--ims-color-status-info);
+}
+
+.ims-tooltip--success {
+    --mat-tooltip-container-color: var(--ims-color-status-success);
+}
+
+.ims-tooltip--warning {
+    --mat-tooltip-container-color: var(--ims-color-status-warning);
+}
+
+.ims-tooltip--danger {
+    --mat-tooltip-container-color: var(--ims-color-status-danger);
+}
+
+// The one place a Material-internal class has to be named: the painted surface
+// is a child of the element carrying our class, and its 200px cap is Material's
+// own declaration rather than a token, so no variable can reach it. That cap is
+// tight for a sentence of Hebrew, which is what most of this application's
+// tooltip copy is.
+.ims-tooltip .mat-mdc-tooltip-surface {
+    max-width: min(20rem, calc(100vw - 1.5rem));
+}

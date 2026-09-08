@@ -21,7 +21,6 @@
           <span class="ims-transfer-dialog__list-header-actions">
             <button
               ims-button-icon
-              icon="sort"
               class="ims-transfer-dialog__header-action ims-transfer-dialog__header-action--sort"
               [class.ims-transfer-dialog__header-action--desc]="list.sort() === 'desc'"
               [class.ims-transfer-dialog__header-action--active]="list.sort() !== null"
@@ -35,7 +34,9 @@
               [attr.aria-pressed]="list.sort() !== null"
               [disabled]="list.rows().length < 2"
               (click)="toggleSort(list)"
-            ></button>
+            >
+              <ims-icon>sort</ims-icon>
+            </button>
             <span class="ims-transfer-dialog__count">{{ list.rows().length }}</span>
           </span>
         </header>

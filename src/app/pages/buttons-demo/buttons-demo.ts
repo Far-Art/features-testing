@@ -7,6 +7,7 @@ import {
 } from '../../components/ims-button';
 import {ImsIcon} from '../../components/ims-icon';
 import {ImsLongPressDirective} from '../../ims-long-press.directive';
+import {ImsTooltip} from '../../components/ims-tooltip';
 import {ReadonlyDirective} from '../../shared/readonly.directive';
 
 @Component({
@@ -18,6 +19,7 @@ import {ReadonlyDirective} from '../../shared/readonly.directive';
         ImsButtonEdit,
         ImsIcon,
         ImsLongPressDirective,
+        ImsTooltip,
         ReadonlyDirective
     ],
     templateUrl: './buttons-demo.html',

@@ -22,6 +22,7 @@ import {
 } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { IMS_BUTTON_EDIT_ICON, ImsButtonEdit, ImsButtonIcon } from '../ims-button';
+import { ImsIcon } from '../ims-icon';
 import { ImsDialogRef, ImsDialogService } from '../ims-dialog';
 import {
   ImsTextFieldElement,
@@ -59,7 +60,7 @@ import {
 @Component({
   selector: 'ims-focus-mode',
   standalone: true,
-  imports: [ImsButtonEdit, ImsButtonIcon, ImsFocusModeTrigger],
+  imports: [ImsButtonEdit, ImsButtonIcon, ImsFocusModeTrigger, ImsIcon],
   templateUrl: './ims-focus-mode.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -236,6 +237,24 @@ export class ImsFocusMode {
   readonly triggerLabel = computed(() =>
     this.editable() ? this.effectiveLabels().edit : this.effectiveLabels().zoom,
   );
+
+  /**
+   * Trigger tooltip: the same action as {@link triggerLabel}, but naming the
+   * field it acts on — which is what a pointer user needs, since the button
+   * is a bare glyph and may sit a column away from the field it opens.
+   *
+   * Falls back to the unnamed accessible name when the host carries no
+   * `label`. There is nothing to name then, and the generic phrasing already
+   * on the button says more than a bare verb would.
+   */
+  readonly triggerTooltip = computed(() => {
+    const name = this.label().trim();
+    if (name.length === 0) return this.triggerLabel();
+
+    const labels = this.effectiveLabels();
+    const template = this.editable() ? labels.editNamed : labels.zoomNamed;
+    return template.replaceAll('{name}', name);
+  });
 
   private readonly activeDialog = signal<ImsDialogRef<boolean | undefined> | null>(null);
   private valueSubscription: Subscription | null = null;

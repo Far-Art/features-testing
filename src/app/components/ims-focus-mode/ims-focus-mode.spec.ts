@@ -80,7 +80,7 @@ function triggers(fixture: ComponentFixture<unknown>): HTMLButtonElement[] {
 }
 
 function triggerIcon(button: HTMLButtonElement): string {
-  return button.querySelector('.ims-button__symbol')?.textContent?.trim() ?? '';
+  return button.querySelector('.ims-icon')?.textContent?.trim() ?? '';
 }
 
 function stage(): HTMLElement | null {

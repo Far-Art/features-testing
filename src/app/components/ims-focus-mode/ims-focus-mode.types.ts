@@ -11,6 +11,15 @@ export interface ImsFocusModeLabels {
   readonly edit: string;
   /** Accessible name of the trigger while the field is disabled or readonly. */
   readonly zoom: string;
+  /**
+   * Trigger tooltip while the field is editable.
+   *
+   * `{name}` is replaced with the host's `label`. Unused when there is no
+   * label to name, in which case the trigger falls back to `edit`.
+   */
+  readonly editNamed: string;
+  /** Trigger tooltip while the field is disabled or readonly. See `editNamed`. */
+  readonly zoomNamed: string;
   /** Unit shown after the character count when the field has no length limit. */
   readonly characters: string;
   /** Note shown while the field must be filled in. */
@@ -22,6 +31,8 @@ export const IMS_FOCUS_MODE_DEFAULT_LABELS: ImsFocusModeLabels = {
   cancel: 'בטל',
   edit: 'עריכה במסך מלא',
   zoom: 'הצגה מוגדלת',
+  editNamed: 'ערוך {name}',
+  zoomNamed: 'צפה ב{name}',
   characters: 'תווים',
   required: 'שדה חובה',
 };

@@ -26,6 +26,7 @@ import {
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {runScopedViewTransition} from '../../shared/view-transition';
 import {ImsButtonIcon} from '../ims-button';
+import {ImsIcon} from '../ims-icon';
 import {IMS_DATEPICKER_PARSER} from '../ims-datepicker/ims-datepicker.parser';
 import {
     IMS_DATEPICKER_EXPERIMENTAL_CONFIG,
@@ -122,7 +123,7 @@ function provideDatepickerValidator(type: Type<unknown>) {
 @Component({
     selector: 'ims-datepicker-experimental',
     standalone: true,
-    imports: [CdkOverlayOrigin, CdkConnectedOverlay, CdkTrapFocus, ImsButtonIcon],
+    imports: [CdkOverlayOrigin, CdkConnectedOverlay, CdkTrapFocus, ImsButtonIcon, ImsIcon],
     templateUrl: './ims-datepicker-experimental.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [

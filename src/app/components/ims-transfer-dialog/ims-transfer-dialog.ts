@@ -3,6 +3,7 @@ import {CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray} from '@angular/cdk/d
 import {ImsInputDirective} from '../../ims-input.directive';
 import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
 import {ImsButton, ImsButtonIcon} from '../ims-button';
+import {ImsIcon} from '../ims-icon';
 import {ImsCheckbox} from '../ims-checkbox/ims-checkbox';
 import {ImsAbstractDialog, ImsDialogActions, ImsDialogContent} from '../ims-dialog';
 import {ImsScrollContainer} from '../ims-scroll-container/ims-scroll-container';
@@ -39,6 +40,7 @@ let nextDialogInstanceId = 0;
         ImsCheckbox,
         ImsDialogActions,
         ImsDialogContent,
+        ImsIcon,
         ImsInputDirective,
         ImsScrollContainer,
         ImsTextTruncateDirective

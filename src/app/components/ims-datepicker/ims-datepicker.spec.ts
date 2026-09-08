@@ -80,7 +80,7 @@ describe('ImsDatepicker', () => {
         expect(toggle.classList.contains('ims-button-icon')).toBe(true);
         expect(field.parentElement).toBe(datepickerHost);
         expect(toggle.parentElement).toBe(datepickerHost);
-        expect(toggle.querySelector('.ims-button__symbol')?.textContent).toBe('calendar_month');
+        expect(toggle.querySelector('.ims-icon')?.textContent).toBe('calendar_month');
     });
 
     it('accepts a sizing utility class without replacing its host layout classes', () => {

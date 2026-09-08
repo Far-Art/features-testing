@@ -70,6 +70,13 @@
     font-size: 0.9rem;
 }
 
+.tooltip-demo__note {
+    align-self: center;
+    border-block-end: 1px dashed #52627d;
+    color: #52627d;
+    cursor: help;
+}
+
 .button-demo__ims-buttons {
     display: flex;
     flex-wrap: wrap;

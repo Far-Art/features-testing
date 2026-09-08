@@ -61,7 +61,87 @@
         <button ims-button-delete [ims-readonly]="true"></button>
         <button ims-button-edit call-to-action></button>
         <button ims-button-delete icon-size="1.5rem"></button>
-        <button ims-button-icon icon="search" icon-size="12" aria-label="חיפוש קטן"></button>
+        <button ims-button-icon aria-label="חיפוש קטן">
+            <ims-icon size="12">search</ims-icon>
+        </button>
+    </div>
+</section>
+
+<section class="button-demo">
+    <div>
+        <h2>הסברים בריחוף</h2>
+        <p>
+            הסבר קצר שנפתח בריחוף ובמיקוד מקלדת, בארבע רמות חומרה. כפתור מושבת אינו
+            נכנס לסדר הטאב, ולכן ההסבר שלו מגיע רק בעכבר — עם
+            ims-tooltip-when-disabled הוא נשאר נגיש גם במקלדת. שני כפתורי השליחה
+            נושאים סימון זהה, וההסבר מתחלף כשהכפתור מושבת.
+        </p>
+    </div>
+
+    <div class="button-demo__ims-buttons" aria-label="IMS button tooltips">
+        <button ims-button ims-tooltip="נשמר כטיוטה בלבד">שמירה</button>
+        <button
+            ims-button
+            ims-button-variation="primary"
+            ims-tooltip="הפוליסה תישלח למבוטח"
+            ims-tooltip-severity="success"
+        >
+            אישור
+        </button>
+        <button
+            ims-button
+            ims-button-variation="outline"
+            ims-tooltip="חלק מהשדות עדיין ריקים"
+            ims-tooltip-severity="warning"
+        >
+            בדיקה
+        </button>
+        <button
+            ims-button
+            ims-button-variation="danger"
+            ims-tooltip="הפעולה אינה הפיכה"
+            ims-tooltip-severity="danger"
+        >
+            מחיקה
+        </button>
+        <button
+            ims-button
+            ims-tooltip="שולח את הפוליסה למבוטח"
+            ims-tooltip-when-disabled="חסרה כתובת למשלוח"
+        >
+            שליחה
+        </button>
+        <button
+            ims-button
+            ims-tooltip="שולח את הפוליסה למבוטח"
+            ims-tooltip-when-disabled="חסרה כתובת למשלוח"
+            disabled
+        >
+            שליחה
+        </button>
+        <button
+            ims-button-icon
+            aria-label="חיפוש"
+            ims-tooltip="חיפוש בכל התיקים"
+            ims-tooltip-position="above"
+        >
+            <ims-icon>search</ims-icon>
+        </button>
+        <button
+            ims-button-delete
+            ims-tooltip="לא ניתן למחוק פוליסה נעולה"
+            ims-tooltip-severity="danger"
+            ims-tooltip-when-disabled
+            disabled
+        ></button>
+        <button
+            ims-button-edit
+            ims-tooltip="הסבר שלא יגיע במקלדת, כי הכפתור מושבת בלי ההצטרפות"
+            disabled
+        ></button>
+        <span class="tooltip-demo__note" imsTooltip="גם אלמנט רגיל יכול לקבל הסבר">
+            טקסט עם הסבר
+        </span>
     </div>
 </section>
 

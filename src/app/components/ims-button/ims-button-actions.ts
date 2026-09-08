@@ -22,7 +22,7 @@ import {ImsButtonBase} from './ims-button';
     host: {
         class: 'ims-button-icon ims-button--delete',
         'aria-label': 'Delete',
-        '[disabled]': 'interactionDisabled()'
+        '[disabled]': 'nativeDisabled()'
     }
 })
 export class ImsButtonDelete extends ImsButtonBase {
@@ -54,7 +54,7 @@ export const IMS_BUTTON_EDIT_ICON = 'ink_pen';
     host: {
         class: 'ims-button-icon ims-button--edit',
         'aria-label': 'Edit',
-        '[disabled]': 'interactionDisabled()'
+        '[disabled]': 'nativeDisabled()'
     }
 })
 export class ImsButtonEdit extends ImsButtonBase {

@@ -2,6 +2,7 @@ import { NgComponentOutlet } from '@angular/common';
 import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
 import { ChangeDetectionStrategy, Component, Type, inject, signal } from '@angular/core';
 import {ImsButton, ImsButtonIcon} from '../ims-button';
+import {ImsIcon} from '../ims-icon';
 import { ReadonlyDirective } from '../../shared/readonly.directive';
 import { ImsDialogRef } from './ims-dialog-ref';
 import { ImsDialogActions, ImsDialogTitle } from './ims-dialog-section';
@@ -33,6 +34,7 @@ type ImsDialogMessageStyle = 'danger' | 'info' | 'warning';
     ImsButtonIcon,
     ImsDialogActions,
     ImsDialogTitle,
+    ImsIcon,
     NgComponentOutlet,
     ReadonlyDirective,
     ImsButton,

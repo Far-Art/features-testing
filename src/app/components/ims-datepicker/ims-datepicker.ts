@@ -27,6 +27,7 @@ import {
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {runScopedViewTransition} from '../../shared/view-transition';
 import {ImsButtonIcon} from '../ims-button';
+import {ImsIcon} from '../ims-icon';
 import {
     IMS_ERROR_POPOVER_COMPONENT_HOST,
     ImsErrorPopoverComponentHost,
@@ -145,7 +146,8 @@ function provideDatepickerValidator(type: Type<unknown>) {
         CdkConnectedOverlay,
         CdkTrapFocus,
         ImsButtonIcon,
-        ImsErrorPopoverDirective
+        ImsErrorPopoverDirective,
+        ImsIcon
     ],
     templateUrl: './ims-datepicker.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
