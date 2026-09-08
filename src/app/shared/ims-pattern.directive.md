@@ -30,6 +30,8 @@ Because the keystroke is cancelled before the DOM changes, no `input` event fire
 | `imsPattern` | `ImsPatternPreset \| RegExp \| string` | required | What the value must match. A preset name, a regular expression, or its source text. |
 | `imsPatternCorrect` | `ImsPatternCorrector \| false \| undefined` | `undefined` | Replaces the correction a preset applies. A function corrects with your own rule and is the only way a custom pattern corrects at all; `false` guards without ever rewriting. |
 | `imsPatternMessage` | `string \| false \| undefined` | `undefined` | What a refusal says. A preset supplies its own sentence, which this replaces; a custom pattern says nothing until given one, and `false` refuses in silence. |
+| `imsPatternMin` | `number` | none | The smallest value the field may hold. Only on a preset, and only against a value that has already passed it. |
+| `imsPatternMax` | `number` | none | The largest value the field may hold. Only on a preset, and only against a value that has already passed it. |
 
 The pattern is always anchored to the whole value, as `^(?:…)$`, matching the semantics of the
 native `pattern` attribute. `g` and `y` flags are stripped, because they make `test` stateful and
@@ -66,8 +68,9 @@ the same source but a different identity is treated as a custom pattern.
 
 1. **Project.** The current value with the selection replaced by the inserted text.
 2. **Correct.** The corrector in force proposes a rewrite of that projected value.
-3. **Test.** The corrected value is tested against the anchored pattern. An empty value is always
-   accepted; emptiness is a validation concern, not a typing one.
+3. **Test.** The corrected value is tested against the anchored pattern, and — on a preset — against
+   the far side of `imsPatternMin` and `imsPatternMax`. An empty value is always accepted; emptiness
+   is a validation concern, not a typing one.
 4. **Act.** Failing the test cancels the keystroke. Passing it unchanged lets the browser insert
    normally. Passing it *changed* cancels the keystroke and writes the corrected value instead,
    dispatching an `input` event so Angular forms follow.
@@ -135,6 +138,70 @@ keystroke.
 <input imsPattern="decimal" [imsPatternCorrect]="false" />
 ```
 
+## Bounding a preset
+
+`imsPatternMin` and `imsPatternMax` put a range around the number a preset describes. Both are
+read as numeric attributes, so a literal and a binding are spelled the usual two ways:
+
+```html
+<input imsPattern="integer" imsPatternMax="120" />
+<input imsPattern="signedDecimal" [imsPatternMin]="floor()" [imsPatternMax]="ceiling()" />
+```
+
+They are tested on the same prospective value the pattern is tested on, after correction, and a
+value outside the range is refused exactly like a value of the wrong shape. A bound only means
+something where there is a number to bound, so **both are ignored on a custom pattern** — naming
+a preset is what opts a field into being bounded, just as it is what opts it into being corrected.
+
+### Only the far side of a bound is enforced
+
+Inserting a digit moves a number **away from zero**, and that is what decides which side of a
+bound can be guarded at all:
+
+| With | Typing | What happens | Why |
+| --- | --- | --- | --- |
+| `imsPatternMax="100"` | `1` → `12` → `123` | `123` is refused | it has passed the maximum, and every further digit is worse |
+| `imsPatternMin="10"` | `1` | `1` is allowed | it is on its way up to `10` |
+| `imsPatternMin="-50"` | `-5` → `-51` | `-51` is refused | it has passed the minimum, and further digits only deepen it |
+| `imsPatternMax="-10"` | `-5` | `-5` is allowed | it is on its way down to `-10` |
+
+An upper bound therefore stops a positive value from growing past it, and a lower bound stops a
+negative value from falling past it: one rule, read from either side of zero. Refusing the other
+half of each pair would block the way to a legal value — turning down `1` under `min="10"` turns
+down the first keystroke of `100` — which is the same reason the pattern itself has to accept
+partial input.
+
+A partial value is never bounded either, because it is not yet a number the range can speak about:
+a lone `-` and a trailing `.` are both `NaN`, and so is an unset bound.
+
+### The near side is settled on blur
+
+What a keystroke cannot refuse, leaving the field can. On blur the value is held to the **whole**
+range, and one still outside it is announced on the error popover exactly like a refused
+keystroke — the same sentence, the same once-and-gone window:
+
+```html
+<input imsPattern="integer" imsPatternMin="10" ims-error-popover />
+```
+
+Typing `5` there is allowed, and walking away from it says *The value may not be less than 10.* An
+empty field says nothing: emptiness is `required`'s business, not the range's.
+
+> **This is still not a validator.** The announcement is a message, not a verdict — like every
+> other refusal it leaves the control's own validity, and its `aria-invalid`, exactly as they were.
+> A form that must *reject* `5` needs `Validators.min` as well. What the bound adds is that the
+> user hears about it the moment they leave, rather than at submit.
+
+### A non-negative minimum takes the sign away
+
+`imsPatternMin="0"`, or any minimum above it, leaves no negative value to be typing towards. So on a
+signed preset the `-` itself is refused, before a digit can follow it, and the field says which
+bound refused it. `imsPatternMin="-40"` still accepts a lone `-`, because `-40` has to be reachable.
+
+Nor does a bound ever trap a value. A model value of `5000` under `imsPatternMax="100"` is adopted
+like any other write from outside the field, and deleting is always allowed, so the value can be
+edited back into range.
+
 ## Explaining a refusal
 
 A cancelled keystroke leaves nothing behind: no character, no `input` event, and nothing on
@@ -158,6 +225,8 @@ are not told the same thing:
 | `-` after the first character | `signPlacement` | A minus sign is only allowed at the start. |
 | a second `.` | `decimalPoint` | Only one decimal point is allowed. |
 | a third fraction digit | `decimals` | Up to two decimals are allowed. |
+| a value past `imsPatternMax`, typed or left behind | `max` | The value may not be greater than 100. |
+| a value past `imsPatternMin`, and a `-` under a minimum of zero or more | `min` | The value may not be less than -50. |
 | anything, under a custom pattern | — | nothing, until `imsPatternMessage` gives it a sentence |
 
 The reason travels with the message, in the payload `{imsPattern: {message, reason}}`, so an
@@ -175,8 +244,19 @@ provideImsErrorPopoverConfig({
 });
 ```
 
+A `min` or `max` refusal adds one field to that payload, `bound`, holding the limit the value
+passed, so a translation can name the number instead of hard-coding it:
+
+```ts
+imsPattern: (error) => {
+  const refusal = error as {message: string; reason: string; bound?: number};
+  return refusal.reason === 'max' ? `לא יותר מ־${refusal.bound}.` : refusal.message;
+},
+```
+
 A sentence given with `imsPatternMessage` reports the reason `custom`, which is what lets the
-fallback above leave it alone: the call site has already chosen its words.
+fallback above leave it alone: the call site has already chosen its words. It replaces a bound's
+wording too — one field, one sentence, whatever the refusal was.
 
 The message is **announced once**. It stays for the popover's own duration and then goes, and
 hovering or focusing the field afterwards does not bring it back — it describes a keystroke that
@@ -189,6 +269,27 @@ shows nothing.
 A refusal never marks the control `aria-invalid`, because the value is not the thing that was
 wrong. It is a row like any other, so a field that is also invalid shows its validation errors
 with the refusal underneath them, until the refusal's window closes and its own errors remain.
+
+## A preset field is laid out for a number
+
+A preset always holds a number, and a number reads left to right whatever the page around it does.
+So a field carrying one is given two styles:
+
+```css
+direction: ltr;
+text-align: end;
+```
+
+In an RTL form that keeps the digits in their own reading order while leaving the value against the
+edge the eye starts from; in an LTR form it is what the field would have done anyway. A custom
+pattern is never styled, because it may hold anything at all — prose in a `textarea` included.
+
+Both are host bindings, which a binding in the template outranks, so a field that wants something
+else says so on the field:
+
+```html
+<input imsPattern="integer" [style.text-align]="'start'" />
+```
 
 ## A zero is selected on focus
 
@@ -210,3 +311,7 @@ is unaffected.
 - **Never explains a refusal unasked.** Without an `ims-error-popover` on the element, a refused
   keystroke is simply gone.
 - **Never lets a correction bypass the pattern.** Step 3 above runs on the corrected value.
+- **Never refuses the near side of a bound.** A value still short of `imsPatternMin` is on its way
+  there and is let through. Leaving the field says so, but the keystroke is never cancelled.
+- **Never makes a control invalid.** A bound announces, like every other refusal; rejecting a value
+  is `Validators.min` and `Validators.max`'s work.

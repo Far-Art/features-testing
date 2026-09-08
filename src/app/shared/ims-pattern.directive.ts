@@ -1,4 +1,4 @@
-import { Directive, ElementRef, computed, inject, input } from '@angular/core';
+import { Directive, ElementRef, computed, inject, input, numberAttribute } from '@angular/core';
 import { IMS_ERROR_POPOVER_TARGET } from '../components/ims-error-popover';
 
 type ImsPatternElement = HTMLInputElement | HTMLTextAreaElement;
@@ -81,10 +81,18 @@ export type ImsPatternReason =
   | 'signPlacement'
   | 'decimalPoint'
   | 'decimals'
+  | 'min'
+  | 'max'
   | 'custom';
 
+/** The two bounds a preset can carry, reported as reasons of their own. */
+export type ImsPatternBound = 'min' | 'max';
+
+/** A refusal read from the shape of what was typed, rather than from a bound or a call site. */
+type ImsPatternShapeReason = Exclude<ImsPatternReason, ImsPatternBound | 'custom'>;
+
 /** The sentence each diagnosed reason stands for. */
-const REASON_MESSAGE: Record<Exclude<ImsPatternReason, 'custom'>, string> = {
+const REASON_MESSAGE: Record<ImsPatternShapeReason, string> = {
   wholeNumber: 'Only whole numbers are allowed.',
   number: 'Only numbers are allowed.',
   sign: 'A negative value is not allowed.',
@@ -93,10 +101,24 @@ const REASON_MESSAGE: Record<Exclude<ImsPatternReason, 'custom'>, string> = {
   decimals: 'Up to two decimals are allowed.',
 };
 
+/** A bound's sentence names the limit it stands for, so it is written rather than looked up. */
+const BOUND_MESSAGE: Record<ImsPatternBound, (bound: number) => string> = {
+  min: (bound) => `The value may not be less than ${bound}.`,
+  max: (bound) => `The value may not be greater than ${bound}.`,
+};
+
 /** What a refusal carries into an error popover: the sentence, and the reason behind it. */
 export interface ImsPatternRefusal {
   readonly message: string;
   readonly reason: ImsPatternReason;
+  /** The limit that was passed, on a `min` or `max` refusal, and nothing on any other. */
+  readonly bound?: number;
+}
+
+/** A bound a value has passed, carried from the test that found it to the sentence about it. */
+interface ImsPatternExcess {
+  readonly reason: ImsPatternBound;
+  readonly bound: number;
 }
 
 /**
@@ -109,10 +131,7 @@ export interface ImsPatternRefusal {
  * Everything else is a rule the value has already used up: its sign, its decimal point, or
  * its two fraction digits.
  */
-const presetReason = (
-  preset: ImsPatternPreset,
-  insertion: string,
-): Exclude<ImsPatternReason, 'custom'> => {
+const presetReason = (preset: ImsPatternPreset, insertion: string): ImsPatternShapeReason => {
   const fractional = preset === 'decimal' || preset === 'signedDecimal';
   const signed = preset === 'signedInteger' || preset === 'signedDecimal';
   const shape = fractional ? 'number' : 'wholeNumber';
@@ -211,14 +230,21 @@ const toRegExp = (pattern: ImsPatternInput): RegExp => {
   return new RegExp(`^(?:${source})$`, flags);
 };
 
-/** Text a change would insert, or `null` when it removes, reorders or replays characters. */
-const insertedText = (event: InputEvent): string | null => {
+/**
+ * Text a change would insert, or `null` when it removes, reorders or replays characters.
+ *
+ * A line break is inserted text only where the field can hold one. A single-line field reports
+ * the same `insertLineBreak` for Enter without inserting anything: there the event is only the
+ * cancellable hook in front of implicit form submission, so refusing it would swallow the
+ * submit rather than a character.
+ */
+const insertedText = (event: InputEvent, multiline: boolean): string | null => {
   if (!event.inputType.startsWith('insert')) {
     return null;
   }
 
   if (event.inputType === 'insertLineBreak' || event.inputType === 'insertParagraph') {
-    return '\n';
+    return multiline ? '\n' : null;
   }
 
   return event.data ?? event.dataTransfer?.getData('text/plain') ?? null;
@@ -243,6 +269,18 @@ const insertedText = (event: InputEvent): string | null => {
  * itself wrote. `imsPatternCorrect` replaces the correction with one of your own, or switches
  * it off entirely.
  *
+ * `imsPatternMin` and `imsPatternMax` bound the number a preset describes. Inserting moves a
+ * number away from zero, so a keystroke is refused only on the far side of a bound: a value that
+ * has passed the maximum is refused, while one still short of the minimum is on its way there and
+ * is let through. Leaving the field holds it to the whole range instead and announces a value
+ * still outside it, which is a message and not a verdict — the control is never marked invalid.
+ * A minimum of zero or more also takes the sign away, because no negative value could be legal
+ * under it. Neither bound applies to a custom pattern, which need not describe a number at all.
+ *
+ * A preset field is also laid out for the number it holds: `direction: ltr` and
+ * `text-align: end` are bound on the host, so digits keep their own reading order and their own
+ * edge inside an RTL form. A custom pattern is left exactly as the page styled it.
+ *
  * A refusal is silent by default, because a cancelled keystroke leaves nothing on screen to
  * explain it. An `ims-error-popover` on the same element is told about every refusal and says
  * why, once: the message appears for the popover's own duration and is not brought back by
@@ -256,6 +294,7 @@ const insertedText = (event: InputEvent): string | null => {
  * <input [imsPattern]="IMS_PATTERN.integer" />
  * <textarea [imsPattern]="/[a-z ]+/i"></textarea>
  *
+ * <input imsPattern="signedInteger" imsPatternMin="-40" imsPatternMax="120" />
  * <input imsPattern="integer" ims-error-popover />
  * ```
  */
@@ -263,11 +302,15 @@ const insertedText = (event: InputEvent): string | null => {
   selector: 'input[imsPattern], textarea[imsPattern]',
   standalone: true,
   host: {
+    // A preset holds a number, and a number reads left to right whatever the page around it does.
+    '[style.direction]': 'preset() === null ? null : "ltr"',
+    '[style.text-align]': 'preset() === null ? null : "end"',
     '(beforeinput)': 'onBeforeInput($event)',
     '(input)': 'onInput($event)',
     '(compositionstart)': 'onCompositionStart()',
     '(compositionend)': 'onCompositionEnd()',
     '(focus)': 'onFocus()',
+    '(blur)': 'onBlur()',
     '(mousedown)': 'onMouseDown()',
     '(mouseup)': 'onMouseUp($event)',
   },
@@ -279,6 +322,13 @@ export class ImsPatternDirective {
   readonly pattern = input.required<ImsPatternInput>({ alias: 'imsPattern' });
 
   private readonly regex = computed(() => toRegExp(this.pattern()));
+
+  /**
+   * The preset in force, or `null` for a pattern of your own. Everything a preset adds on top of
+   * the guard — the correction, the zero selection, the bounds, the numeric layout — hangs off
+   * this being something.
+   */
+  protected readonly preset = computed(() => presetOf(this.pattern()));
 
   /**
    * Replaces the correction a preset applies to inserted text. A function corrects with your
@@ -298,6 +348,35 @@ export class ImsPatternDirective {
     alias: 'imsPatternMessage',
   });
 
+  /**
+   * The smallest value the field may hold. It applies only to a preset, and only once a value
+   * has passed it going down — a value still short of it is on its way there. Left unset it is
+   * `NaN`, which no value is ever outside of.
+   */
+  readonly min = input<number, unknown>(NaN, {
+    alias: 'imsPatternMin',
+    transform: numberAttribute,
+  });
+
+  /**
+   * The largest value the field may hold, refused as soon as a value passes it going up. Like
+   * `imsPatternMin` it applies only to a preset, and is `NaN` when left unset.
+   */
+  readonly max = input<number, unknown>(NaN, {
+    alias: 'imsPatternMax',
+    transform: numberAttribute,
+  });
+
+  /**
+   * The range in force. A bound belongs to the numeric shape a preset stands for, so a custom
+   * pattern is left unbounded whatever the inputs say.
+   */
+  private readonly bounds = computed(() =>
+    this.preset() === null
+      ? { min: NaN, max: NaN }
+      : { min: this.min(), max: this.max() },
+  );
+
   /** The correction in force: an explicit one, the preset's own, or none at all. */
   private readonly corrector = computed<ImsPatternCorrector | null>(() => {
     const correction = this.correction();
@@ -306,16 +385,17 @@ export class ImsPatternDirective {
       return correction === false ? null : correction;
     }
 
-    const preset = presetOf(this.pattern());
+    const preset = this.preset();
 
     return preset === null ? null : PRESET_CORRECT[preset];
   });
 
   /**
-   * What to say about a refused insertion: the message in force with the reason behind it,
-   * or `null` when the field refuses in silence.
+   * What to say about a refusal: the message in force with the reason behind it, or `null` when
+   * the field refuses in silence. A cause of `null` is a custom pattern's, which diagnoses
+   * nothing of its own and so says nothing until the call site writes the sentence.
    */
-  private describeRefusal(insertion: string): ImsPatternRefusal | null {
+  private word(cause: ImsPatternExcess | ImsPatternShapeReason | null): ImsPatternRefusal | null {
     const message = this.message();
 
     if (message === false) {
@@ -326,15 +406,17 @@ export class ImsPatternDirective {
       return { message, reason: 'custom' };
     }
 
-    const preset = presetOf(this.pattern());
-
-    if (preset === null) {
+    if (cause === null) {
       return null;
     }
 
-    const reason = presetReason(preset, insertion);
+    if (typeof cause === 'string') {
+      return { message: REASON_MESSAGE[cause], reason: cause };
+    }
 
-    return { message: REASON_MESSAGE[reason], reason };
+    const { reason, bound } = cause;
+
+    return { message: BOUND_MESSAGE[reason](bound), reason, bound };
   }
 
   /** An error popover on the same element, told about a refusal as it happens. */
@@ -348,6 +430,8 @@ export class ImsPatternDirective {
   private acceptedCaret: number | null = null;
   /** Whether a refusal is standing on the popover, so it is withdrawn only once. */
   private announced = false;
+  /** Whether the field can hold a line break at all; an `input` never can. */
+  private readonly multiline = this.element.tagName === 'TEXTAREA';
   private composing = false;
   private pressing = false;
   private keepSelection = false;
@@ -363,7 +447,7 @@ export class ImsPatternDirective {
       return;
     }
 
-    const insertion = insertedText(event);
+    const insertion = insertedText(event, this.multiline);
 
     // Deletions and uncancellable changes, such as IME text, are settled on `input` instead.
     if (insertion === null || !event.cancelable) {
@@ -379,7 +463,7 @@ export class ImsPatternDirective {
 
     if (!this.accepts(corrected)) {
       event.preventDefault();
-      this.refuse(insertion);
+      this.refuse(insertion, corrected);
       return;
     }
 
@@ -411,13 +495,32 @@ export class ImsPatternDirective {
   protected onFocus(): void {
     this.rememberAcceptedState();
 
-    if (presetOf(this.pattern()) === null || !ZERO_VALUE.test(this.element.value)) {
+    if (this.preset() === null || !ZERO_VALUE.test(this.element.value)) {
       return;
     }
 
     this.element.select();
     // A pointer press collapses the fresh selection on mouseup unless that is prevented.
     this.keepSelection = this.pressing;
+  }
+
+  /**
+   * Holds a value the user has finished with to the whole range. Typing can only refuse the far
+   * side of a bound — a value on its way up to a minimum has to be let through — so the near side
+   * is settled here instead, once, as the field is left.
+   */
+  protected onBlur(): void {
+    const shown = this.element.value;
+
+    if (shown === '') {
+      return;
+    }
+
+    // A sibling may have rewritten the display on the way out: `imsFormat` groups the number on
+    // blur. What it wrote is no longer a number to read, so the last accepted value stands in.
+    const value = Number.isNaN(Number(shown)) ? this.acceptedValue : shown;
+
+    this.announce(this.word(this.outOfRange(value)));
   }
 
   protected onMouseDown(): void {
@@ -486,16 +589,31 @@ export class ImsPatternDirective {
 
     // The rollback writes, which re-enters here and withdraws; the refusal has to outlive it.
     this.write(this.acceptedValue, this.acceptedCaret ?? this.acceptedValue.length);
-    this.refuse(insertedBetween(this.acceptedValue, value));
+    this.refuse(insertedBetween(this.acceptedValue, value), value);
   }
 
   /**
-   * Announces a refused insertion on a popover sharing the element. The popover shows it once
-   * and forgets it, so a refusal that is never followed by another simply fades.
+   * Announces a refused insertion. A bound is only ever passed by a value the shape already
+   * accepts, so the shape is diagnosed first from what was typed, and a bound explains the rest.
    */
-  private refuse(insertion: string): void {
-    const refusal = this.describeRefusal(insertion);
+  private refuse(insertion: string, value: string): void {
+    const preset = this.preset();
 
+    if (preset === null) {
+      this.announce(this.word(null));
+      return;
+    }
+
+    const excess = this.matches(value) ? this.exceeded(value) : null;
+
+    this.announce(this.word(excess ?? presetReason(preset, insertion)));
+  }
+
+  /**
+   * Puts a refusal on a popover sharing the element. The popover shows it once and forgets it,
+   * so a refusal that is never followed by another simply fades.
+   */
+  private announce(refusal: ImsPatternRefusal | null): void {
     if (refusal === null) {
       return;
     }
@@ -518,7 +636,61 @@ export class ImsPatternDirective {
     this.errorPopover?.announceErrors(null);
   }
 
-  private accepts(value: string): boolean {
+  /** Whether the pattern alone allows a value, before any bound is weighed. */
+  private matches(value: string): boolean {
     return value === '' || this.regex().test(value);
+  }
+
+  /**
+   * The bound a value has passed, or `null` while it is still within reach of one.
+   *
+   * Inserting moves a number away from zero, so only the far side of a bound is final: `120`
+   * can never come back under a maximum of `100`, while `1` is on its way up to a minimum of
+   * `10` and has to be let through until the field is left. A value that carries no number needs
+   * no test of its own — `Number('-')` is `NaN`, so is an unset bound, and every comparison with
+   * `NaN` is false.
+   */
+  private exceeded(value: string): ImsPatternExcess | null {
+    const numeric = Number(value);
+    const { min, max } = this.bounds();
+
+    if (numeric > 0 && numeric > max) {
+      return { reason: 'max', bound: max };
+    }
+
+    if (numeric < 0 && numeric < min) {
+      return { reason: 'min', bound: min };
+    }
+
+    // A minimum of zero or more leaves no negative value to be typing towards, so the sign that
+    // would begin one is refused before a digit can follow it.
+    if (min >= 0 && value.startsWith('-')) {
+      return { reason: 'min', bound: min };
+    }
+
+    return null;
+  }
+
+  /**
+   * The bound a value sits outside of, in either direction — the whole range, which only a value
+   * the user has finished with can be held to.
+   */
+  private outOfRange(value: string): ImsPatternExcess | null {
+    const numeric = Number(value);
+    const { min, max } = this.bounds();
+
+    if (numeric > max) {
+      return { reason: 'max', bound: max };
+    }
+
+    if (numeric < min) {
+      return { reason: 'min', bound: min };
+    }
+
+    return null;
+  }
+
+  private accepts(value: string): boolean {
+    return this.matches(value) && this.exceeded(value) === null;
   }
 }

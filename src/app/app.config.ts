@@ -13,14 +13,21 @@ import {provideImsTooltipConfig} from './components/ims-tooltip';
 
 registerLocaleData(localeHe);
 
-/** Hebrew wording for every reason an `imsPattern` field refuses a change. */
+/**
+ * Hebrew wording for every reason an `imsPattern` field refuses a change. A bound refusal
+ * carries the limit it passed, and `{bound}` is where its sentence names it.
+ */
 const IMS_PATTERN_MESSAGES: Readonly<Record<string, string>> = {
     wholeNumber: 'ניתן להזין מספרים שלמים בלבד.',
     number: 'ניתן להזין מספרים בלבד.',
     sign: 'לא ניתן להזין ערך שלילי.',
     signPlacement: 'סימן מינוס מותר רק בתחילת הערך.',
     decimalPoint: 'ניתן להזין נקודה עשרונית אחת בלבד.',
-    decimals: 'ניתן להזין עד שתי ספרות אחרי הנקודה.'
+    decimals: 'ניתן להזין עד שתי ספרות אחרי הנקודה.',
+    // The maqaf keeps the prefix apart from a negative bound's own minus, and the isolate keeps
+    // the number reading left to right inside the Hebrew sentence.
+    min: 'לא ניתן להזין ערך נמוך מ־⁦{bound}⁩.',
+    max: 'לא ניתן להזין ערך גבוה מ־⁦{bound}⁩.'
 };
 
 export const appConfig: ApplicationConfig = {
@@ -71,9 +78,15 @@ export const appConfig: ApplicationConfig = {
                 imsDatepickerMax: 'התאריך לא יכול להיות מאוחר מ-{maxFormatted}.',
                 imsDatepickerFilter: 'לא ניתן לבחור בתאריך זה.',
                 imsPattern: (error) => {
-                    const refusal = error as {readonly message: string; readonly reason: string};
+                    const refusal = error as {
+                        readonly message: string;
+                        readonly reason: string;
+                        readonly bound?: number;
+                    };
                     // A sentence written on the field itself is already in the right words.
-                    return IMS_PATTERN_MESSAGES[refusal.reason] ?? refusal.message;
+                    const hebrew = IMS_PATTERN_MESSAGES[refusal.reason] ?? refusal.message;
+                    // Only a bound refusal carries a limit, and only its sentence has a slot.
+                    return hebrew.replace('{bound}', String(refusal.bound));
                 }
             }
         }),

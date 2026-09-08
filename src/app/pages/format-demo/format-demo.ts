@@ -8,9 +8,13 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ImsInputDirective } from '../../ims-input.directive';
-import type { ImsFormatToken } from '../../shared/ims-format';
-import { ImsFormatCurrencyDirective, ImsFormatDirective } from '../../shared/ims-format.directive';
-import { ImsFormatCurrencyPipe, ImsFormatPipe } from '../../shared/ims-format.pipe';
+import {
+  ImsFormatCurrencyDirective,
+  ImsFormatCurrencyPipe,
+  ImsFormatDirective,
+  ImsFormatPipe,
+  type ImsFormatToken,
+} from '../../shared/ims-format';
 import { ImsPatternDirective } from '../../shared/ims-pattern.directive';
 
 /** One token shown with a value that makes its shape obvious. */

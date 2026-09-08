@@ -2,14 +2,14 @@
 
 `imsFormat` groups a numeric field while it sits at rest, and hands it back raw the moment it is
 focused. It is a **formatter, not a guard** — the mirror image of
-[`imsPattern`](./ims-pattern.directive.md), which refuses keystrokes and never rewrites the display.
+[`imsPattern`](../ims-pattern.directive.md), which refuses keystrokes and never rewrites the display.
 Both are standalone and select on `input` and `textarea`.
 
 ```ts
 import {
   ImsFormatCurrencyDirective,
   ImsFormatDirective,
-} from './shared/ims-format.directive';
+} from './shared/ims-format';
 
 @Component({
   imports: [ImsFormatDirective, ImsFormatCurrencyDirective],

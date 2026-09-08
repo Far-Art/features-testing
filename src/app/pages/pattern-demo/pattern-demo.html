@@ -93,7 +93,9 @@
         <code>integer</code> ו־<code>decimal</code> מכסים את רוב השדות המספריים, ולצידם
         <code>signedInteger</code> ו־<code>signedDecimal</code> למי שצריך מינוס. אפשר לנקוב
         בשם הפריסט, או לקשור את הערך עצמו מתוך <code>IMS_PATTERN</code> — שתי הכתיבות מגיעות
-        לאותה תבנית ולאותה התנהגות.
+        לאותה תבנית ולאותה התנהגות. שדה עם פריסט גם מסודר כמספר:
+        <code dir="ltr">direction: ltr</code> ו־<code dir="ltr">text-align: end</code> נקבעים על
+        השדה עצמו, ולכן אין כאן <code>dir</code> ידני.
       </p>
     </div>
 
@@ -104,7 +106,6 @@
           <code class="pattern-demo__preset-pattern" dir="ltr">{{ card.source }}</code>
           <input
             imsInput
-            dir="ltr"
             autocomplete="off"
             [imsPattern]="card.pattern"
             [placeholder]="card.placeholder"
@@ -245,6 +246,93 @@
     </div>
   </section>
 
+  <section class="pattern-demo__bounds" aria-labelledby="pattern-bounds-title">
+    <div class="pattern-demo__section-heading">
+      <p class="pattern-demo__eyebrow">Min · Max</p>
+      <h2 id="pattern-bounds-title">טווח מספרי</h2>
+      <p>
+        <code>imsPatternMin</code> ו־<code>imsPatternMax</code> מוסיפים טווח למספר שהפריסט מתאר,
+        ופועלים רק על פריסט. הקלדה מרחיקה מספר מהאפס, ולכן נחסם רק הצד הרחוק של הגבול: ערך שכבר
+        עבר את המקסימום נחסם, בעוד ערך שעדיין קטן מהמינימום נמצא בדרכו אליו ולכן מותר. מה שההקלדה
+        לא יכולה לחסום, היציאה מהשדה כן: ב־<code>blur</code> הערך נמדד מול הטווח כולו, וערך שנשאר
+        מחוצה לו מוכרז בפופאובר כמו כל סירוב אחר. זו הודעה ולא ולידציה — הפקד עצמו נשאר תקין.
+      </p>
+    </div>
+
+    <div class="pattern-demo__preset-grid">
+      <article class="pattern-demo__preset">
+        <h3>גיל · עד 120</h3>
+        <code class="pattern-demo__preset-pattern" dir="ltr">imsPatternMax="120"</code>
+        <input
+          imsInput
+          autocomplete="off"
+          placeholder="120"
+          imsPattern="integer"
+          imsPatternMax="120"
+          ims-error-popover
+        />
+        <p>הקלידו 121: הספרה האחרונה נחסמת, והפופאובר מציג את הגבול עצמו.</p>
+      </article>
+
+      <article class="pattern-demo__preset">
+        <h3>טמפרטורה · טווח עם סימן</h3>
+        <code class="pattern-demo__preset-pattern" dir="ltr"
+          >imsPatternMin="-40" imsPatternMax="60"</code
+        >
+        <input
+          imsInput
+          autocomplete="off"
+          placeholder="-40"
+          imsPattern="signedInteger"
+          imsPatternMin="-40"
+          imsPatternMax="60"
+          ims-error-popover
+        />
+        <p>
+          <code dir="ltr">-4</code> מותר כי הוא בדרך אל <code dir="ltr">-40</code>, ואילו
+          <code dir="ltr">-41</code> כבר עבר את המינימום ונחסם.
+        </p>
+      </article>
+
+      <article class="pattern-demo__preset">
+        <h3>בלי ערכים שליליים</h3>
+        <code class="pattern-demo__preset-pattern" dir="ltr"
+          >signedDecimal + imsPatternMin="0"</code
+        >
+        <input
+          imsInput
+          autocomplete="off"
+          placeholder="1250.75"
+          imsPattern="signedDecimal"
+          imsPatternMin="0"
+          ims-error-popover
+        />
+        <p>
+          מינימום של אפס לא משאיר ערך שלילי להקליד לעברו, ולכן המינוס עצמו נחסם — עוד לפני שספרה
+          יכולה לבוא אחריו.
+        </p>
+      </article>
+
+      <article class="pattern-demo__preset">
+        <h3>מינימום נמדד ביציאה</h3>
+        <code class="pattern-demo__preset-pattern" dir="ltr">imsPatternMin="10"</code>
+        <input
+          imsInput
+          autocomplete="off"
+          placeholder="10"
+          imsPattern="integer"
+          imsPatternMin="10"
+          ims-error-popover
+        />
+        <p>
+          הקלידו <code dir="ltr">5</code> וצאו מהשדה: ההקשה עצמה מותרת — חסימתה הייתה חוסמת את
+          ההקשה הראשונה של <code dir="ltr">50</code> — והיציאה היא שמודיעה. פקד שחייב לדחות את
+          הערך זקוק גם ל־<code>Validators.min</code>.
+        </p>
+      </article>
+    </div>
+  </section>
+
   <section class="pattern-demo__presets" aria-labelledby="pattern-presets-title">
     <div class="pattern-demo__section-heading">
       <p class="pattern-demo__eyebrow">Presets</p>
@@ -371,6 +459,18 @@
         (<code dir="ltr">.</code> → <code dir="ltr">0.</code>). התיקון חל על טקסט שנכנס, בהקלדה
         או בהדבקה — מחיקה לעולם לא מתוקנת, אחרת אי אפשר היה למחוק את האפס.
         <code>imsPatternCorrect</code> מחליף את התיקון בשלכם או מכבה אותו לגמרי.
+      </li>
+      <li>
+        <strong>ההקלדה חוסמת צד אחד, היציאה מודדת את הטווח כולו.</strong>
+        <code>imsPatternMin</code> ו־<code>imsPatternMax</code> חלים רק על פריסט. בהקלדה נחסם רק
+        ערך שכבר עבר את הגבול והתרחק מהאפס, אחרת הייתה נחסמת ההקשה הראשונה בדרך אל המינימום;
+        ביציאה מהשדה מוכרז כל ערך שנשאר מחוץ לטווח. מינימום של אפס ומעלה גם חוסם את סימן המינוס
+        עצמו. הכרזה אינה ולידציה — פקד שחייב לדחות את הערך זקוק ל־<code>Validators.min</code>.
+      </li>
+      <li>
+        <strong>פריסט מסודר כמספר.</strong> הדירקטיבה קובעת על השדה
+        <code dir="ltr">direction: ltr</code> ו־<code dir="ltr">text-align: end</code>, כך שספרות
+        נקראות משמאל לימין גם בתוך טופס עברי. תבנית משלכם נשארת כפי שהיא.
       </li>
       <li>
         <strong>עוגן מלא.</strong> התבנית נבדקת כ־<code dir="ltr">^(?:…)$</code>, בדיוק כמו
