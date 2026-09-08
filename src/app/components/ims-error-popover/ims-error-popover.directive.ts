@@ -427,7 +427,11 @@ export class ImsErrorPopoverDirective
     /** Attaches or updates the panel in place and synchronizes ARIA references. */
     private showOrUpdatePopover(errors: readonly string[]): void {
         const alreadyAttached = this.connectedPopoverAttached();
-        const direction = getComputedStyle(this.popoverHost).direction === 'rtl'
+        // A field is often forced `ltr` so that digits keep their own order — `imsPattern` does
+        // exactly that on a numeric preset — while the panel holds a sentence in the page's
+        // language. So the direction is read from where the field sits, not from the field itself.
+        const context = this.popoverHost.parentElement ?? this.popoverHost;
+        const direction = getComputedStyle(context).direction === 'rtl'
             ? 'rtl'
             : 'ltr';
         const panelRef = this.attachConnectedPopover(ImsErrorPopoverPanel, {

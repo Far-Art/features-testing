@@ -1,4 +1,5 @@
 import { Directive, ElementRef, computed, inject, input, numberAttribute } from '@angular/core';
+import { NgControl } from '@angular/forms';
 import { IMS_ERROR_POPOVER_TARGET } from '../components/ims-error-popover';
 
 type ImsPatternElement = HTMLInputElement | HTMLTextAreaElement;
@@ -274,6 +275,8 @@ const insertedText = (event: InputEvent, multiline: boolean): string | null => {
  * has passed the maximum is refused, while one still short of the minimum is on its way there and
  * is let through. Leaving the field holds it to the whole range instead and announces a value
  * still outside it, which is a message and not a verdict — the control is never marked invalid.
+ * A control the user has not changed is left in peace: a form that loads a value outside the range
+ * is not something the user did, so tabbing past the field says nothing.
  * A minimum of zero or more also takes the sign away, because no negative value could be legal
  * under it. Neither bound applies to a custom pattern, which need not describe a number at all.
  *
@@ -350,8 +353,11 @@ export class ImsPatternDirective {
 
   /**
    * The smallest value the field may hold. It applies only to a preset, and only once a value
-   * has passed it going down — a value still short of it is on its way there. Left unset it is
-   * `NaN`, which no value is ever outside of.
+   * has passed it going down — a value still short of it is on its way there.
+   *
+   * A bound you do not have yet is `null` or `undefined`, which read as `NaN` and bound nothing.
+   * `0` is a real bound, so a limit that starts at zero while it loads refuses every value on
+   * the far side of zero until it arrives.
    */
   readonly min = input<number, unknown>(NaN, {
     alias: 'imsPatternMin',
@@ -425,11 +431,16 @@ export class ImsPatternDirective {
     optional: true,
   });
 
+  /** A form control on the same element, whose own state says whether the user has been here. */
+  private readonly ngControl = inject(NgControl, { self: true, optional: true });
+
   /** Last value the pattern accepted, restored when a change cannot be cancelled up front. */
   private acceptedValue = this.element.value;
   private acceptedCaret: number | null = null;
   /** Whether a refusal is standing on the popover, so it is withdrawn only once. */
   private announced = false;
+  /** Whether the user has changed the field, which a control's own `dirty` can lag behind. */
+  private edited = false;
   /** Whether the field can hold a line break at all; an `input` never can. */
   private readonly multiline = this.element.tagName === 'TEXTAREA';
   private composing = false;
@@ -512,7 +523,7 @@ export class ImsPatternDirective {
   protected onBlur(): void {
     const shown = this.element.value;
 
-    if (shown === '') {
+    if (shown === '' || this.untouched()) {
       return;
     }
 
@@ -521,6 +532,20 @@ export class ImsPatternDirective {
     const value = Number.isNaN(Number(shown)) ? this.acceptedValue : shown;
 
     this.announce(this.word(this.outOfRange(value)));
+  }
+
+  /**
+   * Whether a control on this element is still as the form loaded it. A value the user never
+   * changed is not theirs to be told about — a form that loads something outside the range says
+   * so when it is submitted, not when the user tabs past the field.
+   *
+   * The control's own `dirty` is the answer where there is a control at all, but it is set by the
+   * control's blur pipeline under `updateOn: 'blur'`, which may run after this listener, and not
+   * until submit under `updateOn: 'submit'`. So the guard's own record of having accepted a
+   * change stands in front of it, and a field with no control speaks either way.
+   */
+  private untouched(): boolean {
+    return this.ngControl !== null && !this.edited && !this.ngControl.dirty;
   }
 
   protected onMouseDown(): void {
@@ -569,6 +594,8 @@ export class ImsPatternDirective {
    * the user cannot edit their way out of.
    */
   private settle(revertable: boolean): void {
+    this.edited = true;
+
     const { value, selectionStart } = this.element;
     // Only an insertion is corrected: a deletion that leaves a leading zero stays as typed,
     // otherwise backspacing the zero out of `0.5` would put it straight back.
@@ -690,7 +717,17 @@ export class ImsPatternDirective {
     return null;
   }
 
+  /**
+   * Whether the field may hold a value: the pattern has to accept it, and a bound may only be
+   * passed by the change being made. A value that was already outside the range stays editable —
+   * refusing every keystroke inside it would trap the user in a value the guard never accepted
+   * in the first place, which is the same reason a deletion is never refused.
+   */
   private accepts(value: string): boolean {
-    return this.matches(value) && this.exceeded(value) === null;
+    if (!this.matches(value)) {
+      return false;
+    }
+
+    return this.exceeded(value) === null || this.exceeded(this.acceptedValue) !== null;
   }
 }

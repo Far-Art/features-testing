@@ -54,6 +54,24 @@ appears beneath a stationary pointer, the initial entry is ignored until the
 pointer leaves once. Angular disabled state, native disabled state, and the
 nearest `ims-readonly` provider all suppress the popover.
 
+## Direction
+
+The panel is positioned and written in the direction of the element the field
+*sits in*, not the field's own. A numeric field is often forced `dir="ltr"` so
+its digits keep their own order — `imsPattern` does exactly that on a numeric
+preset — while the message it shows is a sentence in the page's language. Taking
+the direction from the field itself would hang the panel off the wrong edge in
+an RTL form, so the parent's computed direction is what decides.
+
+To place a popover in the opposite direction deliberately, put the direction on
+the wrapper rather than on the field:
+
+```html
+<div dir="ltr">
+    <input ims-error-popover [formControl]="serial">
+</div>
+```
+
 `ims-datepicker` includes the directive internally. An explicitly attached
 instance on the datepicker host takes ownership and suppresses the internal
 instance so duplicate popovers cannot appear.

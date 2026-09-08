@@ -30,8 +30,8 @@ Because the keystroke is cancelled before the DOM changes, no `input` event fire
 | `imsPattern` | `ImsPatternPreset \| RegExp \| string` | required | What the value must match. A preset name, a regular expression, or its source text. |
 | `imsPatternCorrect` | `ImsPatternCorrector \| false \| undefined` | `undefined` | Replaces the correction a preset applies. A function corrects with your own rule and is the only way a custom pattern corrects at all; `false` guards without ever rewriting. |
 | `imsPatternMessage` | `string \| false \| undefined` | `undefined` | What a refusal says. A preset supplies its own sentence, which this replaces; a custom pattern says nothing until given one, and `false` refuses in silence. |
-| `imsPatternMin` | `number` | none | The smallest value the field may hold. Only on a preset, and only against a value that has already passed it. |
-| `imsPatternMax` | `number` | none | The largest value the field may hold. Only on a preset, and only against a value that has already passed it. |
+| `imsPatternMin` | `number \| null \| undefined` | none | The smallest value the field may hold. Only on a preset, and only against a value that has already passed it. |
+| `imsPatternMax` | `number \| null \| undefined` | none | The largest value the field may hold. Only on a preset, and only against a value that has already passed it. |
 
 The pattern is always anchored to the whole value, as `^(?:…)$`, matching the semantics of the
 native `pattern` attribute. `g` and `y` flags are stripped, because they make `test` stateful and
@@ -174,6 +174,24 @@ partial input.
 A partial value is never bounded either, because it is not yet a number the range can speak about:
 a lone `-` and a trailing `.` are both `NaN`, and so is an unset bound.
 
+> **A bound you do not have yet is `null`, not `0`.** Both spellings are accepted, and `null` and
+> `undefined` read as `NaN` and bound nothing — but `0` is a real maximum, and it refuses every
+> positive digit. A limit bound to a signal that starts at zero while it loads makes the field look
+> like it refuses everything, because for as long as the zero is there, it does.
+>
+> ```html
+> <!-- unbounded until the limit arrives -->
+> <input imsPattern="integer" [imsPatternMax]="limit()" />
+> ```
+> ```ts
+> readonly limit = signal<number | null>(null);
+> ```
+
+An insertion into a value that is **already** outside the range is never refused for that bound. A
+model value of `5000` under `imsPatternMax="100"`, or a limit that tightens under a value already
+above it, would otherwise refuse every keystroke inside it — so the range only ever refuses the
+change that would take a value out, never the edits inside one already out.
+
 ### The near side is settled on blur
 
 What a keystroke cannot refuse, leaving the field can. On blur the value is held to the **whole**
@@ -186,6 +204,13 @@ keystroke — the same sentence, the same once-and-gone window:
 
 Typing `5` there is allowed, and walking away from it says *The value may not be less than 10.* An
 empty field says nothing: emptiness is `required`'s business, not the range's.
+
+Neither does a control the user has not changed. Where the element carries an `ngModel` or a
+`formControl`, a value the form *loaded* outside the range is not something the user did, so
+tabbing past the field is silent; the first edit is what gives it a voice. A field with no control
+has no such record and always speaks. (The control's own `dirty` is what this reads, backed by the
+directive's own record of the first accepted change, because `updateOn: 'blur'` marks a control
+dirty in the same blur this listener runs in, and `updateOn: 'submit'` not until submit.)
 
 > **This is still not a validator.** The announcement is a message, not a verdict — like every
 > other refusal it leaves the control's own validity, and its `aria-invalid`, exactly as they were.
@@ -284,6 +309,10 @@ In an RTL form that keeps the digits in their own reading order while leaving th
 edge the eye starts from; in an LTR form it is what the field would have done anyway. A custom
 pattern is never styled, because it may hold anything at all — prose in a `textarea` included.
 
+Styling the field this way does not drag its messages along with it: an `ims-error-popover` takes
+its direction from the element the field sits in, so in an RTL form the panel still hangs off the
+same edge as every other field's.
+
 Both are host bindings, which a binding in the template outranks, so a field that wants something
 else says so on the field:
 
@@ -307,7 +336,8 @@ is unaffected.
 - **Never corrects a custom pattern** unless given a corrector. Naming a preset is what opts a
   field into being rewritten.
 - **Never traps a value.** Deletion, undo, and outside writes are always adopted, even when they do
-  not match, so a field can always be edited back into shape.
+  not match, so a field can always be edited back into shape. A value already outside the range is
+  editable for the same reason: only the change that takes a value out of range is refused.
 - **Never explains a refusal unasked.** Without an `ims-error-popover` on the element, a refused
   keystroke is simply gone.
 - **Never lets a correction bypass the pattern.** Step 3 above runs on the corrected value.

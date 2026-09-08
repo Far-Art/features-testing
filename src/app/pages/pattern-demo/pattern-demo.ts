@@ -81,6 +81,13 @@ export class PatternDemo {
   /** A required field, so a refusal and a validation error can share one popover. */
   readonly quantity = signal('5');
 
+  /** A value the form loads below the minimum, so blur stays quiet until it is edited. */
+  readonly loadedAmount = signal('5');
+
+  /** Bounds that arrive as bound values rather than as attributes. */
+  readonly ceiling = signal(120);
+  readonly floor = signal(10);
+
   readonly numericPresets: readonly NumericPresetCard[] = [
     {
       title: 'מספר שלם',

@@ -314,6 +314,39 @@
       </article>
 
       <article class="pattern-demo__preset">
+        <h3>ערך שנטען מתחת למינימום</h3>
+        <code class="pattern-demo__preset-pattern" dir="ltr">ngModel + imsPatternMin="10"</code>
+        <input
+          imsInput
+          autocomplete="off"
+          imsPattern="integer"
+          imsPatternMin="10"
+          ims-error-popover
+          [ngModel]="loadedAmount()"
+          (ngModelChange)="loadedAmount.set($event)"
+        />
+        <p>
+          עברו על השדה בלי לגעת בו: הוא שותק, כי הפקד עדיין <code>pristine</code> — הערך נטען כך,
+          לא הוקלד. שנו ספרה אחת וצאו, ואז ההודעה מופיעה.
+        </p>
+      </article>
+
+      <article class="pattern-demo__preset">
+        <h3>גבולות מסיגנל</h3>
+        <code class="pattern-demo__preset-pattern" dir="ltr">[imsPatternMax]="ceiling()"</code>
+        <input
+          imsInput
+          autocomplete="off"
+          placeholder="120"
+          imsPattern="integer"
+          [imsPatternMax]="ceiling()"
+          [imsPatternMin]="floor()"
+          ims-error-popover
+        />
+        <p>אותם גבולות בדיוק, מקושרים כערכים ולא ככתובות טקסט.</p>
+      </article>
+
+      <article class="pattern-demo__preset">
         <h3>מינימום נמדד ביציאה</h3>
         <code class="pattern-demo__preset-pattern" dir="ltr">imsPatternMin="10"</code>
         <input
