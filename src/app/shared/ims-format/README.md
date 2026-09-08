@@ -46,7 +46,7 @@ source of truth and the display stays derived — there is no second copy to fal
 
 | Attribute | Type | Default | Meaning |
 | --- | --- | --- | --- |
-| `imsFormat` | `ImsFormatToken` | `'#,###'` | The shape to show. The bare attribute, with no value, is the default. |
+| `imsFormat` | `ImsFormatToken` | the shape of an `imsPattern` beside it, else `'#,###'` | The shape to show. The bare attribute, with no value, reads the guard on the same field. |
 | `imsFormatCurrency` | `string` | `'₪'` | The symbol to append. The number is always `#,###.##`. |
 
 The two are separate directives, not two spellings of one. A currency field needs only
@@ -107,8 +107,28 @@ Both accept `number | string | null | undefined`; `null` and `undefined` render 
 `imsFormat` restricts nothing. A field that must also refuse bad keystrokes carries both:
 
 ```html
-<input imsInput imsPattern="decimal" imsFormat="#,###.##" [(ngModel)]="amount" />
+<input imsInput imsPattern="decimal" imsFormat [(ngModel)]="amount" />
 ```
+
+### The bare attribute takes the pattern's shape
+
+A preset already says how many decimals the number has, so the bare attribute reads it there rather
+than being told the same thing twice:
+
+| Beside it | Bare `imsFormat` shows |
+| --- | --- |
+| `imsPattern="decimal"`, `imsPattern="signedDecimal"` | `#,###.##` |
+| `imsPattern="integer"`, `imsPattern="signedInteger"` | `#,###` |
+| a pattern of your own | `#,###` |
+| no `imsPattern` at all | `#,###` |
+
+A pattern of your own is left at the default because it need not describe a number at all, and a
+token written on the attribute outranks the pattern either way — a guarded decimal shown to one
+place is still `imsFormat="#,###.#"`. The reading goes one way only: `imsFormat` never widens or
+narrows what `imsPattern` accepts, and a pattern with no `imsFormat` beside it formats nothing.
+
+`imsFormatCurrency` asks nothing of the pattern. Money is `#,###.##` by definition, which is what a
+`decimal` preset would have said anyway.
 
 They compose cleanly because they act at different moments. `imsPattern` guards `beforeinput` while
 the field is focused and therefore raw; `imsFormat` writes only on blur, without an `input` event,

@@ -22,6 +22,17 @@ export const IMS_CURRENCY_FORMAT = '#,###.##';
 export const IMS_CURRENCY_DEFAULT = '₪';
 
 /**
+ * The grouped token that shows exactly `fractionDigits` decimals: `#,###.##` for two, `#,###` for
+ * none — which is `IMS_FORMAT_DEFAULT` itself, so a shape of no decimals and no shape at all read
+ * the same.
+ *
+ * It builds a display out of a shape known as a count rather than as text, which is how
+ * `imsPattern` describes the number it guards.
+ */
+export const groupedToken = (fractionDigits: number): ImsFormatToken =>
+  fractionDigits > 0 ? `${IMS_FORMAT_DEFAULT}.${'#'.repeat(fractionDigits)}` : IMS_FORMAT_DEFAULT;
+
+/**
  * Formatting is pinned to `en-US` rather than the injected `LOCALE_ID`, on purpose.
  *
  * The separators have to stay `,` and `.`: the displayed text is unformatted back through

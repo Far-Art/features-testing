@@ -11,12 +11,13 @@ import {
   signal,
 } from '@angular/core';
 import { NgControl } from '@angular/forms';
+import { ImsPatternDirective } from '../ims-pattern.directive';
 import {
   IMS_CURRENCY_DEFAULT,
   IMS_CURRENCY_FORMAT,
-  IMS_FORMAT_DEFAULT,
   type ImsFormatToken,
   formatNumeric,
+  groupedToken,
 } from './ims-format';
 
 type ImsFormatElement = HTMLInputElement | HTMLTextAreaElement;
@@ -140,12 +141,20 @@ export abstract class ImsFormatBase implements OnInit {
  *
  * The attribute on its own formats as `#,###` — thousands separators, and every decimal the value
  * carries left as it is. A value of its own names another shape, and a shape that names its
- * fraction rounds the display to it. It restricts nothing — pair it with `imsPattern` for a field that must also refuse bad keystrokes.
+ * fraction rounds the display to it.
+ *
+ * An `imsPattern` on the same field already says how many decimals the number has, so the bare
+ * attribute takes its shape from there rather than being told it twice: `decimal` beside it shows
+ * `#,###.##`, `integer` shows `#,###`, and a pattern of your own — which need not describe a
+ * number at all — leaves the default in place. A token written here outranks all of it.
+ *
+ * It restricts nothing — pair it with `imsPattern` for a field that must also refuse bad
+ * keystrokes.
  *
  * ```html
  * <input imsFormat />
  * <input imsFormat="#,###.##" [(ngModel)]="amount" />
- * <input imsInput imsPattern="decimal" imsFormat="#,###.##" [formControl]="premium" />
+ * <input imsInput imsPattern="decimal" imsFormat [formControl]="premium" />
  * ```
  */
 @Directive({
@@ -153,10 +162,18 @@ export abstract class ImsFormatBase implements OnInit {
   standalone: true,
 })
 export class ImsFormatDirective extends ImsFormatBase {
-  /** The shape to show. Absent — the bare attribute — means `#,###`. */
+  /**
+   * The shape to show. Absent — the bare attribute — means the shape the guard beside it
+   * describes, and `#,###` where there is no guard to ask.
+   */
   readonly format = input<ImsFormatToken>('', { alias: 'imsFormat' });
 
-  protected readonly token = computed(() => this.format() || IMS_FORMAT_DEFAULT);
+  /** The guard on this same field, whose numeric shape the bare attribute is shown in. */
+  private readonly pattern = inject(ImsPatternDirective, { self: true, optional: true });
+
+  protected readonly token = computed(
+    () => this.format() || groupedToken(this.pattern?.fractionDigits() ?? 0),
+  );
 }
 
 /**

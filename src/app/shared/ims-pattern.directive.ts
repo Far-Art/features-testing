@@ -12,7 +12,11 @@ export type ImsPatternInput = ImsPatternPreset | RegExp | (string & {});
 
 /** Shared sources, so a change to a shape lands on its signed form too. */
 const INTEGER_SOURCE = '0|[1-9][0-9]*';
-const DECIMAL_SOURCE = `(${INTEGER_SOURCE})?(\\.[0-9]{0,2})?`;
+
+/** How many fraction digits a decimal shape holds, as a count rather than as regex text. */
+const DECIMAL_DIGITS = 2;
+
+const DECIMAL_SOURCE = `(${INTEGER_SOURCE})?(\\.[0-9]{0,${DECIMAL_DIGITS}})?`;
 
 /**
  * A signed shape is its unsigned source behind an optional minus, and the whole of it is
@@ -164,6 +168,17 @@ const PRESET_CORRECT: Record<ImsPatternPreset, ImsPatternCorrector> = {
   signedDecimal: correctNumeric,
 };
 
+/**
+ * How many fraction digits each preset accepts: the same shape its regular expression describes,
+ * in the only form a display can be built from.
+ */
+const PRESET_FRACTION_DIGITS: Record<ImsPatternPreset, number> = {
+  integer: 0,
+  decimal: DECIMAL_DIGITS,
+  signedInteger: 0,
+  signedDecimal: DECIMAL_DIGITS,
+};
+
 /** Index of the first character a correction changed, or the end of the shorter value. */
 const firstDifference = (value: string, corrected: string): number => {
   const shared = Math.min(value.length, corrected.length);
@@ -284,6 +299,10 @@ const insertedText = (event: InputEvent, multiline: boolean): string | null => {
  * `text-align: end` are bound on the host, so digits keep their own reading order and their own
  * edge inside an RTL form. A custom pattern is left exactly as the page styled it.
  *
+ * A bare `imsFormat` on the same field takes its display from the shape in force: a decimal
+ * preset shows as `#,###.##`, a whole-number preset as `#,###`, and a pattern of your own leaves
+ * the default in place. A token written on the attribute itself is still its own.
+ *
  * A refusal is silent by default, because a cancelled keystroke leaves nothing on screen to
  * explain it. An `ims-error-popover` on the same element is told about every refusal and says
  * why, once: the message appears for the popover's own duration and is not brought back by
@@ -332,6 +351,20 @@ export class ImsPatternDirective {
    * this being something.
    */
   protected readonly preset = computed(() => presetOf(this.pattern()));
+
+  /**
+   * How many fraction digits the shape in force allows, and `null` for a pattern of your own,
+   * whose shape this cannot read.
+   *
+   * It is the one thing about the guard a display needs: a bare `imsFormat` on the same element
+   * reads it and shows the number with exactly those decimals, so the two describe one shape
+   * rather than two that can drift apart.
+   */
+  readonly fractionDigits = computed<number | null>(() => {
+    const preset = this.preset();
+
+    return preset === null ? null : PRESET_FRACTION_DIGITS[preset];
+  });
 
   /**
    * Replaces the correction a preset applies to inserted text. A function corrects with your

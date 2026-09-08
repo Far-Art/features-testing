@@ -145,7 +145,9 @@
       <p>
         <code>imsFormat</code> לא חוסמת כלום — היא התמונה הראית של <code>imsPattern</code>, שחוסמת
         ולא מעצבת. שדה שצריך את שתיהן פשוט נושא את שתיהן: התבנית שולטת בהקלדה, הפורמט משתלט ברגע
-        היציאה מהשדה.
+        היציאה מהשדה. השדה כאן נושא <code dir="ltr">imsFormat</code> בלי ערך: הצורה
+        <code dir="ltr">#,###.##</code> מגיעה מהתבנית <code dir="ltr">decimal</code> שלצידה, ולא
+        נכתבת פעמיים.
       </p>
     </div>
 
@@ -158,7 +160,7 @@
           dir="ltr"
           autocomplete="off"
           imsPattern="decimal"
-          imsFormat="#,###.##"
+          imsFormat
           [ngModel]="guardedValue()"
           (ngModelChange)="guardedValue.set($event)"
         />

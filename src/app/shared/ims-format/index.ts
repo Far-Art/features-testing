@@ -9,6 +9,7 @@ export {
   IMS_CURRENCY_FORMAT,
   IMS_FORMAT_DEFAULT,
   formatNumeric,
+  groupedToken,
   unformatNumeric,
 } from './ims-format';
 export type { ImsFormatToken } from './ims-format';

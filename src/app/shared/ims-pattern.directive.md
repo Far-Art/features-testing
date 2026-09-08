@@ -320,6 +320,23 @@ else says so on the field:
 <input imsPattern="integer" [style.text-align]="'start'" />
 ```
 
+## A bare `imsFormat` reads the shape
+
+The shape in force is also readable as a count, on the directive's own `fractionDigits`: `2` for
+`decimal` and `signedDecimal`, `0` for the whole-number presets, and `null` for a pattern of your
+own, whose shape cannot be read. [`imsFormat`](./ims-format/README.md) on the same field reads it
+whenever it carries no token of its own, so a guarded number is displayed in the shape it is
+guarded in:
+
+```html
+<input imsPattern="decimal" imsFormat />         <!-- shown as #,###.## -->
+<input imsPattern="integer" imsFormat />         <!-- shown as #,###    -->
+<input imsPattern="[0-9]{0,6}" imsFormat />      <!-- shown as #,###    -->
+<input imsPattern="decimal" imsFormat="###.#" /> <!-- the token wins    -->
+```
+
+Nothing flows the other way: the guard neither knows nor cares whether a display is there.
+
 ## A zero is selected on focus
 
 For a preset, focusing a field whose value reads as zero — `0`, `0.00`, `-0` — selects it whole, so
