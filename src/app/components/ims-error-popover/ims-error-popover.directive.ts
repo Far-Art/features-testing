@@ -13,7 +13,8 @@ import {
     input,
     isSignal,
     numberAttribute,
-    signal
+    signal,
+    untracked
 } from '@angular/core';
 import {AbstractControl, NgControl, ValidationErrors} from '@angular/forms';
 import {Subscription} from 'rxjs';
@@ -151,27 +152,35 @@ export class ImsErrorPopoverDirective
 
         effect((onCleanup) => {
             const source = this.source();
-            this.unbindControl();
+            // Read here, inside the effect, so a signal source keeps the binding live. Everything
+            // below is a side effect of that read rather than a dependency of it, and is written
+            // outside the reactive context: an effect refuses signal writes by default before
+            // Angular 19, and nothing here should ever become a dependency of this effect.
+            const signalErrors = isSignal(source) ? cloneErrors(source()) : null;
 
-            if (isSignal(source)) {
-                this.markSource(source);
-                this.resolvedControl.set(null);
-                this.resolvedControlDisabled.set(false);
-                this.rawErrors.set(cloneErrors(source()));
-            } else {
-                const control = source instanceof AbstractControl
-                    ? source
-                    : this.ngControl?.control ?? null;
-                this.markSource(control);
-                this.resolvedControl.set(control);
-                this.syncControl(control);
+            untracked(() => {
+                this.unbindControl();
 
-                if (control) {
-                    this.controlSubscription = control.events.subscribe(
-                        () => this.syncControl(control)
-                    );
+                if (isSignal(source)) {
+                    this.markSource(source);
+                    this.resolvedControl.set(null);
+                    this.resolvedControlDisabled.set(false);
+                    this.rawErrors.set(signalErrors);
+                } else {
+                    const control = source instanceof AbstractControl
+                        ? source
+                        : this.ngControl?.control ?? null;
+                    this.markSource(control);
+                    this.resolvedControl.set(control);
+                    this.syncControl(control);
+
+                    if (control) {
+                        this.controlSubscription = control.events.subscribe(
+                            () => this.syncControl(control)
+                        );
+                    }
                 }
-            }
+            });
 
             onCleanup(() => this.unbindControl());
         });
@@ -198,7 +207,9 @@ export class ImsErrorPopoverDirective
             const mappedErrors = this.mappedErrors();
             const disabled = this.effectiveDisabled();
             const sourceRevision = this.sourceRevision();
-            this.applyErrorState(errors, mappedErrors, disabled, sourceRevision);
+            // Applying the state opens the panel, which writes the panel's own inputs. Those are
+            // this effect's output, not its input, so they are made outside the context.
+            untracked(() => this.applyErrorState(errors, mappedErrors, disabled, sourceRevision));
         });
 
         inject(ElementRef).nativeElement.ownerDocument.defaultView?.addEventListener(
@@ -320,17 +331,27 @@ export class ImsErrorPopoverDirective
         this.controlSubscription = null;
     }
 
-    /** Copies the current control errors and disabled state into reactive state. */
+    /**
+     * Copies the current control errors and disabled state into reactive state.
+     *
+     * A control event can arrive while some other reactive context is mid-flight — an effect or
+     * a computed elsewhere that touched the form — and a signal written from inside one is
+     * refused outright (NG0600). These writes are a side effect of the control, never a
+     * dependency of whatever happens to be running, so the context is left before writing. That
+     * also keeps a foreign computed from silently taking a dependency on this popover's state.
+     */
     private syncControl(control: AbstractControl | null): void {
-        this.resolvedControlDisabled.set(control?.disabled ?? false);
-        this.rawErrors.set(cloneErrors(control?.errors ?? null));
+        untracked(() => {
+            this.resolvedControlDisabled.set(control?.disabled ?? false);
+            this.rawErrors.set(cloneErrors(control?.errors ?? null));
+        });
     }
 
     /** Records source identity changes even when two sources expose equal errors. */
     private markSource(source: unknown): void {
         if (this.activeSourceIdentity === source) return;
         this.activeSourceIdentity = source;
-        this.sourceRevision.update((revision) => revision + 1);
+        untracked(() => this.sourceRevision.update((revision) => revision + 1));
     }
 
     /** Mirrors native disabled attributes that are outside Angular form state. */
@@ -338,7 +359,8 @@ export class ImsErrorPopoverDirective
         const host = this.popoverHost;
         const disabled = (host as HTMLInputElement).disabled || host.hasAttribute('disabled')
             || host.getAttribute('aria-disabled') === 'true';
-        this.nativeDisabled.set(disabled);
+        // A mutation record or a `pageshow` can land in any context the page happens to be in.
+        untracked(() => this.nativeDisabled.set(disabled));
     }
 
     /**
