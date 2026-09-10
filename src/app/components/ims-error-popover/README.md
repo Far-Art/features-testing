@@ -54,6 +54,30 @@ appears beneath a stationary pointer, the initial entry is ignored until the
 pointer leaves once. Angular disabled state, native disabled state, and the
 nearest `ims-readonly` provider all suppress the popover.
 
+## Whose error it is
+
+A form that opens with its required fields empty is not telling the user off for
+arriving, so an error on a control the user has done nothing to is not shown at
+all — not automatically, not on hover, not on focus, and the field is not marked
+`aria-invalid` either. The error becomes theirs, and the popover opens on the
+spot, as soon as the control is `touched` or `dirty`, or the form around it is
+submitted: the same three states Angular itself uses to decide when a field may
+look invalid. Tabbing into a required field and leaving it empty is enough.
+
+That also means a value written into a pristine control programmatically says
+nothing, which is what keeps a screen quiet while it patches its form from a
+server. Errors that are meant to be heard regardless need to say so:
+
+```ts
+control.setErrors({policyRejected: true});
+control.markAsTouched();
+```
+
+Errors supplied as a signal have no control behind them to have been visited and
+are shown as they arrive — a developer setting them is the deliberate act that
+the interaction state stands in for elsewhere. The same is true of
+`announceErrors`, which answers something the user has just done.
+
 ## Direction
 
 The panel is positioned and written in the direction of the element the field

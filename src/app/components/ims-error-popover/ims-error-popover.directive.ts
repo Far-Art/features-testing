@@ -16,7 +16,14 @@ import {
     signal,
     untracked
 } from '@angular/core';
-import {AbstractControl, NgControl, ValidationErrors} from '@angular/forms';
+import {
+    AbstractControl,
+    ControlEvent,
+    FormResetEvent,
+    FormSubmittedEvent,
+    NgControl,
+    ValidationErrors
+} from '@angular/forms';
 import {Subscription} from 'rxjs';
 import {ReadonlyDirective} from '../../shared/readonly.directive';
 import {ImsConnectedPopoverBase} from './ims-connected-popover-base';
@@ -98,6 +105,10 @@ export class ImsErrorPopoverDirective
     private readonly rawErrors = signal<ValidationErrors | null>(null);
     private readonly resolvedControl = signal<AbstractControl | null>(null);
     private readonly resolvedControlDisabled = signal(false);
+    /** Whether the user has been at the resolved control: `touched`, `dirty`, or both. */
+    private readonly resolvedControlInteracted = signal(false);
+    /** Whether the form the resolved control belongs to has been submitted. */
+    private readonly formSubmitted = signal(false);
     private readonly nativeDisabled = signal(false);
     private readonly sourceRevision = signal(0);
     /** Combines built-in, global, and instance message mappings. */
@@ -111,6 +122,25 @@ export class ImsErrorPopoverDirective
         || this.inheritedReadonly()
         || this.resolvedControlDisabled()
         || this.nativeDisabled()
+    );
+    /**
+     * Whether the current errors are the user's own, and so theirs to be told about.
+     *
+     * A form that opens with its required fields empty is not telling the user off for
+     * arriving: an error the user has done nothing to cause stays silent until they visit
+     * the field, change it, or submit the form it sits in — the same three states Angular
+     * itself uses to decide when a field may look invalid. A programmatic value written
+     * into a pristine control is the form's doing rather than the user's and says nothing
+     * either, which is what keeps a screen that patches its form after loading quiet.
+     *
+     * Errors pushed through a signal have no control behind them to have been visited, and
+     * are shown as they arrive: a developer setting them is the deliberate act that the
+     * interaction state stands in for elsewhere.
+     */
+    private readonly errorsOwned = computed(() =>
+        this.resolvedControl() === null
+        || this.resolvedControlInteracted()
+        || this.formSubmitted()
     );
     /** Converts the current raw errors into ordered display rows. */
     private readonly mappedErrors = computed(() =>
@@ -137,6 +167,7 @@ export class ImsErrorPopoverDirective
     private activeSourceIdentity: unknown = INITIAL_SOURCE;
     private lastSourceRevision = -1;
     private wasDisabled = false;
+    private wasOwned = false;
 
     /** Sets up source tracking, disabled-state observation, and lifecycle cleanup. */
     constructor() {
@@ -165,20 +196,14 @@ export class ImsErrorPopoverDirective
                     this.markSource(source);
                     this.resolvedControl.set(null);
                     this.resolvedControlDisabled.set(false);
+                    this.resolvedControlInteracted.set(false);
+                    this.formSubmitted.set(false);
                     this.rawErrors.set(signalErrors);
                 } else {
                     const control = source instanceof AbstractControl
                         ? source
                         : this.ngControl?.control ?? null;
-                    this.markSource(control);
-                    this.resolvedControl.set(control);
-                    this.syncControl(control);
-
-                    if (control) {
-                        this.controlSubscription = control.events.subscribe(
-                            () => this.syncControl(control)
-                        );
-                    }
+                    this.bindControl(control);
                 }
             });
 
@@ -192,24 +217,20 @@ export class ImsErrorPopoverDirective
             if (control === this.resolvedControl()) return;
 
             this.unbindControl();
-            this.markSource(control);
-            this.resolvedControl.set(control);
-            this.syncControl(control);
-            if (control) {
-                this.controlSubscription = control.events.subscribe(
-                    () => this.syncControl(control)
-                );
-            }
+            this.bindControl(control);
         });
 
         effect(() => {
             const errors = this.rawErrors();
             const mappedErrors = this.mappedErrors();
             const disabled = this.effectiveDisabled();
+            const owned = this.errorsOwned();
             const sourceRevision = this.sourceRevision();
             // Applying the state opens the panel, which writes the panel's own inputs. Those are
             // this effect's output, not its input, so they are made outside the context.
-            untracked(() => this.applyErrorState(errors, mappedErrors, disabled, sourceRevision));
+            untracked(
+                () => this.applyErrorState(errors, mappedErrors, disabled, owned, sourceRevision)
+            );
         });
 
         inject(ElementRef).nativeElement.ownerDocument.defaultView?.addEventListener(
@@ -332,6 +353,38 @@ export class ImsErrorPopoverDirective
     }
 
     /**
+     * Adopts an Angular control as the error source and follows it until it is replaced.
+     *
+     * The control's own events carry its errors, its disabled state, and the interaction state
+     * that says whether those errors are the user's yet. Submission is announced on the form
+     * itself rather than on the field within it, so the root is followed as well; a control
+     * standing on its own is its own root and simply never submits.
+     */
+    private bindControl(control: AbstractControl | null): void {
+        this.markSource(control);
+        untracked(() => {
+            this.resolvedControl.set(control);
+            this.formSubmitted.set(false);
+        });
+        this.syncControl(control);
+        if (!control) return;
+
+        const subscription = new Subscription();
+        subscription.add(control.events.subscribe(() => this.syncControl(control)));
+        subscription.add(control.root.events.subscribe((event) => this.syncFormSubmitted(event)));
+        this.controlSubscription = subscription;
+    }
+
+    /** Records submission of the surrounding form, which a reset takes back. */
+    private syncFormSubmitted(event: ControlEvent): void {
+        if (event instanceof FormSubmittedEvent) {
+            untracked(() => this.formSubmitted.set(true));
+        } else if (event instanceof FormResetEvent) {
+            untracked(() => this.formSubmitted.set(false));
+        }
+    }
+
+    /**
      * Copies the current control errors and disabled state into reactive state.
      *
      * A control event can arrive while some other reactive context is mid-flight — an effect or
@@ -343,6 +396,11 @@ export class ImsErrorPopoverDirective
     private syncControl(control: AbstractControl | null): void {
         untracked(() => {
             this.resolvedControlDisabled.set(control?.disabled ?? false);
+            // `touched` alone would keep a message waiting for a blur the user has not reached
+            // yet, while they are still typing the value that earned it.
+            this.resolvedControlInteracted.set(
+                control !== null && (control.touched || control.dirty)
+            );
             this.rawErrors.set(cloneErrors(control?.errors ?? null));
         });
     }
@@ -371,6 +429,7 @@ export class ImsErrorPopoverDirective
         errors: ValidationErrors | null,
         mappedErrors: readonly string[],
         disabled: boolean,
+        owned: boolean,
         sourceRevision: number
     ): void {
         const snapshot = snapshotErrors(errors);
@@ -378,13 +437,19 @@ export class ImsErrorPopoverDirective
         const mappedErrorsChanged = !stringArraysEqual(mappedErrors, this.lastMappedErrors);
         const sourceChanged = sourceRevision !== this.lastSourceRevision;
         const becameEnabled = this.wasDisabled && !disabled;
+        // Errors that were already standing when the user first arrived are new to them, and
+        // are shown then as any other change would be.
+        const becameOwned = owned && !this.wasOwned;
         this.lastErrorSnapshot = snapshot;
         this.lastMappedErrors = mappedErrors;
         this.lastSourceRevision = sourceRevision;
         this.wasDisabled = disabled;
-        this.syncAriaInvalid(snapshot.size > 0);
+        this.wasOwned = owned;
+        // A field the user has never been at is not announced as invalid either: a screen reader
+        // reaching an untouched empty field should hear what it wants, not that it is wrong.
+        this.syncAriaInvalid(owned && snapshot.size > 0);
 
-        if (disabled || mappedErrors.length === 0) {
+        if (disabled || !owned || mappedErrors.length === 0) {
             this.autoVisible = false;
             this.clearTimeoutWindow();
             // A disabled host says nothing at all; an announcement of its own may still stand.
@@ -393,7 +458,7 @@ export class ImsErrorPopoverDirective
             return;
         }
 
-        if (errorsChanged || mappedErrorsChanged || sourceChanged || becameEnabled) {
+        if (errorsChanged || mappedErrorsChanged || sourceChanged || becameEnabled || becameOwned) {
             this.restartTimeoutWindow();
             this.reconcileVisibility();
             return;
@@ -431,9 +496,11 @@ export class ImsErrorPopoverDirective
             : this.config.duration;
     }
 
-    /** Reconciles error, disabled, timer, hover, and focus state into visibility. */
+    /** Reconciles error, ownership, disabled, timer, hover, and focus state into visibility. */
     private reconcileVisibility(): void {
-        const errors = this.mappedErrors();
+        // Errors that are not the user's own are not theirs to go looking for either: pointing
+        // at an untouched field, or tabbing into one to start filling it in, says nothing.
+        const errors = this.errorsOwned() ? this.mappedErrors() : [];
         const sourceVisible = errors.length > 0
             && (this.autoVisible || this.hostHovered || this.hostFocused);
         // An open announcement is shown on its own terms, under the rows of the source.

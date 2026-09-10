@@ -62,7 +62,7 @@ export class ErrorPopoverDemo {
             invalid: 'demo@ims',
             valid: 'demo@ims.co.il'
         } as const;
-        this.emailControl.setValue(values[state]);
+        this.editControl(this.emailControl, values[state]);
     }
 
     /** Adds a custom payload-bearing error to the explicitly supplied control. */
@@ -70,6 +70,8 @@ export class ErrorPopoverDemo {
         this.policyControl.setErrors({
             policyPeriod: {period: 'ינואר–יוני 2026'}
         });
+        // A server refusing a value is addressed to the user, so the field is theirs from here.
+        this.policyControl.markAsTouched();
     }
 
     /** Clears the custom error from the explicitly supplied control. */
@@ -100,12 +102,12 @@ export class ErrorPopoverDemo {
 
     /** Makes the state example invalid so suppression modes can be tested. */
     makeStateControlInvalid(): void {
-        this.stateControl.setValue('');
+        this.editControl(this.stateControl, '');
     }
 
     /** Restores a valid value to the state example. */
     makeStateControlValid(): void {
-        this.stateControl.setValue('ערך תקין');
+        this.editControl(this.stateControl, 'ערך תקין');
     }
 
     /** Toggles the directive's explicit disabled input. */
@@ -129,22 +131,33 @@ export class ErrorPopoverDemo {
 
     /** Selects a day before the configured datepicker minimum. */
     showDayBeforeMinimum(): void {
-        this.dayControl.setValue(utcDate(2019, 12, 31));
+        this.editControl(this.dayControl, utcDate(2019, 12, 31));
     }
 
     /** Restores a valid day value. */
     restoreValidDay(): void {
-        this.dayControl.setValue(utcDate(2026, 6, 7));
+        this.editControl(this.dayControl, utcDate(2026, 6, 7));
     }
 
     /** Selects a month after the configured datepicker maximum. */
     showMonthAfterMaximum(): void {
-        this.monthControl.setValue(Date.UTC(2036, 0, 31));
+        this.editControl(this.monthControl, Date.UTC(2036, 0, 31));
     }
 
     /** Restores a valid month value. */
     restoreValidMonth(): void {
-        this.monthControl.setValue(Date.UTC(2026, 5, 30));
+        this.editControl(this.monthControl, Date.UTC(2026, 5, 30));
+    }
+
+    /**
+     * Writes a value the way the user would, which is what these buttons stand in for.
+     *
+     * A popover speaks about errors the user has a hand in, and a bare `setValue` is the form
+     * talking to itself: it leaves the control pristine, and a pristine control is left in peace.
+     */
+    private editControl<T>(control: FormControl<T>, value: T): void {
+        control.setValue(value);
+        control.markAsDirty();
     }
 }
 
