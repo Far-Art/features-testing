@@ -389,6 +389,31 @@ describe('ImsFocusMode', () => {
     expect(actionButton('Apply').disabled).toBe(false);
   });
 
+  it('colours the projected field by the buffered value', async () => {
+    await openNotes();
+    expect(stageField()!.classList).toContain('ims-focus-mode__field--valid');
+
+    // Under `minLength(6)`, while the control still holds a valid value.
+    typeInto(stageField()!, 'tiny');
+    await settle(fixture);
+    expect(host.notes.valid).toBe(true);
+    expect(stageField()!.classList).toContain('ims-focus-mode__field--invalid');
+    expect(stageField()!.classList).not.toContain('ims-focus-mode__field--valid');
+
+    typeInto(stageField()!, 'back to a valid value');
+    await settle(fixture);
+    expect(stageField()!.classList).toContain('ims-focus-mode__field--valid');
+    expect(stageField()!.classList).not.toContain('ims-focus-mode__field--invalid');
+
+    const field = stageField()!;
+    clickAction('Cancel');
+    await settle(fixture);
+
+    // Back in its form row the control's own status is the accurate one again.
+    expect(field.classList).not.toContain('ims-focus-mode__field--valid');
+    expect(field.classList).not.toContain('ims-focus-mode__field--invalid');
+  });
+
   it('leaves the control untouched when an invalid draft is applied anyway', async () => {
     await openNotes();
     typeInto(stageField()!, 'tiny');

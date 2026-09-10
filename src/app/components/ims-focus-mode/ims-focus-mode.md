@@ -162,6 +162,13 @@ Every validator counts, not only length. A field failing `required`, `minLength`
 `pattern` disables Apply just as an over-long one does — so the counter alone does not always
 explain why Apply is greyed out.
 
+**The field is coloured by the draft too.** Angular maintains `.ng-invalid` from the control's
+status, and while the dialog is open the control still holds the value the user started
+from — so left alone the border would report on a value that is no longer on screen and never
+move as the user types their way in or out of an error. Focus mode states the draft's validity
+on the field instead, using the field's own invalid treatment, and hands the colouring back to
+the control on close.
+
 ### What buffering costs
 
 A consumer `(input)` handler on the field does not fire while focus mode is open. It fires
