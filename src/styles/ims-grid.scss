@@ -6,6 +6,19 @@ ims-grid {
     min-width: 0;
     box-sizing: border-box;
 
+    // Every box between `ims-grid` and its cells is a subgrid, which is how the
+    // header's column tracks reach the body rows. A subgrid that establishes its
+    // own independent formatting context computes `subgrid` back to `grid` and
+    // re-derives its columns from its own content, so the body silently stops
+    // lining up with the header — no error, no warning, just drift. `contain:
+    // layout` and `contain: paint` each force that context on their own, and
+    // `content-visibility` implies both, so none of them belong on a row, a
+    // header, or any bridge wrapper below. Containment *above* `ims-grid` is
+    // safe; it is the boundary between a grid and its own rows that breaks.
+    //
+    // Row count is handled by virtualisation instead, which is why
+    // `.cdk-virtual-scroll-content-wrapper` is excluded from the rule below:
+    // CDK's wrapper stays out of the subgrid chain rather than bridging it.
     :where(*:not(ims-grid):not(.cdk-virtual-scroll-content-wrapper):has(> :is(ims-grid-row, ims-grid-header))) {
         display: grid;
         grid-column: 1 / -1;
