@@ -20,6 +20,7 @@ import {
   ValidationErrors,
   ValueChangeEvent,
 } from '@angular/forms';
+import { MatTooltip } from '@angular/material/tooltip';
 import { Subscription } from 'rxjs';
 import { IMS_BUTTON_EDIT_ICON, ImsButtonEdit, ImsButtonIcon } from '../ims-button';
 import { ImsIcon } from '../ims-icon';
@@ -60,7 +61,7 @@ import {
 @Component({
   selector: 'ims-focus-mode',
   standalone: true,
-  imports: [ImsButtonEdit, ImsButtonIcon, ImsFocusModeTrigger, ImsIcon],
+  imports: [ImsButtonEdit, ImsButtonIcon, ImsFocusModeTrigger, ImsIcon, MatTooltip],
   templateUrl: './ims-focus-mode.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

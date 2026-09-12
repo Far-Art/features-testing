@@ -11,12 +11,6 @@ import {
     signal,
     input
 } from '@angular/core';
-import {MatTooltip} from '@angular/material/tooltip';
-import {
-    ImsTooltipPosition,
-    ImsTooltipSeverity,
-    connectImsTooltip
-} from '../ims-tooltip';
 import {ReadonlyDirective} from '../../shared/readonly.directive';
 
 // How long the press ring stays on. The class carries a CSS animation that
@@ -25,40 +19,43 @@ import {ReadonlyDirective} from '../../shared/readonly.directive';
 // it and the fade is cut off mid-way.
 const ACTION_BLINK_MS = 450;
 
-/**
- * Reads the two forms of `ims-tooltip-when-disabled`.
- *
- * Bare — which reaches the transform as `''` — turns the behavior on and
- * nothing more. Any other text turns it on and becomes the message shown while
- * the button cannot respond. `false`, `null` and `undefined` turn it off.
- *
- * `'true'` and `'false'` are read as the booleans they spell, the way
- * `booleanAttribute` reads them everywhere else in this file. A transform
- * cannot tell a static attribute from a bound one, so those two words are the
- * only text this input will not carry as a message, however it is written.
- */
-function normalizeTooltipWhenDisabled(
-    value: string | boolean | null | undefined
-): string | boolean {
-    if (typeof value !== 'string') return booleanAttribute(value);
-
-    const message = value.trim();
-    if (message === '' || message === 'true') return true;
-    if (message === 'false') return false;
-    return message;
-}
-
 type ImsButtonType = 'button' | 'submit' | 'reset';
 type ImsButtonActivationKey = 'Enter' | ' ';
-export type ImsButtonVariation = 'default' | 'primary' | 'secondary' | 'outline' | 'danger';
+/**
+ * How loudly a button speaks: how much of its severity's hue it puts on
+ * screen, from a soft tint to a solid fill. Says nothing about what kind of
+ * action it is — that is {@link ImsButtonSeverity}.
+ */
+export type ImsButtonVariation = 'default' | 'primary' | 'secondary' | 'outline';
 
+/**
+ * Which voice a button speaks in.
+ *
+ * The same four values as `ImsSnackbarSeverity` and `ImsTooltipSeverity`, so
+ * one word means the same thing wherever the application reports state.
+ */
+export type ImsButtonSeverity = 'info' | 'success' | 'warning' | 'danger';
+
+// A button carries no tooltip of its own. A call site that wants one applies a
+// tooltip directive to the same element and imports it the way it imports any
+// other — `matTooltip`, or `imsTooltip` for the house severities.
+//
+// Deliberately not a host directive. Exposing MatTooltip's inputs that way
+// reads better at the call site, but the moment a template also has MatTooltip
+// in scope — which any template using `matTooltip` on something that is not a
+// button already does — `[matTooltip]` matches the host directive and the
+// template's own directive at once, and Angular refuses the element with
+// NG0309. Leaving the element bare means there is only ever one tooltip
+// directive on it: the one the template asked for.
 @Directive({
-    hostDirectives: [MatTooltip],
     host: {
         class: 'ims-button',
         '[class.ims-button--mounting]': 'justMounted()',
         '[class.ims-button--action-blink]': 'actionBlink()',
         '[class.ims-button--with-symbol]': 'normalizedIcon().length > 0',
+        '[class.ims-button--success]': 'severity() === "success"',
+        '[class.ims-button--warning]': 'severity() === "warning"',
+        '[class.ims-button--danger]': 'severity() === "danger"',
         '[style.--ims-button-symbol-size]': 'iconSize()',
         '[class.ims-button--cta]': 'callToAction()',
         '[class.ims-readonly]': 'readonlyMode()',
@@ -100,13 +97,6 @@ export abstract class ImsButtonBase {
         });
 
         this.destroyRef.onDestroy(() => this.clearActionBlinkTimer());
-
-        connectImsTooltip({
-            message: this.effectiveTooltip,
-            severity: this.tooltipSeverity,
-            position: this.tooltipPosition,
-            disabled: this.tooltipDisabled
-        });
     }
 
     /** Native disabled state. Readonly also disables interaction through `interactionDisabled`. */
@@ -151,6 +141,26 @@ export abstract class ImsButtonBase {
     });
 
     /**
+     * The tone this button is painted in — what kind of action it carries.
+     * Orthogonal to `variation`, which says how loudly it says it: every
+     * severity works at every variation, from a soft tint to a solid fill.
+     *
+     * `info` is the default and paints nothing of its own: it is the house
+     * blue every button has always been, so a call site that has no state to
+     * report writes nothing.
+     *
+     * A severity replaces the whole colour ramp the variation draws from, so
+     * the ripple, the press ring, the focus halo and the call-to-action pulse
+     * all follow it without a call site arranging anything.
+     *
+     * Ignored by the row-action presets (`ims-button-delete`,
+     * `ims-button-edit`). Those pin their own tones for the same reason they
+     * pin their glyph — a delete looks like a delete on every screen — so the
+     * input is accepted there and does nothing.
+     */
+    readonly severity = input<ImsButtonSeverity>('info', {alias: 'ims-button-severity'});
+
+    /**
      * Marks this button as the way forward, adding a slow halo that pulses
      * outward until the button is engaged. Orthogonal to `variation`, which
      * says what kind of action this is — any variation can be the one being
@@ -160,78 +170,6 @@ export abstract class ImsButtonBase {
      * a second one turns both into noise.
      */
     readonly callToAction = input(false, {alias: 'call-to-action', transform: booleanAttribute});
-
-    /**
-     * Explanation shown on hover and on keyboard focus. Empty means none.
-     *
-     * Worth its place on an icon-only button, where the glyph is the whole
-     * label, and on a button that is unavailable — see
-     * {@link tooltipWhenDisabled} for what that second case costs.
-     */
-    readonly tooltip = input<string | null>(null, {alias: 'ims-tooltip'});
-
-    /** Tone the tooltip is painted in. */
-    readonly tooltipSeverity = input<ImsTooltipSeverity>(
-        'info',
-        {alias: 'ims-tooltip-severity'}
-    );
-
-    /** Preferred side. Unset defers to the configured application default. */
-    readonly tooltipPosition = input<ImsTooltipPosition | null>(
-        null,
-        {alias: 'ims-tooltip-position'}
-    );
-
-    /** Suppresses the tooltip while keeping its message bound. */
-    readonly tooltipDisabled = input(false, {
-        alias: 'ims-tooltip-disabled',
-        transform: booleanAttribute
-    });
-
-    /**
-     * Keeps a disabled button focusable so its tooltip can say why the action
-     * is unavailable — which is exactly when a user most wants to read it.
-     *
-     * A natively disabled button is not in the tab order, so its tooltip can
-     * only ever be reached with a pointer: keyboard and screen-reader users
-     * get nothing. Whether even the pointer works is left to the browser —
-     * current Chrome dispatches `mouseenter` to a disabled control, other
-     * engines have historically suppressed it.
-     *
-     * Nothing about the action changes: `handleClick` already swallows a
-     * click while `interactionDisabled()` — before any listener or default
-     * action sees it — `aria-disabled` already says the control is
-     * unavailable, and the grayed-out look comes from `.ims-button--disabled`,
-     * which ims-buttons.scss pairs with `:disabled` in every rule naming
-     * either.
-     *
-     * What does change is that the button stays in the tab order. That is the
-     * ARIA pattern for an unavailable control carrying an explanation, but it is
-     * a real change to tab order — so it is opt-in, per button.
-     *
-     * Written bare it only turns the behavior on, and the button keeps saying
-     * whatever `ims-tooltip` says. Give it text and that text replaces the
-     * message for as long as the button cannot respond:
-     *
-     * ```html
-     * <button
-     *     ims-button
-     *     ims-tooltip="Sends the policy to the insured"
-     *     ims-tooltip-when-disabled="The insured has no address on file"
-     *     [disabled]="!policy.hasAddress"
-     * >Send</button>
-     * ```
-     *
-     * Leaving `ims-tooltip` off entirely is the other half of that: a button
-     * that says nothing until it is unavailable, and then says why.
-     */
-    readonly tooltipWhenDisabled = input<string | boolean, string | boolean | null | undefined>(
-        false,
-        {
-            alias: 'ims-tooltip-when-disabled',
-            transform: normalizeTooltipWhenDisabled
-        }
-    );
 
     protected readonly normalizedIcon = computed(() => this.resolveIcon().trim());
 
@@ -259,35 +197,6 @@ export abstract class ImsButtonBase {
 
     /** True when the host button must not run user actions. */
     readonly interactionDisabled = computed(() => this.disabledInput() || this.readonlyMode());
-
-    /**
-     * Whether {@link tooltipWhenDisabled} is on, in either of its two forms.
-     */
-    private readonly tooltipSurvivesDisabled = computed(
-        () => this.tooltipWhenDisabled() !== false
-    );
-
-    /**
-     * The native `disabled` attribute, which is not the same question as
-     * {@link interactionDisabled} once a tooltip has to survive the disabling.
-     */
-    protected readonly nativeDisabled = computed(
-        () => this.interactionDisabled() && !this.tooltipSurvivesDisabled()
-    );
-
-    /**
-     * The message the tooltip actually shows.
-     *
-     * Keyed to {@link interactionDisabled} rather than the `disabled` input,
-     * so a readonly button explains itself the same way a disabled one does —
-     * from the reader's side the two are one state, "this will not respond".
-     */
-    private readonly effectiveTooltip = computed(() => {
-        const whenDisabled = this.tooltipWhenDisabled();
-        return typeof whenDisabled === 'string' && this.interactionDisabled()
-            ? whenDisabled
-            : this.tooltip();
-    });
 
     protected handleClick(event: MouseEvent): void {
         if (this.interactionDisabled()) {
@@ -367,8 +276,7 @@ export abstract class ImsButtonBase {
         '[class.ims-button--dark]': 'variation() === "primary"',
         '[class.ims-button--white]': 'variation() === "secondary"',
         '[class.ims-button--outline]': 'variation() === "outline"',
-        '[class.ims-button--danger]': 'variation() === "danger"',
-        '[disabled]': 'nativeDisabled()'
+        '[disabled]': 'interactionDisabled()'
     }
 })
 export class ImsButton extends ImsButtonBase {
@@ -381,7 +289,7 @@ export class ImsButton extends ImsButtonBase {
     standalone: true,
     host: {
         class: 'ims-button--default ims-button-icon',
-        '[disabled]': 'nativeDisabled()'
+        '[disabled]': 'interactionDisabled()'
     }
 })
 export class ImsButtonIcon extends ImsButtonBase {}

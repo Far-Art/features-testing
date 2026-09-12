@@ -18,12 +18,10 @@ export interface ImsTooltipSource {
  * Mirrors a host's tooltip signals onto the `MatTooltip` applied to the same
  * element. Call it from a constructor, alongside `hostDirectives: [MatTooltip]`.
  *
- * This exists so a host can own the inputs itself instead of re-exposing
- * {@link ImsTooltip}'s through `hostDirectives`. `ImsButtonBase` needs that:
- * its host directives reach the four button selectors only by inheritance, and
- * an alias renamed across that hop is a step too far for the editor tooling
- * even though the compiler accepts it — a plain input, declared on the base
- * like `icon-size` and `call-to-action`, resolves everywhere.
+ * This exists so a host can own the inputs itself — under its own spellings,
+ * with its own types — instead of re-exposing Material's through
+ * `hostDirectives`. {@link ImsTooltip} is the only caller today; the button
+ * family applies no tooltip at all and leaves the choice to the template.
  */
 export function connectImsTooltip(source: ImsTooltipSource): void {
     const matTooltip = inject(MatTooltip);
@@ -66,12 +64,9 @@ export function connectImsTooltip(source: ImsTooltipSource): void {
  * <span imsTooltip="Past its renewal date" imsTooltipSeverity="danger">…</span>
  * ```
  *
- * The `ims-button` family carries its own tooltip rather than importing this
- * directive — see `ImsButtonBase`, which declares the same four inputs under
- * the button family's dash-cased spelling (`ims-tooltip`,
- * `ims-tooltip-severity`, …) and shares the wiring through
- * {@link connectImsTooltip}. Do not add `imsTooltip` to a button: it would put
- * a second `MatTooltip` on an element that already has one.
+ * Works on an `ims-button` too. The button family carries no tooltip of its
+ * own — see `ImsButtonBase` — so either this directive or `MatTooltip` can be
+ * applied to one, whichever the template imports.
  *
  * An empty or whitespace-only message is inert — `MatTooltip` refuses to open
  * without text — so a bound message that has not arrived yet costs nothing.

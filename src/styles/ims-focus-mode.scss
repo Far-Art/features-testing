@@ -26,6 +26,63 @@
     --ims-input-action-size: var(--field-height);
 
     box-sizing: content-box;
+
+    // The two declarations that make the trigger sit beside the field rather
+    // than under it: something to pin to, and a track to be pinned into.
+    // `.ims-input-action` in ims-input.scss already says both, and where that
+    // file is loaded these simply agree with it. They are restated because
+    // focus mode is the one consumer that fails *silently* without them — the
+    // trigger falls back into normal flow and wraps onto its own line beneath
+    // the field, at whatever width the field happens to leave.
+    //
+    // The size is read from the shared custom property, so a change to the
+    // action size still reaches here. Only the gap carries a literal fallback:
+    // it is declared on `.ims-input-action` itself, so it goes when that rule
+    // does.
+    position: relative;
+    padding-inline-end: calc(
+      var(--ims-input-action-size) + var(--ims-input-action-gap, 0.175rem)
+    );
+}
+
+/**
+ * The host fills its column, less the track it just reserved.
+ *
+ * Also `.ims-input-action`'s, and repeated for the same reason — but held at
+ * one class of specificity by `:where()`, because a caller may size the host
+ * with a shared width class (`.field-xxl` and its siblings, declared after
+ * this file). Those have to keep winning; written as a second class here, this
+ * would outrank them and silently stretch every fixed-width field to its
+ * column.
+ */
+.ims-focus-mode:where(.ims-input-action) {
+    inline-size: 100%;
+    max-inline-size: max(
+      0px,
+      calc(100% - var(--ims-input-action-size) - var(--ims-input-action-gap, 0.175rem))
+    );
+    min-inline-size: 0;
+}
+
+/**
+ * Everything projected fills the width the trigger's track left it.
+ *
+ * `.ims-input-action__field` already says this, but it only ever reaches an
+ * `input` or a `textarea`: ImsFocusMode resolves the field in TypeScript and
+ * applies the class itself, and that search finds nothing when a caller
+ * projects a wrapped control rather than a bare one. The element then
+ * shrink-wraps to its own content beside a full-width host, which is the one
+ * case where the field and its trigger visibly stop belonging to each other.
+ * Saying it in CSS covers whatever arrives.
+ *
+ * The trigger is the one child excluded — it is taken out of flow below. The
+ * whole selector is held at one class by `:where()`, so a width class written
+ * on the field itself still wins, exactly as it does over
+ * `.ims-input-action__field` today.
+ */
+.ims-focus-mode > :where(:not(.ims-focus-mode__trigger)) {
+    inline-size: 100%;
+    min-inline-size: 0;
 }
 
 /**
@@ -45,15 +102,28 @@
 }
 
 /**
- * Pin the action to the top of the field.
+ * The trigger sits in that reserved track, out of flow, so it stays beside the
+ * field however tall the field grows and can never wrap beneath it.
  *
- * `.ims-input-action` centres it with `inset-block: 0` plus `margin-block:
- * auto`, which is right for a single-line field and wrong for a textarea: the
- * taller the field, the further the button drifts from the line the user is
- * actually looking at.
+ * Pinned to the top rather than centred. `.ims-input-action` centres its
+ * button with `inset-block: 0` plus `margin-block: auto`, which is right for a
+ * single-line field and wrong for a textarea: the taller the field, the
+ * further the button drifts from the line the user is actually looking at.
+ *
+ * Keyed to `.ims-focus-mode__trigger`, which the template always writes,
+ * rather than to `.ims-input-action__button`, which it only adds when the
+ * field is this host's own. The `.ims-input-action` on the host is what
+ * distinguishes the two: without it there is no field here at all — the host
+ * is nothing but the trigger, and taking it out of flow would collapse the
+ * host to nothing.
  */
-.ims-focus-mode > .ims-input-action__button {
+.ims-focus-mode.ims-input-action > .ims-focus-mode__trigger {
+    position: absolute;
     inset-block: 0 auto;
+    inset-inline-end: 0;
+    box-sizing: border-box;
+    inline-size: var(--ims-input-action-size);
+    block-size: var(--ims-input-action-size);
     margin-block: 0;
 }
 

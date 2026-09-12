@@ -8,7 +8,7 @@
     ims-focus-mode-trigger
     [disabled]="open()"
     [attr.aria-label]="triggerLabel()"
-    [ims-tooltip]="triggerTooltip()"
+    [matTooltip]="triggerTooltip()"
     (click)="openFocusMode()"
   ></button>
 } @else {
@@ -19,7 +19,7 @@
     ims-focus-mode-trigger
     [disabled]="open()"
     [attr.aria-label]="triggerLabel()"
-    [ims-tooltip]="triggerTooltip()"
+    [matTooltip]="triggerTooltip()"
     (click)="openFocusMode()"
   >
     <ims-icon>zoom_in</ims-icon>

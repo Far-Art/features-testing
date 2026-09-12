@@ -96,7 +96,14 @@ export const appConfig: ApplicationConfig = {
         }),
         provideImsTooltipConfig({
             showDelay: 300,
-            hideDelay: 100
+            hideDelay: 100,
+            // The house look for every tooltip that does not name its own
+            // classes — in practice a plain `matTooltip`, which is what a
+            // button now takes. A call site that wants another tone spells the
+            // pair out (`matTooltipClass="ims-tooltip ims-tooltip--danger"`),
+            // and `imsTooltip` writes its own pair from `imsTooltipSeverity`,
+            // so neither is affected by what is set here.
+            tooltipClass: 'ims-tooltip ims-tooltip--info'
         }),
         {
             provide: LOCALE_ID,

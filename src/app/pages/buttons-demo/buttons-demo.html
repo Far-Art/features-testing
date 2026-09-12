@@ -14,7 +14,6 @@
         <button ims-button ims-button-variation="primary">Primary</button>
         <button ims-button ims-button-variation="secondary">Secondary</button>
         <button ims-button ims-button-variation="outline">Outline</button>
-        <button ims-button ims-button-variation="danger">Danger</button>
         <button ims-button ims-button-variation="primary">
             <ims-icon class="ims-button__symbol">add</ims-icon>
             Add
@@ -26,7 +25,6 @@
         <button ims-button ims-button-variation="primary" disabled>Disabled</button>
         <button ims-button ims-button-variation="secondary" disabled>Disabled</button>
         <button ims-button ims-button-variation="outline" disabled>Disabled</button>
-        <button ims-button ims-button-variation="danger" disabled>Disabled</button>
         <button ims-button-icon disabled aria-label="הוספה מושבתת">
             <ims-icon>add</ims-icon>
         </button>
@@ -38,11 +36,126 @@
         <button ims-button ims-button-variation="primary" call-to-action>
             המשך לתשלום
         </button>
-        <button ims-button ims-button-variation="danger" call-to-action>Danger</button>
         <button ims-button-icon call-to-action aria-label="הוספה">
             <ims-icon>add</ims-icon>
         </button>
         <button ims-button ims-button-variation="primary" call-to-action disabled>Disabled</button>
+    </div>
+</section>
+
+<section class="button-demo button-demo--stacked">
+    <div>
+        <h2>חומרות</h2>
+        <p>
+            שני צירים נפרדים: <code>ims-button-variation</code> קובע כמה חזק
+            הכפתור מדבר, מגוון רך ועד מילוי מלא, ו-<code>ims-button-severity</code> קובע
+            באיזה קול. כל חומרה עובדת עם כל וריאציה, ואלו אותן ארבע החומרות של
+            הסנאקבר, הדיאלוג וההסבר בריחוף — אותה מילה אומרת אותו דבר בכל מקום.
+            <code>info</code> היא ברירת המחדל ואינה נכתבת.
+        </p>
+    </div>
+
+    <div class="severity-matrix" role="group" aria-label="IMS button severity matrix">
+        <span></span>
+        <span class="button-demo__group-label">default</span>
+        <span class="button-demo__group-label">primary</span>
+        <span class="button-demo__group-label">secondary</span>
+        <span class="button-demo__group-label">outline</span>
+        <span class="button-demo__group-label">icon</span>
+
+        <span class="button-demo__group-label">info</span>
+        <button ims-button>מידע</button>
+        <button ims-button ims-button-variation="primary">מידע</button>
+        <button ims-button ims-button-variation="secondary">מידע</button>
+        <button ims-button ims-button-variation="outline">מידע</button>
+        <button ims-button-icon aria-label="מידע">
+            <ims-icon>info</ims-icon>
+        </button>
+
+        <span class="button-demo__group-label">success</span>
+        <button ims-button ims-button-severity="success">הצלחה</button>
+        <button ims-button ims-button-variation="primary" ims-button-severity="success">
+            הצלחה
+        </button>
+        <button ims-button ims-button-variation="secondary" ims-button-severity="success">
+            הצלחה
+        </button>
+        <button ims-button ims-button-variation="outline" ims-button-severity="success">
+            הצלחה
+        </button>
+        <button ims-button-icon ims-button-severity="success" aria-label="אישור">
+            <ims-icon>check</ims-icon>
+        </button>
+
+        <span class="button-demo__group-label">warning</span>
+        <button ims-button ims-button-severity="warning">אזהרה</button>
+        <button ims-button ims-button-variation="primary" ims-button-severity="warning">
+            אזהרה
+        </button>
+        <button ims-button ims-button-variation="secondary" ims-button-severity="warning">
+            אזהרה
+        </button>
+        <button ims-button ims-button-variation="outline" ims-button-severity="warning">
+            אזהרה
+        </button>
+        <button ims-button-icon ims-button-severity="warning" aria-label="אזהרה">
+            <ims-icon>warning</ims-icon>
+        </button>
+
+        <span class="button-demo__group-label">danger</span>
+        <button ims-button ims-button-severity="danger">סכנה</button>
+        <button ims-button ims-button-variation="primary" ims-button-severity="danger">
+            סכנה
+        </button>
+        <button ims-button ims-button-variation="secondary" ims-button-severity="danger">
+            סכנה
+        </button>
+        <button ims-button ims-button-variation="outline" ims-button-severity="danger">
+            סכנה
+        </button>
+        <button ims-button-icon ims-button-severity="danger" aria-label="ביטול">
+            <ims-icon>cancel</ims-icon>
+        </button>
+    </div>
+
+    <div class="button-demo__group">
+        <span class="button-demo__group-label">הרכבה</span>
+        <div class="button-demo__ims-buttons">
+            <!-- The halo, the press ring and the ripple all read the ring
+                 colour, so they follow the severity with nothing said here. -->
+            <button
+                ims-button
+                ims-button-variation="primary"
+                ims-button-severity="warning"
+                call-to-action
+            >
+                המשך בכל זאת
+            </button>
+            <button
+                ims-button
+                ims-button-variation="outline"
+                ims-button-severity="danger"
+                disabled
+            >
+                מושבת
+            </button>
+            <button ims-button ims-button-severity="success" [ims-readonly]="true">
+                לקריאה בלבד
+            </button>
+            <button
+                ims-button
+                ims-button-variation="primary"
+                ims-button-severity="danger"
+                imsTooltip="הפעולה אינה הפיכה"
+                imsTooltipSeverity="danger"
+            >
+                מחק פוליסה
+            </button>
+            <!-- Presets pin their own tones the way they pin their glyph, so
+                 they take the input and ignore it. -->
+            <button ims-button-delete ims-button-severity="warning"></button>
+            <button ims-button-edit ims-button-severity="danger"></button>
+        </div>
     </div>
 </section>
 
@@ -64,6 +177,11 @@
         <button ims-button-icon aria-label="חיפוש קטן">
             <ims-icon size="12">search</ims-icon>
         </button>
+
+      <button>
+        some text
+        <ims-icon>cancel</ims-icon>
+      </button>
     </div>
 </section>
 
@@ -71,77 +189,119 @@
     <div>
         <h2>הסברים בריחוף</h2>
         <p>
-            הסבר קצר שנפתח בריחוף ובמיקוד מקלדת, בארבע רמות חומרה. כפתור מושבת אינו
-            נכנס לסדר הטאב, ולכן ההסבר שלו מגיע רק בעכבר — עם
-            ims-tooltip-when-disabled הוא נשאר נגיש גם במקלדת. שני כפתורי השליחה
-            נושאים סימון זהה, וההסבר מתחלף כשהכפתור מושבת.
+            הסבר קצר שנפתח בריחוף ובמיקוד מקלדת, בארבע רמות חומרה. הכפתור עצמו
+            אינו נושא הסבר, ולכן אפשר להצמיד אליו כל אחת משתי ההנחיות:
+            matTooltip של Material, שאצלו הגוון הוא זוג מחלקות ב-matTooltipClass,
+            או imsTooltip, שאצלו הגוון הוא קלט בשם imsTooltipSeverity. שתי
+            השורות הראשונות מציגות את אותן ארבע הרמות בשתי ההנחיות.
         </p>
     </div>
 
-    <div class="button-demo__ims-buttons" aria-label="IMS button tooltips">
-        <button ims-button ims-tooltip="נשמר כטיוטה בלבד">שמירה</button>
-        <button
-            ims-button
-            ims-button-variation="primary"
-            ims-tooltip="הפוליסה תישלח למבוטח"
-            ims-tooltip-severity="success"
-        >
-            אישור
-        </button>
-        <button
-            ims-button
-            ims-button-variation="outline"
-            ims-tooltip="חלק מהשדות עדיין ריקים"
-            ims-tooltip-severity="warning"
-        >
-            בדיקה
-        </button>
-        <button
-            ims-button
-            ims-button-variation="danger"
-            ims-tooltip="הפעולה אינה הפיכה"
-            ims-tooltip-severity="danger"
-        >
-            מחיקה
-        </button>
-        <button
-            ims-button
-            ims-tooltip="שולח את הפוליסה למבוטח"
-            ims-tooltip-when-disabled="חסרה כתובת למשלוח"
-        >
-            שליחה
-        </button>
-        <button
-            ims-button
-            ims-tooltip="שולח את הפוליסה למבוטח"
-            ims-tooltip-when-disabled="חסרה כתובת למשלוח"
-            disabled
-        >
-            שליחה
-        </button>
-        <button
-            ims-button-icon
-            aria-label="חיפוש"
-            ims-tooltip="חיפוש בכל התיקים"
-            ims-tooltip-position="above"
-        >
-            <ims-icon>search</ims-icon>
-        </button>
-        <button
-            ims-button-delete
-            ims-tooltip="לא ניתן למחוק פוליסה נעולה"
-            ims-tooltip-severity="danger"
-            ims-tooltip-when-disabled
-            disabled
-        ></button>
-        <button
-            ims-button-edit
-            ims-tooltip="הסבר שלא יגיע במקלדת, כי הכפתור מושבת בלי ההצטרפות"
-            disabled
-        ></button>
-        <span class="tooltip-demo__note" imsTooltip="גם אלמנט רגיל יכול לקבל הסבר">
-            טקסט עם הסבר
-        </span>
+    <div class="button-demo__group">
+        <span class="button-demo__group-label">matTooltipClass</span>
+        <div class="button-demo__ims-buttons">
+            <button
+                ims-button
+                matTooltip="נשמר כטיוטה בלבד"
+                matTooltipClass="ims-tooltip ims-tooltip--info"
+            >
+                מידע
+            </button>
+            <button
+                ims-button
+                ims-button-variation="primary"
+                matTooltip="הפוליסה תישלח למבוטח"
+                matTooltipClass="ims-tooltip ims-tooltip--success"
+            >
+                הצלחה
+            </button>
+            <button
+                ims-button
+                ims-button-variation="outline"
+                matTooltip="חלק מהשדות עדיין ריקים"
+                matTooltipClass="ims-tooltip ims-tooltip--warning"
+            >
+                אזהרה
+            </button>
+            <button
+                ims-button
+                ims-button-variation="primary"
+                ims-button-severity="danger"
+                matTooltip="הפעולה אינה הפיכה"
+                matTooltipClass="ims-tooltip ims-tooltip--danger"
+            >
+                סכנה
+            </button>
+        </div>
+    </div>
+
+    <div class="button-demo__group">
+        <span class="button-demo__group-label">imsTooltipSeverity</span>
+        <div class="button-demo__ims-buttons">
+            <button
+                ims-button
+                imsTooltip="נשמר כטיוטה בלבד"
+                imsTooltipSeverity="info"
+            >
+                מידע
+            </button>
+            <button
+                ims-button
+                ims-button-variation="primary"
+                imsTooltip="הפוליסה תישלח למבוטח"
+                imsTooltipSeverity="success"
+            >
+                הצלחה
+            </button>
+            <button
+                ims-button
+                ims-button-variation="outline"
+                imsTooltip="חלק מהשדות עדיין ריקים"
+                imsTooltipSeverity="warning"
+            >
+                אזהרה
+            </button>
+            <button
+                ims-button
+                ims-button-variation="primary"
+                ims-button-severity="danger"
+                imsTooltip="הפעולה אינה הפיכה"
+                imsTooltipSeverity="danger"
+            >
+                סכנה
+            </button>
+        </div>
+    </div>
+
+    <div class="button-demo__group">
+        <span class="button-demo__group-label">התנהגות</span>
+        <div class="button-demo__ims-buttons">
+            <!-- Names no class, so this one takes the house pair from provideImsTooltipConfig. -->
+            <button ims-button matTooltip="ברירת המחדל מגיעה מהגדרות היישום">
+                ברירת מחדל
+            </button>
+            <button ims-button matTooltip="שולח את הפוליסה למבוטח" disabled>
+                מושבת
+            </button>
+            <button
+                ims-button-icon
+                aria-label="חיפוש"
+                matTooltip="חיפוש בכל התיקים"
+                matTooltipPosition="above"
+            >
+                <ims-icon>search</ims-icon>
+            </button>
+            <button
+                ims-button-delete
+                matTooltip="לא ניתן למחוק פוליסה נעולה"
+                matTooltipClass="ims-tooltip ims-tooltip--danger"
+                disabled
+            ></button>
+            <button ims-button-edit imsTooltip="עריכה במסך מלא" imsTooltipSeverity="info"></button>
+            <span class="tooltip-demo__note" imsTooltip="גם אלמנט רגיל יכול לקבל הסבר">
+                טקסט עם הסבר
+            </span>
+        </div>
     </div>
 </section>
 

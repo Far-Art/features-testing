@@ -44,8 +44,10 @@ export const IMS_TOOLTIP_DEFAULT_OPTIONS: MatTooltipDefaultOptions = {
  *
  * There is no IMS-owned token behind this: the resolved options are stored in
  * Material's `MAT_TOOLTIP_DEFAULT_OPTIONS`, which is what `ImsTooltip` reads
- * through for everything it does not write itself. `tooltipClass` is the one
- * option with no effect here — `ims-tooltip-severity` owns that class list.
+ * through for everything it does not write itself. `tooltipClass` is the odd
+ * one out: `ImsTooltip` overwrites it from `imsTooltipSeverity`, so it only
+ * reaches tooltips that name no classes of their own — a plain `matTooltip`
+ * with no `matTooltipClass`, which is where those get the house look from.
  *
  * @param config Options merged over {@link IMS_TOOLTIP_DEFAULT_OPTIONS}.
  * @returns An Angular provider for the resolved tooltip options.

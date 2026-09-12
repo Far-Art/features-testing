@@ -24,20 +24,49 @@
 
 // These are placeholders, not a real "unstyled default" look — every
 // consumer directive always pairs this class with a
-// --default/--dark/--white/--outline/--danger modifier that sets
+// --default/--dark/--white/--outline modifier that sets
 // its own full set below. Keeping this neutral (instead of duplicating
 // one variant's colors here) avoids a color that only ever exists for
 // a single frame before the modifier class lands, which was visible
 // as an unwanted flash-then-transition on mount.
 .ims-button {
+  // Severity ramp. The four variation blocks below name these slots and never
+  // a palette token, so a severity is one block that swaps the ramp — see
+  // .ims-button--success and its two neighbours. Unset severity is `info`,
+  // whose ramp is the primary one, so a button that names no severity is
+  // painted from exactly the tokens it always was.
+  //
+  // The numeric slots carry their own ramp step, which is what lets a severity
+  // that needs a different weighting say so in one place (warning does: it is
+  // the one hue here that is too light to sit under white text at 600).
+  // `solid*` are separate slots rather than numbers because the solid variant
+  // never tracked the ramp evenly — see --dark's hover below.
+  --ims-button-ramp-50: var(--ims-color-primary-50);
+  --ims-button-ramp-100: var(--ims-color-primary-100);
+  --ims-button-ramp-150: var(--ims-color-primary-150);
+  --ims-button-ramp-200: var(--ims-color-primary-200);
+  --ims-button-ramp-450: var(--ims-color-primary-450);
+  --ims-button-ramp-500: var(--ims-color-primary-500);
+  --ims-button-ramp-600: var(--ims-color-primary-600);
+  --ims-button-ramp-700: var(--ims-color-primary-700);
+  --ims-button-ramp-800: var(--ims-color-primary-800);
+  --ims-button-ramp-900: var(--ims-color-primary-900);
+  --ims-button-ramp-solid: var(--ims-color-brand);
+  --ims-button-ramp-solid-hover: var(--ims-color-primary-650);
+  --ims-button-ramp-solid-active: var(--ims-color-primary-850);
+  --ims-button-ramp-solid-ring: var(--ims-color-primary-600);
+
   --ims-button-background: transparent;
   --ims-button-background-hover: transparent;
   --ims-button-background-active: transparent;
   --ims-button-color: inherit;
   --ims-button-color-active: inherit;
-  --ims-button-focus-ring: var(--ims-color-focus-ring);
+  // Tracks the ramp rather than --ims-color-focus-ring, so the halo around a
+  // focused button is that button's own hue. The neutral value is the same
+  // colour the shared token resolves to.
+  --ims-button-focus-ring: var(--ims-button-ramp-200);
   --ims-button-radius: 4px;
-  --ims-button-ring-color: var(--ims-color-primary-600);
+  --ims-button-ring-color: var(--ims-button-ramp-solid-ring);
   --ims-button-border: transparent;
   --ims-button-fill-color: var(--ims-button-background-hover);
   --ims-button-fill-radius: 0%;
@@ -196,55 +225,131 @@
   box-shadow: 0 0 0 3px var(--ims-button-focus-ring);
 }
 
+// The four variations. Each says how loudly the button speaks — how much of
+// its hue it puts on screen — and none of them names a hue: every colour below
+// is a ramp slot, and the severity blocks that follow decide which ramp those
+// slots point at. That split is the whole design here. Four variations times
+// four severities is sixteen looks out of seven blocks, and a variation added
+// later works in all four severities without touching them.
 .ims-button--default {
-  --ims-button-background: var(--ims-color-primary-50);
-  --ims-button-background-hover: var(--ims-color-primary-100);
-  --ims-button-background-active: var(--ims-color-primary-150);
-  --ims-button-color: var(--ims-color-primary-800);
-  --ims-button-color-active: var(--ims-color-primary-900);
-  --ims-button-ring-color: var(--ims-color-primary-450);
+  --ims-button-background: var(--ims-button-ramp-50);
+  --ims-button-background-hover: var(--ims-button-ramp-100);
+  --ims-button-background-active: var(--ims-button-ramp-150);
+  --ims-button-color: var(--ims-button-ramp-800);
+  --ims-button-color-active: var(--ims-button-ramp-900);
+  --ims-button-ring-color: var(--ims-button-ramp-450);
 }
 
 .ims-button--dark {
-  --ims-button-background: var(--ims-color-brand);
+  --ims-button-background: var(--ims-button-ramp-solid);
   // One step lighter than the rest of the ramp's hover tones: brand navy is the
   // darkest surface here, so the ripple needs the extra lift to read at all.
-  --ims-button-background-hover: var(--ims-color-primary-650);
-  --ims-button-background-active: var(--ims-color-primary-850);
+  // That correction is per-ramp rather than universal, which is why the solid
+  // tones are their own slots instead of numbers.
+  --ims-button-background-hover: var(--ims-button-ramp-solid-hover);
+  --ims-button-background-active: var(--ims-button-ramp-solid-active);
   --ims-button-color: var(--ims-color-on-interactive);
   --ims-button-color-active: var(--ims-color-on-interactive);
-  --ims-button-ring-color: var(--ims-color-primary-600);
+  --ims-button-ring-color: var(--ims-button-ramp-solid-ring);
 }
 
 .ims-button--white {
   --ims-button-background: var(--ims-color-surface-input);
-  --ims-button-background-hover: var(--ims-color-primary-50);
-  --ims-button-background-active: var(--ims-color-primary-100);
-  --ims-button-color: var(--ims-color-primary-800);
-  --ims-button-color-active: var(--ims-color-primary-900);
-  --ims-button-ring-color: var(--ims-color-primary-450);
+  --ims-button-background-hover: var(--ims-button-ramp-50);
+  --ims-button-background-active: var(--ims-button-ramp-100);
+  --ims-button-color: var(--ims-button-ramp-800);
+  --ims-button-color-active: var(--ims-button-ramp-900);
+  --ims-button-ring-color: var(--ims-button-ramp-450);
 }
 
 .ims-button--outline {
   --ims-button-background: transparent;
-  --ims-button-background-hover: var(--ims-color-primary-50);
-  --ims-button-background-active: var(--ims-color-primary-100);
-  --ims-button-color: var(--ims-color-interactive-strong);
-  --ims-button-color-active: var(--ims-color-interactive-alt-strong);
-  // Two steps down the ramp from the resting border, not the same token:
+  --ims-button-background-hover: var(--ims-button-ramp-50);
+  --ims-button-background-active: var(--ims-button-ramp-100);
+  --ims-button-color: var(--ims-button-ramp-600);
+  --ims-button-color-active: var(--ims-button-ramp-700);
+  // Two steps down the ramp from the resting border, not the same slot:
   // this is the only variation with a border you can already see, so the
   // press has to read as that line darkening.
-  --ims-button-ring-color: var(--ims-color-interactive-alt-strong);
-  --ims-button-border: var(--ims-color-interactive);
+  --ims-button-ring-color: var(--ims-button-ramp-700);
+  --ims-button-border: var(--ims-button-ramp-500);
+}
+
+// Severity: which voice the button speaks in, orthogonal to how loudly. Each
+// block repoints the ramp and does nothing else — no variation is named here,
+// and none has to be.
+//
+// `info` has no block. It is the ramp the base already declares, so the
+// severity a call site does not write costs nothing and cannot drift from the
+// neutral button.
+//
+// The ripple, the press ring, the focus halo and the CTA pulse all follow a
+// severity for free, none of them named above: the ripple takes the hover and
+// active fills, the ring and the pulse take --ims-button-ring-color, the halo
+// takes slot 200 — all of which the variations now draw from the ramp.
+//
+// The row-action presets (--delete, --edit) are deliberately untouched by
+// this. They set the final tokens directly rather than through slots, so a
+// severity written on one is ignored — see ImsButtonBase.severity.
+.ims-button--success {
+  --ims-button-ramp-50: var(--ims-color-success-50);
+  --ims-button-ramp-100: var(--ims-color-success-100);
+  --ims-button-ramp-150: var(--ims-color-success-150);
+  --ims-button-ramp-200: var(--ims-color-success-200);
+  --ims-button-ramp-450: var(--ims-color-success-450);
+  --ims-button-ramp-500: var(--ims-color-success-500);
+  --ims-button-ramp-600: var(--ims-color-success-600);
+  --ims-button-ramp-700: var(--ims-color-success-700);
+  --ims-button-ramp-800: var(--ims-color-success-800);
+  --ims-button-ramp-900: var(--ims-color-success-900);
+  --ims-button-ramp-solid: var(--ims-color-success-600);
+  --ims-button-ramp-solid-hover: var(--ims-color-success-700);
+  --ims-button-ramp-solid-active: var(--ims-color-success-850);
+  --ims-button-ramp-solid-ring: var(--ims-color-success-500);
+}
+
+// The one ramp that is not read straight across. Amber at 600 is 3.5:1 under
+// white and 2.8:1 as a hairline on white — it fails as a solid fill, as an
+// outline label and as an outline border, where every other hue here passes at
+// the same step. So the half of the ramp that has to carry contrast is shifted
+// one step darker: 450→500, 500→600, 600→700, 700→800, and the solid tones
+// land on 700/800/900. The light end (50–200), which only ever sits behind
+// dark text, is read straight.
+//
+// Same shift the dialog already makes for a warning confirm button
+// (ims-dialog.scss), so the two agree on what a warning solid looks like.
+.ims-button--warning {
+  --ims-button-ramp-50: var(--ims-color-warning-50);
+  --ims-button-ramp-100: var(--ims-color-warning-100);
+  --ims-button-ramp-150: var(--ims-color-warning-150);
+  --ims-button-ramp-200: var(--ims-color-warning-200);
+  --ims-button-ramp-450: var(--ims-color-warning-500);
+  --ims-button-ramp-500: var(--ims-color-warning-600);
+  --ims-button-ramp-600: var(--ims-color-warning-700);
+  --ims-button-ramp-700: var(--ims-color-warning-800);
+  --ims-button-ramp-800: var(--ims-color-warning-800);
+  --ims-button-ramp-900: var(--ims-color-warning-900);
+  --ims-button-ramp-solid: var(--ims-color-warning-700);
+  --ims-button-ramp-solid-hover: var(--ims-color-warning-800);
+  --ims-button-ramp-solid-active: var(--ims-color-warning-900);
+  --ims-button-ramp-solid-ring: var(--ims-color-warning-500);
 }
 
 .ims-button--danger {
-  --ims-button-background: var(--ims-color-danger);
-  --ims-button-background-hover: var(--ims-color-danger-700);
-  --ims-button-background-active: var(--ims-color-danger-850);
-  --ims-button-color: var(--ims-color-on-interactive);
-  --ims-button-color-active: var(--ims-color-on-interactive);
-  --ims-button-ring-color: var(--ims-color-danger-500);
+  --ims-button-ramp-50: var(--ims-color-danger-50);
+  --ims-button-ramp-100: var(--ims-color-danger-100);
+  --ims-button-ramp-150: var(--ims-color-danger-150);
+  --ims-button-ramp-200: var(--ims-color-danger-200);
+  --ims-button-ramp-450: var(--ims-color-danger-450);
+  --ims-button-ramp-500: var(--ims-color-danger-500);
+  --ims-button-ramp-600: var(--ims-color-danger-600);
+  --ims-button-ramp-700: var(--ims-color-danger-700);
+  --ims-button-ramp-800: var(--ims-color-danger-800);
+  --ims-button-ramp-900: var(--ims-color-danger-900);
+  --ims-button-ramp-solid: var(--ims-color-danger-600);
+  --ims-button-ramp-solid-hover: var(--ims-color-danger-700);
+  --ims-button-ramp-solid-active: var(--ims-color-danger-850);
+  --ims-button-ramp-solid-ring: var(--ims-color-danger-500);
 }
 
 // Row actions. Presets rather than variations: the glyph is pinned by the
@@ -433,15 +538,16 @@
   --ims-duo-icon-hover-offset: var(--ims-duo-icon-offset);
 }
 
-// --dark and --danger are the only variants whose label (and so the icon's
-// currentColor contour) flips to on-interactive white; the default white
-// surface above would put a white window behind a white contour and erase it
-// the same way a light surface did. These use their own opaque background —
-// never transparent, unlike --outline's — so the mask stays solid. Same
-// cascade requirement as the base rule: no interaction state sets this, so
-// swapping variants is the only thing that can change it.
-.ims-button--dark .ims-duo-icon,
-.ims-button--danger .ims-duo-icon {
+// --dark is the only variation whose label (and so the icon's currentColor
+// contour) flips to on-interactive white; the default white surface above
+// would put a white window behind a white contour and erase it the same way a
+// light surface did. It uses its own opaque background — never transparent,
+// unlike --outline's — so the mask stays solid. Keyed on the variation alone
+// and not on any severity: --dark is white-labelled in all four, and the other
+// three variations are dark-labelled in all four. Same cascade requirement as
+// the base rule: no interaction state sets this, so swapping variants is the
+// only thing that can change it.
+.ims-button--dark .ims-duo-icon {
   --ims-duo-icon-surface: var(--ims-button-background);
 }
 

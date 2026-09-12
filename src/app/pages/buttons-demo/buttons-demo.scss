@@ -84,6 +84,76 @@
     gap: 0.75rem;
 }
 
+// A captioned row. Two of these sit side by side showing the same four
+// severities under the two spellings, and without a caption there is nothing
+// on screen telling them apart — the tooltips themselves look identical, which
+// is the point being made.
+.button-demo__group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+// The input name, written the way a template writes it: monospace and forced
+// LTR so the camel case reads correctly inside this RTL page.
+.button-demo__group-label {
+    direction: ltr;
+    color: #52627d;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.75rem;
+}
+
+// The severity matrix is six columns wide, which leaves nothing usable beside
+// it — so this section stacks its heading above the grid instead of sitting it
+// alongside, the way the narrow rows above can afford to.
+.button-demo--stacked {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+// Variations across, severities down. A grid rather than the flex rows the
+// rest of the page uses, because the comparison being made here is a
+// column-wise one — the same variation in four voices — and that only reads if
+// the columns line up.
+.severity-matrix {
+    display: grid;
+    grid-template-columns: max-content repeat(5, max-content);
+    align-items: center;
+    justify-content: start;
+    gap: 0.75rem 1rem;
+    // Six columns of buttons outgrow a phone, and the page itself must not
+    // scroll sideways — so the overflow is the grid's own. Both limits are
+    // needed to get it: max-width caps the track sizing where the section
+    // lays its children out at their content width (which is what the
+    // narrow-window rule at the bottom of this file switches it to), and
+    // min-width defeats the automatic minimum size that would otherwise keep
+    // a flex item from shrinking under its content.
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    padding-block: 0.5rem;
+}
+
+// Everything in a stacked section hangs off the same edge. The captioned rows
+// elsewhere on the page are flex items in a row, where ending them at the
+// inline end is what lines them up with the heading beside them; stacked under
+// a grid, that same rule leaves the row adrift at the far side of the card.
+.button-demo--stacked .button-demo__group {
+    align-items: flex-start;
+}
+
+.button-demo--stacked .button-demo__ims-buttons {
+    justify-content: flex-start;
+}
+
+.button-demo p code {
+    direction: ltr;
+    unicode-bidi: isolate;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.85em;
+}
+
 @media (max-width: 720px) {
     .button-demo {
         flex-direction: column;
