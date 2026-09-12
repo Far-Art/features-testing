@@ -1,79 +1,44 @@
 ims-dialog-shell.ims-dialog--info {
   --ims-dialog-accent: var(--ims-color-brand);
-  --ims-dialog-accent-hover: var(--ims-color-primary-700);
   --ims-dialog-tint: var(--ims-color-primary-50);
   --ims-dialog-border: var(--ims-color-primary-200);
-  --ims-dialog-accent-text: var(--ims-color-on-interactive);
 }
 
 ims-dialog-shell.ims-dialog--success {
   --ims-dialog-accent: var(--ims-color-success-600);
-  --ims-dialog-accent-hover: var(--ims-color-success-700);
   --ims-dialog-tint: var(--ims-color-success-50);
   --ims-dialog-border: var(--ims-color-success-200);
-  --ims-dialog-accent-text: var(--ims-color-on-interactive);
-  --ims-dialog-button-background: var(--ims-color-success-600);
-  --ims-dialog-button-background-hover: var(--ims-color-success-700);
-  --ims-dialog-button-background-active: var(--ims-color-success-850);
-  --ims-dialog-button-ring-color: var(--ims-color-success-500);
 }
 
 ims-dialog-shell.ims-dialog--warning {
   --ims-dialog-accent: var(--ims-color-warning-600);
-  --ims-dialog-accent-hover: var(--ims-color-warning-700);
   --ims-dialog-tint: var(--ims-color-warning-50);
   --ims-dialog-border: var(--ims-color-warning-200);
-  --ims-dialog-accent-text: var(--ims-color-on-interactive);
-  --ims-dialog-button-background: var(--ims-color-warning-700);
-  --ims-dialog-button-background-hover: var(--ims-color-warning-800);
-  --ims-dialog-button-background-active: var(--ims-color-warning-900);
-  --ims-dialog-button-ring-color: var(--ims-color-warning-500);
 }
 
 ims-dialog-shell.ims-dialog--danger {
   --ims-dialog-accent: var(--ims-color-danger-600);
-  --ims-dialog-accent-hover: var(--ims-color-danger-700);
   --ims-dialog-tint: var(--ims-color-danger-50);
   --ims-dialog-border: var(--ims-color-danger-200);
-  --ims-dialog-accent-text: var(--ims-color-on-interactive);
-  --ims-dialog-button-background: var(--ims-color-danger-600);
-  --ims-dialog-button-background-hover: var(--ims-color-danger-700);
-  --ims-dialog-button-background-active: var(--ims-color-danger-850);
-  --ims-dialog-button-ring-color: var(--ims-color-danger-500);
 }
 
-ims-dialog-shell:is(.ims-dialog--success, .ims-dialog--warning, .ims-dialog--danger)
-  .ims-button--dark {
-  --ims-button-background: var(--ims-dialog-button-background);
-  --ims-button-background-hover: var(--ims-dialog-button-background-hover);
-  --ims-button-background-active: var(--ims-dialog-button-background-active);
-  --ims-button-ring-color: var(--ims-dialog-button-ring-color);
-}
-
-ims-dialog-shell.ims-dialog .ims-dialog__close {
-  --ims-button-background-hover: var(--ims-dialog-tint);
-  --ims-button-background-active: var(--ims-dialog-border);
-  --ims-button-ring-color: var(--ims-dialog-accent);
-}
-
-ims-dialog-shell.ims-dialog .ims-dialog-actions .ims-button--white {
-  --ims-button-background-hover: var(--ims-dialog-tint);
-  --ims-button-background-active: var(--ims-dialog-border);
-  --ims-button-ring-color: var(--ims-dialog-accent);
-}
-
-ims-dialog-shell.ims-dialog .ims-dialog-actions .ims-button--default {
-  --ims-button-background: var(--ims-dialog-tint);
-  --ims-button-background-hover: var(--ims-dialog-border);
-  --ims-button-background-active: color-mix(
-    in srgb,
-    var(--ims-dialog-border) 70%,
-    var(--ims-dialog-accent)
-  );
-  --ims-button-color: var(--ims-dialog-accent-hover);
-  --ims-button-color-active: var(--ims-dialog-accent-hover);
-  --ims-button-ring-color: var(--ims-dialog-accent);
-}
+// No button is painted from this stylesheet any more. A dialog used to reach
+// into every button under it — the confirm button through a set of
+// --ims-dialog-button-* tokens, the close X and the quiet action buttons
+// through --ims-dialog-tint/-border/-accent — and rebuild each state out of
+// dialog tokens that only approximated the ramp the button already had. Every
+// one of those buttons now carries `ims-button-severity` in
+// ims-dialog-shell.html, so a dialog and a button at the same severity are the
+// same colour by construction rather than by two lists agreeing. The focus
+// halo comes along with it, which no override here ever reached.
+//
+// Only the buttons the shell renders are bound. Anything projected into a
+// dialog belongs to the consumer's template, and that template says which
+// severity it is — reaching in to repaint someone else's button is what these
+// rules were.
+//
+// The tokens themselves stay: the surface border, the title band and the
+// content divider still read accent, tint and border.
 
 .cdk-overlay-pane.ims-dialog-overlay {
   border-radius: 0.875rem;

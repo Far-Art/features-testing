@@ -4,6 +4,7 @@ import { ImsIcon } from '../../components/ims-icon';
 import {
   type IBaseOutput,
   type IMessage,
+  IMS_DIALOG_CONFIG,
   IMS_DIALOG_DATA,
   ImsAbstractDialog,
   ImsDialogActions,
@@ -367,15 +368,25 @@ export class DialogRiskContent {
     </ims-dialog-content>
 
     <ims-dialog-actions>
-      <button ims-button (click)="select('default')">
+      <button ims-button [ims-button-severity]="severity" (click)="select('default')">
         <ims-icon class="ims-button__symbol">tune</ims-icon>
         Default action
       </button>
-      <button ims-button ims-button-variation="secondary" (click)="select('secondary')">
+      <button
+        ims-button
+        ims-button-variation="secondary"
+        [ims-button-severity]="severity"
+        (click)="select('secondary')"
+      >
         <ims-icon class="ims-button__symbol">visibility</ims-icon>
         Secondary action
       </button>
-      <button ims-button ims-button-variation="primary" (click)="select('primary')">
+      <button
+        ims-button
+        ims-button-variation="primary"
+        [ims-button-severity]="severity"
+        (click)="select('primary')"
+      >
         <ims-icon class="ims-button__symbol">check</ims-icon>
         Primary action
       </button>
@@ -394,6 +405,10 @@ export class DialogButtonReviewContent extends ImsAbstractDialog<
   unknown,
   DialogButtonReviewResult
 > {
+  // Projected content, so the shell's severity bindings do not reach these
+  // buttons — this template asks the dialog which severity it is and says so.
+  readonly severity = inject(IMS_DIALOG_CONFIG).severity;
+
   select(result: DialogButtonReviewResult): void {
     this.closeDialog(result);
   }

@@ -17,6 +17,7 @@
   <button
     ims-button-icon
     class="ims-dialog__close"
+    [ims-button-severity]="effectiveSeverity"
     aria-label="Close dialog"
     (click)="close()"
   >
@@ -82,14 +83,26 @@
   @if (!sections.hasActions()) {
     <ims-dialog-actions [generated]="true">
       @if (confirmationMode && !readonlyMode()) {
-        <button ims-button (click)="reject()">
+        <button ims-button [ims-button-severity]="effectiveSeverity" (click)="reject()">
           {{ config.confirmationLabels?.no }}
         </button>
-        <button ims-button ims-button-variation="primary" (click)="confirm()">
+        <button
+          ims-button
+          ims-button-variation="primary"
+          [ims-button-severity]="effectiveSeverity"
+          (click)="confirm()"
+        >
           {{ config.confirmationLabels?.yes }}
         </button>
       } @else {
-        <button ims-button ims-button-variation="primary" (click)="close()">סגור</button>
+        <button
+          ims-button
+          ims-button-variation="primary"
+          [ims-button-severity]="effectiveSeverity"
+          (click)="close()"
+        >
+          סגור
+        </button>
       }
     </ims-dialog-actions>
   }
