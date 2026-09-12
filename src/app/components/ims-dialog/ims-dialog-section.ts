@@ -107,9 +107,7 @@ export class ImsDialogTitle extends ImsDialogSectionBase {
     role: 'toolbar',
   },
 })
-export class ImsDialogToolbar extends ImsDialogSectionBase {
-  protected readonly section = 'toolbar' as const;
-}
+export class ImsDialogToolbar {}
 
 /**
  * Projects the primary, scrollable dialog body.

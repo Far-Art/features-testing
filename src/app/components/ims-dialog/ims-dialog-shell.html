@@ -1,6 +1,5 @@
 <div
   class="ims-dialog__surface"
-  [class.ims-dialog__surface--ready]="ready()"
   [style.max-height.px]="config.maxSurfaceHeight"
   cdkDrag
   cdkDragRootElement=".cdk-overlay-pane"
@@ -52,19 +51,19 @@
             </section>
           }
 
-          @if (messages.length > 0) {
+          @if (messageRows.length > 0) {
             <ul class="ims-dialog__message-list" aria-label="Dialog messages">
-              @for (message of messages; track $index) {
+              @for (row of messageRows; track $index) {
                 <li
                   class="ims-dialog__message"
-                  [class.ims-dialog__message--danger]="messageStyle(message.level) === 'danger'"
-                  [class.ims-dialog__message--warning]="messageStyle(message.level) === 'warning'"
-                  [class.ims-dialog__message--info]="messageStyle(message.level) === 'info'"
+                  [class.ims-dialog__message--danger]="row.style === 'danger'"
+                  [class.ims-dialog__message--warning]="row.style === 'warning'"
+                  [class.ims-dialog__message--info]="row.style === 'info'"
                 >
                   <span class="ims-dialog__message-icon material-symbols-sharp" aria-hidden="true">
-                    {{ messageIcon(message.level) }}
+                    {{ row.icon }}
                   </span>
-                  <span>{{ message.message }}</span>
+                  <span>{{ row.message }}</span>
                 </li>
               }
             </ul>

@@ -29,6 +29,9 @@ const DEFAULT_ERROR_TITLE = 'תקלה';
 
 const DEFAULT_ERROR_TEXT = 'אירעה שגיאה בלתי צפויה.';
 
+/** One reposition per frame is enough to keep an inside dialog on its boundary. */
+const SCROLL_THROTTLE_MS = 16;
+
 const DEFAULT_ICONS: Record<ImsDialogSeverity, string> = {
   info: 'info',
   success: 'check_circle',
@@ -144,7 +147,7 @@ export class ImsDialogService implements ImsDialogBuilderHost {
       scrollStrategy:
         callerConfig.scrollStrategy ??
         (insideBoundary
-          ? this.overlay.scrollStrategies.reposition()
+          ? this.overlay.scrollStrategies.reposition({ scrollThrottle: SCROLL_THROTTLE_MS })
           : this.overlay.scrollStrategies.noop()),
       hasBackdrop: insideBoundary ? false : (callerConfig.hasBackdrop ?? true),
       direction,

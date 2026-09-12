@@ -551,9 +551,10 @@ pass their resolved HTML element directly to `cdkDragBoundary`.
 - When no title exists, the shell renders a small fallback grab region.
 - Toolbar and content controls remain independently interactive.
 
-The surface remains hidden for the initial section-registration microtask and
-is revealed only after the final projected layout is known. This prevents
-generated sections from flashing before custom sections suppress them.
+Projected sections register in a microtask after the shell's first render, so
+the shell renders its generated chrome first and drops it on the next check.
+Both checks complete within the same task, before the browser paints, which is
+what keeps generated sections from ever being visible.
 
 ## Styling
 

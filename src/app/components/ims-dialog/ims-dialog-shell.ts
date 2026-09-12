@@ -1,6 +1,6 @@
 import { NgComponentOutlet } from '@angular/common';
 import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, Type, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Type, inject } from '@angular/core';
 import {ImsButton, ImsButtonIcon} from '../ims-button';
 import {ImsIcon} from '../ims-icon';
 import { ReadonlyDirective } from '../../shared/readonly.directive';
@@ -8,7 +8,6 @@ import { ImsDialogRef } from './ims-dialog-ref';
 import { ImsDialogActions, ImsDialogTitle } from './ims-dialog-section';
 import { ImsDialogSectionRegistry } from './ims-dialog-section-registry';
 import {
-  IMessage,
   IMS_DIALOG_CONFIG,
   IMS_DIALOG_READONLY,
   ImsDialogRuntimeConfig,
@@ -18,6 +17,13 @@ import {
 } from './ims-dialog.types';
 
 type ImsDialogMessageStyle = 'danger' | 'info' | 'warning';
+
+/** A message with its style and icon already resolved from its level. */
+interface ImsDialogMessageRow {
+  readonly message: string;
+  readonly style: ImsDialogMessageStyle;
+  readonly icon: string;
+}
 
 /**
  * Internal CDK dialog shell.
@@ -57,14 +63,12 @@ type ImsDialogMessageStyle = 'danger' | 'info' | 'warning';
     '[class.ims-dialog--danger]': 'effectiveSeverity === "danger"',
     '[class.ims-dialog--confirmation]': 'confirmationMode && !readonlyMode()',
     '[class.ims-dialog--readonly]': 'readonlyMode()',
-    '[class.ims-dialog--ready]': 'ready()',
   },
 })
 export class ImsDialogShell {
   readonly config = inject(IMS_DIALOG_CONFIG) as ImsDialogRuntimeConfig;
   readonly dialogRef = inject(ImsDialogRef);
   readonly sections = inject(ImsDialogSectionRegistry);
-  readonly ready = signal(false);
   readonly confirmationMode =
     this.config.mode === 'confirmation' || this.config.mode === 'confirmation-readonly';
   readonly readonlyMode = this.config.readonlySignal;
@@ -79,7 +83,10 @@ export class ImsDialogShell {
   readonly effectiveSeverity =
     (this.baseOutput?.resultCode ?? 0) < 0 ? 'danger' : this.config.severity;
   readonly isMessageListContent = isImsDialogMessageArray(this.config.content);
-  readonly messages: readonly IMessage[] = (() => {
+  // A row's level never changes, so its style and icon are resolved here once.
+  // Resolving them per binding cost five calls per row on every check of this
+  // view, and this view is checked whenever anything inside the dialog emits.
+  readonly messageRows: readonly ImsDialogMessageRow[] = (() => {
     const content = this.config.content;
     const messages = isImsDialogBaseOutput(content)
       ? content.messages
@@ -87,7 +94,12 @@ export class ImsDialogShell {
         ? content
         : [];
 
-    return [...messages].sort((first, second) => second.level - first.level);
+    return [...messages]
+      .sort((first, second) => second.level - first.level)
+      .map((message) => {
+        const style = resolveMessageStyle(message.level);
+        return { message: message.message, style, icon: resolveMessageIcon(style) };
+      });
   })();
   readonly textContent: readonly string[] = (() => {
     const content = this.config.content;
@@ -98,12 +110,6 @@ export class ImsDialogShell {
 
     return isImsDialogStringArray(content) ? content : [];
   })();
-
-  constructor() {
-    queueMicrotask(() => {
-      queueMicrotask(() => this.ready.set(true));
-    });
-  }
 
   confirm(): void {
     this.dialogRef.close(true);
@@ -116,17 +122,16 @@ export class ImsDialogShell {
   close(): void {
     this.dialogRef.close();
   }
+}
 
-  messageStyle(level: number): ImsDialogMessageStyle {
-    if (level >= 3) return 'danger';
-    if (level === 2) return 'warning';
-    return 'info';
-  }
+function resolveMessageStyle(level: number): ImsDialogMessageStyle {
+  if (level >= 3) return 'danger';
+  if (level === 2) return 'warning';
+  return 'info';
+}
 
-  messageIcon(level: number): string {
-    const style = this.messageStyle(level);
-    if (style === 'danger') return 'error';
-    if (style === 'warning') return 'warning';
-    return 'info';
-  }
+function resolveMessageIcon(style: ImsDialogMessageStyle): string {
+  if (style === 'danger') return 'error';
+  if (style === 'warning') return 'warning';
+  return 'info';
 }

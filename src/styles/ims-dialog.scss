@@ -78,11 +78,6 @@ ims-dialog-shell.ims-dialog {
     inset 0 1px 0 color-mix(in srgb, var(--ims-color-surface-dialog) 80%, transparent),
     0 1.25rem 3.5rem color-mix(in srgb, var(--ims-color-primary-950) 22%, transparent),
     0 0.25rem 0.875rem color-mix(in srgb, var(--ims-color-primary-950) 10%, transparent);
-  visibility: hidden;
-}
-
-.ims-dialog__surface--ready {
-  visibility: visible;
   animation: ims-dialog-enter 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
