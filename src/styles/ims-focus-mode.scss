@@ -272,7 +272,10 @@
  * and the control is deliberately left holding the value the user started from
  * while the dialog is open — so those classes describe a value that is no
  * longer on screen. `ImsFocusMode` states the draft's validity here instead,
- * and these rules restate `ims-input.scss`'s two treatments in terms of it.
+ * and these rules restate `ims-input.scss`'s treatments in terms of it: the
+ * border tone, the focus ring, and the tone the hover/focus fill paints in.
+ * Anything `ims-input.scss` keys on `.ng-invalid` has to be restated here, or
+ * it goes on reporting the value the user has already typed past.
  *
  * Only the field currently on the stage is addressed, so nothing here reaches
  * the stand-in left behind in the form row, and the field goes back to being
@@ -280,6 +283,7 @@
  */
 .ims-focus-mode__stage > .ims-focus-mode__field--invalid:not(:disabled) {
     border-color: var(--ims-input-invalid-border, var(--ims-color-invalid));
+    --ims-input-fill: var(--ims-input-invalid-fill, var(--ims-color-status-danger-subtle));
 }
 
 .ims-focus-mode__stage > .ims-focus-mode__field--invalid:focus-visible {
@@ -295,6 +299,7 @@
  */
 .ims-focus-mode__stage > .ims-focus-mode__field--valid:not(:disabled) {
     border-color: var(--ims-input-border, var(--ims-color-border));
+    --ims-input-fill: var(--ims-input-hover-fill, var(--ims-color-interactive-subtle));
 }
 
 .ims-focus-mode__stage > .ims-focus-mode__field--valid:focus-visible {

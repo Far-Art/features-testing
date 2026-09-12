@@ -64,6 +64,11 @@ export class ImsFocusModeDialog extends ImsAbstractDialog<ImsFocusModeSession, b
         }
       });
 
+      // Focus mode exists to put the user in this field, so this is where the
+      // dialog opens. It holds only because the session asks for
+      // `autoFocus: false` when it opens the dialog — CDK's own initial focus
+      // runs after this one and would otherwise replace it. The two belong
+      // together; changing either without the other loses the field.
       this.session.portal.element.focus();
     });
 

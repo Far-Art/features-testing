@@ -401,7 +401,22 @@ export class ImsFocusMode {
       .title(this.label() || this.triggerLabel())
       .withIcon(this.triggerIcon())
       .data(session)
-      .config({ width: 'min(48rem, calc(100vw - 2rem))' })
+      .config({
+        width: 'min(48rem, calc(100vw - 2rem))',
+        // `ImsFocusModeDialog` puts initial focus on the projected field
+        // itself. CDK's default, `first-tabbable`, runs after that and would
+        // take it away again: the shell's close button sits in the header,
+        // ahead of the stage, so it is the first tabbable thing in the dialog
+        // and focus mode would open on the control the user wants to leave
+        // rather than the one they opened it to edit.
+        //
+        // `false` is the "this dialog places its own initial focus" setting,
+        // not "no focus": CDK still focuses the dialog container when nothing
+        // inside it took focus, so a field that cannot be focused for any
+        // reason still leaves focus in the dialog rather than on the page
+        // behind it.
+        autoFocus: false,
+      })
       .open<boolean | undefined>();
 
     this.activeDialog.set(dialogRef);
