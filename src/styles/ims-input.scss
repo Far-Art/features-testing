@@ -1,5 +1,37 @@
+// The hover fill is the buttons' ripple, on a field — same effect, same
+// timings, so a form of buttons and inputs answers the pointer in one voice.
+// It is driven by two registered custom properties that repaint the element's
+// own background-image, not by an animated overlay: on a replaced element
+// there is no ::before/::after to stack one in, and repainting a gradient is
+// the smoother of the two on the CPU-rendered targets this ships to anyway.
+//
+// Registration is what makes these interpolate at all — an unregistered custom
+// property has no type, so the browser can only flip it between discrete
+// values. The names are the field's own rather than the button's because
+// @property registration is global and keyed by name; sharing one pair would
+// tie two components' initial values together for nothing.
+@property --ims-input-fill-radius {
+    syntax: '<percentage>';
+    inherits: false;
+    initial-value: 0%;
+}
+
+@property --ims-input-fill-alpha {
+    syntax: '<percentage>';
+    inherits: false;
+    initial-value: 0%;
+}
+
 .ims-input {
     --ims-input-field-shadow: 0 1px 3px rgb(0 0 0 / 8%);
+
+    // The tone the hover fill paints in. One step off the resting white, the
+    // same distance --default puts between a button's rest and hover fills,
+    // which is as far as this can go and still leave field text readable
+    // through it.
+    --ims-input-fill: var(--ims-input-hover-fill, var(--ims-color-interactive-subtle));
+    --ims-input-fill-radius: 0%;
+    --ims-input-fill-alpha: 0%;
 
     box-sizing: border-box;
     min-width: var(--field-width-xxs);
@@ -9,10 +41,33 @@
     border: 1px solid var(--ims-input-border, var(--ims-color-border));
     border-radius: var(--ims-input-border-radius, 0.5rem);
     background: var(--ims-input-background, var(--ims-background-input));
+    // Must stay after the `background` shorthand, which resets
+    // background-image. `farthest-corner` lands 100% exactly on the corners,
+    // so the fill finishes flush with the border box and never overshoots;
+    // the 1.5% feather past the hard stop is what keeps the expanding edge
+    // from looking stepped without a GPU to smooth it. Circular and centred,
+    // so it has no direction and needs no RTL variant.
+    //
+    // That same shorthand reset is what keeps the fill off every surface that
+    // paints its own disabled or readonly background — `:disabled` below, and
+    // the readonly triggers in ims-select.scss and ims-autocomplete.scss.
+    // Those have to be the shorthand to repaint the surface at all; written as
+    // `background-color` they would leave this gradient in place underneath.
+    background-image: radial-gradient(
+        circle farthest-corner at 50% 50%,
+        color-mix(in oklab, var(--ims-input-fill) var(--ims-input-fill-alpha), transparent)
+          var(--ims-input-fill-radius),
+        transparent calc(var(--ims-input-fill-radius) + 1.5%)
+    );
     color: var(--ims-input-color, var(--ims-color-on-surface));
     font: inherit;
     box-shadow: var(--ims-input-field-shadow);
-    transition: border-color 140ms ease, box-shadow 140ms ease;
+    // Rest state, i.e. the way *out*: alpha fades the fill away where it
+    // stands, and the radius reset is a 0s change delayed until that fade has
+    // finished, so the circle snaps back to the centre only once it is already
+    // invisible. Without the delay the fill would visibly contract again.
+    transition: border-color 140ms ease, box-shadow 140ms ease,
+    --ims-input-fill-alpha 180ms ease-out, --ims-input-fill-radius 0s linear 180ms;
 }
 
 .ims-input:focus {
@@ -69,6 +124,32 @@
     border-color: var(--ims-input-hover-border, var(--ims-color-interactive-alt));
 }
 
+// The way *in*: the fill expands from the centre on a decelerating curve —
+// fast off the mark, easing out as it reaches the corners — while alpha snaps
+// to full on the first frame, so the tint is at its final colour the whole way
+// out from the centre. Curve and durations are the buttons' own.
+//
+// Focus holds it, exactly as it does on a button: a field that has been
+// entered stays filled once the pointer moves off, and only empties when it
+// loses focus as well. Hover and focus are two ways into one state rather than
+// two states, which is why they share the rule — and why the fill is kept out
+// of the hover rule above, whose border tone is genuinely hover's alone and
+// must not outrank :focus-visible's.
+//
+// `:focus-within` rather than `:focus`, because an element matches it when the
+// focus is its own — so this one selector covers every shape a field takes
+// here: input, textarea, the select and autocomplete trigger buttons, and the
+// datepicker, whose `.ims-input` is a wrapper div around the real input and
+// would never have matched `:focus`. ims-datepicker.scss already draws that
+// field's focus ring the same way.
+.ims-input:hover:not(:disabled),
+.ims-input:focus-within:not(:disabled) {
+    --ims-input-fill-radius: 100%;
+    --ims-input-fill-alpha: 100%;
+    transition: border-color 140ms ease, box-shadow 140ms ease,
+    --ims-input-fill-alpha 0s, --ims-input-fill-radius 320ms cubic-bezier(0.05, 0.7, 0.1, 1);
+}
+
 .ims-input:focus-visible {
     outline: none;
     border-color: var(--ims-input-focus-border, var(--ims-color-interactive));
@@ -91,6 +172,10 @@
 
 .ims-input.ng-invalid:not(:disabled) {
     border-color: var(--ims-input-invalid-border, var(--ims-color-invalid));
+    // Retunes the fill rather than suppressing it, so hovering an invalid
+    // field still answers — in the tone of the border it is sitting inside,
+    // instead of contradicting it with the house blue.
+    --ims-input-fill: var(--ims-input-invalid-fill, var(--ims-color-status-danger-subtle));
 }
 
 .ims-input.ng-invalid:focus-visible {
