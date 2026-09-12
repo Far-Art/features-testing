@@ -2,6 +2,7 @@
 
 @if (editable()) {
   <button
+    #trigger
     class="ims-focus-mode__trigger"
     [class.ims-input-action__button]="!external()"
     ims-button-edit
@@ -13,6 +14,7 @@
   ></button>
 } @else {
   <button
+    #trigger
     class="ims-focus-mode__trigger"
     [class.ims-input-action__button]="!external()"
     ims-button-icon

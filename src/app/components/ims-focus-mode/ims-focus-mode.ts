@@ -4,6 +4,7 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  Injector,
   Signal,
   afterNextRender,
   computed,
@@ -12,6 +13,7 @@ import {
   inject,
   input,
   signal,
+  viewChild,
 } from '@angular/core';
 import {
   AbstractControl,
@@ -75,7 +77,15 @@ import {
 })
 export class ImsFocusMode {
   private readonly hostElement: HTMLElement = inject(ElementRef).nativeElement;
+  private readonly injector = inject(Injector);
   private readonly dialogService = inject(ImsDialogService);
+
+  /**
+   * The button that opens focus mode, whichever of the two the template
+   * rendered. Only needed to put focus back on it after a close — see
+   * {@link restoreTriggerFocus}.
+   */
+  private readonly trigger = viewChild<ElementRef<HTMLButtonElement>>('trigger');
   private readonly destroyRef = inject(DestroyRef);
   private readonly injectedLabels = inject(IMS_FOCUS_MODE_LABELS);
 
@@ -529,6 +539,40 @@ export class ImsFocusMode {
     this.activeDialog.set(null);
     this.removePlaceholder();
     this.open.set(false);
+    this.restoreTriggerFocus();
+  }
+
+  /**
+   * Puts focus back on the trigger when the dialog could not.
+   *
+   * CDK restores focus to whatever held it before the dialog opened, which for
+   * anyone who opened focus mode from the keyboard is the trigger. It cannot
+   * land: the trigger is `[disabled]="open()"`, and while CDK is tearing the
+   * dialog down that binding still reads open — focusing a disabled button is
+   * a no-op, so the user is dropped at the top of the document instead of back
+   * at the control they came from. The same close that opens on the field has
+   * to hand focus back.
+   *
+   * Deferred to `afterNextRender` for both halves of that: the button is
+   * enabled again by then, and CDK has already had its attempt, so the check
+   * below reads the outcome rather than racing it. Focus is only taken when it
+   * was actually lost — a close that came from the user clicking something
+   * else on the page leaves that alone.
+   */
+  private restoreTriggerFocus(): void {
+    afterNextRender(
+      () => {
+        const document = this.hostElement.ownerDocument;
+        const active = document.activeElement;
+
+        if (active && active !== document.body) {
+          return;
+        }
+
+        this.trigger()?.nativeElement.focus();
+      },
+      { injector: this.injector },
+    );
   }
 
   /**

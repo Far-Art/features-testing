@@ -265,6 +265,71 @@ describe('ImsFocusMode', () => {
     expect(focusModeHost.contains(original)).toBe(true);
   });
 
+  it('opens on the projected field rather than the dialog chrome', async () => {
+    // Focus mode exists to put the user in this field, so this is the whole
+    // point of the feature. It is also the one assertion that pins
+    // `autoFocus: false` in the session config: CDK's default runs after the
+    // dialog has placed focus itself and would hand it to the shell's close
+    // button, which sits ahead of the stage and is the first tabbable thing in
+    // the dialog.
+    await openNotes();
+
+    expect(document.activeElement).toBe(stageField());
+  });
+
+  it('keeps focus inside the dialog when the field cannot take it', async () => {
+    // The readonly host projects a disabled field, which cannot be focused.
+    // `autoFocus: false` does not mean "no focus": CDK still focuses the
+    // container when nothing inside it took focus, so focus must not be left
+    // on the page behind the dialog.
+    triggers(fixture)[2].click();
+    await settle(fixture);
+
+    const container = document.querySelector('.cdk-dialog-container')!;
+
+    expect(stageField()?.disabled).toBe(true);
+    expect(document.activeElement).not.toBe(stageField());
+    expect(container.contains(document.activeElement)).toBe(true);
+  });
+
+  it('hands focus back to the trigger on cancel', async () => {
+    // CDK restores focus to whatever held it before the dialog opened, which
+    // for a keyboard user is the trigger — but the trigger is disabled while
+    // open, and focusing a disabled button is a no-op that drops the user at
+    // the top of the document. Focus mode has to hand it back itself.
+    triggers(fixture)[0].focus();
+
+    await openNotes();
+    clickAction('Cancel');
+    await settle(fixture);
+
+    expect(document.activeElement).toBe(triggers(fixture)[0]);
+  });
+
+  it('hands focus back to the trigger on apply', async () => {
+    triggers(fixture)[0].focus();
+
+    await openNotes();
+    clickAction('Apply');
+    await settle(fixture);
+
+    expect(document.activeElement).toBe(triggers(fixture)[0]);
+  });
+
+  it('leaves focus where the user put it during a close', async () => {
+    // Handing focus back is only a repair for focus that was lost. Someone who
+    // clicks straight into another control as the dialog closes keeps it.
+    triggers(fixture)[0].focus();
+    await openNotes();
+
+    clickAction('Cancel');
+    const elsewhere = triggers(fixture)[1];
+    elsewhere.focus();
+    await settle(fixture);
+
+    expect(document.activeElement).toBe(elsewhere);
+  });
+
   it('flips the trigger between the edit affordance and zoom-in with control state', async () => {
     // The editable trigger is the shared `ims-button-edit` preset, so its glyph
     // comes from there rather than being chosen by this component.
