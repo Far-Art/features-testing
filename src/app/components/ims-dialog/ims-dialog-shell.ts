@@ -1,6 +1,6 @@
 import { NgComponentOutlet } from '@angular/common';
 import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, Type, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, Type, inject } from '@angular/core';
 import {ImsButton, ImsButtonIcon} from '../ims-button';
 import {ImsIcon} from '../ims-icon';
 import { ReadonlyDirective } from '../../shared/readonly.directive';
@@ -56,16 +56,12 @@ interface ImsDialogMessageRow {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'ims-dialog',
-    '[attr.dir]': 'config.direction',
-    '[class.ims-dialog--info]': 'effectiveSeverity === "info"',
-    '[class.ims-dialog--success]': 'effectiveSeverity === "success"',
-    '[class.ims-dialog--warning]': 'effectiveSeverity === "warning"',
-    '[class.ims-dialog--danger]': 'effectiveSeverity === "danger"',
     '[class.ims-dialog--confirmation]': 'confirmationMode && !readonlyMode()',
     '[class.ims-dialog--readonly]': 'readonlyMode()',
   },
 })
 export class ImsDialogShell {
+  private readonly hostElement = inject<ElementRef<HTMLElement>>(ElementRef);
   readonly config = inject(IMS_DIALOG_CONFIG) as ImsDialogRuntimeConfig;
   readonly dialogRef = inject(ImsDialogRef);
   readonly sections = inject(ImsDialogSectionRegistry);
@@ -110,6 +106,16 @@ export class ImsDialogShell {
 
     return isImsDialogStringArray(content) ? content : [];
   })();
+
+  constructor() {
+    const host = this.hostElement.nativeElement;
+    host.classList.add(`ims-dialog--${this.effectiveSeverity}`);
+
+    const maxSurfaceHeight = this.config.maxSurfaceHeight;
+    if (maxSurfaceHeight !== null) {
+      host.style.setProperty('--ims-dialog-max-surface-height', `${maxSurfaceHeight}px`);
+    }
+  }
 
   confirm(): void {
     this.dialogRef.close(true);
