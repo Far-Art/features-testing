@@ -24,7 +24,7 @@
 
 // These are placeholders, not a real "unstyled default" look — every
 // consumer directive always pairs this class with a
-// --default/--dark/--white/--outline modifier that sets
+// --default/--primary/--secondary/--outline modifier that sets
 // its own full set below. Keeping this neutral (instead of duplicating
 // one variant's colors here) avoids a color that only ever exists for
 // a single frame before the modifier class lands, which was visible
@@ -40,7 +40,7 @@
   // that needs a different weighting say so in one place (warning does: it is
   // the one hue here that is too light to sit under white text at 600).
   // `solid*` are separate slots rather than numbers because the solid variant
-  // never tracked the ramp evenly — see --dark's hover below.
+  // never tracked the ramp evenly — see --primary's hover below.
   --ims-button-ramp-50: var(--ims-color-primary-50);
   --ims-button-ramp-100: var(--ims-color-primary-100);
   --ims-button-ramp-150: var(--ims-color-primary-150);
@@ -240,7 +240,7 @@
   --ims-button-ring-color: var(--ims-button-ramp-450);
 }
 
-.ims-button--dark {
+.ims-button--primary {
   --ims-button-background: var(--ims-button-ramp-solid);
   // One step lighter than the rest of the ramp's hover tones: brand navy is the
   // darkest surface here, so the ripple needs the extra lift to read at all.
@@ -253,7 +253,7 @@
   --ims-button-ring-color: var(--ims-button-ramp-solid-ring);
 }
 
-.ims-button--white {
+.ims-button--secondary {
   --ims-button-background: var(--ims-color-surface-input);
   --ims-button-background-hover: var(--ims-button-ramp-50);
   --ims-button-background-active: var(--ims-button-ramp-100);
@@ -538,16 +538,16 @@
   --ims-duo-icon-hover-offset: var(--ims-duo-icon-offset);
 }
 
-// --dark is the only variation whose label (and so the icon's currentColor
+// --primary is the only variation whose label (and so the icon's currentColor
 // contour) flips to on-interactive white; the default white surface above
 // would put a white window behind a white contour and erase it the same way a
 // light surface did. It uses its own opaque background — never transparent,
 // unlike --outline's — so the mask stays solid. Keyed on the variation alone
-// and not on any severity: --dark is white-labelled in all four, and the other
+// and not on any severity: --primary is white-labelled in all four, and the other
 // three variations are dark-labelled in all four. Same cascade requirement as
 // the base rule: no interaction state sets this, so swapping variants is the
 // only thing that can change it.
-.ims-button--dark .ims-duo-icon {
+.ims-button--primary .ims-duo-icon {
   --ims-duo-icon-surface: var(--ims-button-background);
 }
 

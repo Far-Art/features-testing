@@ -273,8 +273,8 @@ export abstract class ImsButtonBase {
     standalone: true,
     host: {
         '[class.ims-button--default]': 'variation() === "default"',
-        '[class.ims-button--dark]': 'variation() === "primary"',
-        '[class.ims-button--white]': 'variation() === "secondary"',
+        '[class.ims-button--primary]': 'variation() === "primary"',
+        '[class.ims-button--secondary]': 'variation() === "secondary"',
         '[class.ims-button--outline]': 'variation() === "outline"',
         '[disabled]': 'interactionDisabled()'
     }
