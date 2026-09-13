@@ -77,6 +77,11 @@ For a native Angular form control:
 Angular places `ng-invalid` directly on the input, and `.ims-input` supplies the
 invalid border and focus ring.
 
+A `textarea` carrying the class is as tall as its own `rows` attribute says, and
+never shorter than one field height — `rows="4"` renders four rows, and
+`rows="1"` lines up with the single-line fields beside it. Write a `min-height`
+only to raise that floor, not to win the attribute back.
+
 For a form-compatible component with an internal visual control, put
 `.ims-input-host` on the component host and mark only its primary control with
 `data-ims-main-control`:
