@@ -271,6 +271,17 @@ export class ImsFocusMode {
   private valueSubscription: Subscription | null = null;
   private closedSubscription: Subscription | null = null;
   private snapshot = '';
+  /**
+   * Inline sizing the field carried into the dialog.
+   *
+   * The room the stage gives a field is CSS and stops applying the moment the
+   * field leaves it, but a resize drag is not: the browser writes the dragged
+   * size as an inline declaration on the element, and the element the dialog
+   * hands back is the one that went in. Left alone, a field dragged taller to
+   * read a long value would come home at that height and resize the form row —
+   * the one thing the stand-in was cloned to prevent.
+   */
+  private sizeSnapshot: InlineSizeSnapshot | null = null;
   /** True only while `apply()` replays the draft, which must reach the accessor. */
   private committing = false;
 
@@ -387,6 +398,7 @@ export class ImsFocusMode {
     }
 
     this.snapshot = element.value;
+    this.sizeSnapshot = captureInlineSize(element);
     this.draft.set(element.value);
     this.showPlaceholder(element);
     this.open.set(true);
@@ -527,7 +539,11 @@ export class ImsFocusMode {
     });
   }
 
-  /** Restores the field after any close that was not an apply. */
+  /**
+   * Restores the field after a close: its value when that close was not an
+   * apply, and its box either way — a size dragged on the stage belongs to the
+   * dialog, not to the form row the field is going back to.
+   */
   private finish(applied: boolean): void {
     const element = this.fieldElement();
 
@@ -535,6 +551,11 @@ export class ImsFocusMode {
       element.value = this.snapshot;
     }
 
+    if (element && this.sizeSnapshot) {
+      restoreInlineSize(element, this.sizeSnapshot);
+    }
+
+    this.sizeSnapshot = null;
     this.releaseSubscriptions();
     this.activeDialog.set(null);
     this.removePlaceholder();
@@ -618,6 +639,56 @@ export class ImsFocusMode {
 /** Matches how a text value accessor writes a control value into the DOM. */
 function normalizeFieldValue(value: unknown): string {
   return value === null || value === undefined ? '' : String(value);
+}
+
+/**
+ * The inline declarations a resize drag can write.
+ *
+ * Engines write the physical pair, and the logical spellings are carried
+ * alongside them because a `CSSStyleDeclaration` holds the two separately: one
+ * left behind would outlive the restore and go on sizing the field.
+ */
+const RESIZE_DECLARATIONS = ['width', 'height', 'inline-size', 'block-size'] as const;
+
+/** Inline sizing as `CSSStyleDeclaration.setProperty` takes it back. */
+type InlineSizeSnapshot = readonly (readonly [
+  property: string,
+  value: string,
+  priority: string,
+])[];
+
+/**
+ * Reads back whatever inline sizing an element currently declares.
+ *
+ * Priority is captured with the value: a caller may have written their own
+ * `!important` height on the field, and putting it back without the flag would
+ * quietly hand the field to the rule that height was written to beat.
+ */
+function captureInlineSize(element: ImsTextFieldElement): InlineSizeSnapshot {
+  return RESIZE_DECLARATIONS.map(
+    (property) =>
+      [
+        property,
+        element.style.getPropertyValue(property),
+        element.style.getPropertyPriority(property),
+      ] as const,
+  );
+}
+
+/**
+ * Puts captured sizing back, the declarations that were absent included: an
+ * empty value means the field arrived without that declaration, so whatever
+ * carries it now was written in the dialog and is removed rather than restored.
+ */
+function restoreInlineSize(element: ImsTextFieldElement, snapshot: InlineSizeSnapshot): void {
+  for (const [property, value, priority] of snapshot) {
+    if (value === '') {
+      element.style.removeProperty(property);
+      continue;
+    }
+
+    element.style.setProperty(property, value, priority);
+  }
 }
 
 /**

@@ -56,7 +56,6 @@
  * column.
  */
 .ims-focus-mode:where(.ims-input-action) {
-    inline-size: 100%;
     max-inline-size: max(
       0px,
       calc(100% - var(--ims-input-action-size) - var(--ims-input-action-gap, 0.175rem))
@@ -216,12 +215,13 @@
 }
 
 /**
- * A projected textarea gets room to work: never fewer than four rows, whatever
+ * A projected textarea gets room to work: never fewer than eight rows, whatever
  * `rows` the caller wrote for its form row, and more than that on a tall
  * viewport.
  *
- * `block-size: auto` is required because `.ims-input` pins every field to
- * `--field-height`; without it the textarea would arrive one row tall.
+ * `block-size: auto` clears whatever height the field was carrying for that
+ * row — the height its own `rows` gives it, or one a caller's class wrote — so
+ * the minimum below is what decides how tall it opens.
  *
  * Resizing is vertical only. A horizontal drag would take the field straight
  * past the dialog width that the rule above exists to protect.

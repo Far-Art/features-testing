@@ -76,7 +76,7 @@ stays the single source of truth for its state.
 | Field state | Trigger | Dialog |
 | --- | --- | --- |
 | Editable | the shared `ims-button-edit` affordance | Apply and Cancel |
-| Disabled, readonly, or in a readonly scope | an icon button showing `zoom_in` | Cancel only, no editing |
+| Disabled, readonly, or in a readonly scope | an icon button showing `zoom_in` | one primary Close, no editing |
 
 The editable trigger is the house edit affordance rather than an icon chosen here, so it
 carries the same glyph as every other edit button in the application and cannot drift from
@@ -86,7 +86,12 @@ that switching between them changes the glyph and nothing else.
 State is read from every source that can change it: the Angular control, the native
 `disabled` and `readonly` attributes, and the nearest `ims-readonly` provider. All three are
 live — a control disabled while the dialog is open takes the dialog readonly with it and
-removes the Apply action, without closing.
+drops to the single Close action, without closing.
+
+A dialog opened only to read a field ends in **Close**, one primary button, rather than in
+Cancel beside nothing. There is no draft to keep or discard there, so the action is a way out
+and not a decision — the same footer the dialog shell gives its own view-only dialogs. Edits
+put both back: Cancel beside a primary Apply.
 
 The trigger itself deliberately stays interactive inside a readonly scope. Reading a locked
 value is still allowed, so a readonly field keeps a working zoom-in action.
@@ -185,6 +190,7 @@ projection stage takes ownership of it.
 | Every projected child is clamped to the stage width | Nothing can exceed the dialog, so it never gains a horizontal scrollbar |
 | A `textarea` opens at eight rows | A field written as `rows="1"` still opens with room to work |
 | A `textarea` resizes vertically only, in the dialog and in its form row | A horizontal drag cannot push the field past the dialog, or out of the column the form gave it |
+| A drag taken in the dialog is undone on close | The form row is the size the user left it at, not the size the dialog needed |
 
 The width clamp matters more than it looks. `.ims-dialog-content` sets `overflow-y: auto`,
 which resolves its `overflow-x` to `auto` as well, so a field that is merely *wider* than the
@@ -204,6 +210,14 @@ same size on every screen instead of growing to fill a tall one. Change it with
 
 Vertical-only resizing applies in both places the field can be. In the dialog it protects the
 width clamp above; in the form row it keeps the field inside its `.ims-input-action` track.
+
+A size dragged on the stage stays there. The stage's own sizing is CSS and stops applying
+the moment the field leaves it, but a resize drag is not — the browser writes the dragged
+size as an inline declaration on the element, and the element the dialog hands back is the
+one that went in. So the field's inline sizing is captured on open and put back on close,
+whether that close was an apply or a cancel: the height someone needed to read a long value
+in a dialog is not a height their form row asked for. A height the field already carried on
+the way in is its own and survives untouched.
 
 Dragging stops where the dialog does. Growing past what the dialog can show would not reveal
 more of the field — the content area would simply start scrolling, taking the field's own top

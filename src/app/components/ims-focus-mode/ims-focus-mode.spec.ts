@@ -36,6 +36,7 @@ class FocusModeHost {
   readonly labels = {
     apply: 'Apply',
     cancel: 'Cancel',
+    close: 'Close',
     characters: 'characters',
     required: 'Required',
   };
@@ -115,6 +116,16 @@ function clickAction(label: string): void {
   actionButton(label).click();
 }
 
+/**
+ * Leaves an open dialog by whichever way out it offers.
+ *
+ * The first action is always the one that closes without committing — Cancel
+ * while the field is editable, Close while it is only being read.
+ */
+function dismiss(): void {
+  clickAction(actionLabels()[0]);
+}
+
 function characterCount(): string {
   return document.querySelector('.ims-focus-mode__count')?.textContent?.trim() ?? '';
 }
@@ -139,6 +150,7 @@ class SeparatedHost {
   readonly labels = {
     apply: 'Apply',
     cancel: 'Cancel',
+    close: 'Close',
     characters: 'characters',
     required: 'Required',
   };
@@ -161,7 +173,7 @@ describe('ImsFocusMode with a named field', () => {
 
   afterEach(async () => {
     if (stage()) {
-      clickAction('Cancel');
+      dismiss();
       await settle(fixture);
     }
 
@@ -232,7 +244,7 @@ describe('ImsFocusMode', () => {
 
   afterEach(async () => {
     if (stage()) {
-      clickAction('Cancel');
+      dismiss();
       await settle(fixture);
     }
 
@@ -358,7 +370,7 @@ describe('ImsFocusMode', () => {
     await settle(fixture);
 
     expect(stage()).not.toBeNull();
-    expect(actionLabels()).toEqual(['Cancel']);
+    expect(actionLabels()).toEqual(['Close']);
   });
 
   it('buffers edits so the control is untouched while the dialog is open', async () => {
@@ -501,7 +513,23 @@ describe('ImsFocusMode', () => {
     await settle(fixture);
 
     expect(stage()).not.toBeNull();
-    expect(actionLabels()).toEqual(['Cancel']);
+    expect(actionLabels()).toEqual(['Close']);
+  });
+
+  it('offers one primary way out while the field is only being read', async () => {
+    triggers(fixture)[2].click();
+    await settle(fixture);
+
+    // Nothing is being weighed up here: there is no draft to keep or discard,
+    // so the single action carries the dialog rather than asking the user
+    // which change they are backing out of.
+    expect(actionLabels()).toEqual(['Close']);
+    expect(actionButton('Close').classList.contains('ims-button--primary')).toBe(true);
+
+    clickAction('Close');
+    await settle(fixture);
+
+    expect(stage()).toBeNull();
   });
 
   it('still discards the draft when the control was disabled mid-dialog', async () => {
@@ -513,7 +541,7 @@ describe('ImsFocusMode', () => {
     // must not mistake that for an external write and adopt the draft.
     host.notes.disable();
     await settle(fixture);
-    clickAction('Cancel');
+    dismiss();
     await settle(fixture);
 
     host.notes.enable();
@@ -601,6 +629,38 @@ describe('ImsFocusMode', () => {
     expect(focusModeHost.firstElementChild).toBe(original);
   });
 
+  it('restores a height the field arrived with after a drag in the dialog', async () => {
+    const original = root(fixture).querySelector('textarea')!;
+    // The height a drag in the form row leaves behind, which the field is
+    // entitled to keep.
+    original.style.height = '4rem';
+
+    await openNotes();
+    // A resize drag is written by the browser as an inline height on the
+    // element itself, and that element is the one the dialog hands back.
+    stageField()!.style.height = '30rem';
+
+    clickAction('Cancel');
+    await settle(fixture);
+
+    expect(original.style.height).toBe('4rem');
+  });
+
+  it('leaves the field with no inline size it did not arrive with', async () => {
+    const original = root(fixture).querySelector('textarea')!;
+    expect(original.style.height).toBe('');
+
+    await openNotes();
+    stageField()!.style.height = '30rem';
+
+    // Applying commits the value; the box the dialog gave the field is no more
+    // the row's than a cancelled one would be.
+    clickAction('Apply');
+    await settle(fixture);
+
+    expect(original.style.height).toBe('');
+  });
+
   it('reads a readonly directive placed on the field itself', async () => {
     // The directive is on the field, which is a *child* of the wrapper, so
     // injection cannot carry the state upward the way an ancestor scope does.
@@ -615,7 +675,7 @@ describe('ImsFocusMode', () => {
     await settle(fixture);
 
     expect(stage()).not.toBeNull();
-    expect(actionLabels()).toEqual(['Cancel']);
+    expect(actionLabels()).toEqual(['Close']);
   });
 
   it('hands the length limit to the browser while the field is projected', async () => {

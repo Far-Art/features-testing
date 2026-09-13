@@ -35,9 +35,9 @@
     </span>
   </span>
 
-  <button ims-button (click)="cancel()">{{ session.labels.cancel }}</button>
-
   @if (session.editable()) {
+    <button ims-button (click)="cancel()">{{ session.labels.cancel }}</button>
+
     <button
       ims-button
       ims-button-variation="primary"
@@ -45,6 +45,17 @@
       (click)="apply()"
     >
       {{ session.labels.apply }}
+    </button>
+  } @else {
+    <!--
+      A field opened only to be read has nothing to weigh up: no draft to keep
+      or discard, so the single action is a way out rather than a decision, and
+      a lone "cancel" would ask which change the user is backing out of. This
+      is the dialog shell's own view-only footer — one primary "close" —
+      restated here, because focus mode writes its own actions.
+    -->
+    <button ims-button ims-button-variation="primary" (click)="cancel()">
+      {{ session.labels.close }}
     </button>
   }
 </ims-dialog-actions>

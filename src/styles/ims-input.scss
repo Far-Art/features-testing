@@ -75,6 +75,25 @@
 }
 
 /**
+ * A `textarea` is as tall as its own `rows` says.
+ *
+ * The height above is what lines a row of fields up with each other, and it is
+ * written for the single-line ones. A `textarea` is caught by it too, and then
+ * `rows="4"` renders one row tall — the attribute a caller reaches for first
+ * does nothing, and every layout that wants a taller field has to win the
+ * height back with a `min-height` of its own.
+ *
+ * Height is handed back to the element here, so the attribute is what answers
+ * the question. The floor stays: a `rows="1"` textarea is still a full field
+ * tall, so it sits level with the single-line fields beside it in a form row
+ * rather than a few pixels short of them.
+ */
+textarea.ims-input {
+    height: auto;
+    min-height: var(--field-height);
+}
+
+/**
  * Gives an input-like field one fixed-size adjacent action while keeping the
  * host's declared inline size mapped to the field whenever space permits.
  * The end padding reserves the action inside the host's layout footprint;
@@ -87,7 +106,6 @@
     position: relative;
     display: inline-block;
     box-sizing: content-box;
-    inline-size: 100%;
     max-inline-size: max(
       0px,
       calc(100% - var(--ims-input-action-size) - var(--ims-input-action-gap))

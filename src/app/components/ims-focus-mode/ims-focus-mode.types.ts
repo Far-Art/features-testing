@@ -7,6 +7,13 @@ export interface ImsFocusModeLabels {
   readonly apply: string;
   /** Discards the buffered draft. */
   readonly cancel: string;
+  /**
+   * Leaves a field that was only ever being read.
+   *
+   * Separate from `cancel` because it is a different sentence: there is no
+   * draft to discard, so the action is a way out rather than a way back.
+   */
+  readonly close: string;
   /** Accessible name of the trigger while the field is editable. */
   readonly edit: string;
   /** Accessible name of the trigger while the field is disabled or readonly. */
@@ -29,6 +36,7 @@ export interface ImsFocusModeLabels {
 export const IMS_FOCUS_MODE_DEFAULT_LABELS: ImsFocusModeLabels = {
   apply: 'אשר',
   cancel: 'בטל',
+  close: 'סגור',
   edit: 'עריכה במסך מלא',
   zoom: 'הצגה מוגדלת',
   editNamed: 'ערוך {name}',

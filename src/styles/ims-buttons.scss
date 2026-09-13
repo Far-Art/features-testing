@@ -369,7 +369,7 @@
   // than the outlined pencil beside it, so matching the two by font size makes
   // delete read as the larger of the pair. A call site can still override this
   // for one button with `icon-size`.
-  --ims-button-symbol-size: 0.7rem;
+  --ims-button-symbol-size: 0.9rem;
   --ims-button-background: transparent;
   --ims-button-background-hover: var(--ims-color-danger-100);
   --ims-button-background-active: var(--ims-color-danger-150);
