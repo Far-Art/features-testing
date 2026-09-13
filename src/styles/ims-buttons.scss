@@ -371,8 +371,8 @@
   // for one button with `icon-size`.
   --ims-button-symbol-size: 0.7rem;
   --ims-button-background: transparent;
-  --ims-button-background-hover: var(--ims-color-danger-50);
-  --ims-button-background-active: var(--ims-color-danger-100);
+  --ims-button-background-hover: var(--ims-color-danger-100);
+  --ims-button-background-active: var(--ims-color-danger-150);
   --ims-button-color: var(--ims-color-on-surface-muted);
   --ims-button-color-active: var(--ims-color-danger-700);
   --ims-button-ring-color: var(--ims-color-danger-450);
@@ -398,8 +398,8 @@
 
 .ims-button--edit {
   --ims-button-background: transparent;
-  --ims-button-background-hover: var(--ims-color-primary-50);
-  --ims-button-background-active: var(--ims-color-primary-100);
+  --ims-button-background-hover: var(--ims-color-primary-100);
+  --ims-button-background-active: var(--ims-color-primary-150);
   --ims-button-color: var(--ims-color-on-surface-muted);
   --ims-button-color-active: var(--ims-color-interactive-alt-strong);
   --ims-button-ring-color: var(--ims-color-interactive);
