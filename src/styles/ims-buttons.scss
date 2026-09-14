@@ -84,6 +84,7 @@
   padding: 0 1rem;
   border: 1px solid var(--ims-button-border);
   border-radius: var(--ims-button-radius);
+  white-space: nowrap;
   background: var(--ims-button-background);
   // Must stay after the `background` shorthand, which resets background-image.
   // `farthest-corner` makes 100% land exactly on the corners, so the ripple
