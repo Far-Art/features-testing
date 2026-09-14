@@ -36,7 +36,7 @@ ims-form-field {
             max-width: max-content;
             grid-column: 2;
             grid-row: 1;
-            margin-inline-start: calc(var(--ims-form-checkbox-size, 1rem) + var(--ims-form-field-gap));
+            margin-inline-start: calc(var(--ims-form-checkbox-size, var(--checkbox-size)) + var(--ims-form-field-gap));
         }
     }
 

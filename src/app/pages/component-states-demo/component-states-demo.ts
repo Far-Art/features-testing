@@ -6,7 +6,7 @@ import {
   ImsDatepickerValue,
 } from '../../components/ims-datepicker';
 import { ImsAutocomplete, ImsAutocompleteOption } from '../../components/ims-autocomplete';
-import { ImsCheckbox } from '../../components/ims-checkbox/ims-checkbox';
+import { ImsCheckbox } from '../../components/ims-checkbox';
 import { ImsOption, ImsSelect } from '../../components/ims-select';
 import { ReadonlyDirective } from '../../shared/readonly.directive';
 

@@ -4,7 +4,7 @@ import {ImsInputDirective} from '../../ims-input.directive';
 import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
 import {ImsButton, ImsButtonIcon} from '../ims-button';
 import {ImsIcon} from '../ims-icon';
-import {ImsCheckbox} from '../ims-checkbox/ims-checkbox';
+import {ImsCheckbox} from '../ims-checkbox';
 import {ImsAbstractDialog, ImsDialogActions, ImsDialogContent} from '../ims-dialog';
 import {ImsScrollContainer} from '../ims-scroll-container/ims-scroll-container';
 import {

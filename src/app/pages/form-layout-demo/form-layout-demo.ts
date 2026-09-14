@@ -1,7 +1,7 @@
 import {DatePipe} from '@angular/common';
 import {ChangeDetectionStrategy, Component} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {ImsCheckbox} from '../../components/ims-checkbox/ims-checkbox';
+import {ImsCheckbox} from '../../components/ims-checkbox';
 import {
     ImsDatepicker
 } from '../../components/ims-datepicker';

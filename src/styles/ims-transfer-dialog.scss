@@ -179,15 +179,7 @@
   flex: 0 0 auto;
 }
 
-.ims-transfer-dialog__checkbox .ims-cb {
-  --ims-cb-border: var(--ims-color-border);
-  --ims-cb-fill: var(--ims-color-interactive);
-  --ims-cb-fill-hover: var(--ims-color-interactive-strong);
-  --ims-cb-mark: var(--ims-color-on-interactive);
-  --ims-cb-label: var(--ims-color-on-surface);
-  --ims-cb-ripple-color: var(--ims-color-interactive-subtle);
-  --ims-cb-focus-ring: var(--ims-color-focus-ring);
-
+.ims-transfer-dialog__checkbox .ims-checkbox {
   gap: 0;
 }
 

@@ -357,8 +357,9 @@ For this structure:
 This exception requires `ims-checkbox` to be a direct child of
 `ims-form-field`. A wrapped checkbox uses the normal value-content layout.
 
-The placement offset uses `--ims-form-checkbox-size`, defaulting to `1rem`.
-Override that variable if the checkbox visual size differs.
+The placement offset uses `--ims-form-checkbox-size`, defaulting to the shared
+`--checkbox-size` token that also sizes the checkbox box. Override it only for a
+checkbox that does not use that token.
 
 ## Native And Custom Value Content
 
@@ -389,7 +390,7 @@ The main field custom properties are:
 | --- | --- | --- |
 | `--ims-form-field-gap` | `0.5rem` | Gap between a field's label and value. |
 | `--ims-form-accent` | `#1769aa` | Focus and hover accent. |
-| `--ims-form-checkbox-size` | `1rem` fallback | Direct-checkbox placement offset. |
+| `--ims-form-checkbox-size` | `--checkbox-size` fallback | Direct-checkbox placement offset. |
 | `--ims-form-column-gap` | set by `columnGap` | Minimum flexible space between field pairs. |
 | `--ims-form-row-gap` | set by `rowGap` | Grid row gap. |
 

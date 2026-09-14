@@ -1,0 +1,207 @@
+// The native input is the real control: it covers the whole label, takes the
+// click, the focus and the form state, and its :checked, :indeterminate and
+// :disabled pseudo-classes drive every visual state below. The track only
+// paints what the input already is, so the picture cannot drift from the value
+// assistive technology reads.
+.ims-checkbox {
+    --ims-checkbox-duration: 200ms;
+    --ims-checkbox-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    color: var(--ims-color-on-surface);
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.ims-checkbox:has(> .ims-checkbox__native:disabled) {
+    color: var(--ims-color-on-surface-disabled);
+    cursor: not-allowed;
+}
+
+.ims-checkbox-host.ims-readonly .ims-checkbox:has(> .ims-checkbox__native:disabled) {
+    color: var(--ims-color-on-surface-readonly);
+}
+
+.ims-checkbox__native {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: inherit;
+}
+
+// Outer size comes from the shared sizing token, which ims-form-field also
+// reads to place a field label beside a direct checkbox.
+.ims-checkbox__track {
+    position: relative;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    width: var(--checkbox-size);
+    height: var(--checkbox-size);
+    border: 2px solid var(--ims-color-border);
+    border-radius: 0.3rem;
+    background: transparent;
+    // The mark strokes with currentColor, so this is the mark color.
+    color: transparent;
+}
+
+// Transitions wait for the first render, so a checkbox that starts checked
+// appears checked instead of animating into it.
+.ims-checkbox--animations-ready .ims-checkbox__track {
+    transition:
+        background-color var(--ims-checkbox-duration) var(--ims-checkbox-ease),
+        border-color var(--ims-checkbox-duration) var(--ims-checkbox-ease),
+        color var(--ims-checkbox-duration) var(--ims-checkbox-ease),
+        transform 120ms var(--ims-checkbox-ease);
+}
+
+// Larger than the track and not clipped by it, so it bleeds outward. Centered
+// with physical offsets and a physical translate, which cancel out in either
+// direction.
+.ims-checkbox__ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc(var(--checkbox-size) * 2);
+    height: calc(var(--checkbox-size) * 2);
+    border-radius: 50%;
+    background: color-mix(in oklab, var(--ims-color-interactive) 18%, transparent);
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    pointer-events: none;
+}
+
+// Duration matches IMS_CHECKBOX_RIPPLE_MS in ims-checkbox.ts.
+.ims-checkbox--animations-ready.ims-checkbox--ripple .ims-checkbox__ripple {
+    animation: ims-checkbox-ripple 350ms ease-out forwards;
+}
+
+.ims-checkbox__icon {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+// One <path> serves as both the checkmark and the indeterminate dash. The two
+// shapes share the same command structure (M L L), so the CSS `d` transition
+// morphs one into the other.
+//
+// stroke-dasharray is fixed at 22, longer than either shape (~15.6 and 9), so
+// stroke-dashoffset alone draws the mark in (22 → 0) and erases it (0 → 22).
+.ims-checkbox__mark {
+    stroke-dasharray: 22;
+    stroke-dashoffset: 22;
+    opacity: 0;
+}
+
+.ims-checkbox--animations-ready .ims-checkbox__mark {
+    transition:
+        d var(--ims-checkbox-duration) var(--ims-checkbox-ease),
+        stroke-dashoffset calc(var(--ims-checkbox-duration) * 1.6) var(--ims-checkbox-ease),
+        opacity 80ms ease;
+}
+
+.ims-checkbox__label {
+    line-height: 1.4;
+}
+
+// Without projected text the label would still take a flex gap and push the
+// host wider than the box.
+.ims-checkbox__label:empty {
+    display: none;
+}
+
+.ims-checkbox__native:not(:disabled):hover + .ims-checkbox__track {
+    border-color: var(--ims-color-interactive);
+    transform: scale(1.06);
+}
+
+.ims-checkbox__native:not(:disabled):active + .ims-checkbox__track {
+    transform: scale(0.94);
+}
+
+.ims-checkbox__native:focus-visible + .ims-checkbox__track {
+    box-shadow: 0 0 0 3px var(--ims-color-focus-ring);
+}
+
+.ims-checkbox__native:is(:checked, :indeterminate) + .ims-checkbox__track {
+    border-color: var(--ims-color-interactive);
+    background: var(--ims-color-interactive);
+    color: var(--ims-color-on-interactive);
+}
+
+.ims-checkbox__native:is(:checked, :indeterminate):not(:disabled):hover + .ims-checkbox__track {
+    border-color: var(--ims-color-interactive-strong);
+    background: var(--ims-color-interactive-strong);
+}
+
+.ims-checkbox__native:is(:checked, :indeterminate) + .ims-checkbox__track .ims-checkbox__mark {
+    stroke-dashoffset: 0;
+    opacity: 1;
+}
+
+.ims-checkbox__native:disabled + .ims-checkbox__track {
+    border-color: var(--ims-color-border-subtle);
+    background: var(--ims-color-surface-input-disabled);
+}
+
+.ims-checkbox__native:disabled:is(:checked, :indeterminate) + .ims-checkbox__track {
+    border-color: var(--ims-color-on-surface-disabled);
+    background: var(--ims-color-on-surface-disabled);
+}
+
+// Readable disabled treatment, see component-styling-guide.md. The input is
+// disabled whenever the host sits in an ims-readonly scope.
+.ims-checkbox-host.ims-readonly .ims-checkbox__native:disabled + .ims-checkbox__track {
+    border-color: var(--ims-color-border-subtle);
+    background: var(--ims-color-surface-input-readonly);
+    color: var(--ims-color-on-surface-readonly);
+}
+
+// `ng-invalid` lands on the host, not on the native input. Kept after the hover
+// rules so an invalid box keeps its danger tone under the pointer; disabled and
+// readonly boxes are left alone, as in ims-input.scss.
+.ims-checkbox-host.ng-invalid .ims-checkbox__native:not(:disabled) + .ims-checkbox__track {
+    border-color: var(--ims-color-invalid);
+}
+
+.ims-checkbox-host.ng-invalid .ims-checkbox__native:not(:disabled):is(:checked, :indeterminate) + .ims-checkbox__track {
+    background: var(--ims-color-invalid);
+}
+
+.ims-checkbox-host.ng-invalid .ims-checkbox__native:focus-visible + .ims-checkbox__track {
+    box-shadow: 0 0 0 3px var(--ims-color-invalid-focus-ring);
+}
+
+@keyframes ims-checkbox-ripple {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 1;
+    }
+
+    60% {
+        opacity: 0.6;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ims-checkbox--animations-ready :is(.ims-checkbox__track, .ims-checkbox__mark) {
+        transition: none;
+    }
+
+    .ims-checkbox--animations-ready.ims-checkbox--ripple .ims-checkbox__ripple {
+        animation: none;
+    }
+}

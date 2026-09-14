@@ -12,19 +12,33 @@ import {
 } from '@angular/core';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 
+/** Matches the ripple animation duration in ims-checkbox.scss. */
 const IMS_CHECKBOX_RIPPLE_MS = 350;
 
-type CheckboxVisualState = 'unchecked' | 'checked' | 'intermediate';
+// The checkmark and the dash share the same SVG commands (M L L), which lets the
+// browser interpolate between them via the CSS `d` transition.
+const CHECKMARK_PATH = 'M 3.5 9.5 L 7 13 L 14.5 5.5';
+const DASH_PATH = 'M 4.5 9 L 9 9 L 13.5 9';
 
 @Component({
     selector: 'ims-checkbox',
     standalone: true,
     templateUrl: './ims-checkbox.html',
-    styleUrl: './ims-checkbox.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [provideValueAccessor(ImsCheckbox)]
+    providers: [provideValueAccessor(ImsCheckbox)],
+    host: {
+        class: 'ims-checkbox-host'
+    }
 })
-export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T> {
+/**
+ * Form-compatible checkbox with an optional indeterminate state.
+ *
+ * Checked state comes from the explicit `checked` input when bound, otherwise
+ * from comparing the form value with `trueValue`. A user toggle writes
+ * `trueValue` or `falseValue` to the form and emits `checkedChange`; form
+ * writes and parent bindings never emit.
+ */
+export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T | F> {
     private rippleResetHandle: ReturnType<typeof setTimeout> | null = null;
 
     readonly intermediate = model(false);
@@ -57,22 +71,9 @@ export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T>
         const explicit = this.checkedState();
         return explicit !== undefined ? explicit : Object.is(this.currentValue(), this.trueValue());
     });
-    readonly visualState = computed<CheckboxVisualState>(() => {
-        if (this.intermediate()) return 'intermediate';
-        return this.isChecked() ? 'checked' : 'unchecked';
-    });
+    readonly svgPath = computed(() => this.intermediate() ? DASH_PATH : CHECKMARK_PATH);
     readonly animationsReady = signal(false);
     readonly rippleActive = signal(false);
-
-    // Checkmark path and dash path share the same number of SVG commands (M L L),
-    // which allows the browser to interpolate between them via CSS `d` transition.
-    // stroke-dasharray stays constant at 22 (larger than both path lengths),
-    // so stroke-dashoffset alone controls the pen-draw / erase effect.
-    readonly svgPath = computed(() =>
-        this.visualState() === 'intermediate'
-            ? 'M 4.5 9 L 9 9 L 13.5 9'
-            : 'M 3.5 9.5 L 7 13 L 14.5 5.5'
-    );
 
     constructor() {
         super();
@@ -93,13 +94,13 @@ export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T>
             this.checkedState.set(nextChecked);
         }
 
-        this.value.set(nextValue as never);
+        this.value.set(nextValue);
 
         if (this.intermediate()) {
             this.intermediate.set(false);
         }
 
-        this.onChange(nextValue as never);
+        this.onChange(nextValue);
         this.checkedChange.emit(nextChecked);
 
         // Ripple is feedback for the user's click, not for programmatic updates.
