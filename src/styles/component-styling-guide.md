@@ -82,19 +82,26 @@ never shorter than one field height — `rows="4"` renders four rows, and
 `rows="1"` lines up with the single-line fields beside it. Write a `min-height`
 only to raise that floor, not to win the attribute back.
 
-For a form-compatible component with an internal visual control, put
-`.ims-input-host` on the component host and mark only its primary control with
-`data-ims-main-control`:
+For a form-compatible component with an internal visual control, Angular places
+`ng-invalid` on the component host rather than on the `.ims-input` inside it,
+so the invalid rules of `.ims-input` never reach that control. Style the invalid
+state in the component stylesheet, scoped from the host to the primary control,
+and retune the hover fill together with the border, so hovering an invalid field
+answers in the danger tone rather than the house blue:
 
-```ts
-@Component({
-    selector: 'ims-example',
-    host: {
-        class: 'ims-example-host ims-input-host'
-    }
-})
-export class ImsExample {}
+```scss
+.ims-example-host.ng-invalid .ims-example__input:not(:disabled) {
+    --ims-input-fill: var(--ims-input-invalid-fill, var(--ims-color-status-danger-subtle));
+
+    border-color: var(--ims-input-invalid-border, var(--ims-color-invalid));
+}
 ```
+
+Scoping the rule to the primary control keeps auxiliary inputs, such as filters,
+unaffected. When the component uses `ims-error-popover`, also mark that control
+with `data-ims-main-control`: the directive puts `aria-invalid` and
+`aria-describedby` on the marked element, and otherwise falls back to the host's
+first focusable descendant.
 
 ```html
 <div class="ims-example">
@@ -107,10 +114,6 @@ export class ImsExample {}
     <input class="ims-input ims-example__filter" type="search">
 </div>
 ```
-
-When Angular places `ng-invalid` on the component host, only the element marked
-with `data-ims-main-control` receives the invalid style. Auxiliary inputs such
-as filters remain unaffected.
 
 The input class supports local overrides:
 
@@ -204,9 +207,9 @@ Add `.ims-readonly` to a disabled shared input:
 <input class="ims-input ims-readonly" type="text" disabled>
 ```
 
-For a wrapped form component, add the class to its `.ims-input-host`. The
-customization variables inherit into the disabled element marked with
-`data-ims-main-control`.
+For a wrapped form component, add the class to the component host; the
+customization variables inherit into its disabled control. `BasicValueAccessor`
+already does this for hosts inside an `ims-readonly` scope.
 
 Use the regular `*-disabled` tokens when the lower-emphasis disabled appearance
 is appropriate. `.ims-readonly` has no visual effect until the shared input is
@@ -262,8 +265,9 @@ Do not construct class names with the parent selector:
   controls.
 - Remember that detached overlays do not inherit component-local variables.
 - Apply `.ims-input` to input-like controls.
-- Use `.ims-input-host` and `data-ims-main-control` for wrapped Angular form
-  controls.
+- Style a wrapped control's invalid state from its host, retuning
+  `--ims-input-fill` with the border, and mark its primary control with
+  `data-ims-main-control` when it uses `ims-error-popover`.
 - Use the shared input-action classes for one fixed-size adjacent button.
 - Keep layout and structural styles inside the component stylesheet.
 - Write full class names for elements and modifiers.

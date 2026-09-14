@@ -1,12 +1,19 @@
 import {InjectionToken, Signal} from '@angular/core';
+import {
+    ImsSelectionAutoMode,
+    ImsSelectionCompareWith,
+    ImsSelectionEditDialogMode,
+    ImsSelectionToolbarSide,
+    ImsSelectionViewMode
+} from '../ims-selection/ims-selection.types';
 
-export type ImsSelectFilterMode = 'on' | 'off' | 'auto';
-export type ImsSelectToolbarMode = 'on' | 'off' | 'auto';
-export type ImsSelectEditDialogMode = 'default' | 'custom' | 'off';
-export type ImsSelectViewMode = 'all' | 'selected' | 'unselected';
-export type ImsSelectToolbarSide = 'left' | 'right';
+export type ImsSelectFilterMode = ImsSelectionAutoMode;
+export type ImsSelectToolbarMode = ImsSelectionAutoMode;
+export type ImsSelectEditDialogMode = ImsSelectionEditDialogMode;
+export type ImsSelectViewMode = ImsSelectionViewMode;
+export type ImsSelectToolbarSide = ImsSelectionToolbarSide;
 export type ImsSelectActivationSource = 'selection' | 'pointer';
-export type ImsSelectCompareWith<T> = (first: T, second: T) => boolean;
+export type ImsSelectCompareWith<T> = ImsSelectionCompareWith<T>;
 
 export interface ImsSelectOptionLike<T = unknown> {
     readonly id: string;

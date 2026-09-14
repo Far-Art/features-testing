@@ -27,6 +27,30 @@ import {Directionality} from '@angular/cdk/bidi';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
 import {runViewTransition} from '../../shared/view-transition';
+import {ImsIcon} from '../ims-icon';
+import {ImsSelectionReadonlyPanel} from '../ims-selection/ims-selection-readonly-panel';
+import {ImsSelectionToolbar} from '../ims-selection/ims-selection-toolbar';
+import {
+  IMS_SELECTION_EMPTY_DISPLAY,
+  IMS_SELECTION_LABELS,
+  ImsSelectionDisplayState,
+  ImsSelectionLabels,
+  ImsSelectionOverlaySide
+} from '../ims-selection/ims-selection.types';
+import {
+  SELECTION_FILTER_FALLBACK_HEIGHT,
+  countViewModes,
+  matchesSearchQuery,
+  measureTextWidth,
+  mergeEditDialogResult,
+  normalizeSearchText,
+  optionsForViewMode,
+  resolveAvailableValueWidth,
+  resolveListboxMaxHeight,
+  resolveMultiDisplay,
+  resolveToolbarSide,
+  toggleSelectedValue
+} from '../ims-selection/ims-selection.utils';
 import {ImsOption} from './ims-option';
 import {ImsTransferDialogService, ImsTransferRow} from '../ims-transfer-dialog';
 import {
@@ -43,13 +67,6 @@ import {
 } from './ims-select.types';
 
 type ImsSelectFormValue<T> = T | readonly T[] | null | undefined;
-type ImsSelectOverlaySide = 'above' | 'below';
-
-interface ImsSelectDisplayState {
-  readonly text: string;
-  readonly overflowCount: number;
-  readonly firstTruncated: boolean;
-}
 
 const OVERLAY_POSITIONS: ConnectedPosition[] = [
   {
@@ -75,19 +92,8 @@ const OVERLAY_POSITIONS: ConnectedPosition[] = [
   }
 ];
 
-const DEFAULT_DISPLAY: ImsSelectDisplayState = {
-  text: '',
-  overflowCount: 0,
-  firstTruncated: false
-};
-
 const defaultCompare = <T>(first: T, second: T) => first === second;
-const LISTBOX_MIN_HEIGHT = 144;
-const LISTBOX_MAX_HEIGHT = 350;
-const VIEWPORT_MARGIN = 12;
-const TOOLBAR_FALLBACK_WIDTH = 40;
-const TOOLBAR_GAP = 8;
-const TRIGGER_ITEM_GAP = 8;
+const LISTBOX_BOUNDS = {min: 144, max: 350};
 const TYPEAHEAD_RESET_MS = 700;
 
 let nextSelectId = 0;
@@ -95,7 +101,14 @@ let nextSelectId = 0;
 @Component({
   selector: 'ims-select',
   standalone: true,
-  imports: [CdkOverlayOrigin, CdkConnectedOverlay, ImsTextTruncateDirective],
+  imports: [
+    CdkOverlayOrigin,
+    CdkConnectedOverlay,
+    ImsIcon,
+    ImsSelectionReadonlyPanel,
+    ImsSelectionToolbar,
+    ImsTextTruncateDirective
+  ],
   templateUrl: './ims-select.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
@@ -114,7 +127,8 @@ let nextSelectId = 0;
  *
  * Supports single and multiple values, optional client-side filtering,
  * keyboard navigation, typeahead, and a multi-select toolbar. Single-select
- * mode writes `T | null`; multiple mode writes a readonly `T[]`.
+ * mode writes `T | null`; multiple mode writes a readonly `T[]`. A `clearable`
+ * single select can be cleared back to `null`.
  *
  * Selected labels are compacted to fit the trigger. When values are hidden or
  * truncated, hovering the trigger displays their full text through
@@ -125,20 +139,21 @@ export class ImsSelect<T = unknown>
   implements AfterViewInit, OnDestroy, ImsSelectParent<T> {
   private resizeObserver: ResizeObserver | null = null;
   private measureFrame: ReturnType<typeof requestAnimationFrame> | null = null;
-  private overlaySide: ImsSelectOverlaySide | undefined;
+  private overlaySide: ImsSelectionOverlaySide | undefined;
   private typeaheadQuery = '';
   private typeaheadResetTimer: ReturnType<typeof setTimeout> | null = null;
   readonly directionality = inject(Directionality);
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
   private readonly transferDialog = inject(ImsTransferDialogService);
+  private readonly injectedLabels = inject(IMS_SELECTION_LABELS);
 
   private readonly triggerButton = viewChild<ElementRef<HTMLButtonElement>>('triggerButton');
   private readonly filterField = viewChild<ElementRef<HTMLElement>>('filterField');
   private readonly filterInput = viewChild<ElementRef<HTMLInputElement>>('filterInput');
   private readonly listbox = viewChild<ElementRef<HTMLElement>>('listbox');
   private readonly menu = viewChild<ElementRef<HTMLElement>>('menu');
-  private readonly readonlyPanel = viewChild<ElementRef<HTMLElement>>('readonlyPanel');
-  private readonly toolbarPanel = viewChild<ElementRef<HTMLElement>>('toolbarPanel');
+  private readonly readonlyPanel = viewChild(ImsSelectionReadonlyPanel);
+  private readonly toolbarPanel = viewChild(ImsSelectionToolbar, {read: ElementRef});
   private readonly valueRow = viewChild<ElementRef<HTMLElement>>('valueRow');
   private readonly measureTextElement = viewChild<ElementRef<HTMLElement>>('measureText');
   private readonly measureBadgeElement = viewChild<ElementRef<HTMLElement>>('measureBadge');
@@ -149,8 +164,14 @@ export class ImsSelect<T = unknown>
   /** Enables multi-selection. Multi-select writes a readonly array of selected values. */
   readonly multiple = input(false, {transform: booleanAttribute});
 
-  /** Text displayed in the trigger when no value is selected. */
-  readonly placeholder = input('בחר');
+  /** Text displayed in the trigger when no value is selected. Defaults to `labels.selectPlaceholder`. */
+  readonly placeholder = input<string | null>(null);
+
+  /**
+   * Offers a clear button in a single select while it holds a value, and lets
+   * Delete or Backspace on the closed trigger clear it. Clearing writes `null`.
+   */
+  readonly clearable = input(false, {transform: booleanAttribute});
 
   /** Controls whether the filter input is shown: always, never, or above the auto threshold. */
   readonly filter = input<ImsSelectFilterMode>('auto');
@@ -164,8 +185,8 @@ export class ImsSelect<T = unknown>
   /** Lets a custom edit-dialog owner disable the toolbar action independently. */
   readonly editDialogDisabled = input(false, {transform: booleanAttribute});
 
-  /** Accessible label for the toolbar edit action. */
-  readonly editDialogAriaLabel = input('ערוך בחירה');
+  /** Accessible label for the toolbar edit action. Defaults to `labels.editSelection`. */
+  readonly editDialogAriaLabel = input<string | null>(null);
 
   /** Emitted instead of opening the built-in dialog when `editDialogMode="custom"`. */
   readonly editDialogRequested = output<void>();
@@ -182,6 +203,9 @@ export class ImsSelect<T = unknown>
    */
   readonly filterPredicate = input<ImsSelectFilterPredicate<T> | null>(null);
 
+  /** Replaces individual texts of the application-wide `IMS_SELECTION_LABELS`. */
+  readonly labels = input<Partial<ImsSelectionLabels> | null>(null);
+
   /** Accessible label for the trigger when there is no external visible label. */
   readonly ariaLabel = input<string | null>(null, {alias: 'ariaLabel'});
 
@@ -195,8 +219,17 @@ export class ImsSelect<T = unknown>
   readonly toolbarSide = signal<ImsSelectToolbarSide>('right');
   readonly panelMinWidth = signal(0);
   readonly listboxMinHeight = signal(0);
-  readonly listboxMaxHeight = signal(LISTBOX_MAX_HEIGHT);
-  readonly multiDisplay = signal<ImsSelectDisplayState>(DEFAULT_DISPLAY);
+  readonly listboxMaxHeight = signal(LISTBOX_BOUNDS.max);
+  readonly multiDisplay = signal<ImsSelectionDisplayState>(IMS_SELECTION_EMPTY_DISPLAY);
+
+  readonly effectiveLabels = computed<ImsSelectionLabels>(() => ({
+    ...this.injectedLabels,
+    ...(this.labels() ?? {})
+  }));
+
+  readonly effectivePlaceholder = computed(() =>
+    this.placeholder() ?? this.effectiveLabels().selectPlaceholder
+  );
 
   readonly readonlyMultipleMode = computed(() => this.interactionDisabled() && this.multiple());
 
@@ -237,6 +270,11 @@ export class ImsSelect<T = unknown>
     this.multiple() ? this.selectedValues().length > 0 : this.singleValue() !== null
   );
 
+  /** True while the clear button is offered: a clearable single select holding a value it may change. */
+  readonly canClear = computed(() =>
+    this.clearable() && !this.multiple() && this.hasSelection() && !this.interactionDisabled()
+  );
+
   readonly showFilter = computed(() => {
     if (this.readonlyMultipleMode()) return false;
 
@@ -262,7 +300,7 @@ export class ImsSelect<T = unknown>
   );
 
   readonly textFilteredOptions = computed(() => {
-    const query = this.normalizedFilterQuery();
+    const query = normalizeSearchText(this.filterQuery());
     const options = this.options();
 
     if (!this.showFilter() || !query) return options;
@@ -272,28 +310,14 @@ export class ImsSelect<T = unknown>
       return options.filter((option) => predicate(query, option));
     }
 
-    return options.filter((option) =>
-      this.matchesSearchQuery(option.selectionLabel(), query)
-    );
+    return options.filter((option) => matchesSearchQuery(option.selectionLabel(), query));
   });
 
-  readonly visibleOptions = computed(() => {
-    return this.optionsForViewMode(this.viewMode());
-  });
-  readonly viewOptionCounts = computed<Record<ImsSelectViewMode, number>>(() => {
-    const options = this.textFilteredOptions();
-    let selected = 0;
+  readonly visibleOptions = computed(() => this.optionsInViewMode(this.viewMode()));
 
-    for (const option of options) {
-      if (this.isOptionSelected(option)) selected++;
-    }
-
-    return {
-      all: options.length,
-      selected,
-      unselected: options.length - selected
-    };
-  });
+  readonly viewOptionCounts = computed(() =>
+    countViewModes(this.textFilteredOptions(), (option) => this.isOptionSelected(option))
+  );
 
   readonly activeOption = computed(() => this.visibleOptions()[this.activeIndex()] ?? null);
   readonly activeOptionId = computed(() => this.activeOption()?.id ?? null);
@@ -302,6 +326,17 @@ export class ImsSelect<T = unknown>
   readonly editableOptions = computed(() =>
     this.textFilteredOptions().filter((option) => !option.disabled())
   );
+
+  /**
+   * Visible options as a set. Every projected option asks whether it is
+   * visible, so searching the visible list for each one would make a single
+   * filter keystroke quadratic in the option count.
+   */
+  private readonly visibleOptionSet = computed<ReadonlySet<ImsSelectOptionLike<T>>>(
+    () => new Set(this.visibleOptions())
+  );
+
+  private readonly valuesEqual = (first: T, second: T): boolean => this.compareWith()(first, second);
 
   constructor() {
     super();
@@ -322,7 +357,7 @@ export class ImsSelect<T = unknown>
       if (!this.open() || this.readonlyMultipleMode()) return;
 
       const viewMode = this.viewMode();
-      if (viewMode !== 'all' && this.optionsForViewMode(viewMode).length === 0) {
+      if (viewMode !== 'all' && this.optionsInViewMode(viewMode).length === 0) {
         this.viewMode.set('all');
         this.activeIndex.set(-1);
         return;
@@ -397,8 +432,18 @@ export class ImsSelect<T = unknown>
     this.markAsTouched();
 
     if (focusTrigger) {
-      queueMicrotask(() => this.triggerButton()?.nativeElement.focus({preventScroll: true}));
+      this.focusTrigger();
     }
+  }
+
+  /** Clears a clearable single select to `null` and returns focus to its trigger. */
+  clearValue(): void {
+    if (!this.canClear()) return;
+
+    this.close(false);
+    this.emitValue(null);
+    this.markAsTouched();
+    this.focusTrigger();
   }
 
   onOverlayAttached(): void {
@@ -406,7 +451,7 @@ export class ImsSelect<T = unknown>
       this.updatePanelGeometry();
 
       if (this.readonlyMultipleMode()) {
-        this.readonlyPanel()?.nativeElement.focus({preventScroll: true});
+        this.readonlyPanel()?.focus();
         return;
       }
 
@@ -473,14 +518,21 @@ export class ImsSelect<T = unknown>
 
     this.close(false);
 
+    const labels = this.effectiveLabels();
     const dialogRef = this.transferDialog.open<T, 'options'>({
-      lists: [{id: 'options', title: 'אפשרויות', rows}],
-      dialogTitle: 'עריכת בחירה'
+      lists: [{id: 'options', title: labels.editDialogOptions, rows}],
+      dialogTitle: labels.editDialogTitle
     });
 
     dialogRef.closed.subscribe((result) => {
       if (result === undefined) return;
-      this.applyEditDialogResult(rows, result.checked);
+
+      this.emitValue(mergeEditDialogResult(
+        this.selectedValues(),
+        rows.map((row) => row.value),
+        result.checked,
+        this.valuesEqual
+      ));
     });
   }
 
@@ -527,7 +579,7 @@ export class ImsSelect<T = unknown>
   }
 
   isOptionVisible(option: ImsSelectOptionLike<T>): boolean {
-    return this.visibleOptions().some((visibleOption) => visibleOption === option);
+    return this.visibleOptionSet().has(option);
   }
 
   activateOption(option: ImsSelectOptionLike<T>): void {
@@ -547,7 +599,7 @@ export class ImsSelect<T = unknown>
     this.activateOption(option);
 
     if (this.multiple()) {
-      this.toggleMultiValue(optionValue.value);
+      this.emitValue(toggleSelectedValue(this.selectedValues(), optionValue.value, this.valuesEqual));
       return;
     }
 
@@ -568,7 +620,7 @@ export class ImsSelect<T = unknown>
       return;
     }
 
-    if (!this.open() && !this.multiple() && this.handleClosedSingleKeydown(event)) {
+    if (!this.open() && this.handleClosedKeydown(event)) {
       return;
     }
 
@@ -585,6 +637,8 @@ export class ImsSelect<T = unknown>
         event.preventDefault();
         if (!this.open()) {
           this.openPanel();
+        } else if (event.altKey) {
+          this.commitAndClose();
         } else {
           this.moveActiveOption(-1);
         }
@@ -629,7 +683,11 @@ export class ImsSelect<T = unknown>
         break;
       case 'ArrowUp':
         event.preventDefault();
-        this.moveActiveOption(-1);
+        if (event.altKey) {
+          this.commitAndClose();
+        } else {
+          this.moveActiveOption(-1);
+        }
         break;
       case 'Home':
         event.preventDefault();
@@ -662,6 +720,28 @@ export class ImsSelect<T = unknown>
   private isToolbarKeyboardEvent(event: KeyboardEvent): boolean {
     const target = event.target;
     return target instanceof HTMLElement && target.closest('.ims-select__toolbar') !== null;
+  }
+
+  /**
+   * Keys with a meaning of their own on a closed trigger. Alt+Arrow opens the
+   * panel without touching the value, Delete and Backspace clear a clearable
+   * select, and a single select otherwise changes its value in place the way a
+   * native select does. Returns true when the key was handled.
+   */
+  private handleClosedKeydown(event: KeyboardEvent): boolean {
+    if (event.altKey && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+      event.preventDefault();
+      this.openPanel();
+      return true;
+    }
+
+    if (this.canClear() && (event.key === 'Delete' || event.key === 'Backspace')) {
+      event.preventDefault();
+      this.clearValue();
+      return true;
+    }
+
+    return !this.multiple() && this.handleClosedSingleKeydown(event);
   }
 
   private handleClosedSingleKeydown(event: KeyboardEvent): boolean {
@@ -699,20 +779,18 @@ export class ImsSelect<T = unknown>
     return event.key.length === 1 && !event.altKey && !event.ctrlKey && !event.metaKey;
   }
 
+  /** Steps the value to the neighbouring option, stopping at either end as a native select does. */
   private selectClosedAdjacentOption(delta: 1 | -1): void {
     const options = this.selectableOptions();
     if (options.length === 0) return;
 
     const selectedIndex = this.selectedOptionIndex(options);
-    let index = selectedIndex < 0
-      ? delta > 0 ? 0 : options.length - 1
-      : selectedIndex;
+    if (selectedIndex < 0) {
+      this.emitClosedOptionValue(delta > 0 ? options[0] : options[options.length - 1]);
+      return;
+    }
 
-    for (let step = 0; step < options.length; step++) {
-      if (selectedIndex >= 0) {
-        index = (index + delta + options.length) % options.length;
-      }
-
+    for (let index = selectedIndex + delta; index >= 0 && index < options.length; index += delta) {
       if (this.emitClosedOptionValue(options[index])) return;
     }
   }
@@ -735,8 +813,8 @@ export class ImsSelect<T = unknown>
     const repeatedSingleKey = this.typeaheadQuery.length > 1 &&
       [...this.typeaheadQuery].every((character) => character === this.typeaheadQuery[0]);
     const query = repeatedSingleKey
-      ? this.normalizeSearchText(this.typeaheadQuery[0])
-      : this.normalizeSearchText(this.typeaheadQuery);
+      ? normalizeSearchText(this.typeaheadQuery[0])
+      : normalizeSearchText(this.typeaheadQuery);
     const startIndex = repeatedSingleKey ? this.selectedOptionIndex(options) : -1;
     const option = this.findTypeaheadOption(options, query, startIndex);
 
@@ -760,35 +838,16 @@ export class ImsSelect<T = unknown>
     this.typeaheadResetTimer = null;
   }
 
-  private normalizedFilterQuery(): string {
-    return this.normalizeSearchText(this.filterQuery());
-  }
-
-  private matchesSearchQuery(text: string, query: string): boolean {
-    const normalizedText = this.normalizeSearchText(text);
-    return query.split(' ').every((term) => normalizedText.includes(term));
-  }
-
-  private normalizeSearchText(text: string): string {
-    return text.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
-  }
-
   private resolveViewMode(mode: ImsSelectViewMode): ImsSelectViewMode {
-    return mode === 'all' || this.optionsForViewMode(mode).length > 0 ? mode : 'all';
+    return mode === 'all' || this.optionsInViewMode(mode).length > 0 ? mode : 'all';
   }
 
-  private optionsForViewMode(mode: ImsSelectViewMode): readonly ImsOption<T>[] {
-    const options = this.textFilteredOptions();
-
-    if (mode === 'selected') {
-      return options.filter((option) => this.isOptionSelected(option));
-    }
-
-    if (mode === 'unselected') {
-      return options.filter((option) => !this.isOptionSelected(option));
-    }
-
-    return options;
+  private optionsInViewMode(mode: ImsSelectViewMode): readonly ImsOption<T>[] {
+    return optionsForViewMode(
+      this.textFilteredOptions(),
+      mode,
+      (option) => this.isOptionSelected(option)
+    );
   }
 
   private labelForValue(value: T): string {
@@ -835,10 +894,10 @@ export class ImsSelect<T = unknown>
     for (let offset = 1; offset <= options.length; offset++) {
       const index = (startIndex + offset + options.length) % options.length;
       const option = options[index];
-      const label = this.normalizeSearchText(option.selectionLabel());
+      const label = normalizeSearchText(option.selectionLabel());
       const matches = strategy === 'prefix'
         ? label.startsWith(query)
-        : this.matchesSearchQuery(label, query);
+        : matchesSearchQuery(label, query);
 
       if (matches) return option;
     }
@@ -864,36 +923,14 @@ export class ImsSelect<T = unknown>
     }
   }
 
-  private valuesEqual(first: T, second: T): boolean {
-    return this.compareWith()(first, second);
-  }
-
-  private toggleMultiValue(value: T): void {
-    const selectedValues = this.selectedValues();
-    const exists = selectedValues.some((selectedValue) => this.valuesEqual(selectedValue, value));
-    const nextValue = exists
-      ? selectedValues.filter((selectedValue) => !this.valuesEqual(selectedValue, value))
-      : [...selectedValues, value];
-
-    this.emitValue(nextValue);
-  }
-
-  private applyEditDialogResult(
-    rows: readonly ImsTransferRow<T>[],
-    checkedValues: readonly T[]
-  ): void {
-    const selectedValues = this.selectedValues();
-    const retainedValues = selectedValues.filter(
-      (selectedValue) => !rows.some((row) => this.valuesEqual(selectedValue, row.value))
-    );
-
-    this.emitValue([...retainedValues, ...checkedValues]);
-  }
-
   private emitValue(value: ImsSelectFormValue<T>): void {
     this.value.set(value);
     this.onChange(value);
     this.scheduleDisplayMeasure();
+  }
+
+  private focusTrigger(): void {
+    queueMicrotask(() => this.triggerButton()?.nativeElement.focus({preventScroll: true}));
   }
 
   private setInitialActiveOption(): void {
@@ -943,6 +980,17 @@ export class ImsSelect<T = unknown>
     this.selectOption(activeOption);
   }
 
+  /** Alt+ArrowUp: a single select takes the active option, as a native select does; either kind closes. */
+  private commitAndClose(): void {
+    const activeOption = this.activeOption();
+    if (!this.multiple() && activeOption && !activeOption.disabled()) {
+      this.selectOption(activeOption);
+      return;
+    }
+
+    this.close(true);
+  }
+
   private scrollActiveOptionIntoView(): void {
     queueMicrotask(() => this.activeOption()?.scrollIntoView());
   }
@@ -959,48 +1007,22 @@ export class ImsSelect<T = unknown>
   private updateToolbarSide(fallbackRect?: DOMRect): void {
     if (!this.showToolbar()) return;
 
-    const viewportWidth = document.documentElement.clientWidth;
     const menuRect = this.menu()?.nativeElement.getBoundingClientRect() ?? fallbackRect;
     if (!menuRect) return;
 
-    const toolbarWidth =
-      this.toolbarPanel()?.nativeElement.getBoundingClientRect().width ??
-      TOOLBAR_FALLBACK_WIDTH;
-    const requiredSpace = toolbarWidth + TOOLBAR_GAP;
-    const spaceRight = viewportWidth - menuRect.right - VIEWPORT_MARGIN;
-    const spaceLeft = menuRect.left - VIEWPORT_MARGIN;
-
-    if (spaceRight >= requiredSpace) {
-      this.toolbarSide.set('right');
-    } else if (spaceLeft >= requiredSpace) {
-      this.toolbarSide.set('left');
-    } else {
-      this.toolbarSide.set(spaceRight >= spaceLeft ? 'right' : 'left');
-    }
+    this.toolbarSide.set(resolveToolbarSide(
+      menuRect,
+      this.toolbarPanel()?.nativeElement.getBoundingClientRect().width
+    ));
   }
 
-  private updateListboxMaxHeight(preferredSide?: ImsSelectOverlaySide): void {
+  private updateListboxMaxHeight(preferredSide?: ImsSelectionOverlaySide): void {
     const triggerRect = this.triggerButton()?.nativeElement.getBoundingClientRect();
     if (!triggerRect) return;
 
-    const viewportHeight = window.visualViewport?.height ?? document.documentElement.clientHeight;
-    const availableBelow = viewportHeight - triggerRect.bottom - VIEWPORT_MARGIN;
-    const availableAbove = triggerRect.top - VIEWPORT_MARGIN;
     const reservedHeight = this.filterField()?.nativeElement.getBoundingClientRect().height ??
-      (this.showFilter() ? 56 : 0);
-    const listboxRoomBelow = availableBelow - reservedHeight;
-    const listboxRoomAbove = availableAbove - reservedHeight;
-    const preferredRoom = preferredSide === 'above'
-      ? listboxRoomAbove
-      : preferredSide === 'below'
-        ? listboxRoomBelow
-        : listboxRoomBelow >= LISTBOX_MIN_HEIGHT
-          ? listboxRoomBelow
-          : listboxRoomAbove;
-    const maxHeight = Math.min(
-      LISTBOX_MAX_HEIGHT,
-      Math.max(LISTBOX_MIN_HEIGHT, Math.floor(preferredRoom))
-    );
+      (this.showFilter() ? SELECTION_FILTER_FALLBACK_HEIGHT : 0);
+    const maxHeight = resolveListboxMaxHeight(triggerRect, reservedHeight, preferredSide, LISTBOX_BOUNDS);
 
     this.listboxMaxHeight.set(maxHeight);
     if (this.listboxMinHeight() > maxHeight) {
@@ -1036,92 +1058,18 @@ export class ImsSelect<T = unknown>
 
   private updateMultiDisplay(): void {
     if (!this.multiple()) {
-      this.multiDisplay.set(DEFAULT_DISPLAY);
+      this.multiDisplay.set(IMS_SELECTION_EMPTY_DISPLAY);
       return;
     }
 
-    const labels = this.selectedLabels();
-    if (labels.length === 0) {
-      this.multiDisplay.set(DEFAULT_DISPLAY);
-      return;
-    }
+    const measureText = this.measureTextElement()?.nativeElement;
+    const measureBadge = this.measureBadgeElement()?.nativeElement;
 
-    if (labels.length === 1) {
-      this.multiDisplay.set({
-        text: labels[0],
-        overflowCount: 0,
-        firstTruncated: false
-      });
-      return;
-    }
-
-    const valueRow = this.valueRow()?.nativeElement;
-    const valueRowWidth = this.resolveAvailableValueWidth(valueRow, '.ims-select__badge');
-    if (valueRowWidth <= 0) {
-      this.multiDisplay.set({
-        text: labels[0],
-        overflowCount: labels.length - 1,
-        firstTruncated: true
-      });
-      return;
-    }
-
-    for (let visibleCount = labels.length; visibleCount >= 1; visibleCount--) {
-      const overflowCount = labels.length - visibleCount;
-      const text = overflowCount > 0
-        ? `${labels.slice(0, visibleCount).join(', ')}, ...`
-        : labels.join(', ');
-      const badgeWidth = overflowCount > 0
-        ? this.measureBadgeWidth(overflowCount) + TRIGGER_ITEM_GAP
-        : 0;
-      const textWidth = this.measureTextWidth(text);
-
-      if (textWidth + badgeWidth <= valueRowWidth) {
-        this.multiDisplay.set({
-          text,
-          overflowCount,
-          firstTruncated: false
-        });
-        return;
-      }
-    }
-
-    this.multiDisplay.set({
-      text: labels[0],
-      overflowCount: labels.length - 1,
-      firstTruncated: true
-    });
-  }
-
-  private measureTextWidth(text: string): number {
-    const element = this.measureTextElement()?.nativeElement;
-    if (!element) return 0;
-
-    element.textContent = text;
-    return element.getBoundingClientRect().width;
-  }
-
-  private resolveAvailableValueWidth(
-    valueRow: HTMLElement | undefined,
-    badgeSelector: string
-  ): number {
-    if (!valueRow) return 0;
-
-    const renderedBadge = valueRow.parentElement?.querySelector<HTMLElement>(
-      `:scope > ${badgeSelector}`
-    );
-    return valueRow.clientWidth + (
-      renderedBadge
-        ? renderedBadge.getBoundingClientRect().width + TRIGGER_ITEM_GAP
-        : 0
-    );
-  }
-
-  private measureBadgeWidth(count: number): number {
-    const element = this.measureBadgeElement()?.nativeElement;
-    if (!element) return 0;
-
-    element.textContent = `+${count}`;
-    return element.getBoundingClientRect().width;
+    this.multiDisplay.set(resolveMultiDisplay(
+      this.selectedLabels(),
+      resolveAvailableValueWidth(this.valueRow()?.nativeElement, '.ims-select__badge'),
+      (text) => measureTextWidth(measureText, text),
+      (count) => measureTextWidth(measureBadge, `+${count}`)
+    ));
   }
 }

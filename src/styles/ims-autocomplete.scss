@@ -1,9 +1,6 @@
-.ims-autocomplete-host {
-    display: inline-block;
-    inline-size: 100%;
-    min-inline-size: var(--field-width-xxs);
-    color: var(--ims-color-on-surface);
-}
+// Rules only ims-autocomplete needs. What it shares with ims-select — trigger
+// summary, panel, filter, option rows, toolbar, readonly panel and the invalid
+// and readonly states — lives in ims-selection.scss.
 
 .ims-autocomplete {
     position: relative;
@@ -19,21 +16,6 @@
     color: inherit;
 }
 
-.ims-autocomplete-host.ng-invalid :is(.ims-autocomplete__trigger, .ims-autocomplete__input):not(:disabled):not(.ims-autocomplete__trigger--readonly):not(.ims-autocomplete__input--readonly) {
-    border-color: var(--ims-input-invalid-border, var(--ims-color-invalid));
-}
-
-.ims-autocomplete-host.ng-invalid .ims-autocomplete__trigger:not(:disabled):not(.ims-autocomplete__trigger--readonly) :is(.ims-autocomplete__chevron, .ims-autocomplete__mode-icon),
-.ims-autocomplete-host.ng-invalid .ims-autocomplete__input:not(:disabled):not(.ims-autocomplete__input--readonly) + .ims-autocomplete__mode-icon--input {
-    color: var(--ims-input-invalid-border, var(--ims-color-invalid));
-}
-
-.ims-autocomplete-host.ng-invalid :is(.ims-autocomplete__trigger, .ims-autocomplete__input):not(.ims-autocomplete__trigger--readonly):not(.ims-autocomplete__input--readonly):focus-visible {
-    box-shadow:
-        0 0 0 3px var(--ims-input-invalid-focus-ring, var(--ims-color-invalid-focus-ring)),
-        var(--ims-input-field-shadow);
-}
-
 .ims-autocomplete__trigger {
     display: flex;
     align-items: center;
@@ -42,113 +24,18 @@
     cursor: pointer;
 }
 
-.ims-autocomplete__trigger--readonly,
-.ims-autocomplete__input--readonly {
-    border-color: var(--ims-input-disabled-border, var(--ims-color-border-subtle));
-    background: var(--ims-input-disabled-background, var(--ims-color-surface-input-disabled));
-    color: var(--ims-input-disabled-color, var(--ims-color-on-surface-disabled));
-}
-
-.ims-autocomplete__trigger--readonly :is(.ims-autocomplete__chevron, .ims-autocomplete__mode-icon),
-.ims-autocomplete__trigger:disabled :is(.ims-autocomplete__chevron, .ims-autocomplete__mode-icon) {
-    color: var(--ims-color-on-surface-disabled);
-}
-
-.ims-input.ims-autocomplete__trigger--readonly:hover,
-.ims-input.ims-autocomplete__input--readonly:hover {
-    border-color: var(--ims-input-disabled-border, var(--ims-color-border-subtle));
-}
-
+// The wider inline-end padding keeps typed text clear of the search icon.
 .ims-autocomplete__input {
-    padding: 0 2.25rem 0 0.65rem;
+    padding-block: 0;
+    padding-inline: 0.65rem 2.25rem;
     text-overflow: ellipsis;
 }
 
-[dir="rtl"] .ims-autocomplete__input,
-.ims-autocomplete:dir(rtl) .ims-autocomplete__input {
-    padding-right: 0.65rem;
-    padding-left: 2.25rem;
-}
-
-.ims-autocomplete__value-row {
-    display: flex;
-    align-items: center;
-    flex: 1 1 auto;
-    gap: 0.375rem;
-    min-width: 0;
-}
-
-.ims-autocomplete__value-text,
-.ims-autocomplete__placeholder {
-    min-width: 0;
-    overflow: hidden;
-    color: inherit;
-    white-space: nowrap;
-}
-
-.ims-autocomplete__value-text--truncate,
-.ims-autocomplete__placeholder {
-    text-overflow: ellipsis;
-}
-
-.ims-autocomplete__placeholder,
-.ims-autocomplete__state {
-    color: var(--ims-color-on-surface-muted);
-}
-
-.ims-autocomplete__badge {
-    order: -1;
-    flex: 0 0 auto;
-    min-width: 1.75rem;
-    padding: 0.1rem 0.45rem;
-    border-radius: 999px;
-    background: var(--ims-color-interactive-alt-subtle);
-    color: var(--ims-color-interactive-alt-strong);
-    font-size: 0.78rem;
-    font-weight: 650;
-    line-height: 1.35;
-    text-align: center;
-}
-
-.ims-autocomplete__trigger > .ims-autocomplete__mode-icon {
-    order: -2;
-}
-
-.ims-autocomplete__trigger:dir(rtl) > .ims-autocomplete__badge {
-    order: 1;
-}
-
-.ims-autocomplete__trigger:dir(rtl) > .ims-autocomplete__mode-icon {
-    order: 2;
-}
-
-.ims-autocomplete__mode-icon {
-    flex: 0 0 auto;
-    color: var(--ims-color-interactive-alt-strong);
-    font-size: 1.25rem;
-    line-height: 1;
-    opacity: 0.72;
-}
-
-.ims-autocomplete__chevron {
-    flex: 0 0 auto;
-    width: 0.5rem;
-    height: 0.5rem;
-    color: var(--ims-color-interactive-alt-strong);
-    border: solid currentColor;
-    border-width: 0 1.5px 1.5px 0;
-    opacity: 0.72;
-    rotate: 45deg;
-    translate: 0 -0.125rem;
-    transition: rotate 140ms ease, translate 140ms ease;
-}
-
-.ims-autocomplete__trigger--open .ims-autocomplete__chevron {
-    rotate: -135deg;
-    translate: 0 0.125rem;
-}
-
-.ims-autocomplete__mode-icon--input {
+// Physical insets on purpose. `.ims-icon` pins its own direction to ltr so the
+// ligature names render, and a logical inset resolves against the element's own
+// direction, which would put the icon on the right in an RTL field — on top of
+// the text instead of in the padding reserved for it.
+.ims-icon.ims-autocomplete__mode-icon--input {
     position: absolute;
     inset-block-start: 50%;
     right: 0.65rem;
@@ -156,8 +43,8 @@
     translate: 0 -50%;
 }
 
-[dir="rtl"] .ims-autocomplete__mode-icon--input,
-.ims-autocomplete:dir(rtl) .ims-autocomplete__mode-icon--input {
+[dir="rtl"] .ims-icon.ims-autocomplete__mode-icon--input,
+.ims-autocomplete:dir(rtl) .ims-icon.ims-autocomplete__mode-icon--input {
     right: auto;
     left: 0.65rem;
 }
@@ -167,94 +54,8 @@
     opacity: 0.58;
 }
 
-.ims-autocomplete__mode-icon--readonly {
+.ims-icon.ims-autocomplete__mode-icon--readonly {
     color: var(--ims-color-on-surface-disabled);
-}
-
-.ims-autocomplete__overlay {
-    position: relative;
-    contain: layout style;
-    color: var(--ims-color-on-surface);
-    filter: drop-shadow(0 18px 42px color-mix(in oklch, var(--ims-color-neutral-950) 16%, transparent));
-}
-
-.ims-autocomplete__overlay--toolbar-left .ims-autocomplete__toolbar {
-    right: calc(100% + 0.5rem);
-}
-
-.ims-autocomplete__overlay--toolbar-right .ims-autocomplete__toolbar {
-    left: calc(100% + 0.5rem);
-}
-
-.ims-autocomplete__menu,
-.ims-autocomplete__toolbar {
-    box-sizing: border-box;
-    border: 1px solid var(--ims-color-border-subtle);
-    border-radius: 0.5rem;
-    contain: layout style paint;
-}
-
-.ims-autocomplete__menu {
-    overflow: hidden;
-    background: var(--ims-background-dialog);
-}
-
-.ims-autocomplete__readonly-panel {
-    box-sizing: border-box;
-    overflow: hidden;
-    border: 1px solid var(--ims-color-border-subtle);
-    border-radius: 0.5rem;
-    background: var(--ims-background-dialog);
-}
-
-.ims-autocomplete__readonly-panel:focus {
-    outline: none;
-}
-
-.ims-autocomplete__readonly-title {
-    margin: 0;
-    padding: 0.65rem 0.75rem;
-    border-bottom: 1px solid var(--ims-color-border-subtle);
-    color: var(--ims-color-on-surface-muted);
-    font-size: 0.8rem;
-    font-weight: 650;
-}
-
-.ims-autocomplete__readonly-list {
-    margin: 0;
-    padding: 0.45rem 2rem 0.45rem 0.75rem;
-    overflow-y: auto;
-    scrollbar-gutter: stable;
-}
-
-.ims-autocomplete__readonly-value {
-    padding: 0.3rem 0;
-}
-
-.ims-autocomplete__readonly-empty {
-    margin: 0;
-    padding: 0.8rem 0.75rem;
-    color: var(--ims-color-on-surface-muted);
-}
-
-.ims-autocomplete__filter {
-    display: grid;
-    gap: 0.25rem;
-    padding: 0.5rem;
-    border-bottom: 1px solid var(--ims-color-border-subtle);
-}
-
-.ims-autocomplete__filter span {
-    font-size: 0.75rem;
-    color: var(--ims-color-on-surface-muted);
-}
-
-.ims-autocomplete__filter input {
-    width: 100%;
-    min-height: 2rem;
-    padding: 0.3rem 0.45rem;
-    border-radius: 0.375rem;
-    color: inherit;
 }
 
 .ims-autocomplete__panel {
@@ -262,135 +63,12 @@
     view-transition-name: ims-autocomplete-options-view;
 }
 
+// Gutters on both edges, as the ims-select listbox has, so the rounded option
+// rows sit inset from the panel border instead of running into it.
 .ims-autocomplete__viewport {
     width: 100%;
     overflow-x: hidden;
-    scrollbar-gutter: stable;
-}
-
-.ims-autocomplete__toolbar {
-    position: absolute;
-    top: 0;
-    display: grid;
-    align-content: start;
-    justify-items: center;
-    gap: 0.35rem;
-    padding: 0.35rem;
-    background: var(--ims-background-panel);
-}
-
-.ims-autocomplete__edit,
-.ims-autocomplete__segment {
-    display: grid;
-    place-items: center;
-    width: 2rem;
-    height: 2rem;
-    padding: 0;
-    border: 0;
-    border-radius: 0.375rem;
-    background: transparent;
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-}
-
-.ims-autocomplete__edit svg,
-.ims-autocomplete__segment svg {
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.ims-autocomplete__edit svg {
-    width: 1.05rem;
-    height: 1.05rem;
-    stroke-width: 1.7;
-}
-
-.ims-autocomplete__segment svg {
-    width: 1.1rem;
-    height: 1.1rem;
-    stroke-width: 1.8;
-}
-
-.ims-autocomplete__edit:hover,
-.ims-autocomplete__segment:hover {
-    background: var(--ims-color-interactive-alt-subtle);
-}
-
-.ims-autocomplete__edit:focus-visible,
-.ims-autocomplete__segment:focus-visible,
-.ims-autocomplete__segment--active {
-    background: var(--ims-color-interactive-subtle);
-}
-
-.ims-autocomplete__edit:disabled,
-.ims-autocomplete__segment:disabled {
-    opacity: 0.38;
-    cursor: not-allowed;
-}
-
-.ims-autocomplete__edit:disabled:hover,
-.ims-autocomplete__segment:disabled:hover {
-    background: transparent;
-}
-
-.ims-autocomplete__segments {
-    display: grid;
-    gap: 0.25rem;
-}
-
-.ims-autocomplete__segment:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px var(--ims-color-focus-ring);
-}
-
-.ims-autocomplete__segment--active {
-    color: var(--ims-color-interactive-strong);
-}
-
-.ims-autocomplete__segment--active:disabled {
-    background: var(--ims-color-interactive-subtle);
-    opacity: 0.52;
-}
-
-.ims-autocomplete__option {
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-    padding: 0.2rem 0.5rem;
-    border-block: 0.0625rem solid transparent;
-    background-clip: padding-box;
-    color: inherit;
-    font-size: 0.875rem;
-    cursor: pointer;
-    white-space: nowrap;
-}
-
-.ims-autocomplete__option--active {
-    background: var(--ims-color-interactive-alt-subtle);
-}
-
-.ims-autocomplete__option--selected {
-    color: var(--ims-color-interactive-strong);
-    font-weight: 650;
-}
-
-.ims-autocomplete__option--selected::after {
-    content: "";
-    flex: 0 0 auto;
-    width: 0.35rem;
-    height: 0.6rem;
-    margin-inline-start: auto;
-    border-right: 1.5px solid currentColor;
-    border-bottom: 1.5px solid currentColor;
-    rotate: 45deg;
-}
-
-.ims-autocomplete__option--disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
+    scrollbar-gutter: stable both-edges;
 }
 
 .ims-autocomplete__option-label {
@@ -404,18 +82,4 @@
     background: var(--ims-color-interactive-alt-subtle);
     color: var(--ims-color-interactive-alt-strong);
     font-weight: 750;
-}
-
-.ims-autocomplete__state {
-    padding: 0.8rem 0.75rem;
-    white-space: nowrap;
-}
-
-.ims-autocomplete__measure {
-    position: fixed;
-    inset: auto auto 0 0;
-    visibility: hidden;
-    pointer-events: none;
-    white-space: nowrap;
-    contain: layout style paint;
 }

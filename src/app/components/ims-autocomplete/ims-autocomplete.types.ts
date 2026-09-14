@@ -1,9 +1,17 @@
 import {Observable} from 'rxjs';
+import {
+    ImsSelectionAutoMode,
+    ImsSelectionCompareWith,
+    ImsSelectionEditDialogMode,
+    ImsSelectionToolbarSide,
+    ImsSelectionViewMode
+} from '../ims-selection/ims-selection.types';
 
 export type ImsAutocompleteSortMode = 'default' | 'asc' | 'desc';
-export type ImsAutocompleteToolbarMode = 'on' | 'off' | 'auto';
-export type ImsAutocompleteToolbarSide = 'left' | 'right';
-export type ImsAutocompleteViewMode = 'all' | 'selected' | 'unselected';
+export type ImsAutocompleteToolbarMode = ImsSelectionAutoMode;
+export type ImsAutocompleteToolbarSide = ImsSelectionToolbarSide;
+export type ImsAutocompleteViewMode = ImsSelectionViewMode;
+export type ImsAutocompleteEditDialogMode = ImsSelectionEditDialogMode;
 export type ImsAutocompleteValue<T> = T | string | readonly T[] | null | undefined;
 
 export interface ImsAutocompleteOption<T = unknown> {
@@ -12,7 +20,11 @@ export interface ImsAutocompleteOption<T = unknown> {
     readonly disabled?: boolean;
 }
 
-export type ImsAutocompleteCompareWith<T> = (first: T, second: T) => boolean;
+export type ImsAutocompleteCompareWith<T> = ImsSelectionCompareWith<T>;
+
+/** Label for a selected value that no known option describes. */
+export type ImsAutocompleteDisplayWith<T> = (value: T) => string;
+
 export type ImsAutocompleteOptionsResult<T> =
     | readonly ImsAutocompleteOption<T>[]
     | Promise<readonly ImsAutocompleteOption<T>[]>

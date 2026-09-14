@@ -17,7 +17,12 @@ of the component contract unless a requested change explicitly replaces it.
   public mode/filter/toolbar/view-mode types.
 - `index.ts`: public exports (`ims-select.ts`, `ims-option.ts`,
   `ims-select.types.ts`).
-- `src/styles/ims-select.scss`: global trigger/overlay/toolbar/option styles.
+- `../ims-selection`: pieces shared with `ims-autocomplete` — types, the
+  `IMS_SELECTION_LABELS` token, helpers in `ims-selection.utils.ts`, and the
+  toolbar and readonly-panel components.
+- `src/styles/ims-selection.scss`: styles shared with `ims-autocomplete`.
+  `src/styles/ims-select.scss` keeps the select-only trigger, listbox and
+  clear-button rules.
 - `src/app/pages/selection-demo`: working examples, including
   `toolbar="auto"`.
 
@@ -61,13 +66,39 @@ Readonly and disabled single selects do not open an options panel.
 same readonly behavior. Multiple selects continue to expose their selected
 value details without exposing the selection interface.
 
+## Clearing a Single Select
+
+`clearable` offers a clear button inside a single select while it holds a
+value; Delete or Backspace on the closed trigger does the same. Clearing writes
+`null`, marks the control touched, and returns focus to the trigger. Multiple,
+disabled, and readonly selects never show the button, and a select that must
+always hold a value simply leaves the input off.
+
+## Keyboard
+
+- Closed single select: ArrowUp/ArrowDown, Home/End, and typeahead change the
+  value in place, as a native select does, stopping at the first and last
+  option instead of wrapping.
+- Alt+ArrowDown or Alt+ArrowUp on the closed trigger opens the panel without
+  changing the value.
+- Open panel: the arrows move the active option and Enter selects it.
+  Alt+ArrowUp selects it in a single select and closes the panel; Escape closes
+  without selecting.
+
+## Labels
+
+Texts come from `IMS_SELECTION_LABELS` in `../ims-selection`, shared with
+`ims-autocomplete`. Provide a replacement at the root to change them for the
+whole application, or pass a partial object to the `labels` input for one
+instance. `placeholder` and `editDialogAriaLabel` still take precedence when set.
+
 ## Multi-Select Toolbar
 
-When `multiple()` and `showToolbar()` are true, an `aside` renders next to the
-panel with:
+When `multiple()` and `showToolbar()` are true, `ims-selection-toolbar` (shared
+with `ims-autocomplete`) renders next to the panel with:
 
-- An optional pen icon button (`ערוך בחירה`) whose behavior is controlled by
-  `editDialogMode`.
+- An optional edit icon button (`labels.editSelection`) whose behavior is
+  controlled by `editDialogMode`.
 - Three view-mode segments (`all` / `selected` / `unselected`) that filter
   `visibleOptions()` without touching the actual selection.
 
@@ -91,9 +122,10 @@ regardless of what happens in the dialog.
    shell render the title. The service sources `direction` from
    `Directionality` itself, so `ims-select` doesn't pass it explicitly.
 4. On `dialogRef.closed`, a result of `undefined` (cancel, backdrop click,
-   Escape) is a no-op. Otherwise `applyEditDialogResult(rows, result.checked)`
-   merges the dialog's checked values with previously-selected values outside
-   the dialog's row set, then emits once.
+   Escape) is a no-op. Otherwise `mergeEditDialogResult()`
+   (`../ims-selection/ims-selection.utils.ts`) merges the dialog's checked
+   values with previously-selected values outside the dialog's row set, then
+   the select emits once.
 
 **Nothing is written to the select's value until the dialog resolves with a
 result.** All in-dialog interaction happens inside `ImsTransferDialog` itself,
@@ -130,7 +162,7 @@ custom trigger.
 ## Safe Change Guide
 
 - If you change what counts as "editable" (`editableOptions()`), re-check
-  `applyEditDialogResult()`'s merge logic — it assumes the dialog's row set is
+  `mergeEditDialogResult()`'s merge logic — it assumes the dialog's row set is
   exactly the set of values that can change, and anything outside it is
   passed through untouched.
 - The dialog itself (`ImsTransferDialog`) is generic and value-comparison-free.

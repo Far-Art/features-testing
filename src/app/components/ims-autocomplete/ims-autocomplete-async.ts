@@ -1,40 +1,32 @@
 import {
-    CdkConnectedOverlay,
-    CdkOverlayOrigin
-} from '@angular/cdk/overlay';
-import {
-    CdkFixedSizeVirtualScroll,
-    CdkVirtualForOf,
-    CdkVirtualScrollViewport
-} from '@angular/cdk/scrolling';
-import {
     ChangeDetectionStrategy,
     Component,
     effect,
     input,
     numberAttribute,
-    signal
+    signal,
+    untracked
 } from '@angular/core';
 import {isObservable, Subscription} from 'rxjs';
 import {provideValueAccessor} from '../../shared/basic-value-accessor';
-import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
-import {ImsAutocomplete} from './ims-autocomplete';
+import {IMS_AUTOCOMPLETE_IMPORTS, ImsAutocompleteBase} from './ims-autocomplete-base';
 import {
     ImsAutocompleteOption,
     ImsAutocompleteOptionsLoader
 } from './ims-autocomplete.types';
 
+/** The loader call whose results the component currently holds. */
+interface ImsAutocompleteLoadedQuery<T> {
+    readonly loader: ImsAutocompleteOptionsLoader<T>;
+    readonly query: string;
+    /** True when the loader failed, so its empty results are not worth reusing. */
+    readonly failed: boolean;
+}
+
 @Component({
     selector: 'ims-autocomplete-async',
     standalone: true,
-    imports: [
-        CdkOverlayOrigin,
-        CdkConnectedOverlay,
-        CdkVirtualScrollViewport,
-        CdkVirtualForOf,
-        CdkFixedSizeVirtualScroll,
-        ImsTextTruncateDirective
-    ],
+    imports: [IMS_AUTOCOMPLETE_IMPORTS],
     templateUrl: './ims-autocomplete.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [provideValueAccessor(ImsAutocompleteAsync)],
@@ -43,13 +35,20 @@ import {
     }
 })
 /**
- * Form-compatible autocomplete that loads its options whenever the search query changes.
+ * Form-compatible autocomplete that loads its options for the current search
+ * query through `loadOptions`.
+ *
+ * The loader is called only while options are needed — the panel is open, a
+ * strict commit waits for results, or a selected value still lacks a label —
+ * so a closed field doesn't hit it for the text it syncs from each value
+ * change. Results already loaded for the current query are reused when the
+ * panel reopens.
  */
-export class ImsAutocompleteAsync<T = unknown> extends ImsAutocomplete<T> {
+export class ImsAutocompleteAsync<T = unknown> extends ImsAutocompleteBase<T> {
     private optionsSubscription: Subscription | null = null;
     private asyncRequestId = 0;
 
-    /** Async option source called whenever the search query changes. */
+    /** Async option source called whenever the search query changes while options are needed. */
     readonly loadOptions = input.required<ImsAutocompleteOptionsLoader<T>>();
 
     /** Delay in milliseconds before calling `loadOptions` after the query changes. */
@@ -57,6 +56,7 @@ export class ImsAutocompleteAsync<T = unknown> extends ImsAutocomplete<T> {
 
     private readonly asyncOptions = signal<readonly ImsAutocompleteOption<T>[]>([]);
     private readonly optionsLoading = signal(false);
+    private readonly loadedQuery = signal<ImsAutocompleteLoadedQuery<T> | null>(null);
 
     constructor() {
         super();
@@ -65,28 +65,44 @@ export class ImsAutocompleteAsync<T = unknown> extends ImsAutocomplete<T> {
             const loader = this.loadOptions();
             const query = this.query();
             const debounceMs = Math.max(0, this.loadDebounceMs());
+            const requested = this.optionsRequested();
+            // Untracked: results landing must not re-run this effect, which would
+            // cancel a loader that is still streaming more of them.
+            const loadedQuery = untracked(this.loadedQuery);
             const requestId = ++this.asyncRequestId;
             let activeSubscription: Subscription | null = null;
 
             this.clearOptionsSubscription();
+
+            const alreadyLoaded = loadedQuery !== null
+                && !loadedQuery.failed
+                && loadedQuery.loader === loader
+                && loadedQuery.query === query;
+
+            if (!requested || alreadyLoaded) {
+                this.optionsLoading.set(false);
+                return;
+            }
+
             this.optionsLoading.set(true);
 
             const timeoutId = window.setTimeout(() => {
                 if (requestId !== this.asyncRequestId) return;
 
+                const loaded: ImsAutocompleteLoadedQuery<T> = {loader, query, failed: false};
                 let result: ReturnType<ImsAutocompleteOptionsLoader<T>>;
                 try {
                     result = loader(query);
                 } catch {
-                    this.finishAsyncOptions(requestId);
+                    this.finishAsyncOptions(requestId, loaded);
                     return;
                 }
 
                 if (isObservable(result)) {
                     const subscription = result.subscribe({
-                        next: (options) => this.setAsyncOptions(requestId, options),
+                        next: (options) => this.setAsyncOptions(requestId, loaded, options),
                         error: () => {
-                            this.finishAsyncOptions(requestId);
+                            this.finishAsyncOptions(requestId, loaded);
                             this.clearOptionsSubscription(activeSubscription);
                         },
                         complete: () => this.clearOptionsSubscription(activeSubscription)
@@ -100,8 +116,8 @@ export class ImsAutocompleteAsync<T = unknown> extends ImsAutocomplete<T> {
                 }
 
                 Promise.resolve(result)
-                    .then((options) => this.setAsyncOptions(requestId, options))
-                    .catch(() => this.finishAsyncOptions(requestId));
+                    .then((options) => this.setAsyncOptions(requestId, loaded, options))
+                    .catch(() => this.finishAsyncOptions(requestId, loaded));
             }, debounceMs);
 
             onCleanup(() => {
@@ -119,6 +135,15 @@ export class ImsAutocompleteAsync<T = unknown> extends ImsAutocomplete<T> {
         return this.optionsLoading();
     }
 
+    protected override sourceMatchesQuery(): boolean {
+        const loadedQuery = this.loadedQuery();
+
+        return !this.optionsLoading()
+            && loadedQuery !== null
+            && loadedQuery.loader === this.loadOptions()
+            && loadedQuery.query === this.query();
+    }
+
     protected override destroyOptionsSource(): void {
         this.asyncRequestId++;
         this.clearOptionsSubscription();
@@ -126,15 +151,21 @@ export class ImsAutocompleteAsync<T = unknown> extends ImsAutocomplete<T> {
 
     private setAsyncOptions(
         requestId: number,
+        loadedQuery: ImsAutocompleteLoadedQuery<T>,
         options: readonly ImsAutocompleteOption<T>[]
     ): void {
         if (requestId !== this.asyncRequestId) return;
+        this.loadedQuery.set(loadedQuery);
         this.asyncOptions.set(options);
         this.optionsLoading.set(false);
     }
 
-    private finishAsyncOptions(requestId: number): void {
+    private finishAsyncOptions(
+        requestId: number,
+        loadedQuery: ImsAutocompleteLoadedQuery<T>
+    ): void {
         if (requestId !== this.asyncRequestId) return;
+        this.loadedQuery.set({...loadedQuery, failed: true});
         this.asyncOptions.set([]);
         this.optionsLoading.set(false);
     }

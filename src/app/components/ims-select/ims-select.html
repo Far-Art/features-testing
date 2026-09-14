@@ -43,9 +43,13 @@
                 </span>
             }
         } @else {
-            <span class="ims-select__placeholder">{{ placeholder() }}</span>
+            <span class="ims-select__placeholder">{{ effectivePlaceholder() }}</span>
         }
     </span>
+
+    @if (canClear()) {
+        <span class="ims-select__clear-space" aria-hidden="true"></span>
+    }
 
     @if (multiple() && !readonlyMultipleMode()) {
         <span
@@ -62,6 +66,19 @@
     }
 </button>
 
+@if (canClear()) {
+    <button
+        type="button"
+        class="ims-select__clear"
+        [attr.aria-label]="effectiveLabels().clear"
+        [attr.title]="effectiveLabels().clear"
+        (pointerdown)="$event.preventDefault()"
+        (click)="clearValue()"
+    >
+        <ims-icon>close</ims-icon>
+    </button>
+}
+
 <ng-template
     cdkConnectedOverlay
     [cdkConnectedOverlayOrigin]="overlayOrigin"
@@ -77,41 +94,16 @@
 >
     <div class="ims-select__overlay" [attr.dir]="directionality.value">
         @if (readonlyMultipleMode()) {
-            <section
-                #readonlyPanel
+            <ims-selection-readonly-panel
                 class="ims-select__readonly-panel"
-                role="region"
-                tabindex="-1"
                 [attr.id]="readonlyPanelId"
-                [attr.aria-labelledby]="readonlyPanelTitleId"
+                [titleId]="readonlyPanelTitleId"
+                [values]="selectedLabels()"
+                [labels]="effectiveLabels()"
+                [maxHeight]="listboxMaxHeight()"
                 [style.width.px]="panelMinWidth()"
                 (keydown)="onPanelKeydown($event)"
-            >
-                <h3
-                    class="ims-select__readonly-title"
-                    [attr.id]="readonlyPanelTitleId"
-                >
-                    @if (selectedLabels().length === 1) {
-                        ערך אחד נבחר
-                    } @else {
-                        {{ selectedLabels().length }} ערכים שנבחרו
-                    }
-                </h3>
-
-                @if (selectedLabels().length > 0) {
-                    <ul
-                        class="ims-select__readonly-list"
-                        role="list"
-                        [style.max-height.px]="listboxMaxHeight()"
-                    >
-                        @for (label of selectedLabels(); track $index) {
-                            <li class="ims-select__readonly-value">{{ label }}</li>
-                        }
-                    </ul>
-                } @else {
-                    <p class="ims-select__readonly-empty">לא נבחרו ערכים</p>
-                }
-            </section>
+            />
         } @else {
             <div
                 tabindex="-1"
@@ -120,70 +112,23 @@
                 (keydown)="onPanelKeydown($event)"
             >
                 @if (showToolbar()) {
-                    <aside #toolbarPanel class="ims-select__toolbar" aria-label="סרגל בחירה">
-                        @if (editDialogMode() !== 'off') {
-                            <button
-                                type="button"
-                                class="ims-select__edit"
-                                [attr.aria-label]="editDialogAriaLabel()"
-                                [disabled]="editDialogButtonDisabled()"
-                                (click)="requestEditDialog()"
-                            >
-                                <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                                    <path d="M12.5 4.5 15.5 7.5 7 16H4v-3z" />
-                                    <path d="M11 6 14 9" />
-                                </svg>
-                            </button>
-                        }
-
-                        <div class="ims-select__segments" role="group" aria-label="אפשרויות מוצגות">
-                            <button
-                                type="button"
-                                class="ims-select__segment"
-                                aria-label="הצג את כל האפשרויות"
-                                [disabled]="isViewModeDisabled('all')"
-                                [class.ims-select__segment--active]="viewMode() === 'all'"
-                                [attr.aria-pressed]="viewMode() === 'all'"
-                                (click)="setViewMode('all')"
-                            >
-                                <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                                    <path d="M4 6h12M4 10h12M4 14h12" />
-                                </svg>
-                            </button>
-                            <button
-                                type="button"
-                                class="ims-select__segment"
-                                aria-label="הצג אפשרויות שנבחרו"
-                                [disabled]="isViewModeDisabled('selected')"
-                                [class.ims-select__segment--active]="viewMode() === 'selected'"
-                                [attr.aria-pressed]="viewMode() === 'selected'"
-                                (click)="setViewMode('selected')"
-                            >
-                                <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                                    <path d="M4 10.5 8 14l8-8" />
-                                </svg>
-                            </button>
-                            <button
-                                type="button"
-                                class="ims-select__segment"
-                                aria-label="הצג אפשרויות שלא נבחרו"
-                                [disabled]="isViewModeDisabled('unselected')"
-                                [class.ims-select__segment--active]="viewMode() === 'unselected'"
-                                [attr.aria-pressed]="viewMode() === 'unselected'"
-                                (click)="setViewMode('unselected')"
-                            >
-                                <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                                    <path d="M6 6h8v8H6z" />
-                                </svg>
-                            </button>
-                        </div>
-                    </aside>
+                    <ims-selection-toolbar
+                        class="ims-select__toolbar"
+                        [labels]="effectiveLabels()"
+                        [viewMode]="viewMode()"
+                        [viewModeCounts]="viewOptionCounts()"
+                        [editMode]="editDialogMode()"
+                        [editDisabled]="editDialogButtonDisabled()"
+                        [editAriaLabel]="editDialogAriaLabel()"
+                        (viewModeChange)="setViewMode($event)"
+                        (editRequested)="requestEditDialog()"
+                    />
                 }
 
                 <div #menu class="ims-select__menu" [style.width.px]="panelMinWidth()">
                     @if (showFilter()) {
                         <label #filterField class="ims-select__filter">
-                            <span class="ims-select__filter-label">סינון</span>
+                            <span class="ims-select__filter-label">{{ effectiveLabels().filter }}</span>
                             <input
                                 #filterInput
                                 class="ims-input"
@@ -212,7 +157,7 @@
                         <ng-content select="ims-option" />
 
                         @if (visibleOptions().length === 0) {
-                            <div class="ims-select__empty" role="note">אין אפשרויות</div>
+                            <div class="ims-select__empty" role="note">{{ effectiveLabels().noOptions }}</div>
                         }
                     </div>
                 </div>
