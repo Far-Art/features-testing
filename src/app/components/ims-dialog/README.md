@@ -177,6 +177,11 @@ providers, and data.
 
 IMS classes are appended to `panelClass`; they do not replace caller classes.
 
+`height`, `minHeight`, and `maxHeight` size the complete dialog surface, not
+only the overlay pane around it. The content row absorbs the difference: it
+stretches when the content is shorter, keeping the actions at the bottom, and
+scrolls when the content is taller.
+
 ```ts
 dialog
   .info(DetailsComponent)

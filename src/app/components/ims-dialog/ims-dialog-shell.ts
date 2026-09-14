@@ -108,13 +108,7 @@ export class ImsDialogShell {
   readonly details = this.config.details;
 
   constructor() {
-    const host = this.hostElement.nativeElement;
-    host.classList.add(`ims-dialog--${this.effectiveSeverity}`);
-
-    const maxSurfaceHeight = this.config.maxSurfaceHeight;
-    if (maxSurfaceHeight !== null) {
-      host.style.setProperty('--ims-dialog-max-surface-height', `${maxSurfaceHeight}px`);
-    }
+    this.hostElement.nativeElement.classList.add(`ims-dialog--${this.effectiveSeverity}`);
   }
 
   confirm(): void {

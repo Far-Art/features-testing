@@ -42,7 +42,6 @@ export interface ImsDialogRuntimeConfig<D = unknown> {
   readonly data: D;
   readonly direction: 'ltr' | 'rtl';
   readonly dragBoundary: HTMLElement | string;
-  readonly maxSurfaceHeight: number | null;
   /** Supporting text lines rendered beneath structured content. */
   readonly details: readonly string[];
 }

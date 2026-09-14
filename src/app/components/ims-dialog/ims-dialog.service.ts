@@ -111,7 +111,6 @@ export class ImsDialogService implements ImsDialogBuilderHost {
       data: mergedData,
       direction,
       dragBoundary: insideBoundary ?? '.cdk-overlay-container',
-      maxSurfaceHeight: insideSize?.height ?? null,
     };
     const callerConfig = options.config as unknown as DialogConfig<
       unknown,
