@@ -14,8 +14,7 @@
         [checked]="isChecked() && !intermediate()"
         [indeterminate]="intermediate()"
         [disabled]="interactionDisabled()"
-        [attr.aria-checked]="ariaChecked()"
-        (change)="toggle()"
+        (change)="toggle($event)"
         (blur)="markAsTouched()"
     />
 

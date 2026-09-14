@@ -77,16 +77,15 @@ export class ImsTransferDialog<T, ListId extends string = string> extends ImsAbs
         this.filterQuery.set(target.value);
     }
 
-    toggleChecked(
+    setChecked(
         list: ImsTransferListState<T, ListId>,
-        row: ImsTransferResultRow<T>
+        row: ImsTransferResultRow<T>,
+        checked: boolean
     ): void {
         if (row.disabled) return;
 
         list.rows.update((rows) =>
-            rows.map((candidate) =>
-                candidate === row ? {...candidate, checked: !candidate.checked} : candidate
-            )
+            rows.map((candidate) => (candidate === row ? {...candidate, checked} : candidate))
         );
     }
 

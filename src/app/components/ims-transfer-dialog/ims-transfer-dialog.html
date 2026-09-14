@@ -67,7 +67,7 @@
                 class="ims-transfer-dialog__checkbox"
                 [checked]="row.checked"
                 [disabled]="!!row.disabled"
-                (change)="toggleChecked(list, row)"
+                (checkedChange)="setChecked(list, row, $event)"
               >
                 <span class="ims-transfer-dialog__checkbox-accessible-label">{{ row.label }}</span>
               </ims-checkbox>
