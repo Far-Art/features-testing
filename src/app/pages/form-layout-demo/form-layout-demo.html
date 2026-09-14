@@ -144,8 +144,8 @@
                         <label>
                             <span>מתאריך</span>
                             <ims-datepicker
-                                imsDatepickerDate
                                 ariaLabel="תוקף הפוליסה מתאריך"
+                                valueType="date"
                                 [(ngModel)]="policyStart"
                             />
                         </label>
@@ -153,8 +153,8 @@
                         <label>
                             <span>עד תאריך</span>
                             <ims-datepicker
-                                imsDatepickerDate
                                 ariaLabel="תוקף הפוליסה עד תאריך"
+                                valueType="date"
                                 [(ngModel)]="policyEnd"
                             />
                         </label>
@@ -178,8 +178,8 @@
                         <label>
                             <span>מתאריך</span>
                             <ims-datepicker
-                                imsDatepickerDate
                                 ariaLabel="תקופת זכאות מתאריך"
+                                valueType="date"
                                 [(ngModel)]="eligibilityStart"
                             />
                         </label>
@@ -187,8 +187,8 @@
                         <label>
                             <span>עד תאריך</span>
                             <ims-datepicker
-                                imsDatepickerDate
                                 ariaLabel="תקופת זכאות עד תאריך"
+                                valueType="date"
                                 [(ngModel)]="eligibilityEnd"
                             />
                         </label>
@@ -406,8 +406,8 @@
                         <ims-form-field>
                             <label imsFormFieldLabel>עד</label>
                             <ims-datepicker
-                                imsDatepickerDate
                                 ariaLabel="תוקף הפוליסה"
+                                valueType="date"
                                 [(ngModel)]="row.validUntil"
                             />
                         </ims-form-field>

@@ -1,3 +1,4 @@
+import {DateTime} from 'luxon';
 import {
     IMS_DATEPICKER_DEFAULT_FORMATS,
     ImsDatepickerDate,
@@ -6,6 +7,7 @@ import {
     ImsDatepickerMonthDay,
     ImsDatepickerPrecision,
     ImsDatepickerValue,
+    ImsDatepickerValueType,
     PartialImsDatepickerFormats
 } from './ims-datepicker.types';
 
@@ -102,6 +104,40 @@ export function normalizeDateValue(
         precision,
         monthDay
     );
+}
+
+/**
+ * Reduces an accepted external value to its calendar date at UTC midnight: a
+ * Luxon `DateTime` by the date in its own zone, a native `Date` by its UTC date
+ * fields, and epoch milliseconds by the date in `interpretationZone`. Anything
+ * else, including an invalid date, is null.
+ */
+export function calendarDateFromValue(
+    value: unknown,
+    interpretationZone: string
+): ImsDatepickerDate | null {
+    if (DateTime.isDateTime(value)) {
+        return value.isValid ? canonicalDate(value.year, value.month, value.day) : null;
+    }
+
+    return typeof value === 'number' || isNativeDate(value)
+        ? normalizeDateValue(value, interpretationZone, 'dd/MM/yyyy', 'start')
+        : null;
+}
+
+/** Converts a calendar date to a Luxon `DateTime` at UTC midnight. */
+export function toLuxonDate(value: ImsDatepickerDate): DateTime {
+    return DateTime.fromMillis(toUtcEpochMillis(value), {zone: 'utc'});
+}
+
+/** Serializes a calendar date as the requested value type, always at UTC midnight. */
+export function serializeDateValue(
+    value: ImsDatepickerDate,
+    valueType: ImsDatepickerValueType
+): DateTime | Date | number {
+    if (valueType === 'millis') return toUtcEpochMillis(value);
+    if (valueType === 'date') return new Date(toUtcEpochMillis(value));
+    return toLuxonDate(value);
 }
 
 export function parseDateText(

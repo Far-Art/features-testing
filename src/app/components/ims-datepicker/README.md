@@ -14,12 +14,9 @@ of the component contract unless a requested change explicitly replaces it.
   and `provideImsDatepickerConfig`.
 - `ims-datepicker.parser.ts`: adapter-neutral parser contract, default parser,
   injection token, and `provideImsDatepickerParser`.
-- `ims-datepicker-value.directive.ts`: value-handler contract and token plus the
-  default Luxon and native Date adapter directives.
-- `ims-datepicker-moment.directive.ts`: Moment adapter directive and typed
-  Moment value alias.
-- `ims-datepicker.utils.ts`: native Date normalization, parsing, formatting, and
-  date comparison helpers.
+- `ims-datepicker.utils.ts`: value conversion for Luxon, native Date, and
+  milliseconds, plus normalization, parsing, formatting, and date comparison
+  helpers.
 - `ims-datepicker.spec.ts`: component, forms, navigation, and focus tests.
 - `ims-datepicker.utils.spec.ts`: parsing and normalization tests.
 - `index.ts`: public exports.
@@ -46,6 +43,7 @@ import {
     template: `
         <ims-datepicker
             ariaLabel="Choose a date"
+            valueType="luxon"
             [formControl]="date"
         />
     `
@@ -113,8 +111,8 @@ mapper, duration, position, and disabled inputs.
 | `format` | `'dd/MM/yyyy' \| 'MM/yyyy'` | `'dd/MM/yyyy'` | Selection precision, not only display formatting. |
 | `min` | `ImsDatepickerValue` | `null` | Instance minimum. It can tighten but not relax the global minimum. |
 | `max` | `ImsDatepickerValue` | `null` | Instance maximum. It can tighten but not relax the global maximum. |
-| `dateFilter` | `(date) => boolean` | `null` | Instance filter combined with the global filter using logical AND. |
-| `valueType` | `'date' \| 'millis' \| null` | `null` | Explicit output type. When omitted, it is inferred from received values. |
+| `dateFilter` | `(date: DateTime) => boolean` | `null` | Instance filter combined with the global filter using logical AND. |
+| `valueType` | `'luxon' \| 'date' \| 'millis' \| null` | `null` | Output type. When omitted, the global `valueType` applies, then `'millis'`. |
 | `monthDay` | `'start' \| 'end'` | `'start'` | Canonical day used for month-only values. |
 | `formats` | `PartialImsDatepickerFormats \| null` | `null` | Instance parsing and display format overrides. |
 | `locale` | `string \| null` | `null` | Instance locale override. |
@@ -137,82 +135,48 @@ enabled-like value style. An open overlay closes when readonly becomes active.
 The component supports reactive forms, template-driven forms, and direct value
 binding through the inherited value model.
 
-## Value Handlers
-
-`ImsDatepicker` has one calendar implementation. The injected
-`IMS_DATEPICKER_VALUE_HANDLER` adapts external values to and from the internal
-UTC `Date` calendar representation. The Luxon `DateTime` handler is provided by
-default; plain `<ims-datepicker>` values are therefore Luxon values.
-
-Use the adapter directives when different handlers are needed in the same
-injector:
-
-```html
-<ims-datepicker [formControl]="luxonDate" />
-<ims-datepicker imsDatepickerDate [formControl]="nativeDate" />
-<ims-datepicker imsDatepickerMoment [formControl]="momentDate" />
-<ims-datepicker imsDatepickerLuxon [formControl]="nestedLuxonOverride" />
-```
-
-| Handler | Per-instance directive | Typed value alias |
-| --- | --- | --- |
-| Luxon `DateTime` (default) | None, or `imsDatepickerLuxon` to override a parent | `ImsDatepickerLuxonValue` |
-| Native `Date` | `imsDatepickerDate` | `ImsDatepickerDateValue` |
-| Moment | `imsDatepickerMoment` | `ImsDatepickerMomentValue` |
-
-Alternatively, select one handler for every datepicker under an injector:
-
-```ts
-providers: [provideImsDatepickerMomentValueHandler()]
-```
-
-Each adapter directive is also its value handler. It recognizes both finite
-epoch-millisecond numbers and its concrete object type, converts inputs to UTC
-calendar milliseconds, and creates its concrete object for non-millisecond
-outputs. Custom adapter directives implement `ImsDatepickerValueHandler<TDate>`,
-provide themselves as `IMS_DATEPICKER_VALUE_HANDLER`, and can also be registered
-injector-wide with `provideImsDatepickerValueHandler()`.
-
 ## Supported Value Types
 
-The public value type is:
+`ImsDatepicker` accepts Luxon `DateTime`, native `Date`, and epoch milliseconds
+out of the box, with no adapter directive or provider. It emits epoch
+milliseconds unless `valueType` asks for a `DateTime` or a `Date`.
 
 ```ts
-type ImsDatepickerValue<TDate extends object = DateTime> =
+type ImsDatepickerValue<TDate extends DateTime | Date = DateTime | Date> =
     | TDate
     | number
     | null
     | undefined;
 ```
 
+`ImsDatepickerLuxonValue` and `ImsDatepickerDateValue` narrow the object kind for
+typed form controls.
+
 Accepted Angular form values, direct values, and `min`/`max` constraints are:
 
 | Value | Meaning |
 | --- | --- |
-| Handler object | A valid `Date`, Moment, Luxon `DateTime`, or custom handler value. |
+| Luxon `DateTime` | A valid `DateTime`, read by its calendar date in its own zone. |
+| `Date` | A valid native `Date`, read by its UTC calendar fields. |
 | `number` | A finite epoch-millisecond instant interpreted in the configured `zone`. |
 | `null` | An explicitly empty value. |
 | `undefined` | An unset value; treated as empty. |
 
 The component never writes a string to the Angular form. Text entered in the
-native input is parsed and then emitted as the handler object, `number`, or `null`.
-The `format` input controls full-date versus month-only precision; it does not
-change the value's TypeScript type.
+native input is parsed and then emitted as a `DateTime`, `Date`, `number`, or
+`null`. The `format` input controls full-date versus month-only precision; it
+does not change the value's TypeScript type.
 
 Output is controlled by `valueType`:
 
 | `valueType` | Committed output |
 | --- | --- |
-| `'date'` | A concrete object created by the injected value handler. |
+| `'luxon'` | A Luxon `DateTime` at UTC midnight, in the UTC zone. |
+| `'date'` | A native `Date` at UTC midnight. |
 | `'millis'` | An epoch-millisecond `number` for UTC midnight. |
-| `null` or omitted | Inferred from the most recent valid handler object or `number`; defaults to `'date'`. |
+| `null` or omitted | The global `valueType`, or `'millis'` when that is unset too. |
 
 Internally, all date calculations use date-only `Date` values at UTC midnight.
-
-### Concrete object values
-
-The injected handler reduces valid concrete values to their calendar fields.
-The shared engine then normalizes those fields to the configured precision.
 
 ### Millisecond values
 
@@ -229,14 +193,20 @@ intentionally different:
 Do not replace UTC date construction with local-time construction without
 explicitly changing the component contract.
 
-### Output type inference
+### Output type precedence
 
-If `valueType` is configured on the instance or globally, that setting wins.
-Otherwise:
+1. The instance `valueType` input.
+2. The global `ImsDatepickerConfig.valueType`.
+3. `'millis'`.
 
-- Receiving a number changes inferred output to `millis`.
-- Receiving a value recognized by the injected handler changes inferred output to `date`.
-- The initial inferred type is `date`.
+The kind of value a control receives never changes what it emits: a control
+holding a `Date` emits milliseconds until `valueType="date"` is set.
+
+### Date filters
+
+Global and instance `dateFilter` predicates always receive a Luxon `DateTime` at
+UTC midnight, whatever `valueType` the datepicker emits, so one global filter
+works for every instance.
 
 ## Precision
 
@@ -319,9 +289,9 @@ Display formatting additionally supports localized month and weekday tokens:
 
 Every datepicker injects `IMS_DATEPICKER_PARSER`. A parser is synchronous and
 returns either the parsed calendar date as UTC-midnight epoch milliseconds or
-`null`. It must not return `Date`, Moment, Luxon, or another library-specific
-value. The injected value handler converts the returned milliseconds into its
-own date type.
+`null`. It must not return a `Date`, a Luxon `DateTime`, or another
+library-specific value. The datepicker converts the returned milliseconds into
+its output value type.
 
 ```ts
 interface ImsDatepickerParser {
@@ -364,8 +334,7 @@ provideImsDatepickerParser(IsoDatepickerParser)
 `ImsDatepickerParserOptions` provides `precision`, `monthDay`, the effective
 formats, locale, and interpretation zone. Providing the parser in a nested
 injector customizes only datepickers under that injector; an application-level
-provider affects every value handler: native Date, Moment, Luxon, and custom
-handlers.
+provider affects every datepicker.
 
 ## Validation
 
@@ -617,7 +586,7 @@ When changing values or parsing:
 
 1. Keep internal calculations on date-only UTC `Date` values.
 2. Check both precision modes.
-3. Check native Date, Moment, Luxon, and millisecond output.
+3. Check Luxon, native Date, and millisecond input and output.
 4. Verify interpretation-zone and UTC-output behavior.
 5. Update `ims-datepicker.utils.spec.ts`.
 

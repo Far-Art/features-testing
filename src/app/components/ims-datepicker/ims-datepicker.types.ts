@@ -2,18 +2,28 @@ import {InjectionToken, Provider} from '@angular/core';
 import type {DateTime} from 'luxon';
 
 export type ImsDatepickerPrecision = 'dd/MM/yyyy' | 'MM/yyyy';
+/** Internal calendar representation: a date-only `Date` at UTC midnight. */
 export type ImsDatepickerDate = Date;
-export type ImsDatepickerValue<TDate extends object = DateTime> =
+/**
+ * A value the datepicker accepts and emits: a Luxon `DateTime`, a native `Date`,
+ * epoch milliseconds, or empty. Narrow `TDate` to type a control that holds only
+ * one of the two object kinds.
+ */
+export type ImsDatepickerValue<TDate extends DateTime | Date = DateTime | Date> =
     TDate | number | null | undefined;
 export type ImsDatepickerDateValue = ImsDatepickerValue<Date>;
 export type ImsDatepickerLuxonValue = ImsDatepickerValue<DateTime>;
-export type ImsDatepickerAnyValue = ImsDatepickerValue<object>;
-export type ImsDatepickerValueType = 'date' | 'millis';
+/** Committed output: a Luxon `DateTime`, a native `Date`, or epoch milliseconds (the default). */
+export type ImsDatepickerValueType = 'luxon' | 'date' | 'millis';
 export type ImsDatepickerMonthDay = 'start' | 'end';
 export type ImsDatepickerView = 'day' | 'month' | 'year';
 export type ImsDatepickerFirstDayOfWeek = 1 | 7;
-export type ImsDatepickerDateFilter<TDate extends object = DateTime> =
-    (date: TDate) => boolean;
+/**
+ * Decides whether a calendar date can be selected. It always receives a Luxon
+ * `DateTime` at UTC midnight, whatever value type the datepicker emits, so one
+ * global filter serves every instance.
+ */
+export type ImsDatepickerDateFilter = (date: DateTime) => boolean;
 
 export interface ImsDatepickerLabels {
     readonly openCalendar: string;
@@ -52,27 +62,27 @@ export interface ImsDatepickerFormats {
     };
 }
 
-export interface ImsDatepickerConfig<TDate extends object = DateTime> {
+export interface ImsDatepickerConfig {
     /**
      * Application-wide lower boundary. Instance `min` values can tighten this
      * boundary, but cannot move it earlier.
      */
-    readonly rangeMin?: ImsDatepickerValue<TDate>;
+    readonly rangeMin?: ImsDatepickerValue;
     /**
      * Application-wide upper boundary. Instance `max` values can tighten this
      * boundary, but cannot move it later.
      */
-    readonly rangeMax?: ImsDatepickerValue<TDate>;
+    readonly rangeMax?: ImsDatepickerValue;
     /**
      * Global strict date filter. An instance filter can further restrict dates,
      * but cannot enable a date rejected by this predicate.
      */
-    readonly dateFilter?: ImsDatepickerDateFilter<TDate>;
+    readonly dateFilter?: ImsDatepickerDateFilter;
     readonly valueType?: ImsDatepickerValueType;
     readonly locale?: string;
     /**
      * Zone used to interpret millisecond inputs and obtain the current calendar
-     * date. Concrete handler values and millisecond outputs represent UTC midnight.
+     * date. Emitted `DateTime`, `Date`, and millisecond values represent UTC midnight.
      */
     readonly zone?: string;
     readonly firstDayOfWeek?: ImsDatepickerFirstDayOfWeek;
@@ -123,14 +133,12 @@ export const IMS_DATEPICKER_DEFAULT_LABELS: ImsDatepickerLabels = {
     week: 'שבוע'
 };
 
-export const IMS_DATEPICKER_CONFIG = new InjectionToken<ImsDatepickerConfig<object>>(
+export const IMS_DATEPICKER_CONFIG = new InjectionToken<ImsDatepickerConfig>(
     'IMS_DATEPICKER_CONFIG',
     {factory: () => ({})}
 );
 
-export function provideImsDatepickerConfig<TDate extends object = DateTime>(
-    config: ImsDatepickerConfig<TDate>
-): Provider {
+export function provideImsDatepickerConfig(config: ImsDatepickerConfig): Provider {
     return {
         provide: IMS_DATEPICKER_CONFIG,
         useValue: config

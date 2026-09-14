@@ -1,5 +1,12 @@
+import { DateTime } from 'luxon';
 import { IMS_DATEPICKER_DEFAULT_FORMATS } from './ims-datepicker.types';
-import { IMS_DATEPICKER_INPUT_PATTERNS, normalizeDateValue, parseDateText } from './ims-datepicker.utils';
+import {
+    calendarDateFromValue,
+    IMS_DATEPICKER_INPUT_PATTERNS,
+    normalizeDateValue,
+    parseDateText,
+    serializeDateValue
+} from './ims-datepicker.utils';
 
 function calendarDate(year: number, month: number, day: number): Date {
     return new Date(Date.UTC(year, month - 1, day));
@@ -100,5 +107,36 @@ describe('ims-datepicker coercion', () => {
             'dd/MM/yyyy',
             'start'
         ))).toBe('2026-06-08');
+    });
+});
+
+describe('ims-datepicker value conversion', () => {
+    it('reads a Luxon DateTime by the calendar date in its own zone', () => {
+        const lateEvening = DateTime.fromISO('2026-06-07T23:30:00', { zone: 'Asia/Jerusalem' });
+
+        expect(isoDate(calendarDateFromValue(lateEvening, 'UTC'))).toBe('2026-06-07');
+    });
+
+    it('reads a native Date by its UTC fields and milliseconds in the interpretation zone', () => {
+        const instant = '2026-06-07T23:30:00Z';
+
+        expect(isoDate(calendarDateFromValue(new Date(instant), 'Asia/Jerusalem'))).toBe('2026-06-07');
+        expect(isoDate(calendarDateFromValue(Date.parse(instant), 'Asia/Jerusalem'))).toBe('2026-06-08');
+    });
+
+    it('rejects unsupported and invalid values', () => {
+        expect(calendarDateFromValue('2026-06-07', 'UTC')).toBeNull();
+        expect(calendarDateFromValue(new Date(Number.NaN), 'UTC')).toBeNull();
+        expect(calendarDateFromValue(DateTime.invalid('test'), 'UTC')).toBeNull();
+    });
+
+    it('serializes a calendar date as each value type at UTC midnight', () => {
+        const date = calendarDate(2026, 6, 7);
+        const luxonValue = serializeDateValue(date, 'luxon') as DateTime;
+
+        expect(DateTime.isDateTime(luxonValue)).toBe(true);
+        expect(luxonValue.toISO()).toBe('2026-06-07T00:00:00.000Z');
+        expect(serializeDateValue(date, 'date')).toEqual(date);
+        expect(serializeDateValue(date, 'millis')).toBe(Date.UTC(2026, 5, 7));
     });
 });

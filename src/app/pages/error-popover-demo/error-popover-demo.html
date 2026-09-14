@@ -138,7 +138,7 @@
                 <span>תאריך התחלה</span>
                 <ims-datepicker
                     ariaLabel="תאריך התחלה"
-                    imsDatepickerDate
+                    valueType="date"
                     [formControl]="dayControl"
                     [min]="minimumDate"
                     [max]="maximumDate"
@@ -161,7 +161,6 @@
                     format="MM/yyyy"
                     monthDay="end"
                     valueType="millis"
-                    imsDatepickerDate
                     [formControl]="monthControl"
                     [min]="minimumDate"
                     [max]="maximumDate"

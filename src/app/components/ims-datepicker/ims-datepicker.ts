@@ -34,11 +34,9 @@ import {
     ImsErrorPopoverDirective
 } from '../ims-error-popover';
 import {IMS_DATEPICKER_PARSER} from './ims-datepicker.parser';
-import {IMS_DATEPICKER_VALUE_HANDLER} from './ims-datepicker-value.directive';
 import {
     IMS_DATEPICKER_CONFIG,
     IMS_DATEPICKER_DEFAULT_LABELS,
-    ImsDatepickerAnyValue,
     ImsDatepickerDate,
     ImsDatepickerDateFilter,
     ImsDatepickerFirstDayOfWeek,
@@ -46,6 +44,7 @@ import {
     ImsDatepickerLabels,
     ImsDatepickerMonthDay,
     ImsDatepickerPrecision,
+    ImsDatepickerValue,
     ImsDatepickerValueType,
     ImsDatepickerView,
     PartialImsDatepickerFormats,
@@ -53,6 +52,7 @@ import {
 } from './ims-datepicker.types';
 import {
     addDate,
+    calendarDateFromValue,
     canonicalDate,
     clampDate,
     compareDateOnly,
@@ -71,8 +71,9 @@ import {
     isNativeDate,
     mergeDatepickerFormats,
     normalizeDateValue,
+    serializeDateValue,
     todayInZone,
-    toUtcEpochMillis,
+    toLuxonDate,
     validationErrorsKey
 } from './ims-datepicker.utils';
 
@@ -169,11 +170,10 @@ function provideDatepickerValidator(type: Type<unknown>) {
     }
 })
 export class ImsDatepicker
-    extends BasicValueAccessor<ImsDatepickerAnyValue>
+    extends BasicValueAccessor<ImsDatepickerValue>
     implements Validator, ImsErrorPopoverComponentHost {
     private readonly globalConfig = inject(IMS_DATEPICKER_CONFIG);
     private readonly dateParser = inject(IMS_DATEPICKER_PARSER);
-    private readonly valueHandler = inject(IMS_DATEPICKER_VALUE_HANDLER);
     private readonly angularLocale = inject(LOCALE_ID);
     private readonly changeDetectorRef = inject(ChangeDetectorRef);
     private readonly hostElement = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -203,15 +203,15 @@ export class ImsDatepicker
     private headerFocusFrame: number | null = null;
     private pendingNavigationCursor: ImsDatepickerDate | null = null;
     private readonly userEditing = signal(false);
-    private readonly inferredValueType = signal<ImsDatepickerValueType>('date');
     private readonly externalErrorPopoverCount = signal(0);
     private readonly todayRefresh = signal(0);
 
     /** Selection precision. This is independent from the configured display format. */
     readonly format = input<ImsDatepickerPrecision>('dd/MM/yyyy');
-    readonly min = input<ImsDatepickerAnyValue>(null);
-    readonly max = input<ImsDatepickerAnyValue>(null);
-    readonly dateFilter = input<ImsDatepickerDateFilter<any> | null>(null);
+    readonly min = input<ImsDatepickerValue>(null);
+    readonly max = input<ImsDatepickerValue>(null);
+    readonly dateFilter = input<ImsDatepickerDateFilter | null>(null);
+    /** Output type. Unset falls back to the global config, then to epoch milliseconds. */
     readonly valueType = input<ImsDatepickerValueType | null>(null);
     readonly monthDay = input<ImsDatepickerMonthDay>('start');
     readonly formats = input<PartialImsDatepickerFormats | null>(null);
@@ -228,7 +228,7 @@ export class ImsDatepicker
     readonly opened = output<void>();
     readonly closed = output<void>();
     readonly viewChanged = output<ImsDatepickerView>();
-    readonly dateChange = output<ImsDatepickerAnyValue>();
+    readonly dateChange = output<ImsDatepickerValue>();
 
     readonly open = signal(false);
     readonly rawText = signal('');
@@ -260,11 +260,9 @@ export class ImsDatepicker
         () => this.locale() ?? this.globalConfig.locale ?? this.angularLocale
     );
     readonly interpretationZone = computed(() => this.zone() ?? this.globalConfig.zone ?? 'local');
-    readonly outputType = computed(() => {
-        const configuredType = this.valueType() ?? this.globalConfig.valueType;
-        if (configuredType) return configuredType;
-        return this.inferredValueType();
-    });
+    readonly outputType = computed<ImsDatepickerValueType>(
+        () => this.valueType() ?? this.globalConfig.valueType ?? 'millis'
+    );
     readonly effectiveFirstDayOfWeek = computed(
         () => this.firstDayOfWeek() ?? this.globalConfig.firstDayOfWeek ?? 1
     );
@@ -463,13 +461,6 @@ export class ImsDatepicker
         });
 
         effect(() => {
-            const rawValue = this.value();
-            if (typeof rawValue === 'number') {
-                this.inferredValueType.set('millis');
-            } else if (this.valueHandler.isValue(rawValue)) {
-                this.inferredValueType.set('date');
-            }
-
             if (this.userEditing()) return;
 
             const value = this.normalizedValue();
@@ -511,7 +502,7 @@ export class ImsDatepicker
         });
     }
 
-    override writeValue(value: ImsDatepickerAnyValue): void {
+    override writeValue(value: ImsDatepickerValue): void {
         // A written value replaces any typed text, so a parse error about that
         // text goes with it before the form validates the new value.
         this.userEditing.set(false);
@@ -519,7 +510,7 @@ export class ImsDatepicker
         this.value.set(value);
     }
 
-    validate(control: AbstractControl<ImsDatepickerAnyValue>): ValidationErrors | null {
+    validate(control: AbstractControl<ImsDatepickerValue>): ValidationErrors | null {
         const errors = this.resolveValidationErrors(control.value);
         this.lastValidationKey = validationErrorsKey(errors);
         return errors;
@@ -542,7 +533,7 @@ export class ImsDatepicker
     }
 
     /** Produces the component-owned parse, range, and filter validation errors. */
-    private resolveValidationErrors(valueToValidate: ImsDatepickerAnyValue): ValidationErrors | null {
+    private resolveValidationErrors(valueToValidate: ImsDatepickerValue): ValidationErrors | null {
         if (this.parseInvalid()) {
             return {imsDatepickerParse: {text: this.rawText()}};
         }
@@ -1020,10 +1011,8 @@ export class ImsDatepicker
         this.dateChange.emit(serialized);
     }
 
-    private serialize(value: ImsDatepickerDate): object | number {
-        return this.outputType() === 'millis'
-            ? toUtcEpochMillis(value)
-            : this.valueHandler.fromCalendarMillis(toUtcEpochMillis(value));
+    private serialize(value: ImsDatepickerDate): NonNullable<ImsDatepickerValue> {
+        return serializeDateValue(value, this.outputType());
     }
 
     private normalizeExternalValue(
@@ -1031,16 +1020,8 @@ export class ImsDatepicker
         precision: ImsDatepickerPrecision,
         monthDay: ImsDatepickerMonthDay
     ): ImsDatepickerDate | null {
-        const calendarMillis = this.valueHandler.toCalendarMillis(
-            value,
-            this.interpretationZone()
-        );
-        if (calendarMillis === null) return null;
-
-        const calendarDate = new Date(calendarMillis);
-        if (!isNativeDate(calendarDate)) return null;
-
-        return normalizeDateValue(calendarDate, 'UTC', precision, monthDay);
+        const calendarDate = calendarDateFromValue(value, this.interpretationZone());
+        return calendarDate && normalizeDateValue(calendarDate, 'UTC', precision, monthDay);
     }
 
     private formatValue(
@@ -1075,12 +1056,12 @@ export class ImsDatepicker
         const globalFilter = this.globalConfig.dateFilter;
         const instanceFilter = this.dateFilter();
         // Every enabled-state check lands here, hundreds of them for one year
-        // view, so skip building the handler's date object when no filter reads it.
+        // view, so skip building the Luxon date when no filter reads it.
         if (!globalFilter && !instanceFilter) return true;
 
-        const externalDate = this.valueHandler.fromCalendarMillis(toUtcEpochMillis(date));
-        return (!globalFilter || globalFilter(externalDate))
-            && (!instanceFilter || instanceFilter(externalDate));
+        const filterDate = toLuxonDate(date);
+        return (!globalFilter || globalFilter(filterDate))
+            && (!instanceFilter || instanceFilter(filterDate));
     }
 
     private monthValue(year: number, month: number): ImsDatepickerDate {

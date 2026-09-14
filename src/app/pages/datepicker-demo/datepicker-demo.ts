@@ -2,15 +2,10 @@ import {JsonPipe} from '@angular/common';
 import {Component, signal, ChangeDetectionStrategy} from '@angular/core';
 import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {DateTime} from 'luxon';
-import moment from 'moment';
-import type {Moment} from 'moment';
 import {
     ImsDatepicker,
-    ImsDatepickerDateValueHandlerDirective,
-    ImsDatepickerLuxonValue,
-    ImsDatepickerMomentValue,
-    ImsDatepickerMomentValueHandlerDirective,
-    ImsDatepickerValue
+    ImsDatepickerDateValue,
+    ImsDatepickerLuxonValue
 } from '../../components/ims-datepicker';
 import {ReadonlyDirective} from '../../shared/readonly.directive';
 
@@ -21,8 +16,6 @@ import {ReadonlyDirective} from '../../shared/readonly.directive';
         ReactiveFormsModule,
         JsonPipe,
         ImsDatepicker,
-        ImsDatepickerDateValueHandlerDirective,
-        ImsDatepickerMomentValueHandlerDirective,
         ReadonlyDirective
     ],
     templateUrl: './datepicker-demo.html',
@@ -30,27 +23,24 @@ import {ReadonlyDirective} from '../../shared/readonly.directive';
     styleUrl: './datepicker-demo.scss'
 })
 export class DatepickerDemo {
-    readonly dateControl = new FormControl<NativeDatepickerValue>(
+    readonly dateControl = new FormControl<ImsDatepickerDateValue>(
         utcDate(2026, 6, 7)
     );
-    readonly monthControl = new FormControl<NativeDatepickerValue>(
+    readonly monthControl = new FormControl<ImsDatepickerDateValue>(
         Date.UTC(2026, 5, 30)
     );
-    readonly readonlyDateControl = new FormControl<NativeDatepickerValue>(
+    readonly readonlyDateControl = new FormControl<ImsDatepickerDateValue>(
         utcDate(2026, 8, 8)
-    );
-    readonly momentControl = new FormControl<ImsDatepickerMomentValue>(
-        moment.utc([2026, 5, 7])
     );
     readonly luxonControl = new FormControl<ImsDatepickerLuxonValue>(
         DateTime.utc(2026, 6, 7)
     );
-    readonly min = signal<NativeDatepickerValue>(utcDate(2020, 1, 1));
-    readonly max = signal<NativeDatepickerValue>(utcDate(2035, 12, 31));
+    readonly min = signal<ImsDatepickerDateValue>(utcDate(2020, 1, 1));
+    readonly max = signal<ImsDatepickerDateValue>(utcDate(2035, 12, 31));
     readonly readonlyEnabled = signal(true);
     readonly datepickerEvent = signal('—');
 
-    templateDate: NativeDatepickerValue = null;
+    templateDate: ImsDatepickerDateValue = null;
 
     readonly customFormats = {
         parse: {
@@ -82,7 +72,6 @@ export class DatepickerDemo {
 
     describe(value: unknown): string {
         if (value instanceof Date) return value.toISOString();
-        if (moment.isMoment(value)) return (value as Moment).toISOString();
         if (DateTime.isDateTime(value)) return value.toISO() ?? 'Invalid DateTime';
         return value === null || value === undefined ? 'null' : String(value);
     }
@@ -91,5 +80,3 @@ export class DatepickerDemo {
 function utcDate(year: number, month: number, day: number): Date {
     return new Date(Date.UTC(year, month - 1, day));
 }
-
-type NativeDatepickerValue = ImsDatepickerValue<Date>;

@@ -5,7 +5,7 @@ import { By } from '@angular/platform-browser';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { DateTime } from 'luxon';
 import { ImsDatepicker } from './ims-datepicker';
-import { ImsDatepickerValue } from './ims-datepicker.types';
+import { ImsDatepickerDateFilter, ImsDatepickerValue, ImsDatepickerValueType } from './ims-datepicker.types';
 
 function calendarDate(year: number, month: number, day: number): Date {
     return new Date(Date.UTC(year, month - 1, day));
@@ -31,6 +31,7 @@ function utcMillis(year: number, month: number, day: number): number {
             [min]="min"
             [max]="max"
             [valueType]="valueType"
+            [dateFilter]="dateFilter"
         />
     `
 })
@@ -41,7 +42,8 @@ class DatepickerTestHost {
     monthDay: 'start' | 'end' = 'start';
     min: ImsDatepickerValue = null;
     max: ImsDatepickerValue = null;
-    valueType: 'date' | 'millis' | null = 'millis';
+    valueType: ImsDatepickerValueType | null = 'millis';
+    dateFilter: ImsDatepickerDateFilter | null = null;
 }
 
 describe('ImsDatepicker', () => {
@@ -67,6 +69,13 @@ describe('ImsDatepicker', () => {
         fixture.detectChanges();
         input = fixture.nativeElement.querySelector('input');
     });
+
+    function commitText(text: string): void {
+        input.value = text;
+        input.dispatchEvent(new Event('input'));
+        input.dispatchEvent(new Event('blur'));
+        fixture.detectChanges();
+    }
 
     it('renders the field and calendar trigger with the shared input-action contract', () => {
         const fixtureElement = fixture.nativeElement as HTMLElement;
@@ -151,7 +160,7 @@ describe('ImsDatepicker', () => {
         expect(input.value).toBe('05/02/2028');
     });
 
-    it('emits Luxon dates when no millisecond value type is configured', () => {
+    it('emits milliseconds from an empty control when no value type is configured', () => {
         host.valueType = null;
         fixture.detectChanges();
 
@@ -160,8 +169,7 @@ describe('ImsDatepicker', () => {
         input.dispatchEvent(new Event('blur'));
         fixture.detectChanges();
 
-        expect(DateTime.isDateTime(host.control.value)).toBe(true);
-        expect((host.control.value as DateTime).toISODate()).toBe('2028-02-05');
+        expect(host.control.value).toBe(utcMillis(2028, 2, 5));
     });
 
     it('automatically contributes reactive-form min and max validation', () => {
@@ -470,7 +478,7 @@ describe('ImsDatepicker', () => {
     });
 
     it('emits valueChanges once per committed date object', () => {
-        host.valueType = null;
+        host.valueType = 'luxon';
         fixture.detectChanges();
 
         const emissions: unknown[] = [];
@@ -553,5 +561,46 @@ describe('ImsDatepicker', () => {
         expect(input.getAttribute('role')).toBe('combobox');
         expect(input.getAttribute('aria-haspopup')).toBe('dialog');
         expect(input.getAttribute('aria-expanded')).toBe('true');
+    });
+
+    it('emits milliseconds whatever kind of value it received', () => {
+        host.valueType = null;
+        fixture.detectChanges();
+
+        host.control.setValue(calendarDate(2028, 2, 5));
+        fixture.detectChanges();
+        commitText('6/2/2028');
+        expect(host.control.value).toBe(utcMillis(2028, 2, 6));
+
+        host.control.setValue(luxonDate(2028, 2, 5));
+        fixture.detectChanges();
+        commitText('7/2/2028');
+        expect(host.control.value).toBe(utcMillis(2028, 2, 7));
+    });
+
+    it('emits native Dates when valueType is date', () => {
+        host.valueType = 'date';
+        host.control.setValue(luxonDate(2028, 2, 5));
+        fixture.detectChanges();
+
+        commitText('6/2/2028');
+
+        expect(host.control.value).toBeInstanceOf(Date);
+        expect(host.control.value).toEqual(calendarDate(2028, 2, 6));
+    });
+
+    it('passes Luxon dates to the date filter whatever the value type', () => {
+        const filteredDates: unknown[] = [];
+        host.valueType = 'millis';
+        host.dateFilter = (date) => {
+            filteredDates.push(date);
+            return date.weekday !== 6;
+        };
+        host.control.setValue(utcMillis(2028, 2, 5));
+        fixture.detectChanges();
+
+        expect(host.control.hasError('imsDatepickerFilter')).toBe(true);
+        expect(filteredDates.length).toBeGreaterThan(0);
+        expect(filteredDates.every((date) => DateTime.isDateTime(date))).toBe(true);
     });
 });

@@ -3,7 +3,6 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ImsInputDirective } from '../../ims-input.directive';
 import {
   ImsDatepicker,
-  ImsDatepickerDateValueHandlerDirective,
   ImsDatepickerValue,
 } from '../../components/ims-datepicker';
 import { ImsAutocomplete, ImsAutocompleteOption } from '../../components/ims-autocomplete';
@@ -28,7 +27,6 @@ type NativeDatepickerValue = ImsDatepickerValue<Date>;
     ImsAutocomplete,
     ImsCheckbox,
     ImsDatepicker,
-    ImsDatepickerDateValueHandlerDirective,
     ImsOption,
     ImsSelect,
     ReadonlyDirective,

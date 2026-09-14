@@ -1,6 +1,6 @@
 <header class="page-heading">
     <h1>בורר תאריך</h1>
-    <p>בחירה לפי יום או חודש, עם ערכי Date, Moment ו-Luxon.</p>
+    <p>בחירה לפי יום או חודש, עם ערכי Luxon, Date ו-milliseconds.</p>
 </header>
 
 <section class="datepicker-demo">
@@ -21,8 +21,8 @@
             <span>תאריך מלא, Date, reactive form</span>
             <ims-datepicker
                 ariaLabel="תאריך מלא"
+                valueType="date"
                 [formControl]="dateControl"
-                imsDatepickerDate
                 [min]="min()"
                 [max]="max()"
                 showWeekNumbers
@@ -40,8 +40,8 @@
             <span>תאריך לקריאה בלבד, ims-readonly</span>
             <ims-datepicker
                 ariaLabel="תאריך לקריאה בלבד"
+                valueType="date"
                 [formControl]="readonlyDateControl"
-                imsDatepickerDate
                 [ims-readonly]="readonlyEnabled()"
             />
             <code>{{ describe(readonlyDateControl.value) }}</code>
@@ -54,7 +54,6 @@
                 format="MM/yyyy"
                 monthDay="end"
                 valueType="millis"
-                imsDatepickerDate
                 ariaLabel="חודש"
                 [formControl]="monthControl"
                 [min]="min()"
@@ -68,28 +67,18 @@
             <span>ngModel עם פורמט תצוגה וניתוח מותאם</span>
             <ims-datepicker
                 ariaLabel="תאריך בתבנית מותאמת"
+                valueType="date"
                 [(ngModel)]="templateDate"
-                imsDatepickerDate
                 [formats]="customFormats"
             />
             <code>{{ describe(templateDate) }}</code>
         </label>
 
         <label class="datepicker-demo__field">
-            <span>Moment, reactive form</span>
-            <ims-datepicker
-                imsDatepickerMoment
-                ariaLabel="תאריך Moment"
-                [formControl]="momentControl"
-            />
-            <code>{{ describe(momentControl.value) }}</code>
-            <code>{{ momentControl.errors | json }}</code>
-        </label>
-
-        <label class="datepicker-demo__field">
             <span>Luxon DateTime, reactive form</span>
             <ims-datepicker
                 ariaLabel="Luxon date"
+                valueType="luxon"
                 [formControl]="luxonControl"
             />
             <code>{{ describe(luxonControl.value) }}</code>

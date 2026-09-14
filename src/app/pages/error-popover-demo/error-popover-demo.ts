@@ -3,7 +3,6 @@ import {ChangeDetectionStrategy, Component, signal} from '@angular/core';
 import {FormControl, ReactiveFormsModule, ValidationErrors, Validators} from '@angular/forms';
 import {
     ImsDatepicker,
-    ImsDatepickerDateValueHandlerDirective,
     ImsDatepickerValue
 } from '../../components/ims-datepicker';
 import {
@@ -20,7 +19,6 @@ type NativeDatepickerValue = ImsDatepickerValue<Date>;
         JsonPipe,
         ReactiveFormsModule,
         ImsDatepicker,
-        ImsDatepickerDateValueHandlerDirective,
         ImsErrorPopoverDirective,
         ReadonlyDirective
     ],

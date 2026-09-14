@@ -3,8 +3,7 @@ import {ChangeDetectionStrategy, Component} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {ImsCheckbox} from '../../components/ims-checkbox/ims-checkbox';
 import {
-    ImsDatepicker,
-    ImsDatepickerDateValueHandlerDirective
+    ImsDatepicker
 } from '../../components/ims-datepicker';
 import {ImsErrorPopoverDirective} from '../../components/ims-error-popover';
 import {
@@ -42,7 +41,6 @@ function utcDate(value: string): Date {
         FormsModule,
         ImsCheckbox,
         ImsDatepicker,
-        ImsDatepickerDateValueHandlerDirective,
         ImsErrorPopoverDirective,
         ImsFormField,
         ImsFormFieldRow,
