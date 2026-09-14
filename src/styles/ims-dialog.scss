@@ -249,6 +249,10 @@ ims-dialog-shell.ims-dialog {
   font-family: 'Courier New', monospace;
   font-size: 0.8rem;
   font-weight: 800;
+  // The minus of a negative code is a neutral character, which an RTL line
+  // moves to the far side of the digits; an LTR isolate keeps `-409` intact.
+  direction: ltr;
+  unicode-bidi: isolate;
 }
 
 .ims-dialog__result--info .ims-dialog__result-code {
@@ -305,6 +309,32 @@ ims-dialog-shell.ims-dialog {
     'wght' 450,
     'GRAD' 0,
     'opsz' 20;
+}
+
+.ims-dialog__details {
+  display: grid;
+  gap: 0.25rem;
+  color: var(--ims-color-on-surface-muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+// The divider only separates details from content above them; a details-only
+// dialog has nothing to separate.
+.ims-dialog__details:not(:first-child) {
+  padding-block-start: 0.75rem;
+  border-block-start: 1px solid var(--ims-color-border-subtle);
+}
+
+// Paths and URLs start with neutral characters, which an RTL line moves to the
+// wrong end (`/api/policies/42` reads `api/policies/42/`). The shell wraps each
+// line in a `bdi`, which orders the text by its own direction while the
+// paragraph keeps the dialog's direction and alignment. `unicode-bidi:
+// plaintext` on the paragraph fixed the order but aligned URL lines to the
+// opposite side, and Chrome did not apply `text-align: match-parent` to undo it.
+.ims-dialog__details p {
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .ims-dialog-actions {

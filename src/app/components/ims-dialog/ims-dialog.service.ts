@@ -100,6 +100,7 @@ export class ImsDialogService implements ImsDialogBuilderHost {
       mode: options.mode,
       readonlySignal: readonlyState,
       content: options.content,
+      details: options.details,
       title: options.title,
       icon: options.iconRequested
         ? (options.iconName ?? DEFAULT_ICONS[options.severity])

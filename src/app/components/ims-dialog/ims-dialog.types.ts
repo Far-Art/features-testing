@@ -43,11 +43,14 @@ export interface ImsDialogRuntimeConfig<D = unknown> {
   readonly direction: 'ltr' | 'rtl';
   readonly dragBoundary: HTMLElement | string;
   readonly maxSurfaceHeight: number | null;
+  /** Supporting text lines rendered beneath structured content. */
+  readonly details: readonly string[];
 }
 
 export interface ImsDialogOpenOptions {
   readonly severity: ImsDialogSeverity;
   readonly content: ImsDialogContentType | null;
+  readonly details: readonly string[];
   readonly title: string;
   readonly iconRequested: boolean;
   readonly iconName: string | null;

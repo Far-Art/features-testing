@@ -989,13 +989,15 @@ export class DialogDemo {
   }
 
   openError(kind: 'error' | 'http' | 'opaque'): void {
+    const requestUrl = '/api/policies/42';
     const failure: unknown =
       kind === 'error'
         ? new Error('The policy service rejected the request.')
         : kind === 'http'
           ? {
               status: 409,
-              message: 'Http failure response for /api/policies: 409 Conflict',
+              url: requestUrl,
+              message: `Http failure response for ${requestUrl}: 409 Conflict`,
               error: {
                 resultCode: -409,
                 resultDesc: 'The policy was changed by another user.',
@@ -1009,6 +1011,7 @@ export class DialogDemo {
 
     const ref = this.dialog
       .error(failure)
+      .withDetails(...(kind === 'http' ? [`Request URL: ${requestUrl}`] : []))
       .config({ direction: 'ltr', width: 'min(34rem, calc(100vw - 2rem))' })
       .open();
 

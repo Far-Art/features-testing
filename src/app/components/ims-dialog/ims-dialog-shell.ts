@@ -78,7 +78,6 @@ export class ImsDialogShell {
   })();
   readonly effectiveSeverity =
     (this.baseOutput?.resultCode ?? 0) < 0 ? 'danger' : this.config.severity;
-  readonly isMessageListContent = isImsDialogMessageArray(this.config.content);
   // A row's level never changes, so its style and icon are resolved here once.
   // Resolving them per binding cost five calls per row on every check of this
   // view, and this view is checked whenever anything inside the dialog emits.
@@ -106,6 +105,7 @@ export class ImsDialogShell {
 
     return isImsDialogStringArray(content) ? content : [];
   })();
+  readonly details = this.config.details;
 
   constructor() {
     const host = this.hostElement.nativeElement;

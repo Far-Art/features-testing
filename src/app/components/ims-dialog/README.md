@@ -88,6 +88,8 @@ dialog.info(output).title('Request result').open();
 Result styling is derived from `resultCode`: `0` is informational and values
 below `0` are dangerous. A negative result also overrides the complete dialog
 chrome to the danger theme, regardless of which severity method opened it.
+The code itself is always laid out left to right, so a negative code reads
+`-12` inside an RTL dialog as well.
 Message rows are copied and sorted by `level` in descending order before
 rendering; the caller's array is not mutated.
 
@@ -145,7 +147,14 @@ An error dialog renders text rather than a component and always closes without
 a result, so `error()` returns the reduced `ImsDialogErrorBuilder` surface:
 
 ```ts
-dialog.error(value).title(text).withIcon(name?).inside(className).config(config).open();
+dialog
+  .error(value)
+  .title(text)
+  .withIcon(name?)
+  .withDetails(...lines)
+  .inside(className)
+  .config(config)
+  .open();
 ```
 
 `data()`, `asConfirmation()`, and `asReadonly()` are not offered, and `open()`
@@ -211,6 +220,39 @@ component-provided `ims-dialog-title` supplies its own icon. Calling
 empty.
 
 The dialog and its demo use the Material Symbols Sharp ligature font.
+
+### `withDetails(...lines)`
+
+Adds supporting text beneath the structured content, such as the URL a failed
+request was sent to, without writing a component for it. Each line renders as
+its own muted paragraph after the result, messages, or text, separated from
+them by a divider.
+
+```ts
+this.http.get<Policy>(url).subscribe({
+  error: (failure: HttpErrorResponse) => {
+    dialog
+      .error(failure)
+      .withDetails(...(failure.url ? [`Request URL: ${failure.url}`] : []))
+      .open();
+  },
+});
+```
+
+`error()` still unwraps the `IBaseOutput` payload, so the result code and
+messages render as usual with the URL beneath them.
+
+Each call appends to the lines of earlier calls. Lines are trimmed and empty
+lines are dropped; spread a conditional array, as above, to add a line only
+when its value exists.
+
+Details accompany `IBaseOutput`, `IMessage[]`, and text content, and a severity
+method called without content renders them alone. A component renders its own
+body, so details are ignored for component content.
+
+Each line takes its reading direction from its own text, so a path such as
+`/api/policies/42` keeps its order inside an RTL dialog while the lines stay
+aligned with the dialog.
 
 ### `inside(className)`
 

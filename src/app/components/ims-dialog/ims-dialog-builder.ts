@@ -39,6 +39,15 @@ export interface ImsDialogErrorBuilder {
   withIcon(materialSymbolName?: string): ImsDialogErrorBuilder;
 
   /**
+   * Adds supporting text beneath the error content.
+   *
+   * @param lines Text lines, such as the URL a failed request was sent to.
+   * Calls append to earlier lines; empty lines are dropped.
+   * @returns This builder for continued chaining.
+   */
+  withDetails(...lines: string[]): ImsDialogErrorBuilder;
+
+  /**
    * Opens the dialog inside an element instead of the viewport.
    *
    * @param className A single class name without a leading period.
@@ -76,6 +85,7 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
   private dialogTitle = '';
   private hasIcon = false;
   private materialIconName: string | null = null;
+  private readonly detailLines: string[] = [];
   private dialogMode: ImsDialogMode = 'standard';
   private labels: ImsDialogConfirmationLabels | null = null;
   private insideClassName: string | null = null;
@@ -148,6 +158,22 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
   }
 
   /**
+   * Adds supporting text beneath the structured content.
+   *
+   * Each line renders as its own muted paragraph after the result, messages,
+   * or text, such as the URL a failed request was sent to. Calls append to the
+   * lines of earlier calls; lines are trimmed and empty lines are dropped.
+   * Component content renders its own body and ignores details.
+   *
+   * @param lines Text lines displayed beneath the content.
+   * @returns This builder for continued chaining.
+   */
+  withDetails(...lines: string[]): ImsDialogBuilder<C, Confirmation> {
+    this.detailLines.push(...lines.map((line) => line.trim()).filter(Boolean));
+    return this;
+  }
+
+  /**
    * Opens the dialog inside an element instead of the viewport.
    *
    * The first element inside `body` with the provided class becomes both the
@@ -210,6 +236,7 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
     return this.host.openFromBuilder({
       severity: this.severity,
       content: this.content,
+      details: [...this.detailLines],
       title: this.dialogTitle,
       iconRequested: this.hasIcon,
       iconName: this.materialIconName,

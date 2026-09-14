@@ -164,9 +164,9 @@
           A caught value goes straight to the dialog. Renderable content is kept, an
           <code>HttpErrorResponse</code> payload is unwrapped, an <code>Error</code> shows its
           message, and anything else falls back to a generic line. The generated title defaults to
-          תקלה.
+          תקלה. The HTTP failure adds the request URL beneath its messages as a details line.
         </p>
-        <code>.error(value: unknown)</code>
+        <code>.error(value: unknown).withDetails(...lines)</code>
       </div>
       <div class="dialog-demo-card__actions">
         <button type="button" (click)="openError('error')">Error</button>

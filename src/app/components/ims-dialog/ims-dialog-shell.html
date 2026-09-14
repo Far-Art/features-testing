@@ -22,7 +22,7 @@
     <ims-icon>close</ims-icon>
   </button>
 
-  @if (config.content !== null) {
+  @if (config.content !== null || details.length > 0) {
     <div
       class="ims-dialog__component-content"
       [class.ims-dialog-content]="!sections.hasContent()"
@@ -66,10 +66,18 @@
                 </li>
               }
             </ul>
-          } @else if (!baseOutput && !isMessageListContent) {
+          } @else if (textContent.length > 0) {
             <div class="ims-dialog__text-content">
               @for (text of textContent; track $index) {
                 <p>{{ text }}</p>
+              }
+            </div>
+          }
+
+          @if (details.length > 0) {
+            <div class="ims-dialog__details">
+              @for (line of details; track $index) {
+                <p><bdi>{{ line }}</bdi></p>
               }
             </div>
           }
