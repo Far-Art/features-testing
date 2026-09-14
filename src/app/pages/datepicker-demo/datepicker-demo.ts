@@ -1,7 +1,6 @@
 import {JsonPipe} from '@angular/common';
 import {Component, signal, ChangeDetectionStrategy} from '@angular/core';
 import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {Temporal} from '@js-temporal/polyfill';
 import {DateTime} from 'luxon';
 import moment from 'moment';
 import type {Moment} from 'moment';
@@ -13,13 +12,7 @@ import {
     ImsDatepickerMomentValueHandlerDirective,
     ImsDatepickerValue
 } from '../../components/ims-datepicker';
-import {
-    ImsDatepickerExperimental,
-    ImsDatepickerExperimentalValue,
-    provideImsDatepickerExperimentalConfig
-} from '../../components/ims-datepicker-experimental';
 import {ReadonlyDirective} from '../../shared/readonly.directive';
-import {TemporalHelper} from '../../shared/temporal.helper';
 
 @Component({
     selector: 'app-datepicker-demo',
@@ -30,15 +23,7 @@ import {TemporalHelper} from '../../shared/temporal.helper';
         ImsDatepicker,
         ImsDatepickerDateValueHandlerDirective,
         ImsDatepickerMomentValueHandlerDirective,
-        ImsDatepickerExperimental,
         ReadonlyDirective
-    ],
-    providers: [
-        provideImsDatepickerExperimentalConfig({
-            locale: 'he',
-            zone: 'Asia/Jerusalem',
-            firstDayOfWeek: 7
-        })
     ],
     templateUrl: './datepicker-demo.html',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -53,9 +38,6 @@ export class DatepickerDemo {
     );
     readonly readonlyDateControl = new FormControl<NativeDatepickerValue>(
         utcDate(2026, 8, 8)
-    );
-    readonly temporalControl = new FormControl<ImsDatepickerExperimentalValue>(
-        TemporalHelper.plainDate(2026, 6, 7)
     );
     readonly momentControl = new FormControl<ImsDatepickerMomentValue>(
         moment.utc([2026, 5, 7])
@@ -100,7 +82,6 @@ export class DatepickerDemo {
 
     describe(value: unknown): string {
         if (value instanceof Date) return value.toISOString();
-        if (value instanceof Temporal.PlainDate) return value.toString();
         if (moment.isMoment(value)) return (value as Moment).toISOString();
         if (DateTime.isDateTime(value)) return value.toISO() ?? 'Invalid DateTime';
         return value === null || value === undefined ? 'null' : String(value);

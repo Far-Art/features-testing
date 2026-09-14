@@ -6,8 +6,8 @@ import {
     input,
     output
 } from '@angular/core';
-import {ImsButtonIcon} from '../ims-button';
-import {ImsIcon} from '../ims-icon';
+import {ImsButtonIcon} from '../../components/ims-button';
+import {ImsIcon} from '../../components/ims-icon';
 import {
     ImsSelectionEditDialogMode,
     ImsSelectionLabels,

@@ -65,13 +65,15 @@ import {
     daysInMonth,
     formatDate,
     formatWeekdays,
+    groupIntoRows,
     IMS_DATEPICKER_INPUT_PATTERNS,
     isDateInputTextAllowed,
     isNativeDate,
     mergeDatepickerFormats,
     normalizeDateValue,
     todayInZone,
-    toUtcEpochMillis
+    toUtcEpochMillis,
+    validationErrorsKey
 } from './ims-datepicker.utils';
 
 interface ImsDatepickerDayCell {
@@ -127,6 +129,9 @@ const OVERLAY_POSITIONS: ConnectedPosition[] = [
 const DEFAULT_RANGE_MIN = canonicalDate(1900, 1, 1)!;
 const DEFAULT_RANGE_MAX = canonicalDate(2200, 12, 31)!;
 const YEARS_PER_PAGE = 24;
+const DAY_COLUMNS = 7;
+const MONTH_COLUMNS = 3;
+const YEAR_COLUMNS = 4;
 
 let nextDatepickerId = 0;
 
@@ -193,12 +198,14 @@ export class ImsDatepicker
         'nextFarButton'
     );
     private validatorChange: () => void = () => undefined;
+    private lastValidationKey: string | null = null;
     private focusFrame: number | null = null;
     private headerFocusFrame: number | null = null;
     private pendingNavigationCursor: ImsDatepickerDate | null = null;
     private readonly userEditing = signal(false);
     private readonly inferredValueType = signal<ImsDatepickerValueType>('date');
     private readonly externalErrorPopoverCount = signal(0);
+    private readonly todayRefresh = signal(0);
 
     /** Selection precision. This is independent from the configured display format. */
     readonly format = input<ImsDatepickerPrecision>('dd/MM/yyyy');
@@ -310,7 +317,12 @@ export class ImsDatepicker
             this.monthDay()
         )
     );
-    readonly today = computed(() => todayInZone(this.interpretationZone()));
+    // Re-read on every open (see openPicker), so a page left open past midnight
+    // still marks and jumps to the right day.
+    readonly today = computed(() => {
+        this.todayRefresh();
+        return todayInZone(this.interpretationZone());
+    }, {equal: dateEquals});
     readonly inputPlaceholder = computed(() => {
         if (this.placeholder()) return this.placeholder();
 
@@ -386,6 +398,8 @@ export class ImsDatepicker
         );
     });
 
+    readonly dayRows = computed(() => groupIntoRows(this.dayCells(), DAY_COLUMNS));
+
     readonly monthCells = computed<readonly ImsDatepickerMonthCell[]>(() => {
         const cursor = this.cursor();
         const selected = this.normalizedValue();
@@ -410,6 +424,8 @@ export class ImsDatepicker
         });
     });
 
+    readonly monthRows = computed(() => groupIntoRows(this.monthCells(), MONTH_COLUMNS));
+
     readonly yearPageStart = computed(() =>
         Math.floor(dateYear(this.cursor()) / YEARS_PER_PAGE) * YEARS_PER_PAGE
     );
@@ -428,6 +444,8 @@ export class ImsDatepicker
             };
         });
     });
+
+    readonly yearRows = computed(() => groupIntoRows(this.yearCells(), YEAR_COLUMNS));
 
     readonly canPreviousNear = computed(() => this.canNavigate('near', -1));
     readonly canNextNear = computed(() => this.canNavigate('near', 1));
@@ -461,20 +479,16 @@ export class ImsDatepicker
 
             this.rawText.set(value ? this.formatValue(value, format, formats, locale) : '');
             this.parseInvalid.set(false);
-        }, {allowSignalWrites: true});
+        });
 
+        // The form validates every value it receives on its own, so this only has
+        // to report what changes validity without a new value: the range, the
+        // filters and any signals they read, precision, formats and parse state.
+        // Comparing with the result last handed to the form keeps a committed
+        // value from being validated, and `valueChanges` from emitting, twice.
         effect(() => {
-            this.effectiveMin();
-            this.effectiveMax();
-            this.dateFilter();
-            this.format();
-            this.monthDay();
-            this.effectiveFormats();
-            this.effectiveLocale();
-            this.parseInvalid();
-            const value = this.normalizedValue();
-            if (value) this.passesDateFilters(value);
-            this.validatorChange();
+            const key = validationErrorsKey(this.errorPopoverErrors());
+            if (key === null || key !== this.lastValidationKey) this.validatorChange();
         });
 
         effect(() => {
@@ -483,7 +497,7 @@ export class ImsDatepicker
 
             if (this.open()) this.closePicker();
             if (this.userEditing()) this.userEditing.set(false);
-        }, {allowSignalWrites: true});
+        });
 
         effect(() => {
             if (this.open()) {
@@ -494,16 +508,21 @@ export class ImsDatepicker
                     this.scheduleActiveCellFocus();
                 }
             }
-        }, {allowSignalWrites: true});
+        });
     }
 
     override writeValue(value: ImsDatepickerAnyValue): void {
+        // A written value replaces any typed text, so a parse error about that
+        // text goes with it before the form validates the new value.
         this.userEditing.set(false);
+        this.parseInvalid.set(false);
         this.value.set(value);
     }
 
     validate(control: AbstractControl<ImsDatepickerAnyValue>): ValidationErrors | null {
-        return this.resolveValidationErrors(control.value);
+        const errors = this.resolveValidationErrors(control.value);
+        this.lastValidationKey = validationErrorsKey(errors);
+        return errors;
     }
 
     /**
@@ -616,7 +635,7 @@ export class ImsDatepicker
     }
 
     onInputBlur(): void {
-        if (!this.interactionDisabled()) this.commitText();
+        if (!this.interactionDisabled() && this.hasUncommittedText()) this.commitText();
         this.markAsTouched();
     }
 
@@ -625,7 +644,7 @@ export class ImsDatepicker
 
         if (event.key === 'Enter') {
             event.preventDefault();
-            this.commitText();
+            if (this.hasUncommittedText()) this.commitText();
             return;
         }
 
@@ -654,7 +673,8 @@ export class ImsDatepicker
     openPicker(): void {
         if (this.interactionDisabled() || this.open()) return;
 
-        if (this.userEditing()) this.commitText();
+        if (this.hasUncommittedText()) this.commitText();
+        this.todayRefresh.update((refresh) => refresh + 1);
         const base = this.normalizedValue() ?? this.today();
         const view = this.format() === 'dd/MM/yyyy' ? 'day' : 'month';
         this.calendarView.set(view);
@@ -741,14 +761,14 @@ export class ImsDatepicker
         const horizontalDirection = this.horizontalDirection(event.key);
 
         if (horizontalDirection !== 0) {
-            target = this.moveActiveHorizontally(active, horizontalDirection);
+            target = this.moveActiveByCells(horizontalDirection);
         } else {
             switch (event.key) {
                 case 'ArrowUp':
-                    target = this.moveActiveByRow(active, -1);
+                    target = this.moveActiveByCells(-this.gridColumns());
                     break;
                 case 'ArrowDown':
-                    target = this.moveActiveByRow(active, 1);
+                    target = this.moveActiveByCells(this.gridColumns());
                     break;
                 case 'Home':
                     target = this.activeBoundary('first');
@@ -890,8 +910,7 @@ export class ImsDatepicker
     }
 
     selectMonth(cell: ImsDatepickerMonthCell): void {
-        if (this.disabled() || cell.disabled) return;
-        if (this.readonlyMode() && this.format() === 'MM/yyyy') return;
+        if (this.interactionDisabled() || cell.disabled) return;
 
         const cursor = this.cursor();
         const candidate = this.format() === 'MM/yyyy'
@@ -921,7 +940,7 @@ export class ImsDatepicker
     }
 
     selectYear(cell: ImsDatepickerYearCell): void {
-        if (this.disabled() || cell.disabled) return;
+        if (this.interactionDisabled() || cell.disabled) return;
 
         const cursor = this.cursor();
         const firstOfMonth = canonicalDate(cell.year, dateMonth(cursor), 1)!;
@@ -935,6 +954,15 @@ export class ImsDatepicker
         if (!date) return;
         this.cursor.set(date);
         this.setCalendarView('month');
+    }
+
+    /**
+     * Whether the input holds typed text that has not been committed yet. Text
+     * that already failed to parse does not count: committing it again would
+     * only repeat the same `null` and `dateChange`.
+     */
+    private hasUncommittedText(): boolean {
+        return this.userEditing() && !this.parseInvalid();
     }
 
     private commitText(): void {
@@ -1046,6 +1074,10 @@ export class ImsDatepicker
     private passesDateFilters(date: ImsDatepickerDate): boolean {
         const globalFilter = this.globalConfig.dateFilter;
         const instanceFilter = this.dateFilter();
+        // Every enabled-state check lands here, hundreds of them for one year
+        // view, so skip building the handler's date object when no filter reads it.
+        if (!globalFilter && !instanceFilter) return true;
+
         const externalDate = this.valueHandler.fromCalendarMillis(toUtcEpochMillis(date));
         return (!globalFilter || globalFilter(externalDate))
             && (!instanceFilter || instanceFilter(externalDate));
@@ -1070,7 +1102,7 @@ export class ImsDatepicker
         const view = this.calendarView();
 
         if (view === 'day') {
-            if (this.readonlyMode()) return;
+            if (this.interactionDisabled()) return;
             const date = this.cursor();
             if (!this.isDateEnabled(date)) return;
             this.commitDate(date);
@@ -1096,62 +1128,57 @@ export class ImsDatepicker
         return leftDirection === 1 ? -1 : 1;
     }
 
-    private moveActiveHorizontally(
-        date: ImsDatepickerDate,
-        direction: -1 | 1
-    ): ImsDatepickerDate {
-        return this.moveActiveInGrid(date, direction);
-    }
-
-    private moveActiveByRow(date: ImsDatepickerDate, direction: -1 | 1): ImsDatepickerDate {
+    private gridColumns(): number {
         const view = this.calendarView();
-        const columns = view === 'day' ? 7 : view === 'month' ? 3 : 4;
-        return this.moveActiveInGrid(date, direction * columns);
+        return view === 'day' ? DAY_COLUMNS : view === 'month' ? MONTH_COLUMNS : YEAR_COLUMNS;
     }
 
-    private moveActiveInGrid(fallback: ImsDatepickerDate, offset: number): ImsDatepickerDate {
+    /**
+     * Moves the cursor `offset` cells through the current view's unit (days,
+     * months or years), crossing into the neighbouring period instead of
+     * wrapping inside the displayed one. Disabled cells are stepped over in the
+     * same direction; past the edge of the selectable range the cursor stays.
+     */
+    private moveActiveByCells(offset: number): ImsDatepickerDate {
         const cursor = this.cursor();
         const view = this.calendarView();
-        let activeIndex = -1;
-        let dates: readonly (ImsDatepickerDate | null)[];
+
+        for (let step = 1; ; step++) {
+            const distance = offset * step;
+            const candidate = view === 'day'
+                ? addDate(cursor, {days: distance})
+                : view === 'month'
+                    ? addDate(cursor, {months: distance})
+                    : addDate(cursor, {years: distance});
+
+            if (!this.isInSelectableRange(candidate, view)) return cursor;
+            if (this.isCellEnabled(candidate, view)) return candidate;
+        }
+    }
+
+    /** Whether the day, month, or year holding `date` lies inside the effective range. */
+    private isInSelectableRange(date: ImsDatepickerDate, view: ImsDatepickerView): boolean {
+        const min = this.effectiveMin();
+        const max = this.effectiveMax();
 
         if (view === 'day') {
-            const cells = this.dayCells();
-            activeIndex = cells.findIndex((cell) => cell.active);
-            dates = cells.map((cell) =>
-                cell.currentMonth && !cell.disabled ? cell.date : null
-            );
-        } else if (view === 'month') {
-            const cells = this.monthCells();
-            activeIndex = cells.findIndex((cell) => cell.active);
-            dates = cells.map((cell) => {
-                if (cell.disabled) return null;
-                return this.format() === 'MM/yyyy'
-                    ? this.monthValue(dateYear(cursor), cell.month)
-                    : this.dateInMonth(dateYear(cursor), cell.month, dateDay(cursor));
-            });
-        } else {
-            const cells = this.yearCells();
-            activeIndex = cells.findIndex((cell) => cell.active);
-            dates = cells.map((cell) =>
-                cell.disabled
-                    ? null
-                    : this.dateInMonth(cell.year, dateMonth(cursor), dateDay(cursor))
-            );
+            return compareDateOnly(date, min) >= 0 && compareDateOnly(date, max) <= 0;
         }
 
-        if (activeIndex < 0 || dates.length === 0) return fallback;
-
-        let candidateIndex = activeIndex;
-        for (let attempt = 0; attempt < dates.length; attempt++) {
-            candidateIndex = (
-                (candidateIndex + offset) % dates.length + dates.length
-            ) % dates.length;
-            const candidate = dates[candidateIndex];
-            if (candidate) return candidate;
+        if (view === 'month') {
+            const month = this.startOfMonth(date);
+            return compareDateOnly(month, this.startOfMonth(min)) >= 0
+                && compareDateOnly(month, this.startOfMonth(max)) <= 0;
         }
 
-        return fallback;
+        return dateYear(date) >= dateYear(min) && dateYear(date) <= dateYear(max);
+    }
+
+    /** Whether the day, month, or year cell holding `date` can take the cursor. */
+    private isCellEnabled(date: ImsDatepickerDate, view: ImsDatepickerView): boolean {
+        if (view === 'day') return this.isDateEnabled(date);
+        if (view === 'month') return this.periodIntersectsRange(dateYear(date), dateMonth(date));
+        return this.yearIntersectsRange(dateYear(date));
     }
 
     private activeBoundary(boundary: 'first' | 'last'): ImsDatepickerDate {

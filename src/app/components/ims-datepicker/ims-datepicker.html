@@ -13,8 +13,11 @@
     <input
         #textInput
         type="text"
+        role="combobox"
         inputmode="numeric"
         autocomplete="off"
+        aria-autocomplete="none"
+        aria-haspopup="dialog"
         class="ims-datepicker__input"
         [attr.id]="id()"
         [attr.pattern]="inputPattern()"
@@ -42,9 +45,7 @@
             (pointerdown)="$event.preventDefault()"
             (click)="clearDate()"
         >
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path d="m7 7 10 10M17 7 7 17" />
-            </svg>
+            <ims-icon>close</ims-icon>
         </button>
     }
 </div>
@@ -54,6 +55,7 @@
     ims-button-icon
     type="button"
     class="ims-input-action__button ims-datepicker__toggle"
+    aria-haspopup="dialog"
     [attr.aria-label]="open() ? effectiveLabels().closeCalendar : effectiveLabels().openCalendar"
     [attr.aria-controls]="open() ? dialogId : null"
     [attr.aria-expanded]="open()"
@@ -84,7 +86,6 @@
         [attr.id]="dialogId"
         [attr.aria-labelledby]="headerButtonId"
         [attr.dir]="directionality.value"
-        [class.ims-datepicker__panel--readonly]="readonlyMode()"
         [class.ims-datepicker__panel--week-numbers]="showWeekNumbers()"
         (keydown.escape)="onPanelEscape($event)"
     >
@@ -96,6 +97,7 @@
             <div class="ims-datepicker__navigation">
                 <button
                     #previousFarButton
+                    ims-button-icon
                     type="button"
                     class="ims-datepicker__step ims-datepicker__step--far"
                     [attr.aria-label]="navigationLabel('far', -1)"
@@ -103,14 +105,11 @@
                     [disabled]="!canPreviousFar()"
                     (click)="navigate('far', -1)"
                 >
-                    <span
-                        class="ims-datepicker__step-icon material-icons"
-                        aria-hidden="true"
-                        [textContent]="navigationIcon('far', -1)"
-                    ></span>
+                    <ims-icon class="ims-datepicker__step-icon">{{ navigationIcon('far', -1) }}</ims-icon>
                 </button>
                 <button
                     #previousNearButton
+                    ims-button-icon
                     type="button"
                     class="ims-datepicker__step"
                     [attr.aria-label]="navigationLabel('near', -1)"
@@ -118,11 +117,7 @@
                     [disabled]="!canPreviousNear()"
                     (click)="navigate('near', -1)"
                 >
-                    <span
-                        class="ims-datepicker__step-icon material-icons"
-                        aria-hidden="true"
-                        [textContent]="navigationIcon('near', -1)"
-                    ></span>
+                    <ims-icon class="ims-datepicker__step-icon">{{ navigationIcon('near', -1) }}</ims-icon>
                 </button>
                 <button
                     #headerViewButton
@@ -136,6 +131,7 @@
                 </button>
                 <button
                     #nextNearButton
+                    ims-button-icon
                     type="button"
                     class="ims-datepicker__step"
                     [attr.aria-label]="navigationLabel('near', 1)"
@@ -143,14 +139,11 @@
                     [disabled]="!canNextNear()"
                     (click)="navigate('near', 1)"
                 >
-                    <span
-                        class="ims-datepicker__step-icon material-icons"
-                        aria-hidden="true"
-                        [textContent]="navigationIcon('near', 1)"
-                    ></span>
+                    <ims-icon class="ims-datepicker__step-icon">{{ navigationIcon('near', 1) }}</ims-icon>
                 </button>
                 <button
                     #nextFarButton
+                    ims-button-icon
                     type="button"
                     class="ims-datepicker__step ims-datepicker__step--far"
                     [attr.aria-label]="navigationLabel('far', 1)"
@@ -158,11 +151,7 @@
                     [disabled]="!canNextFar()"
                     (click)="navigate('far', 1)"
                 >
-                    <span
-                        class="ims-datepicker__step-icon material-icons"
-                        aria-hidden="true"
-                        [textContent]="navigationIcon('far', 1)"
-                    ></span>
+                    <ims-icon class="ims-datepicker__step-icon">{{ navigationIcon('far', 1) }}</ims-icon>
                 </button>
             </div>
 
@@ -226,49 +215,54 @@
                         [attr.data-transition-direction]="calendarTransitionDirection()"
                         [attr.aria-label]="gridAriaLabel()"
                         [attr.aria-colcount]="showWeekNumbers() ? 8 : 7"
-                        [attr.aria-readonly]="readonlyMode()"
                         (keydown)="onCalendarKeydown($event)"
                         (click)="onGridClick($event)"
                     >
-                        @for (cell of dayCells(); track cell.date.toString(); let cellIndex = $index) {
-                            @if (showWeekNumbers() && cellIndex % 7 === 0) {
-                                @let weekNumber = weekNumbers()[cellIndex / 7];
-                                <span
-                                    role="rowheader"
-                                    class="ims-datepicker__week-number"
-                                    [attr.aria-label]="effectiveLabels().week + ' ' + weekNumber"
-                                    [attr.aria-rowindex]="cellIndex / 7 + 1"
-                                >
-                                    {{ weekNumber }}
-                                </span>
-                            }
-                            @if (cell.currentMonth) {
-                                <button
-                                    [attr.id]="cell.id"
-                                    type="button"
-                                    role="gridcell"
-                                    class="ims-datepicker__cell ims-datepicker__day"
-                                    [class.ims-datepicker__cell--active]="cell.active"
-                                    [class.ims-datepicker__cell--selected]="cell.selected"
-                                    [class.ims-datepicker__cell--today]="cell.today"
-                                    [attr.tabindex]="cell.active ? 0 : -1"
-                                    [attr.aria-label]="dayAriaLabel(cell.date)"
-                                    [attr.aria-selected]="cell.selected"
-                                    [attr.aria-current]="cell.today ? 'date' : null"
-                                    [attr.aria-rowindex]="(cellIndex - cellIndex % 7) / 7 + 1"
-                                    [attr.aria-colindex]="cellIndex % 7 + (showWeekNumbers() ? 2 : 1)"
-                                    [disabled]="cell.disabled"
-                                    (click)="selectDay(cell)"
-                                    (focus)="activateDay(cell.date)"
-                                >
-                                    {{ cell.label }}
-                                </button>
-                            } @else {
-                                <span
-                                    class="ims-datepicker__day ims-datepicker__day-placeholder"
-                                    aria-hidden="true"
-                                ></span>
-                            }
+                        @for (row of dayRows(); track rowIndex; let rowIndex = $index) {
+                            <div
+                                role="row"
+                                class="ims-datepicker__row"
+                                [attr.aria-rowindex]="rowIndex + 1"
+                            >
+                                @if (showWeekNumbers()) {
+                                    @let weekNumber = weekNumbers()[rowIndex];
+                                    <span
+                                        role="rowheader"
+                                        class="ims-datepicker__week-number"
+                                        [attr.aria-label]="effectiveLabels().week + ' ' + weekNumber"
+                                    >
+                                        {{ weekNumber }}
+                                    </span>
+                                }
+                                @for (cell of row; track cell.id; let columnIndex = $index) {
+                                    @if (cell.currentMonth) {
+                                        <button
+                                            [attr.id]="cell.id"
+                                            type="button"
+                                            role="gridcell"
+                                            class="ims-datepicker__cell ims-datepicker__day"
+                                            [class.ims-datepicker__cell--active]="cell.active"
+                                            [class.ims-datepicker__cell--selected]="cell.selected"
+                                            [class.ims-datepicker__cell--today]="cell.today"
+                                            [attr.tabindex]="cell.active ? 0 : -1"
+                                            [attr.aria-label]="dayAriaLabel(cell.date)"
+                                            [attr.aria-selected]="cell.selected"
+                                            [attr.aria-current]="cell.today ? 'date' : null"
+                                            [attr.aria-colindex]="columnIndex + (showWeekNumbers() ? 2 : 1)"
+                                            [disabled]="cell.disabled"
+                                            (click)="selectDay(cell)"
+                                            (focus)="activateDay(cell.date)"
+                                        >
+                                            {{ cell.label }}
+                                        </button>
+                                    } @else {
+                                        <span
+                                            class="ims-datepicker__day ims-datepicker__day-placeholder"
+                                            aria-hidden="true"
+                                        ></span>
+                                    }
+                                }
+                            </div>
                         }
                     </div>
                 }
@@ -279,29 +273,35 @@
                         role="grid"
                         [attr.data-transition-direction]="calendarTransitionDirection()"
                         [attr.aria-label]="gridAriaLabel()"
-                        [attr.aria-readonly]="readonlyMode()"
                         (keydown)="onCalendarKeydown($event)"
                         (click)="onGridClick($event)"
                     >
-                        @for (cell of monthCells(); track cell.month; let cellIndex = $index) {
-                            <button
-                                [attr.id]="cell.id"
-                                type="button"
-                                role="gridcell"
-                                class="ims-datepicker__cell ims-datepicker__month"
-                                [class.ims-datepicker__cell--active]="cell.active"
-                                [class.ims-datepicker__cell--selected]="cell.selected"
-                                [attr.tabindex]="cell.active ? 0 : -1"
-                                [attr.aria-label]="cell.label + ' ' + calendarYear(cursor())"
-                                [attr.aria-selected]="cell.selected"
-                                [attr.aria-rowindex]="(cellIndex - cellIndex % 3) / 3 + 1"
-                                [attr.aria-colindex]="cellIndex % 3 + 1"
-                                [disabled]="cell.disabled"
-                                (click)="selectMonth(cell)"
-                                (focus)="activateMonth(cell.month)"
+                        @for (row of monthRows(); track rowIndex; let rowIndex = $index) {
+                            <div
+                                role="row"
+                                class="ims-datepicker__row"
+                                [attr.aria-rowindex]="rowIndex + 1"
                             >
-                                {{ cell.label }}
-                            </button>
+                                @for (cell of row; track cell.month; let columnIndex = $index) {
+                                    <button
+                                        [attr.id]="cell.id"
+                                        type="button"
+                                        role="gridcell"
+                                        class="ims-datepicker__cell ims-datepicker__month"
+                                        [class.ims-datepicker__cell--active]="cell.active"
+                                        [class.ims-datepicker__cell--selected]="cell.selected"
+                                        [attr.tabindex]="cell.active ? 0 : -1"
+                                        [attr.aria-label]="cell.label + ' ' + calendarYear(cursor())"
+                                        [attr.aria-selected]="cell.selected"
+                                        [attr.aria-colindex]="columnIndex + 1"
+                                        [disabled]="cell.disabled"
+                                        (click)="selectMonth(cell)"
+                                        (focus)="activateMonth(cell.month)"
+                                    >
+                                        {{ cell.label }}
+                                    </button>
+                                }
+                            </div>
                         }
                     </div>
                 }
@@ -312,29 +312,35 @@
                         role="grid"
                         [attr.data-transition-direction]="calendarTransitionDirection()"
                         [attr.aria-label]="gridAriaLabel()"
-                        [attr.aria-readonly]="readonlyMode()"
                         (keydown)="onCalendarKeydown($event)"
                         (click)="onGridClick($event)"
                     >
-                        @for (cell of yearCells(); track cell.year; let cellIndex = $index) {
-                            <button
-                                [attr.id]="cell.id"
-                                type="button"
-                                role="gridcell"
-                                class="ims-datepicker__cell ims-datepicker__year"
-                                [class.ims-datepicker__cell--active]="cell.active"
-                                [class.ims-datepicker__cell--selected]="cell.selected"
-                                [attr.tabindex]="cell.active ? 0 : -1"
-                                [attr.aria-label]="cell.year"
-                                [attr.aria-selected]="cell.selected"
-                                [attr.aria-rowindex]="(cellIndex - cellIndex % 4) / 4 + 1"
-                                [attr.aria-colindex]="cellIndex % 4 + 1"
-                                [disabled]="cell.disabled"
-                                (click)="selectYear(cell)"
-                                (focus)="activateYear(cell.year)"
+                        @for (row of yearRows(); track rowIndex; let rowIndex = $index) {
+                            <div
+                                role="row"
+                                class="ims-datepicker__row"
+                                [attr.aria-rowindex]="rowIndex + 1"
                             >
-                                {{ cell.year }}
-                            </button>
+                                @for (cell of row; track cell.year; let columnIndex = $index) {
+                                    <button
+                                        [attr.id]="cell.id"
+                                        type="button"
+                                        role="gridcell"
+                                        class="ims-datepicker__cell ims-datepicker__year"
+                                        [class.ims-datepicker__cell--active]="cell.active"
+                                        [class.ims-datepicker__cell--selected]="cell.selected"
+                                        [attr.tabindex]="cell.active ? 0 : -1"
+                                        [attr.aria-label]="cell.year"
+                                        [attr.aria-selected]="cell.selected"
+                                        [attr.aria-colindex]="columnIndex + 1"
+                                        [disabled]="cell.disabled"
+                                        (click)="selectYear(cell)"
+                                        (focus)="activateYear(cell.year)"
+                                    >
+                                        {{ cell.year }}
+                                    </button>
+                                }
+                            </div>
                         }
                     </div>
                 }

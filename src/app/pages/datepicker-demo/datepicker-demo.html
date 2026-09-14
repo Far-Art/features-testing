@@ -1,6 +1,6 @@
 <header class="page-heading">
     <h1>בורר תאריך</h1>
-    <p>בחירה לפי יום או חודש עם מימושים נפרדים ל-Date, Moment ו-Temporal.</p>
+    <p>בחירה לפי יום או חודש, עם ערכי Date, Moment ו-Luxon.</p>
 </header>
 
 <section class="datepicker-demo">
@@ -94,16 +94,6 @@
             />
             <code>{{ describe(luxonControl.value) }}</code>
             <code>{{ luxonControl.errors | json }}</code>
-        </label>
-
-        <label class="datepicker-demo__field">
-            <span>Temporal.PlainDate, experimental</span>
-            <ims-datepicker-experimental
-                ariaLabel="תאריך Temporal ניסיוני"
-                [formControl]="temporalControl"
-            />
-            <code>{{ describe(temporalControl.value) }}</code>
-            <code>{{ temporalControl.errors | json }}</code>
         </label>
     </div>
 </section>

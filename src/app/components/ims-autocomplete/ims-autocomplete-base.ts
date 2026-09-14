@@ -31,15 +31,15 @@ import {
 import {BasicValueAccessor} from '../../shared/basic-value-accessor';
 import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
 import {runViewTransition} from '../../shared/view-transition';
-import {ImsSelectionReadonlyPanel} from '../ims-selection/ims-selection-readonly-panel';
-import {ImsSelectionToolbar} from '../ims-selection/ims-selection-toolbar';
+import {ImsSelectionReadonlyPanel} from '../../shared/ims-selection/ims-selection-readonly-panel';
+import {ImsSelectionToolbar} from '../../shared/ims-selection/ims-selection-toolbar';
 import {
     IMS_SELECTION_EMPTY_DISPLAY,
     IMS_SELECTION_LABELS,
     ImsSelectionDisplayState,
     ImsSelectionLabels,
     ImsSelectionOverlaySide
-} from '../ims-selection/ims-selection.types';
+} from '../../shared/ims-selection/ims-selection.types';
 import {
     SELECTION_FILTER_FALLBACK_HEIGHT,
     countViewModes,
@@ -53,7 +53,7 @@ import {
     resolveMultiDisplay,
     resolveToolbarSide,
     toggleSelectedValue
-} from '../ims-selection/ims-selection.utils';
+} from '../../shared/ims-selection/ims-selection.utils';
 import {ImsTransferDialogService, ImsTransferRow} from '../ims-transfer-dialog';
 import {
     ImsAutocompleteCompareWith,

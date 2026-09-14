@@ -5,7 +5,7 @@ import {
     ImsSelectionEditDialogMode,
     ImsSelectionToolbarSide,
     ImsSelectionViewMode
-} from '../ims-selection/ims-selection.types';
+} from '../../shared/ims-selection/ims-selection.types';
 
 export type ImsSelectFilterMode = ImsSelectionAutoMode;
 export type ImsSelectToolbarMode = ImsSelectionAutoMode;

@@ -16,10 +16,11 @@ of the component contract unless a requested change explicitly replaces it.
 - `ims-select.types.ts`: `ImsSelectOptionLike`, `ImsSelectParent`, and the
   public mode/filter/toolbar/view-mode types.
 - `index.ts`: public exports (`ims-select.ts`, `ims-option.ts`,
-  `ims-select.types.ts`).
-- `../ims-selection`: pieces shared with `ims-autocomplete` — types, the
-  `IMS_SELECTION_LABELS` token, helpers in `ims-selection.utils.ts`, and the
-  toolbar and readonly-panel components.
+  `ims-select.types.ts`, and the selection labels re-exported from
+  `src/app/shared/ims-selection`).
+- `src/app/shared/ims-selection`: pieces shared with `ims-autocomplete` —
+  types, the `IMS_SELECTION_LABELS` token, helpers in `ims-selection.utils.ts`,
+  and the toolbar and readonly-panel components.
 - `src/styles/ims-selection.scss`: styles shared with `ims-autocomplete`.
   `src/styles/ims-select.scss` keeps the select-only trigger, listbox and
   clear-button rules.
@@ -87,10 +88,11 @@ always hold a value simply leaves the input off.
 
 ## Labels
 
-Texts come from `IMS_SELECTION_LABELS` in `../ims-selection`, shared with
-`ims-autocomplete`. Provide a replacement at the root to change them for the
-whole application, or pass a partial object to the `labels` input for one
-instance. `placeholder` and `editDialogAriaLabel` still take precedence when set.
+Texts come from `IMS_SELECTION_LABELS`, shared with `ims-autocomplete` and
+exported from both components' `index.ts`. Provide a replacement at the root
+to change them for the whole application, or pass a partial object to the
+`labels` input for one instance. `placeholder` and `editDialogAriaLabel` still
+take precedence when set.
 
 ## Multi-Select Toolbar
 
@@ -123,9 +125,9 @@ regardless of what happens in the dialog.
    `Directionality` itself, so `ims-select` doesn't pass it explicitly.
 4. On `dialogRef.closed`, a result of `undefined` (cancel, backdrop click,
    Escape) is a no-op. Otherwise `mergeEditDialogResult()`
-   (`../ims-selection/ims-selection.utils.ts`) merges the dialog's checked
-   values with previously-selected values outside the dialog's row set, then
-   the select emits once.
+   (`src/app/shared/ims-selection/ims-selection.utils.ts`) merges the dialog's
+   checked values with previously-selected values outside the dialog's row
+   set, then the select emits once.
 
 **Nothing is written to the select's value until the dialog resolves with a
 result.** All in-dialog interaction happens inside `ImsTransferDialog` itself,

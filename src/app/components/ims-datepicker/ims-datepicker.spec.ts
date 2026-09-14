@@ -41,7 +41,7 @@ class DatepickerTestHost {
     monthDay: 'start' | 'end' = 'start';
     min: ImsDatepickerValue = null;
     max: ImsDatepickerValue = null;
-    valueType: 'temporal' | 'millis' | null = 'millis';
+    valueType: 'date' | 'millis' | null = 'millis';
 }
 
 describe('ImsDatepicker', () => {
@@ -122,14 +122,14 @@ describe('ImsDatepicker', () => {
             '.ims-datepicker__toggle'
         )!;
 
-        expect(toggle.getAttribute('aria-label')).toBe('Open calendar');
+        expect(toggle.getAttribute('aria-label')).toBe('פתח לוח שנה');
         expect(toggle.getAttribute('aria-expanded')).toBe('false');
         expect(toggle.getAttribute('aria-controls')).toBeNull();
 
         toggle.click();
         fixture.detectChanges();
 
-        expect(toggle.getAttribute('aria-label')).toBe('Close calendar');
+        expect(toggle.getAttribute('aria-label')).toBe('סגור לוח שנה');
         expect(toggle.getAttribute('aria-expanded')).toBe('true');
         expect(toggle.getAttribute('aria-controls')).not.toBeNull();
 
@@ -281,8 +281,8 @@ describe('ImsDatepicker', () => {
 
         datepicker.cursor.set(calendarDate(2028, 2, 5));
         datepicker.calendarView.set('day');
-        expect(datepicker.navigationLabel('near', 1)).toBe('Next month');
-        expect(datepicker.navigationLabel('far', -1)).toBe('Previous year');
+        expect(datepicker.navigationLabel('near', 1)).toBe('החודש הבא');
+        expect(datepicker.navigationLabel('far', -1)).toBe('השנה הקודמת');
         datepicker.navigate('near', 1);
         expect(datepicker.cursor().toISOString().slice(0, 10)).toBe('2028-03-05');
         datepicker.navigate('far', -1);
@@ -290,15 +290,15 @@ describe('ImsDatepicker', () => {
 
         datepicker.cursor.set(calendarDate(2028, 2, 5));
         datepicker.calendarView.set('month');
-        expect(datepicker.navigationLabel('near', 1)).toBe('Next year');
-        expect(datepicker.navigationLabel('far', -1)).toBe('Previous 10 years');
+        expect(datepicker.navigationLabel('near', 1)).toBe('השנה הבאה');
+        expect(datepicker.navigationLabel('far', -1)).toBe('10 השנים הקודמות');
         datepicker.navigate('far', 1);
         expect(datepicker.cursor().getUTCFullYear()).toBe(2038);
 
         datepicker.cursor.set(calendarDate(2000, 2, 5));
         datepicker.calendarView.set('year');
-        expect(datepicker.navigationLabel('near', 1)).toBe('Next 24 years');
-        expect(datepicker.navigationLabel('far', -1)).toBe('Previous 48 years');
+        expect(datepicker.navigationLabel('near', 1)).toBe('24 השנים הבאות');
+        expect(datepicker.navigationLabel('far', -1)).toBe('48 השנים הקודמות');
         datepicker.navigate('near', 1);
         expect(datepicker.cursor().getUTCFullYear()).toBe(2024);
         datepicker.navigate('far', -1);
@@ -315,10 +315,10 @@ describe('ImsDatepicker', () => {
         const buttons = Array.from(overlayContainer.getContainerElement().querySelectorAll<HTMLButtonElement>('.ims-datepicker__header .ims-datepicker__step'));
 
         expect(buttons.map((button) => button.title)).toEqual([
-            'Previous year',
-            'Previous month',
-            'Next month',
-            'Next year'
+            'השנה הקודמת',
+            'החודש הקודם',
+            'החודש הבא',
+            'השנה הבאה'
         ]);
     });
 
@@ -427,5 +427,131 @@ describe('ImsDatepicker', () => {
 
         const activeCell = overlay.querySelector<HTMLButtonElement>('.ims-datepicker__cell--active');
         expect(document.activeElement).toBe(activeCell);
+    });
+
+    it('leaves the value, dirty state, and dateChange alone when the field is left without typing', () => {
+        host.valueType = null;
+        host.control.setValue(luxonDate(2028, 2, 5));
+        fixture.detectChanges();
+
+        const datepicker = fixture.debugElement.query(By.directive(ImsDatepicker))
+            .componentInstance as ImsDatepicker;
+        const initialValue = host.control.value;
+        const dateChanges: unknown[] = [];
+        const subscription = datepicker.dateChange.subscribe((value) => dateChanges.push(value));
+
+        input.dispatchEvent(new Event('focus'));
+        input.dispatchEvent(new Event('blur'));
+        fixture.detectChanges();
+        subscription.unsubscribe();
+
+        expect(host.control.value).toBe(initialValue);
+        expect(host.control.pristine).toBe(true);
+        expect(host.control.touched).toBe(true);
+        expect(dateChanges).toEqual([]);
+    });
+
+    it('does not commit the same unparseable text again on a second blur', () => {
+        const datepicker = fixture.debugElement.query(By.directive(ImsDatepicker))
+            .componentInstance as ImsDatepicker;
+        const dateChanges: unknown[] = [];
+        const subscription = datepicker.dateChange.subscribe((value) => dateChanges.push(value));
+
+        input.value = '99/99/9999';
+        input.dispatchEvent(new Event('input'));
+        input.dispatchEvent(new Event('blur'));
+        fixture.detectChanges();
+        input.dispatchEvent(new Event('blur'));
+        fixture.detectChanges();
+        subscription.unsubscribe();
+
+        expect(dateChanges).toEqual([null]);
+        expect(host.control.hasError('imsDatepickerParse')).toBe(true);
+    });
+
+    it('emits valueChanges once per committed date object', () => {
+        host.valueType = null;
+        fixture.detectChanges();
+
+        const emissions: unknown[] = [];
+        const subscription = host.control.valueChanges.subscribe((value) => emissions.push(value));
+
+        input.value = '5-2-2028';
+        input.dispatchEvent(new Event('input'));
+        input.dispatchEvent(new Event('blur'));
+        fixture.detectChanges();
+        subscription.unsubscribe();
+
+        expect(emissions.length).toBe(1);
+        expect((emissions[0] as DateTime).toISODate()).toBe('2028-02-05');
+    });
+
+    it('moves the active day into the neighbouring month with the arrow keys', async () => {
+        host.control.setValue(utcMillis(2028, 2, 29));
+        fixture.detectChanges();
+
+        const datepicker = fixture.debugElement.query(By.directive(ImsDatepicker))
+            .componentInstance as ImsDatepicker;
+        datepicker.openPicker();
+        fixture.detectChanges();
+        await vi.advanceTimersByTimeAsync(16);
+
+        const overlay = overlayContainer.getContainerElement();
+        const pressOnActiveCell = async (key: string) => {
+            overlay.querySelector<HTMLButtonElement>('.ims-datepicker__cell--active')!
+                .dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+            fixture.detectChanges();
+            await vi.advanceTimersByTimeAsync(16);
+        };
+
+        await pressOnActiveCell('ArrowRight');
+        expect(datepicker.cursor().toISOString().slice(0, 10)).toBe('2028-03-01');
+        expect(datepicker.headerLabel()).toBe('March 2028');
+        expect(document.activeElement).toBe(
+            overlay.querySelector('.ims-datepicker__cell--active')
+        );
+
+        await pressOnActiveCell('ArrowUp');
+        expect(datepicker.cursor().toISOString().slice(0, 10)).toBe('2028-02-23');
+    });
+
+    it('keeps the active day at the edge of the selectable range', async () => {
+        host.max = luxonDate(2028, 2, 29);
+        host.control.setValue(utcMillis(2028, 2, 29));
+        fixture.detectChanges();
+
+        const datepicker = fixture.debugElement.query(By.directive(ImsDatepicker))
+            .componentInstance as ImsDatepicker;
+        datepicker.openPicker();
+        fixture.detectChanges();
+        await vi.advanceTimersByTimeAsync(16);
+
+        const overlay = overlayContainer.getContainerElement();
+        overlay.querySelector<HTMLButtonElement>('.ims-datepicker__cell--active')!
+            .dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+        fixture.detectChanges();
+        await vi.advanceTimersByTimeAsync(16);
+
+        expect(datepicker.cursor().toISOString().slice(0, 10)).toBe('2028-02-29');
+    });
+
+    it('groups calendar cells in rows and exposes the input as a dialog combobox', () => {
+        host.control.setValue(utcMillis(2028, 2, 5));
+        fixture.detectChanges();
+
+        const datepicker = fixture.debugElement.query(By.directive(ImsDatepicker))
+            .componentInstance as ImsDatepicker;
+        datepicker.openPicker();
+        fixture.detectChanges();
+
+        const grid = overlayContainer.getContainerElement().querySelector('[role="grid"]')!;
+        const rows = Array.from(grid.children);
+
+        expect(rows.length).toBe(6);
+        expect(rows.every((row) => row.getAttribute('role') === 'row')).toBe(true);
+        expect(grid.querySelectorAll('[role="row"] > [role="gridcell"]').length).toBe(29);
+        expect(input.getAttribute('role')).toBe('combobox');
+        expect(input.getAttribute('aria-haspopup')).toBe('dialog');
+        expect(input.getAttribute('aria-expanded')).toBe('true');
     });
 });

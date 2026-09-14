@@ -79,8 +79,8 @@ provideImsDatepickerConfig({
     firstDayOfWeek: 7,
     valueType: 'date',
     labels: {
-        today: 'היום',
-        clearDate: 'נקה תאריך'
+        today: 'Today',
+        clearDate: 'Clear date'
     }
 })
 ```
@@ -304,20 +304,24 @@ full-date precision include:
 - `5/2/2028` -> 5 February 2028.
 - Compact six- and eight-digit date forms are also supported.
 
+Typed text is committed on blur, on Enter, or when the calendar opens, and only
+when it was edited since the last commit. Focusing and leaving the field without
+typing leaves the form value, its dirty state, and `dateChange` untouched.
+
 Invalid text is retained in the input and creates the `imsDatepickerParse`
-validation error. Committed valid values are reformatted using the configured
-display format.
+validation error. It is not committed again until it is edited. Committed valid
+values are reformatted using the configured display format.
 
 Display formatting additionally supports localized month and weekday tokens:
 `LLLL`, `LLL`, `MMMM`, `MMM`, `cccc`, `ccc`, `EEEE`, and `EEE`.
 
 ## Injectable Date Parser
 
-All datepicker variants inject the same `IMS_DATEPICKER_PARSER`. A parser is
-synchronous and returns either the parsed calendar date as UTC-midnight epoch
-milliseconds or `null`. It must not return `Date`, Temporal, Moment, Luxon, or
-another library-specific value. Each datepicker adapter converts the returned
-milliseconds into its own date type.
+Every datepicker injects `IMS_DATEPICKER_PARSER`. A parser is synchronous and
+returns either the parsed calendar date as UTC-midnight epoch milliseconds or
+`null`. It must not return `Date`, Moment, Luxon, or another library-specific
+value. The injected value handler converts the returned milliseconds into its
+own date type.
 
 ```ts
 interface ImsDatepickerParser {
@@ -360,7 +364,8 @@ provideImsDatepickerParser(IsoDatepickerParser)
 `ImsDatepickerParserOptions` provides `precision`, `monthDay`, the effective
 formats, locale, and interpretation zone. Providing the parser in a nested
 injector customizes only datepickers under that injector; an application-level
-provider affects the native, Temporal, Moment, Luxon, and future adapters.
+provider affects every value handler: native Date, Moment, Luxon, and custom
+handlers.
 
 ## Validation
 
@@ -393,8 +398,11 @@ fields use the datepicker's effective `dateInput` or `monthInput` display format
 and locale, making them suitable for error-mapper placeholders such as
 `{minFormatted}` and `{maxFormatted}`.
 
-The validator change callback is triggered when range, filters, precision,
-month boundary, parse state, or the normalized value changes.
+The form validates every value it receives, so the validator change callback
+runs only when the validation result changes without a new value: range,
+filters (including signals a filter reads), precision, month boundary, formats,
+or parse state. A committed value is validated once, and `valueChanges` emits
+once per commit.
 
 ## State Model
 
@@ -451,13 +459,17 @@ Grid keys:
 
 | Key | Behavior |
 | --- | --- |
-| `ArrowLeft` / `ArrowRight` | Move one cell, respecting LTR/RTL direction. |
-| `ArrowUp` / `ArrowDown` | Move one row based on the current grid column count. |
+| `ArrowLeft` / `ArrowRight` | Move one day, month, or year, respecting LTR/RTL direction. |
+| `ArrowUp` / `ArrowDown` | Move one row: 7 days, 3 months, or 4 years. |
 | `Home` / `End` | Move to the first/last item in the current period. |
 | `PageUp` / `PageDown` | Move one month/year/page depending on the view. |
 | `Alt+PageUp` / `Alt+PageDown` | Use the larger page step. |
 | `Enter` / `Space` | Select the active cell. |
 | `Escape` | Close the overlay and return focus to the text input. |
+
+Arrow keys cross into the neighbouring month, year, or year page instead of
+wrapping inside the displayed one. Disabled cells are skipped in the direction of
+travel, and at the edge of the selectable range the cursor stays where it is.
 
 Important focus behavior:
 
@@ -511,15 +523,20 @@ Public interaction events are:
 
 All visible control text and generated navigation ARIA labels can be translated
 globally through `ImsDatepickerConfig.labels` or per instance through `labels`.
-Templates use `{period}` and `{count}` placeholders where applicable.
+The defaults, `IMS_DATEPICKER_DEFAULT_LABELS`, are Hebrew. Templates use
+`{period}` and `{count}` placeholders where applicable.
 
 ## Accessibility
 
 - The overlay is a modal dialog with `cdkTrapFocus`.
 - Readonly state is exposed on the native input with `aria-readonly` and disables
   the calendar trigger.
-- Each calendar is a `role="grid"`.
-- Cells use `role="gridcell"`, row/column indexes, `aria-selected`, and disabled
+- The text input is a `role="combobox"` with `aria-haspopup="dialog"`,
+  `aria-expanded`, and `aria-controls` pointing at the open dialog. The calendar
+  toggle carries the same popup attributes.
+- Each calendar is a `role="grid"` whose cells are grouped in `role="row"`
+  elements carrying `aria-rowindex`.
+- Cells use `role="gridcell"`, `aria-colindex`, `aria-selected`, and disabled
   state.
 - Today uses `aria-current="date"`.
 - The dialog is labelled by the header view button.
@@ -573,6 +590,19 @@ Focus uses the shared semantic focus-ring token and a CSS box shadow rather
 than a pseudo-element. Combined today, selected, and focused states retain both
 their inset indicator and the external focus ring.
 
+An invalid field retunes `--ims-input-fill` together with its border, so its
+hover fill uses the danger tone. The header step buttons are `ims-button-icon`
+buttons with `<ims-icon>` glyphs, kept quiet at rest through the
+`--ims-button-*` variables. The clear action renders `<ims-icon>close</ims-icon>`.
+
+Each grid row is a CSS subgrid of its grid, so the `role="row"` wrappers do not
+change cell layout.
+
+The text input renders dates left to right (`direction: ltr`) in both page
+directions and aligns them with `text-align: end`. `end` resolves against the
+input's own direction, so the text sits on the field's right edge in RTL and LTR
+pages alike.
+
 Sass nesting follows the repository rule: use nesting for descendants,
 pseudo-classes, pseudo-elements, attributes, and state scopes only. Write full
 class names for related classes and modifiers.
@@ -618,23 +648,14 @@ When changing styling:
 
 ## Verification
 
-Focused component tests:
+Focused component and utility tests:
 
-```powershell
-npx ng test --watch=false --browsers=ChromeHeadless --include='src/app/components/ims-datepicker/ims-datepicker.spec.ts'
-```
-
-Focused utility tests:
-
-```powershell
-npx ng test --watch=false --browsers=ChromeHeadless --include='src/app/components/ims-datepicker/ims-datepicker.utils.spec.ts'
+```bash
+npx ng test --watch=false --include='src/app/components/ims-datepicker/**/*.spec.ts'
 ```
 
 Production build:
 
-```powershell
+```bash
 npm run build:no-source
 ```
-
-The current build has an unrelated existing stylesheet budget warning for
-`ims-form-field.scss`.

@@ -104,23 +104,23 @@ export const IMS_DATEPICKER_DEFAULT_FORMATS: ImsDatepickerFormats = {
 };
 
 export const IMS_DATEPICKER_DEFAULT_LABELS: ImsDatepickerLabels = {
-    openCalendar: 'Open calendar',
-    closeCalendar: 'Close calendar',
-    clearDate: 'Clear date',
-    changeCalendarView: 'Change calendar view',
-    calendarFor: 'Calendar for {period}',
-    chooseMonthIn: 'Choose a month in {period}',
-    chooseYearFrom: 'Choose a year from {period}',
-    previousMonth: 'Previous month',
-    nextMonth: 'Next month',
-    previousYear: 'Previous year',
-    nextYear: 'Next year',
-    previousYears: 'Previous {count} years',
-    nextYears: 'Next {count} years',
-    startOfMonth: 'Start of month',
-    today: 'Today',
-    endOfMonth: 'End of month',
-    week: 'Week'
+    openCalendar: 'פתח לוח שנה',
+    closeCalendar: 'סגור לוח שנה',
+    clearDate: 'נקה תאריך',
+    changeCalendarView: 'שנה תצוגת לוח שנה',
+    calendarFor: 'לוח שנה עבור {period}',
+    chooseMonthIn: 'בחר חודש ב-{period}',
+    chooseYearFrom: 'בחר שנה מתוך {period}',
+    previousMonth: 'החודש הקודם',
+    nextMonth: 'החודש הבא',
+    previousYear: 'השנה הקודמת',
+    nextYear: 'השנה הבאה',
+    previousYears: '{count} השנים הקודמות',
+    nextYears: '{count} השנים הבאות',
+    startOfMonth: 'תחילת החודש',
+    today: 'היום',
+    endOfMonth: 'סוף החודש',
+    week: 'שבוע'
 };
 
 export const IMS_DATEPICKER_CONFIG = new InjectionToken<ImsDatepickerConfig<object>>(

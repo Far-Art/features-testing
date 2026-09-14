@@ -288,6 +288,30 @@ export function formatWeekdays(
         : weekdays;
 }
 
+/** Splits calendar cells into grid rows of `columns` cells each. */
+export function groupIntoRows<T>(cells: readonly T[], columns: number): readonly (readonly T[])[] {
+    return Array.from({length: Math.ceil(cells.length / columns)}, (_, rowIndex) =>
+        cells.slice(rowIndex * columns, (rowIndex + 1) * columns)
+    );
+}
+
+/**
+ * Identifies a validation result by its content, so two results carrying equal
+ * errors match even when they hold different date objects. Returns null for a
+ * result that cannot be serialized, which never matches anything.
+ */
+export function validationErrorsKey(
+    errors: Readonly<Record<string, unknown>> | null
+): string | null {
+    if (!errors) return '';
+
+    try {
+        return JSON.stringify(errors);
+    } catch {
+        return null;
+    }
+}
+
 function resolveTimeZoneId(interpretationZone: string): string {
     return interpretationZone === 'local'
         ? Intl.DateTimeFormat().resolvedOptions().timeZone

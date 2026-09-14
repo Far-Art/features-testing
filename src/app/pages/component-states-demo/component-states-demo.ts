@@ -6,16 +6,10 @@ import {
   ImsDatepickerDateValueHandlerDirective,
   ImsDatepickerValue,
 } from '../../components/ims-datepicker';
-import {
-  ImsDatepickerExperimental,
-  ImsDatepickerExperimentalValue,
-  provideImsDatepickerExperimentalConfig,
-} from '../../components/ims-datepicker-experimental';
 import { ImsAutocomplete, ImsAutocompleteOption } from '../../components/ims-autocomplete';
 import { ImsCheckbox } from '../../components/ims-checkbox/ims-checkbox';
 import { ImsOption, ImsSelect } from '../../components/ims-select';
 import { ReadonlyDirective } from '../../shared/readonly.directive';
-import { TemporalHelper } from '../../shared/temporal.helper';
 
 interface ComponentStateDemoOption {
   readonly id: number;
@@ -35,17 +29,9 @@ type NativeDatepickerValue = ImsDatepickerValue<Date>;
     ImsCheckbox,
     ImsDatepicker,
     ImsDatepickerDateValueHandlerDirective,
-    ImsDatepickerExperimental,
     ImsOption,
     ImsSelect,
     ReadonlyDirective,
-  ],
-  providers: [
-    provideImsDatepickerExperimentalConfig({
-      locale: 'he',
-      zone: 'Asia/Jerusalem',
-      firstDayOfWeek: 7,
-    }),
   ],
   templateUrl: './component-states-demo.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -208,23 +194,6 @@ export class ComponentStatesDemo {
     validators: Validators.required,
   });
 
-  readonly experimentalNormal = new FormControl<ImsDatepickerExperimentalValue>(
-    TemporalHelper.plainDate(2026, 8, 12),
-  );
-  readonly experimentalDisabled = new FormControl<ImsDatepickerExperimentalValue>({
-    value: TemporalHelper.plainDate(2026, 8, 13),
-    disabled: true,
-  });
-  readonly experimentalReadonly = new FormControl<ImsDatepickerExperimentalValue>(
-    TemporalHelper.plainDate(2026, 8, 14),
-  );
-  readonly experimentalInvalid = new FormControl<ImsDatepickerExperimentalValue>(null, {
-    validators: Validators.required,
-  });
-  readonly experimentalInvalidReadonly = new FormControl<ImsDatepickerExperimentalValue>(null, {
-    validators: Validators.required,
-  });
-
   constructor() {
     [
       this.textInvalid,
@@ -243,8 +212,6 @@ export class ComponentStatesDemo {
       this.multiAutocompleteInvalidReadonly,
       this.datepickerInvalid,
       this.datepickerInvalidReadonly,
-      this.experimentalInvalid,
-      this.experimentalInvalidReadonly,
     ].forEach((control) => control.markAsTouched());
   }
 
