@@ -248,6 +248,168 @@
     </div>
 
     <div class="form-layout-demo__example">
+        <h2>תיבת סימון לצד שדות קלט</h2>
+        <p class="form-layout-demo__hint">
+            תיבת סימון שהיא ילד ישיר של ims-form-field מוצגת בעמודת הערך, והתווית מופיעה לצידה.
+            לחיצה על התווית משנה את הסימון, והתיבה ממורכזת בגובה של שדה קלט כדי להתיישר עם השדות שלצידה.
+        </p>
+
+        <ims-form-field-grid columns="2">
+            <ims-form-field-row>
+                <ims-form-field column="1">
+                    <label imsFormFieldLabel>שם מלא</label>
+                    <input imsInput value="נועה ישראלי">
+                </ims-form-field>
+
+                <ims-form-field column="2">
+                    <label>לקוח VIP</label>
+                    <ims-checkbox [(ngModel)]="vipCustomer"/>
+                </ims-form-field>
+            </ims-form-field-row>
+
+            <ims-form-field-row>
+                <ims-form-field column="1">
+                    <label imsFormFieldLabel>סניף מטפל</label>
+                    <ims-select ariaLabel="סניף מטפל" [(ngModel)]="handlingBranch">
+                        <ims-option value="jerusalem" selectionText="ירושלים">ירושלים</ims-option>
+                        <ims-option value="tel-aviv" selectionText="תל אביב">תל אביב</ims-option>
+                        <ims-option value="haifa" selectionText="חיפה">חיפה</ims-option>
+                    </ims-select>
+                </ims-form-field>
+
+                <ims-form-field column="2">
+                    <label>שליחת הודעות SMS</label>
+                    <ims-checkbox [(ngModel)]="smsUpdates"/>
+                </ims-form-field>
+            </ims-form-field-row>
+
+            <ims-form-field-row>
+                <ims-form-field column="1">
+                    <label imsFormFieldLabel>תאריך הצטרפות</label>
+                    <ims-datepicker
+                        ariaLabel="תאריך הצטרפות"
+                        valueType="date"
+                        [(ngModel)]="joinDate"
+                    />
+                </ims-form-field>
+
+                <ims-form-field column="2">
+                    <label>חשבון מושהה</label>
+                    <ims-checkbox [(ngModel)]="accountSuspended" disabled/>
+                </ims-form-field>
+            </ims-form-field-row>
+        </ims-form-field-grid>
+    </div>
+
+    <div class="form-layout-demo__example">
+        <h2>התנהגויות של תיבת סימון</h2>
+        <p class="form-layout-demo__hint">
+            סימון חלקי שנגזר מקבוצת תיבות, תיבות עם טקסט מוקרן, ערכים מותאמים לטופס
+            וקישור דו-כיווני ל-checked.
+        </p>
+
+        <ims-form-field-grid columns="2">
+            <ims-form-field-row>
+                <ims-form-field column="1">
+                    <label>כל ערוצי העדכון</label>
+                    <ims-checkbox
+                        [checked]="allChannelsSelected"
+                        [intermediate]="someChannelsSelected"
+                        (checkedChange)="setAllChannels($event)"
+                    />
+                </ims-form-field>
+
+                <ims-form-field column="2">
+                    <span imsFormFieldLabel id="demo-checkbox-channels-label">ערוצי עדכון</span>
+                    <div
+                        class="form-layout-demo__checkbox-group"
+                        role="group"
+                        aria-labelledby="demo-checkbox-channels-label"
+                    >
+                        <ims-checkbox [(ngModel)]="channels.email">דואר אלקטרוני</ims-checkbox>
+                        <ims-checkbox [(ngModel)]="channels.sms">SMS</ims-checkbox>
+                        <ims-checkbox [(ngModel)]="channels.phone">שיחה טלפונית</ims-checkbox>
+                    </div>
+                </ims-form-field>
+            </ims-form-field-row>
+
+            <ims-form-field-row>
+                <ims-form-field column="1">
+                    <label>מנוי פעיל</label>
+                    <ims-checkbox
+                        trueValue="active"
+                        falseValue="inactive"
+                        [(ngModel)]="subscriptionStatus"
+                    />
+                </ims-form-field>
+
+                <ims-form-field column="2">
+                    <span imsFormFieldLabel>ערך בטופס</span>
+                    <span dir="ltr">{{ subscriptionStatus }}</span>
+                </ims-form-field>
+            </ims-form-field-row>
+
+            <ims-form-field-row>
+                <ims-form-field column="1">
+                    <label>אישור תנאי שימוש</label>
+                    <ims-checkbox [(checked)]="termsAccepted"/>
+                </ims-form-field>
+
+                <ims-form-field column="2">
+                    <span imsFormFieldLabel>ערך checked</span>
+                    <span dir="ltr">{{ termsAccepted }}</span>
+                </ims-form-field>
+            </ims-form-field-row>
+        </ims-form-field-grid>
+    </div>
+
+    <div class="form-layout-demo__example">
+        <h2>תיבת סימון במצב לא תקין</h2>
+        <p class="form-layout-demo__hint">
+            המאפיין required מחייב לסמן את התיבה, גם כשמוגדרים לה ערכים מותאמים. התיבה נצבעת כלא תקינה,
+            והודעת השגיאה מופיעה אחרי שהמשתמש שינה את הסימון או עזב את השדה.
+        </p>
+
+        <ims-form-field-grid columns="2">
+            <ims-form-field-row>
+                <ims-form-field column="1">
+                    <label>אישור קריאת התקנון</label>
+                    <ims-checkbox
+                        required
+                        ims-error-popover
+                        #policyConfirmation="ngModel"
+                        [(ngModel)]="policyConfirmed"
+                    />
+                </ims-form-field>
+
+                <ims-form-field column="2">
+                    <span imsFormFieldLabel>תקינות</span>
+                    <span dir="ltr">{{ policyConfirmation.valid ? 'valid' : 'invalid' }}</span>
+                </ims-form-field>
+            </ims-form-field-row>
+
+            <ims-form-field-row>
+                <ims-form-field column="1">
+                    <label>אישור העברת פרטים לסוכן</label>
+                    <ims-checkbox
+                        required
+                        ims-error-popover
+                        trueValue="yes"
+                        falseValue="no"
+                        #agentConsentModel="ngModel"
+                        [(ngModel)]="agentConsent"
+                    />
+                </ims-form-field>
+
+                <ims-form-field column="2">
+                    <span imsFormFieldLabel>ערך ותקינות</span>
+                    <span dir="ltr">{{ agentConsent }} · {{ agentConsentModel.valid ? 'valid' : 'invalid' }}</span>
+                </ims-form-field>
+            </ims-form-field-row>
+        </ims-form-field-grid>
+    </div>
+
+    <div class="form-layout-demo__example">
         <h2>שדה עצמאי</h2>
         <ims-form-field>
             <label imsFormFieldLabel>חיפוש חופשי</label>

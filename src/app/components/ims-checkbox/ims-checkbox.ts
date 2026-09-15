@@ -4,11 +4,15 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
+    forwardRef,
     input,
     model,
+    OnChanges,
     output,
-    signal
+    signal,
+    SimpleChanges
 } from '@angular/core';
+import {AbstractControl, NG_VALIDATORS, ValidationErrors, Validator} from '@angular/forms';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 
 /** Matches the ripple animation duration in ims-checkbox.scss. */
@@ -30,7 +34,10 @@ interface CheckedOverride {
     standalone: true,
     templateUrl: './ims-checkbox.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [provideValueAccessor(ImsCheckbox)],
+    providers: [
+        provideValueAccessor(ImsCheckbox),
+        {provide: NG_VALIDATORS, useExisting: forwardRef(() => ImsCheckbox), multi: true}
+    ],
     host: {
         class: 'ims-checkbox-host'
     }
@@ -43,8 +50,10 @@ interface CheckedOverride {
  * `trueValue` or `falseValue` to the form and emits `checkedChange`; form
  * writes and parent bindings never emit.
  */
-export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T | F> {
+export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T | F>
+    implements OnChanges, Validator {
     private rippleResetHandle: ReturnType<typeof setTimeout> | null = null;
+    private validatorChange: (() => void) | null = null;
 
     readonly intermediate = model(false);
     readonly trueValue = input<T>(true as T);
@@ -54,6 +63,12 @@ export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T 
     readonly checked = input<boolean | undefined, unknown>(undefined, {
         transform: (v): boolean | undefined => v == null ? undefined : booleanAttribute(v as boolean | string)
     });
+    /**
+     * Requires the box to be checked: a bound form control gets a `required`
+     * error while its value is anything other than `trueValue`. Angular's own
+     * `required` validator counts an unchecked `false` as filled in.
+     */
+    readonly required = input(false, {transform: booleanAttribute});
 
     /**
      * Emitted only when the user toggles the checkbox, with the new checked state.
@@ -93,6 +108,24 @@ export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T 
         super();
         afterNextRender(() => this.animationsReady.set(true));
         this.destroyRef.onDestroy(() => this.clearRipple());
+    }
+
+    // Re-validates in the same pass that changed the rule, as Angular's own
+    // validator directives do. On the first change no form has registered yet.
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['required'] || changes['trueValue']) {
+            this.validatorChange?.();
+        }
+    }
+
+    validate(control: AbstractControl): ValidationErrors | null {
+        return this.required() && !Object.is(control.value, this.trueValue())
+            ? {required: true}
+            : null;
+    }
+
+    registerOnValidatorChange(fn: () => void): void {
+        this.validatorChange = fn;
     }
 
     toggle(event: Event): void {

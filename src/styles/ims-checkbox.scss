@@ -6,6 +6,13 @@
     --ims-checkbox-size: 1.25rem;
 }
 
+// Inline-level like a native input. As a flex container the host is exactly as
+// tall as the checkbox; as an inline box it would add line-box space below it.
+.ims-checkbox-host {
+    display: inline-flex;
+    vertical-align: middle;
+}
+
 // The native input is the real control: it covers the whole label, takes the
 // click, the focus and the form state, and its :checked, :indeterminate and
 // :disabled pseudo-classes drive every visual state below. The track only
@@ -19,6 +26,9 @@
     display: inline-flex;
     align-items: center;
     gap: 0.625rem;
+    // As tall as a text field, with the box centered in it, so a checkbox lines
+    // up with the inputs placed beside it.
+    min-height: var(--field-height);
     color: var(--ims-color-on-surface);
     cursor: pointer;
     user-select: none;
@@ -129,10 +139,6 @@
 .ims-checkbox__native:not(:disabled):hover + .ims-checkbox__track {
     border-color: var(--ims-color-interactive);
     transform: scale(1.06);
-}
-
-.ims-checkbox__native:not(:disabled):active + .ims-checkbox__track {
-    transform: scale(0.94);
 }
 
 .ims-checkbox__native:focus-visible + .ims-checkbox__track {

@@ -50,6 +50,7 @@ state that the user can change; two-way binding keeps the parent in sync:
 | `intermediate` | model | Indeterminate state. A user click clears it and checks the box. |
 | `trueValue` | input | Value written when checked. Default `true`. |
 | `falseValue` | input | Value written when unchecked. Default `false`. |
+| `required` | input | Requires the box to be checked: a bound form control gets a `required` error while its value is not `trueValue`. Also sets `aria-required`. |
 | `disabled` | input | Disables the control; a parent form can also disable it. |
 | `id` | input | Forwarded to the native checkbox, not the host. |
 | `checkedChange` | output | New checked state, emitted only on a user toggle. |
@@ -83,6 +84,12 @@ assistive technology reads.
   checked) with `--ims-color-invalid`, and the focus ring with
   `--ims-color-invalid-focus-ring`. Disabled and readonly boxes are not
   tinted.
+- Required: `required` makes a bound form control invalid until the box is
+  checked, meaning its value equals `trueValue`. The checkbox validates this
+  itself, because Angular's `required` validator counts an unchecked `false`
+  as filled in. With `ims-error-popover` on the host, the native input is the
+  marked main control (`data-ims-main-control`), so it receives `aria-invalid`
+  and `aria-describedby`.
 
 ## Form Layout
 
@@ -96,6 +103,8 @@ associates its label with the native checkbox through `id`. See
 - The accessible name is the projected label, or the associated field label.
 - Checked and mixed states come from the native `checked` and `indeterminate`
   properties; do not add `aria-checked` to the native checkbox.
+- `required` sets `aria-required` on the native checkbox rather than the native
+  `required` attribute, so the browser never runs its own validation.
 - The track and SVG mark are `aria-hidden`.
 
 ## Styling
@@ -104,6 +113,10 @@ Classes: `.ims-checkbox-host` (host), `.ims-checkbox`, `.ims-checkbox__native`,
 `.ims-checkbox__track`, `.ims-checkbox__ripple`, `.ims-checkbox__icon`,
 `.ims-checkbox__mark`, `.ims-checkbox__label`, plus the component-state
 modifiers `.ims-checkbox--animations-ready` and `.ims-checkbox--ripple`.
+
+The host is `inline-flex`, and `.ims-checkbox` is at least `--field-height`
+(26px) tall with the box centered in it, so a checkbox lines up with the inputs
+beside it.
 
 Colors use semantic tokens only: `--ims-color-border`,
 `--ims-color-interactive`, `--ims-color-interactive-strong`,

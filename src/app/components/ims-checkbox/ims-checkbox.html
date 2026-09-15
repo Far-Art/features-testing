@@ -7,7 +7,9 @@
     <input
         class="ims-checkbox__native"
         type="checkbox"
+        data-ims-main-control
         [attr.id]="id()"
+        [attr.aria-required]="required() || null"
         [checked]="isChecked() && !intermediate()"
         [indeterminate]="intermediate()"
         [disabled]="interactionDisabled()"

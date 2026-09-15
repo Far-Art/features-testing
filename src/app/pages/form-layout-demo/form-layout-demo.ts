@@ -69,6 +69,30 @@ export class FormLayoutDemo {
     policyEnd = utcDate('2026-12-31');
     eligibilityStart = utcDate('2026-03-01');
     eligibilityEnd = utcDate('2026-09-30');
+    vipCustomer = true;
+    smsUpdates = false;
+    accountSuspended = true;
+    handlingBranch = 'tel-aviv';
+    joinDate = utcDate('2024-05-12');
+    readonly channels = {email: true, sms: false, phone: false};
+    subscriptionStatus = 'active';
+    termsAccepted = false;
+    policyConfirmed = false;
+    agentConsent = 'no';
+
+    get allChannelsSelected(): boolean {
+        return Object.values(this.channels).every(Boolean);
+    }
+
+    get someChannelsSelected(): boolean {
+        return Object.values(this.channels).some(Boolean) && !this.allChannelsSelected;
+    }
+
+    setAllChannels(checked: boolean): void {
+        this.channels.email = checked;
+        this.channels.sms = checked;
+        this.channels.phone = checked;
+    }
 
     readonly autoWidthGridSource: FormGridDemoRow[] = [
         {

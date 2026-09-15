@@ -30,6 +30,12 @@
     line-height: 1.55;
 }
 
+.form-layout-demo__checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.25rem;
+}
+
 .form-layout-demo__legend {
     display: flex;
     flex-wrap: wrap;
