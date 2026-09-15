@@ -66,6 +66,13 @@ children participate in shared CSS Grid and `subgrid` tracks.
 The direct label is placed in the label track. Other direct content is placed in
 the value track.
 
+The field deliberately sets no `inline-size: 100%`. In block flow, and as a
+stretched grid or column flex item, it still fills the available width. As an
+item in a flex row it is only as wide as its label and value, so fields placed
+side by side in a flex row do not each take the full width. Set a width on the
+field or its container when it should grow. Inside an `ims-grid` cell the grid
+adapter sets `inline-size: 100%` itself.
+
 For a read-only value, mark a non-label element explicitly:
 
 ```html

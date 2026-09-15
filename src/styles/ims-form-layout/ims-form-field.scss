@@ -6,7 +6,6 @@ ims-form-field {
     column-gap: var(--ims-form-field-gap);
     align-items: start;
     min-width: 0;
-    inline-size: 100%;
 
     ims-form-field-grid > &,
     ims-form-field-row > & {
