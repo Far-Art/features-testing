@@ -38,7 +38,7 @@
 .format-demo__eyebrow {
   color: var(--ims-color-interactive-strong);
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: var(--ims-font-weight-bold);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -112,7 +112,7 @@
 
 .format-demo__field-label {
   font-size: 0.86rem;
-  font-weight: 650;
+  font-weight: var(--ims-font-weight-semibold);
 }
 
 .format-demo__field .ims-input {
@@ -221,5 +221,5 @@
 
 .format-demo__pipe-row dd {
   margin: 0;
-  font-weight: 650;
+  font-weight: var(--ims-font-weight-semibold);
 }

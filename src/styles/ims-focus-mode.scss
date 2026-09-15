@@ -357,7 +357,7 @@
 /** The requirement is stated at rest and called out only once it is unmet. */
 .ims-focus-mode__required--unmet {
     color: var(--ims-color-invalid);
-    font-weight: 700;
+    font-weight: var(--ims-font-weight-bold);
 }
 
 .ims-focus-mode__count {
@@ -381,5 +381,5 @@
 
 .ims-focus-mode__count--over {
     color: var(--ims-color-invalid);
-    font-weight: 700;
+    font-weight: var(--ims-font-weight-bold);
 }

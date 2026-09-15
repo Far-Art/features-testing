@@ -53,7 +53,7 @@
     background: linear-gradient(135deg, #b91c1c, #ef4444);
     color: #fff;
     font: inherit;
-    font-weight: 700;
+    font-weight: var(--ims-font-weight-bold);
     cursor: pointer;
     box-shadow: 0 14px 30px rgba(185, 28, 28, 0.22);
 }

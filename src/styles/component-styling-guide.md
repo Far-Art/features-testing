@@ -63,6 +63,34 @@ Do not create component-prefixed aliases that only point to semantic tokens.
 Introduce a component variable only when it represents component-specific
 configuration or an intentional public customization API.
 
+## Font weights
+
+`tokens/font-weight-tokens.scss` defines the weight scale in steps of 100:
+
+| Token | Utility class | Weight |
+| --- | --- | --- |
+| `--ims-font-weight-regular` | `.font-weight-regular` | 400 |
+| `--ims-font-weight-medium` | `.font-weight-medium` | 500 |
+| `--ims-font-weight-semibold` | `.font-weight-semibold` | 600 |
+| `--ims-font-weight-bold` | `.font-weight-bold` | 700 |
+| `--ims-font-weight-extrabold` | `.font-weight-extrabold` | 800 |
+
+Use the tokens in stylesheets and the classes in templates:
+
+```scss
+.ims-example__title {
+    font-weight: var(--ims-font-weight-bold);
+}
+```
+
+```html
+<span class="font-weight-semibold">...</span>
+```
+
+Do not write in-between values such as `650`. `src/index.html` loads only these
+weights of Roboto and Heebo, so the browser renders `650` as `700` and `750` as
+`800`. Adding a step means adding it to the font request as well.
+
 ## Inputs
 
 Use the shared `.ims-input` class instead of recreating input borders,
@@ -259,6 +287,8 @@ Do not construct class names with the parent selector:
 - Use semantic tokens rather than fixed colors or primitive palette steps.
 - Use `--ims-color-*` for solid colors and `--ims-background-*` for complete
   backgrounds.
+- Use `--ims-font-weight-*` tokens or the `.font-weight-*` classes instead of
+  numeric font weights.
 - Consume semantic tokens directly unless a component exposes an intentional
   customization API.
 - Use `.ims-readonly` only as a readable visual treatment for disabled

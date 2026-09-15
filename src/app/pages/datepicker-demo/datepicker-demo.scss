@@ -50,7 +50,7 @@
 }
 
 .datepicker-demo__field > span {
-    font-weight: 700;
+    font-weight: var(--ims-font-weight-bold);
 }
 
 .datepicker-demo__field code {

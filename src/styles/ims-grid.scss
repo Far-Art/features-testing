@@ -52,7 +52,7 @@ ims-grid {
     }
 
     ims-grid-header {
-        font-weight: 600;
+        font-weight: var(--ims-font-weight-semibold);
         user-select: none;
 
         ims-grid-cell {

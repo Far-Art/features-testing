@@ -35,7 +35,7 @@
   display: block;
   color: var(--ims-color-interactive-strong);
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: var(--ims-font-weight-bold);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -83,7 +83,7 @@
   background: var(--ims-color-interactive-strong);
   color: var(--ims-color-on-interactive);
   font: inherit;
-  font-weight: 650;
+  font-weight: var(--ims-font-weight-semibold);
   cursor: pointer;
   transition:
     background-color 140ms ease,
@@ -179,7 +179,7 @@
   min-inline-size: 0;
   color: var(--ims-color-on-surface);
   font-size: 0.86rem;
-  font-weight: 650;
+  font-weight: var(--ims-font-weight-semibold);
 }
 
 .readonly-demo .ims-input,

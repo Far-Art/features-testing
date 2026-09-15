@@ -93,7 +93,7 @@ const LONG_DIALOG_CONTENT: string[] = [
 
     .merge-dialog-demo code {
       color: #00005f;
-      font-weight: 700;
+      font-weight: var(--ims-font-weight-bold);
     }
 
     .merge-dialog-demo dl {
@@ -119,7 +119,7 @@ const LONG_DIALOG_CONTENT: string[] = [
     .merge-dialog-demo dd {
       margin: 0.25rem 0 0;
       overflow: hidden;
-      font-weight: 700;
+      font-weight: var(--ims-font-weight-bold);
       text-overflow: ellipsis;
       white-space: nowrap;
     }
@@ -213,7 +213,7 @@ export class DialogMergeContent {
       background: #1f7a4d;
       color: #fff;
       font-size: 1.1rem;
-      font-weight: 800;
+      font-weight: var(--ims-font-weight-extrabold);
     }
 
     .profile-dialog-demo label {
@@ -221,7 +221,7 @@ export class DialogMergeContent {
       gap: 0.375rem;
       color: var(--ims-color-on-surface-muted);
       font-size: 0.8rem;
-      font-weight: 650;
+      font-weight: var(--ims-font-weight-semibold);
     }
 
     .profile-dialog-demo input {
@@ -253,7 +253,7 @@ export class DialogMergeContent {
       background: var(--ims-color-surface-subtle);
       color: var(--ims-color-on-surface-muted);
       font-size: 0.7rem;
-      font-weight: 700;
+      font-weight: var(--ims-font-weight-bold);
       text-transform: uppercase;
     }
 
@@ -265,7 +265,7 @@ export class DialogMergeContent {
       background: var(--ims-background-dialog);
       color: var(--ims-color-on-surface);
       font: inherit;
-      font-weight: 650;
+      font-weight: var(--ims-font-weight-semibold);
       cursor: pointer;
     }
 
@@ -496,7 +496,7 @@ export class DialogButtonReviewContent extends ImsAbstractDialog<
       padding: 0.375rem 0.625rem;
       font: inherit;
       font-size: 0.8125rem;
-      font-weight: 650;
+      font-weight: var(--ims-font-weight-semibold);
     }
 
     .toolbar-dialog-demo__tab > .material-symbols-sharp,
@@ -537,7 +537,7 @@ export class DialogButtonReviewContent extends ImsAbstractDialog<
     .toolbar-dialog-demo__eyebrow {
       color: var(--ims-color-interactive-strong);
       font-size: 0.6875rem;
-      font-weight: 750;
+      font-weight: var(--ims-font-weight-bold);
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
@@ -650,7 +650,7 @@ export class DialogToolbarContent {
       background: var(--ims-color-interactive-subtle);
       color: var(--ims-color-interactive-strong);
       font-size: 0.75rem;
-      font-weight: 700;
+      font-weight: var(--ims-font-weight-bold);
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

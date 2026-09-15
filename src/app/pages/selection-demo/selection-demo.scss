@@ -43,7 +43,7 @@
 
 .select-demo__field > span {
     color: #31445f;
-    font-weight: 600;
+    font-weight: var(--ims-font-weight-semibold);
 }
 
 .playlist-demo-list {

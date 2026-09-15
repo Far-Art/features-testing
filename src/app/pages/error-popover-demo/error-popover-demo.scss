@@ -79,7 +79,7 @@
 
 .error-popover-demo__field > span {
     color: #334155;
-    font-weight: 700;
+    font-weight: var(--ims-font-weight-bold);
 }
 
 .error-popover-demo__field > input {
@@ -132,7 +132,7 @@
     border: 1px solid #9bbbd6;
     border-radius: 0.55rem;
     font: inherit;
-    font-weight: 650;
+    font-weight: var(--ims-font-weight-semibold);
     cursor: pointer;
 }
 

@@ -46,7 +46,7 @@
   border-block-end: 1px solid var(--ims-color-border-subtle);
   background: var(--ims-color-surface-subtle);
   font-size: 0.875rem;
-  font-weight: 650;
+  font-weight: var(--ims-font-weight-semibold);
 }
 
 .ims-transfer-dialog__list-title {

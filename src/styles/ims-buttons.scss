@@ -99,7 +99,7 @@
   );
   color: var(--ims-button-color);
   font: inherit;
-  font-weight: normal;
+  font-weight: var(--ims-font-weight-regular);
   line-height: 1;
   cursor: pointer;
   user-select: none;
@@ -374,7 +374,6 @@
   --ims-button-background: transparent;
   --ims-button-background-hover: var(--ims-color-danger-100);
   --ims-button-background-active: var(--ims-color-danger-150);
-  --ims-button-color: var(--ims-color-on-surface-muted);
   --ims-button-color-active: var(--ims-color-danger-700);
   --ims-button-ring-color: var(--ims-color-danger-450);
 }

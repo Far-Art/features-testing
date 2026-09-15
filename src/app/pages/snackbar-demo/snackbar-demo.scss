@@ -50,7 +50,7 @@
     border: 0;
     border-radius: 0.65rem;
     font: inherit;
-    font-weight: 650;
+    font-weight: var(--ims-font-weight-semibold);
     cursor: pointer;
     transition:
         background-color 140ms ease,

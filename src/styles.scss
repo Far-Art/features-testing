@@ -35,6 +35,7 @@
 @use './styles/ims-buttons';
 @use './styles/ims-icon';
 @use './styles/tokens/sizing-tokens';
+@use './styles/tokens/font-weight-tokens';
 
 html {
     @include mat.theme((
@@ -43,7 +44,9 @@ html {
         primary: mat.$azure-palette,
         tertiary: mat.$blue-palette,
       ),
-      typography: Roboto,
+      typography: (
+        plain-family: (Roboto, Heebo),
+      ),
       density: 0,
     ));
 }
@@ -134,7 +137,8 @@ html, body {
 
 body {
     margin: 0;
-    font-family: Roboto, "Helvetica Neue", sans-serif;
+    // Roboto has no Hebrew glyphs; Heebo renders Hebrew text.
+    font-family: Roboto, Heebo, "Helvetica Neue", sans-serif;
 }
 
 /* Floating label directive */

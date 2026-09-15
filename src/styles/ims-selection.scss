@@ -57,7 +57,7 @@
     background: var(--ims-color-interactive-alt-subtle);
     color: var(--ims-color-interactive-alt-strong);
     font-size: 0.78rem;
-    font-weight: 650;
+    font-weight: var(--ims-font-weight-semibold);
     line-height: 1.35;
     text-align: center;
 }
@@ -238,7 +238,7 @@
 .ims-option.ims-option--selected,
 .ims-autocomplete__option.ims-autocomplete__option--selected {
     color: var(--ims-color-interactive-strong);
-    font-weight: 650;
+    font-weight: var(--ims-font-weight-semibold);
 }
 
 .ims-option.ims-option--selected::after,
@@ -338,7 +338,7 @@
     border-bottom: 1px solid var(--ims-color-border-subtle);
     color: var(--ims-color-on-surface-muted);
     font-size: 0.8rem;
-    font-weight: 650;
+    font-weight: var(--ims-font-weight-semibold);
 }
 
 // Logical so the wider side stays where the list markers are, in either direction.

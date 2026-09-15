@@ -84,7 +84,7 @@
     border-radius: 50%;
     background: #e6f2ff;
     color: #1769aa;
-    font-weight: 800;
+    font-weight: var(--ims-font-weight-extrabold);
 }
 
 .scroll-demo__card h3,
@@ -162,7 +162,7 @@
     top: 0;
     background: #edf6ff;
     color: #174f8a;
-    font-weight: 800;
+    font-weight: var(--ims-font-weight-extrabold);
 }
 
 .scroll-demo__matrix tr:hover td {
@@ -182,7 +182,7 @@
     padding: 18px;
     background: linear-gradient(135deg, #e6f2ff, #f8fbff);
     color: #203354;
-    font-weight: 750;
+    font-weight: var(--ims-font-weight-bold);
     white-space: nowrap;
 }
 

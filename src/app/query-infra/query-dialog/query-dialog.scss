@@ -87,7 +87,7 @@
   background: transparent;
   padding: 9px 10px;
   font: inherit;
-  font-weight: 600;
+  font-weight: var(--ims-font-weight-semibold);
   color: #334155;
   cursor: pointer;
 }

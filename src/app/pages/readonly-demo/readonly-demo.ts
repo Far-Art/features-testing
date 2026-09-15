@@ -31,7 +31,7 @@ type ContactMethod = 'Email' | 'Phone' | 'Text message';
       gap: 0.45rem;
       color: var(--ims-color-status-success);
       font-size: 0.78rem;
-      font-weight: 800;
+      font-weight: var(--ims-font-weight-extrabold);
       letter-spacing: 0.06em;
       text-transform: uppercase;
     }
@@ -136,7 +136,7 @@ class ReadonlyState {
       gap: 0.4rem;
       color: var(--ims-color-on-surface);
       font-size: 0.86rem;
-      font-weight: 650;
+      font-weight: var(--ims-font-weight-semibold);
     }
 
     .readonly-dialog-demo__content .ims-input,
@@ -154,7 +154,7 @@ class ReadonlyState {
       color: var(--ims-color-on-interactive);
       cursor: pointer;
       font: inherit;
-      font-weight: 650;
+      font-weight: var(--ims-font-weight-semibold);
     }
 
     .readonly-dialog-demo__toolbar-button:hover,

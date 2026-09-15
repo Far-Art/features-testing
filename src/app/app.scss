@@ -24,7 +24,7 @@
 .demo-shell__brand {
     color: #203354;
     font-size: 1.05rem;
-    font-weight: 800;
+    font-weight: var(--ims-font-weight-extrabold);
     text-decoration: none;
     white-space: nowrap;
 }
@@ -39,7 +39,7 @@
     padding: 0.55rem 0.85rem;
     color: #52627d;
     border-radius: 999px;
-    font-weight: 650;
+    font-weight: var(--ims-font-weight-semibold);
     text-decoration: none;
     transition:
         color 140ms ease,
