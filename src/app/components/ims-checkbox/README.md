@@ -12,9 +12,8 @@ of the component contract unless a requested change explicitly replaces it.
   and the projected label.
 - `index.ts`: public exports.
 - `src/styles/ims-checkbox.scss`: all checkbox styles, loaded globally from
-  `src/styles.scss`.
-- `src/styles/tokens/sizing-tokens.scss`: `--checkbox-size`, shared with
-  `ims-form-field`.
+  `src/styles.scss`, including `--ims-checkbox-size` on `:root`, which
+  `ims-form-field` also reads.
 - `src/app/pages/component-states-demo`: normal, disabled, readonly, invalid,
   and invalid + readonly examples.
 
@@ -88,7 +87,7 @@ assistive technology reads.
 ## Form Layout
 
 A direct child of `ims-form-field` shares the value column with the field
-label, which is offset by `--checkbox-size` plus the field gap. The field
+label, which is offset by `--ims-checkbox-size` plus the field gap. The field
 associates its label with the native checkbox through `id`. See
 `../ims-form-layout/README.md`.
 
@@ -109,8 +108,9 @@ modifiers `.ims-checkbox--animations-ready` and `.ims-checkbox--ripple`.
 Colors use semantic tokens only: `--ims-color-border`,
 `--ims-color-interactive`, `--ims-color-interactive-strong`,
 `--ims-color-on-interactive`, `--ims-color-focus-ring`, the `*-disabled` and
-`*-readonly` tokens, and the invalid tokens. The box size is the shared
-`--checkbox-size` token (outer size, border included).
+`*-readonly` tokens, and the invalid tokens. The box size is
+`--ims-checkbox-size` (outer size, border included), declared on `:root` in
+`ims-checkbox.scss`.
 
 Transitions start only after the first render, so an initially checked box does
 not animate in. `prefers-reduced-motion: reduce` removes transitions and the
@@ -120,9 +120,12 @@ ripple.
 
 - Keep `.ims-checkbox__native` immediately before `.ims-checkbox__track`; every
   state selector depends on that adjacency.
-- If you change `--checkbox-size`, the form-field label offset follows it.
-  A size that ignores the token breaks direct-checkbox alignment in
+- If you change `--ims-checkbox-size`, the form-field label offset follows it.
+  A size that ignores the variable breaks direct-checkbox alignment in
   `ims-form-field`.
+- Keep `--ims-checkbox-size` on `:root`. The field label is a sibling of the
+  checkbox host, so a variable declared on `.ims-checkbox` or the host never
+  reaches it, and the label ends up on top of the box.
 - Keep the ripple duration in `ims-checkbox.scss` and `IMS_CHECKBOX_RIPPLE_MS`
   equal.
 - The checkmark and dash paths must keep the same command structure (`M L L`),

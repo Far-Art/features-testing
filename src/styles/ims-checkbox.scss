@@ -1,3 +1,11 @@
+// Declared on :root rather than on .ims-checkbox: ims-form-field offsets a
+// field label by this size, and that label is a sibling of the checkbox host,
+// so it could not inherit a variable declared inside the checkbox.
+:root {
+    // Outer size of the box, border included.
+    --ims-checkbox-size: 1.25rem;
+}
+
 // The native input is the real control: it covers the whole label, takes the
 // click, the focus and the form state, and its :checked, :indeterminate and
 // :disabled pseudo-classes drive every visual state below. The track only
@@ -36,14 +44,14 @@
     cursor: inherit;
 }
 
-// Outer size comes from the shared sizing token, which ims-form-field also
-// reads to place a field label beside a direct checkbox.
+// Size the box only through --ims-checkbox-size: ims-form-field uses the same
+// value to place a field label beside a direct checkbox.
 .ims-checkbox__track {
     position: relative;
     flex: 0 0 auto;
     box-sizing: border-box;
-    width: var(--checkbox-size);
-    height: var(--checkbox-size);
+    width: var(--ims-checkbox-size);
+    height: var(--ims-checkbox-size);
     border: 2px solid var(--ims-color-border);
     border-radius: 0.3rem;
     background: transparent;
@@ -68,8 +76,8 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    width: calc(var(--checkbox-size) * 2);
-    height: calc(var(--checkbox-size) * 2);
+    width: calc(var(--ims-checkbox-size) * 2);
+    height: calc(var(--ims-checkbox-size) * 2);
     border-radius: 50%;
     background: color-mix(in oklab, var(--ims-color-interactive) 18%, transparent);
     transform: translate(-50%, -50%) scale(0);
