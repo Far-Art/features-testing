@@ -18,6 +18,7 @@ export {
 export type {
   IBaseOutput,
   IMessage,
+  ImsDialogConfig,
   ImsDialogConfirmationLabels,
   ImsDialogContentType,
   ImsDialogMode,

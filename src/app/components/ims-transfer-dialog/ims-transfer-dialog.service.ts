@@ -12,9 +12,13 @@ export class ImsTransferDialogService {
     ): ImsDialogRef<ImsTransferDialogResult<T, ListId> | undefined> {
         this.validateData(data);
 
-        return this.dialog
-            .info(ImsTransferDialog)
-            .title(data.dialogTitle ?? '')
+        const builder = this.dialog.info(ImsTransferDialog);
+
+        if (data.dialogTitle !== undefined) {
+            builder.title(data.dialogTitle);
+        }
+
+        return builder
             .data(data)
             .config({
                 minWidth: 'min(560px, 92vw)',

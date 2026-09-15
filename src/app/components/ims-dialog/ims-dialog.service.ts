@@ -27,10 +27,21 @@ import {
 
 const DEFAULT_ERROR_TITLE = 'תקלה';
 
+const DEFAULT_ERROR_ICON = 'release_alert';
+
 const DEFAULT_ERROR_TEXT = 'אירעה שגיאה בלתי צפויה.';
+
+const DEFAULT_CLOSE_BUTTON_LABEL = 'סגור';
 
 /** One reposition per frame is enough to keep an inside dialog on its boundary. */
 const SCROLL_THROTTLE_MS = 16;
+
+const DEFAULT_TITLES: Record<ImsDialogSeverity, string> = {
+  info: 'מידע',
+  success: 'הצלחה',
+  warning: 'אזהרה',
+  danger: 'שגיאה',
+};
 
 const DEFAULT_ICONS: Record<ImsDialogSeverity, string> = {
   info: 'info',
@@ -72,19 +83,24 @@ export class ImsDialogService implements ImsDialogBuilderHost {
    * reduced to that text, and anything else falls back to a generic message.
    *
    * The title defaults to `תקלה`; a later `title()` call replaces it, and an
-   * empty title opens the dialog without a title row.
+   * empty title opens the dialog without a title row. The icon defaults to
+   * `release_alert`.
    *
    * @param error Thrown, rejected, or returned value describing the failure.
    * @returns A reduced builder without the data, confirmation, and readonly
    * options, which an error dialog cannot use.
    */
   error(error: unknown): ImsDialogErrorBuilder {
-    return this.createBuilder<never>(resolveErrorContent(error), 'danger').title(
-      DEFAULT_ERROR_TITLE,
-    );
+    return this.createBuilder<never>(
+      resolveErrorContent(error),
+      'danger',
+      DEFAULT_ERROR_ICON,
+    ).title(DEFAULT_ERROR_TITLE);
   }
 
   openFromBuilder(options: ImsDialogOpenOptions): ImsDialogRef<unknown> {
+    // CDK receives the caller config without IMS-only options.
+    const { closeButtonLabel, ...cdkConfig } = options.config;
     const confirmationMode = isConfirmationMode(options.mode);
     const readonlyState = signal(isReadonlyMode(options.mode));
     const mergedData = mergeDialogData(options.config.data, options.data, options.hasData);
@@ -103,16 +119,17 @@ export class ImsDialogService implements ImsDialogBuilderHost {
       details: options.details,
       title: options.title,
       icon: options.iconRequested
-        ? (options.iconName ?? DEFAULT_ICONS[options.severity])
-        : resolveDefaultIcon(options.severity, options.title),
+        ? options.iconName
+        : resolveDefaultIcon(options.severity, options.title, options.iconName),
       confirmationLabels: options.confirmationLabels
         ? resolveConfirmationLabels(options.confirmationLabels)
         : null,
+      closeButtonLabel: closeButtonLabel?.trim() || DEFAULT_CLOSE_BUTTON_LABEL,
       data: mergedData,
       direction,
       dragBoundary: insideBoundary ?? '.cdk-overlay-container',
     };
-    const callerConfig = options.config as unknown as DialogConfig<
+    const callerConfig = cdkConfig as unknown as DialogConfig<
       unknown,
       DialogRef<unknown, ImsDialogShell>
     >;
@@ -152,7 +169,11 @@ export class ImsDialogService implements ImsDialogBuilderHost {
       hasBackdrop: insideBoundary ? false : (callerConfig.hasBackdrop ?? true),
       direction,
       role: callerConfig.role ?? (confirmationMode ? 'alertdialog' : 'dialog'),
-      ariaLabel: callerConfig.ariaLabel ?? (options.title || null),
+      // CDK ignores `ariaLabelledBy` whenever `ariaLabel` is set, and every
+      // builder starts with a title, so the title labels only dialogs the
+      // caller has not labelled.
+      ariaLabel:
+        callerConfig.ariaLabel ?? (callerConfig.ariaLabelledBy ? null : options.title || null),
       panelClass: [
         'ims-dialog-overlay',
         `ims-dialog-overlay--${options.severity}`,
@@ -224,17 +245,22 @@ export class ImsDialogService implements ImsDialogBuilderHost {
   private createBuilder<C>(
     content: ImsDialogContentType<C> | null,
     severity: ImsDialogSeverity,
+    icon = DEFAULT_ICONS[severity],
   ): ImsDialogBuilder<C> {
-    return new ImsDialogBuilder(this, content, severity);
+    return new ImsDialogBuilder(this, content, severity, icon).title(DEFAULT_TITLES[severity]);
   }
 }
 
-function resolveDefaultIcon(severity: ImsDialogSeverity, title: string): string | null {
+function resolveDefaultIcon(
+  severity: ImsDialogSeverity,
+  title: string,
+  icon: string,
+): string | null {
   if (severity === 'info' || !title) {
     return null;
   }
 
-  return DEFAULT_ICONS[severity];
+  return icon;
 }
 
 function resolveErrorContent(error: unknown): ImsDialogContentType<never> {

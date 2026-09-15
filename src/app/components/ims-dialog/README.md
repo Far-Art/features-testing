@@ -120,7 +120,7 @@ without an explicit `any` in the signature.
 try {
   await save();
 } catch (failure) {
-  dialog.error(failure).open(); // Titled "תקלה", with the danger icon.
+  dialog.error(failure).open(); // Titled "תקלה", with the release_alert icon.
 }
 ```
 
@@ -139,9 +139,9 @@ Because an `IBaseOutput` payload keeps its own styling rules, a negative
 `resultCode` unwrapped from an HTTP failure renders as a danger result with its
 sorted message rows.
 
-Unlike the severity methods, `error()` starts with the title `תקלה` and the
-danger icon. A later `title()` call replaces the title, and `title('')` opens
-the dialog without a title row.
+Unlike `danger()`, which starts with `שגיאה` and the `error` icon, `error()`
+starts with the title `תקלה` and the `release_alert` icon. A later `title()`
+call replaces the title, and `title('')` opens the dialog without a title row.
 
 An error dialog renders text rather than a component and always closes without
 a result, so `error()` returns the reduced `ImsDialogErrorBuilder` surface:
@@ -171,9 +171,9 @@ dialog.info(DetailsComponent).data({ policyId: 42 }).open();
 
 ### `config(config)`
 
-Accepts an Angular CDK `DialogConfig`. Caller configuration is preserved,
-including sizing, direction, close behavior, focus settings, panel classes,
-providers, and data.
+Accepts an `ImsDialogConfig`: an Angular CDK `DialogConfig` extended with IMS
+options. Caller configuration is preserved, including sizing, direction, close
+behavior, focus settings, panel classes, providers, and data.
 
 IMS classes are appended to `panelClass`; they do not replace caller classes.
 
@@ -182,6 +182,11 @@ only the overlay pane around it. The content row absorbs the difference: it
 stretches when the content is shorter, keeping the actions at the bottom, and
 scrolls when the content is taller.
 
+`closeButtonLabel` replaces the text of the generated Close action, which
+defaults to `סגור`. An empty or whitespace-only label keeps the default. The
+label also applies while readonly replaces the confirmation buttons, but not to
+the header X control or to component-provided `ims-dialog-actions`.
+
 ```ts
 dialog
   .info(DetailsComponent)
@@ -189,40 +194,52 @@ dialog
     width: '36rem',
     disableClose: true,
     ariaLabel: 'Policy details',
+    closeButtonLabel: 'Done',
   })
   .open();
 ```
 
 ### `title(text)`
 
-Generates `ims-dialog-title` when the supplied component does not provide its
-own title section.
+Replaces the default text of the generated `ims-dialog-title`, which renders
+when the supplied component does not provide its own title section.
 
-Severity methods have no default title. Without this call, and without
-`withIcon()`, the shell renders only its small drag strip above the content.
-`error()` is the one exception; see below.
+Every entrypoint opens with a default title, so a dialog opened without this
+call still has a title row:
+
+| Entrypoint  | Default title |
+| ----------- | ------------- |
+| `info()`    | `מידע`        |
+| `success()` | `הצלחה`       |
+| `warning()` | `אזהרה`       |
+| `danger()`  | `שגיאה`       |
+| `error()`   | `תקלה`        |
+
+`title('')` removes the default. Without a title, and without `withIcon()`, the
+shell renders only its small drag strip above the content.
 
 ### `withIcon(materialSymbolName?)`
 
 Adds an icon to the generated title. Without a name, the icon is derived from
-severity:
+the entrypoint:
 
-| Severity  | Icon           | Applied without `withIcon()` |
-| --------- | -------------- | ---------------------------- |
-| `info`    | `info`         | No                           |
-| `success` | `check_circle` | Yes                          |
-| `warning` | `warning`      | Yes                          |
-| `danger`  | `error`        | Yes                          |
+| Entrypoint  | Icon            | Applied without `withIcon()` |
+| ----------- | --------------- | ---------------------------- |
+| `info()`    | `info`          | No                           |
+| `success()` | `check_circle`  | Yes                          |
+| `warning()` | `warning`       | Yes                          |
+| `danger()`  | `error`         | Yes                          |
+| `error()`   | `release_alert` | Yes                          |
 
-Success, warning, and danger dialogs therefore show their icon automatically,
-and `error()` shows the danger icon. Informational dialogs stay unadorned
-unless `withIcon()` asks for an icon.
+Success, warning, danger, and error dialogs therefore show their icon
+automatically. Informational dialogs stay unadorned unless `withIcon()` asks
+for an icon.
 
 The automatic icon only joins an existing generated title; it never creates a
-title row on its own. A dialog with no title keeps the plain drag strip, and a
-component-provided `ims-dialog-title` supplies its own icon. Calling
-`withIcon()` explicitly still renders the title row even when the title is
-empty.
+title row on its own. A dialog opened with `title('')` keeps the plain drag
+strip, and a component-provided `ims-dialog-title` supplies its own icon.
+Calling `withIcon()` explicitly still renders the title row even when the title
+is empty.
 
 The dialog and its demo use the Material Symbols Sharp ligature font.
 
@@ -647,9 +664,14 @@ RTL layouts. IMS dialogs therefore leave the body unchanged by default.
 Callers that require background scroll locking can explicitly provide a CDK
 scroll strategy through `config()`.
 
-The builder title is used as `ariaLabel` when the caller does not provide one.
-For custom-title-only dialogs, callers should provide the appropriate
-`ariaLabel` or `ariaLabelledBy` through `config()`.
+The builder title, including a default title, is used as `ariaLabel` when the
+caller provides neither `ariaLabel` nor `ariaLabelledBy`. A supplied
+`ariaLabelledBy` suppresses the title-derived label, because CDK ignores
+`ariaLabelledBy` whenever `ariaLabel` is set.
+
+A component-provided `ims-dialog-title` does not change the label, so a
+custom-title-only dialog is named by its default title. Such callers should
+provide the appropriate `ariaLabel` or `ariaLabelledBy` through `config()`.
 
 ## File map
 

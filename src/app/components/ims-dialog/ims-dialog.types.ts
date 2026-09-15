@@ -31,6 +31,20 @@ export interface ImsDialogResolvedConfirmationLabels {
   readonly no: string;
 }
 
+/**
+ * Angular CDK dialog configuration accepted by the builder `config()` methods,
+ * extended with IMS options.
+ */
+export interface ImsDialogConfig<D = unknown> extends DialogConfig<D> {
+  /**
+   * Text of the generated Close action. An empty or whitespace-only label
+   * keeps the default.
+   *
+   * @defaultValue `'סגור'`
+   */
+  readonly closeButtonLabel?: string;
+}
+
 export interface ImsDialogRuntimeConfig<D = unknown> {
   readonly severity: ImsDialogSeverity;
   readonly mode: ImsDialogMode;
@@ -39,6 +53,8 @@ export interface ImsDialogRuntimeConfig<D = unknown> {
   readonly title: string;
   readonly icon: string | null;
   readonly confirmationLabels: ImsDialogResolvedConfirmationLabels | null;
+  /** Text of the generated Close action. */
+  readonly closeButtonLabel: string;
   readonly data: D;
   readonly direction: 'ltr' | 'rtl';
   readonly dragBoundary: HTMLElement | string;
@@ -52,13 +68,14 @@ export interface ImsDialogOpenOptions {
   readonly details: readonly string[];
   readonly title: string;
   readonly iconRequested: boolean;
-  readonly iconName: string | null;
+  /** Icon shown in the generated title: the `withIcon()` name or the entrypoint default. */
+  readonly iconName: string;
   readonly mode: ImsDialogMode;
   readonly confirmationLabels: ImsDialogConfirmationLabels | null;
   readonly data: unknown;
   readonly hasData: boolean;
   readonly insideClassName: string | null;
-  readonly config: DialogConfig;
+  readonly config: ImsDialogConfig;
 }
 
 export const IMS_DIALOG_DATA = new InjectionToken<unknown>('IMS_DIALOG_DATA');

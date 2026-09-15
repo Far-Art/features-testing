@@ -216,10 +216,15 @@
   background: #fbf1dc;
 }
 
-.dialog-demo-severity__button--danger {
+.dialog-demo-severity__button--danger,
+.dialog-demo-severity__button--error {
   --demo-button-color: #962219;
 
   background: #fbe9e6;
+}
+
+.dialog-demo-severity__button--error {
+  grid-column: 1 / -1;
 }
 
 .dialog-demo-card button:focus-visible,

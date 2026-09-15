@@ -183,8 +183,10 @@
       <span class="dialog-demo-severity__eyebrow">Visual matrix</span>
       <h2>One contract, four levels of intent.</h2>
       <p>
-        Each sample includes the generated header close plus default, white, and dark action
-        buttons. Hover, focus, and press every action to compare its severity-matched sweep.
+        Severity samples open without a title, so each shows its default title, with the generated
+        header close plus default, white, and dark action buttons. Error opens through the error
+        builder with its generated Close action. Hover, focus, and press every action to compare
+        its severity-matched sweep.
       </p>
     </div>
 
@@ -220,6 +222,14 @@
       >
         <span class="material-symbols-sharp" aria-hidden="true">error</span>
         Danger
+      </button>
+      <button
+        type="button"
+        class="dialog-demo-severity__button dialog-demo-severity__button--error"
+        (click)="openErrorBuilder()"
+      >
+        <span class="material-symbols-sharp" aria-hidden="true">release_alert</span>
+        Error
       </button>
     </div>
   </section>

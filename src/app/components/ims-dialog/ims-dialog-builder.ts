@@ -1,6 +1,6 @@
-import { DialogConfig } from '@angular/cdk/dialog';
 import { ImsDialogRef } from './ims-dialog-ref';
 import {
+  ImsDialogConfig,
   ImsDialogConfirmationLabels,
   ImsDialogContentType,
   ImsDialogMode,
@@ -32,8 +32,8 @@ export interface ImsDialogErrorBuilder {
   /**
    * Adds an icon to the generated title.
    *
-   * @param materialSymbolName Optional Material icon ligature name; the danger
-   * icon is used when it is omitted.
+   * @param materialSymbolName Optional Material icon ligature name;
+   * `release_alert` is used when it is omitted.
    * @returns This builder for continued chaining.
    */
   withIcon(materialSymbolName?: string): ImsDialogErrorBuilder;
@@ -56,12 +56,13 @@ export interface ImsDialogErrorBuilder {
   inside(className: string): ImsDialogErrorBuilder;
 
   /**
-   * Applies Angular CDK dialog configuration.
+   * Applies Angular CDK dialog configuration and IMS options.
    *
-   * @param config CDK configuration used when opening the dialog.
+   * @param config CDK configuration used when opening the dialog, optionally
+   * with `closeButtonLabel` to replace the `סגור` text of the Close action.
    * @returns This builder for continued chaining.
    */
-  config<D = unknown>(config: DialogConfig<D>): ImsDialogErrorBuilder;
+  config<D = unknown>(config: ImsDialogConfig<D>): ImsDialogErrorBuilder;
 
   /**
    * Opens the configured dialog.
@@ -81,7 +82,7 @@ export interface ImsDialogErrorBuilder {
 export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false> {
   private customData: unknown;
   private hasCustomData = false;
-  private dialogConfig: DialogConfig<unknown> = {};
+  private dialogConfig: ImsDialogConfig<unknown> = {};
   private dialogTitle = '';
   private hasIcon = false;
   private materialIconName: string | null = null;
@@ -94,6 +95,7 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
     private readonly host: ImsDialogBuilderHost,
     private readonly content: ImsDialogContentType<C> | null,
     private readonly severity: ImsDialogSeverity,
+    private readonly defaultIconName: string,
   ) {}
 
   /**
@@ -113,27 +115,31 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
   }
 
   /**
-   * Applies Angular CDK dialog configuration.
+   * Applies Angular CDK dialog configuration and IMS options.
    *
    * IMS defaults are used for omitted properties. Caller panel classes and
    * providers are preserved, while `data` participates in the IMS data merge.
    * A later call replaces the configuration supplied by an earlier call.
    *
+   * `closeButtonLabel` replaces the `סגור` text of the generated Close action.
+   * It has no effect when the supplied component owns `ims-dialog-actions`.
+   *
    * @param config CDK configuration used when opening the dialog.
    * @returns This builder for continued chaining.
    */
-  config<D = unknown>(config: DialogConfig<D>): ImsDialogBuilder<C, Confirmation> {
-    this.dialogConfig = config as DialogConfig<unknown>;
+  config<D = unknown>(config: ImsDialogConfig<D>): ImsDialogBuilder<C, Confirmation> {
+    this.dialogConfig = config as ImsDialogConfig<unknown>;
     return this;
   }
 
   /**
-   * Sets the generated dialog title.
+   * Replaces the default title of the current severity.
    *
    * The value is ignored when the supplied component renders its own
    * `ims-dialog-title`.
    *
-   * @param text Text displayed in the generated title section.
+   * @param text Text displayed in the generated title section, or an empty
+   * string to open the dialog without a title row.
    * @returns This builder for continued chaining.
    */
   title(text: string): ImsDialogBuilder<C, Confirmation> {
@@ -239,7 +245,7 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
       details: [...this.detailLines],
       title: this.dialogTitle,
       iconRequested: this.hasIcon,
-      iconName: this.materialIconName,
+      iconName: this.materialIconName ?? this.defaultIconName,
       mode: this.dialogMode,
       confirmationLabels: this.labels,
       data: this.customData,

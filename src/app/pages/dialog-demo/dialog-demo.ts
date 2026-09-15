@@ -1027,8 +1027,8 @@ export class DialogDemo {
       warning: 'Warning dialog',
       danger: 'Danger dialog',
     };
+    // No title() call, so each sample shows the default title of its severity.
     const ref = this.dialog[severity](DialogButtonReviewContent)
-      .title(labels[severity])
       .withIcon()
       .config({ direction: 'ltr', width: 'max-content' })
       .open<DialogButtonReviewResult>();
@@ -1039,6 +1039,19 @@ export class DialogDemo {
           ? `${labels[severity]} ${result} button selected.`
           : `${labels[severity]} header close selected.`,
       );
+    });
+  }
+
+  openErrorBuilder(): void {
+    const ref = this.dialog
+      .error(
+        'Compare the header close sweep with the generated Close action of the error builder.',
+      )
+      .config({ direction: 'ltr', width: 'min(28rem, calc(100vw - 2rem))' })
+      .open();
+
+    ref.closed.subscribe(() => {
+      this.lastEvent.set('Error builder dialog closed.');
     });
   }
 }
