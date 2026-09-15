@@ -1,0 +1,28 @@
+// Keep these weights in sync with the Roboto and Heebo weights requested in src/index.html.
+:root {
+    --ims-font-weight-regular: 400;
+    --ims-font-weight-medium: 500;
+    --ims-font-weight-semibold: 600;
+    --ims-font-weight-bold: 700;
+    --ims-font-weight-extrabold: 800;
+}
+
+.font-weight-regular {
+    font-weight: var(--ims-font-weight-regular);
+}
+
+.font-weight-medium {
+    font-weight: var(--ims-font-weight-medium);
+}
+
+.font-weight-semibold {
+    font-weight: var(--ims-font-weight-semibold);
+}
+
+.font-weight-bold {
+    font-weight: var(--ims-font-weight-bold);
+}
+
+.font-weight-extrabold {
+    font-weight: var(--ims-font-weight-extrabold);
+}
