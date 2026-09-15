@@ -346,9 +346,18 @@ A direct `ims-checkbox` uses a special field layout:
 
 For this structure:
 
-- The checkbox and main label share the value track and first row.
+- The checkbox and main label share the value track and first row, centered
+  vertically on each other.
+- The checkbox aligns to the start of the value track instead of stretching
+  across it, so it does not cover the label and clicks on the label reach it.
+- While the checkbox is enabled, the label shows a pointer cursor. A disabled
+  or readonly checkbox keeps the default cursor.
 - The label is offset from the checkbox by the checkbox size plus the normal
   field gap.
+- The label keeps its `max-content` width, like a label in the label track, so
+  it never wraps. A `max-content` grid widens the value track to fit it; a
+  value track that cannot grow, in an `even` grid or in a field outside a grid,
+  lets a longer label overflow instead.
 - The field associates the native main label with the checkbox's internal
   native input when that input is available.
 - Checkbox rendering, form integration, disabled state, and animation remain
@@ -357,9 +366,10 @@ For this structure:
 This exception requires `ims-checkbox` to be a direct child of
 `ims-form-field`. A wrapped checkbox uses the normal value-content layout.
 
-The placement offset uses `--ims-form-checkbox-size`, defaulting to the shared
-`--checkbox-size` token that also sizes the checkbox box. Override it only for a
-checkbox that does not use that token.
+The placement offset uses `--ims-form-checkbox-size`, defaulting to
+`--ims-checkbox-size`, the `:root` variable from `ims-checkbox.scss` that also
+sizes the checkbox box. Override it only for a checkbox that does not use that
+variable.
 
 ## Native And Custom Value Content
 
@@ -390,7 +400,7 @@ The main field custom properties are:
 | --- | --- | --- |
 | `--ims-form-field-gap` | `0.5rem` | Gap between a field's label and value. |
 | `--ims-form-accent` | `#1769aa` | Focus and hover accent. |
-| `--ims-form-checkbox-size` | `--checkbox-size` fallback | Direct-checkbox placement offset. |
+| `--ims-form-checkbox-size` | `--ims-checkbox-size` fallback | Direct-checkbox placement offset. |
 | `--ims-form-column-gap` | set by `columnGap` | Minimum flexible space between field pairs. |
 | `--ims-form-row-gap` | set by `rowGap` | Grid row gap. |
 

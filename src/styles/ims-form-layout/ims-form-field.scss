@@ -28,16 +28,23 @@ ims-form-field {
 
     &:has(> ims-checkbox) {
         > ims-checkbox {
+            justify-self: start;
+            align-self: center;
             grid-column: 2;
             grid-row: 1;
         }
 
         > :is(label, [imsFormFieldLabel]) {
-            max-width: max-content;
+            width: max-content;
+            align-self: center;
             grid-column: 2;
             grid-row: 1;
-            margin-inline-start: calc(var(--ims-form-checkbox-size, var(--checkbox-size)) + var(--ims-form-field-gap));
+            margin-inline-start: calc(var(--ims-form-checkbox-size, var(--ims-checkbox-size)) + var(--ims-form-field-gap));
         }
+    }
+
+    &:has(> ims-checkbox .ims-checkbox__native:not(:disabled)) > label {
+        cursor: pointer;
     }
 
     &:has(:is(input, select, textarea, button):not(:disabled):hover) > :is(label, [imsFormFieldLabel]),
