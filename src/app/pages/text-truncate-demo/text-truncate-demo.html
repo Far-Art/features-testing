@@ -1,0 +1,187 @@
+<section class="text-truncate-demo">
+  <header class="page-heading">
+    <h1>imsTextTruncate · גם בשדות קלט</h1>
+    <p>
+      הדירקטיבה מציגה את הטקסט המלא בחלונית רק כשהוא באמת נחתך. על <code>input</code> ועל
+      <code>textarea</code> היא קוראת את ה־<code>value</code> הנוכחי של השדה, משאירה לשדה את
+      העיצוב שלו ופותחת את החלונית מתחת לשדה, לא מעליו.
+    </p>
+  </header>
+
+  <section class="text-truncate-demo__section" aria-labelledby="text-truncate-input-title">
+    <div class="text-truncate-demo__section-heading">
+      <p class="text-truncate-demo__eyebrow">input</p>
+      <h2 id="text-truncate-input-title">שדה בשורה אחת</h2>
+      <p>
+        ערך שלא נכנס בשדה מסתיים בשלוש נקודות, כל עוד אין בשדה מיקוד. שנו את הרוחב ועברו עם
+        העכבר מעל שדה: החלונית נפתחת רק כשהערך נחתך. הקלדה סוגרת אותה, ומעבר העכבר הבא מציג את
+        הערך החדש.
+      </p>
+    </div>
+
+    <label class="text-truncate-demo__width">
+      <span>רוחב השדות</span>
+      <input
+        type="range"
+        min="6"
+        max="36"
+        step="1"
+        [ngModel]="fieldWidth()"
+        (ngModelChange)="fieldWidth.set($event)"
+      />
+      <code dir="ltr">{{ fieldWidth() }}rem</code>
+    </label>
+
+    <div class="text-truncate-demo__stack">
+      <article class="text-truncate-demo__card">
+        <h3>כתובת בעברית</h3>
+        <code class="text-truncate-demo__source" dir="ltr">imsInput imsTextTruncate</code>
+        <input
+          imsInput
+          imsTextTruncate
+          aria-label="כתובת"
+          autocomplete="off"
+          [style.inline-size.rem]="fieldWidth()"
+          [ngModel]="address()"
+          (ngModelChange)="address.set($event)"
+        />
+        <p>
+          הערך נקרא מ־<code>value</code> בכל פתיחה, ולכן גם אחרי עריכה החלונית מציגה את מה שבשדה
+          עכשיו — לא את הערך שהדף נטען איתו.
+        </p>
+      </article>
+
+      <article class="text-truncate-demo__card">
+        <h3>דוא״ל משמאל לימין</h3>
+        <code class="text-truncate-demo__source" dir="ltr">type="email" dir="ltr" imsTextTruncate</code>
+        <input
+          imsInput
+          imsTextTruncate
+          type="email"
+          dir="ltr"
+          aria-label="דוא״ל"
+          autocomplete="off"
+          [style.inline-size.rem]="fieldWidth()"
+          [ngModel]="email()"
+          (ngModelChange)="email.set($event)"
+        />
+        <p>
+          החלונית לוקחת את הכיוון ואת הגופן מהשדה עצמו, כך שכתובת באנגלית נשארת משמאל לימין גם
+          בדף עברי.
+        </p>
+      </article>
+
+      <article class="text-truncate-demo__card" [ims-readonly]="true">
+        <h3>קריאה בלבד</h3>
+        <code class="text-truncate-demo__source" dir="ltr">[ims-readonly]="true"</code>
+        <input
+          imsInput
+          imsTextTruncate
+          aria-label="כיסוי הפוליסה"
+          [style.inline-size.rem]="fieldWidth()"
+          [value]="coverage"
+        />
+        <p>
+          שדה מושבת אי אפשר לגלול, ולכן החלונית היא הדרך היחידה לקרוא בו ערך ארוך. מעבר עכבר
+          פותח אותה גם כאן.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section class="text-truncate-demo__section" aria-labelledby="text-truncate-textarea-title">
+    <div class="text-truncate-demo__section-heading">
+      <p class="text-truncate-demo__eyebrow">textarea</p>
+      <h2 id="text-truncate-textarea-title">טקסט בכמה שורות</h2>
+      <p>
+        ב־<code>textarea</code> אין שלוש נקודות: השדה שומר על גלישת השורות ועל פס הגלילה שלו,
+        ונחשב חתוך כשהתוכן ארוך מהשורות שלו. החלונית שומרת על מעברי השורה שבערך.
+      </p>
+    </div>
+
+    <div class="text-truncate-demo__card-grid">
+      <article class="text-truncate-demo__card">
+        <h3>הערה לעריכה</h3>
+        <code class="text-truncate-demo__source" dir="ltr">rows="3" imsTextTruncate</code>
+        <textarea
+          imsInput
+          imsTextTruncate
+          rows="3"
+          aria-label="הערה"
+          [ngModel]="note()"
+          (ngModelChange)="note.set($event)"
+        ></textarea>
+        <p>
+          מחקו שורות עד שהכול נכנס בשלוש השורות: מעבר העכבר כבר לא יפתח חלונית. הוסיפו שורה,
+          והיא חוזרת.
+        </p>
+      </article>
+
+      <article class="text-truncate-demo__card" [ims-readonly]="true">
+        <h3>קריאה בלבד, עם העתקה</h3>
+        <code class="text-truncate-demo__source" dir="ltr">imsTextTruncateInteractive</code>
+        <textarea
+          imsInput
+          imsTextTruncate
+          imsTextTruncateInteractive
+          rows="3"
+          aria-label="סיכום תביעה"
+          [value]="claimSummary"
+        ></textarea>
+        <p>
+          משדה מושבת אי אפשר לסמן טקסט. חלונית אינטראקטיבית נשארת פתוחה כשהעכבר עובר אליה, ואפשר
+          לסמן בה את הסיכום ולהעתיק אותו.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section class="text-truncate-demo__section" aria-labelledby="text-truncate-rules-title">
+    <div class="text-truncate-demo__section-heading">
+      <p class="text-truncate-demo__eyebrow">Behaviour</p>
+      <h2 id="text-truncate-rules-title">מה משתנה על שדה</h2>
+    </div>
+
+    <ul class="text-truncate-demo__rule-list">
+      <li>
+        <strong>הטקסט הוא ה־value.</strong> ב־<code>input</code> המאפיין <code>textContent</code>
+        ריק, וב־<code>textarea</code> הוא מחזיק רק את הערך ההתחלתי. הדירקטיבה קוראת את
+        <code>value</code> ברגע הפתיחה, וטקסט מפורש ב־<code>[imsTextTruncate]</code> עדיין קודם
+        לו.
+      </li>
+      <li>
+        <strong>השדה שומר על העיצוב שלו.</strong> שדה כבר חותך את התוכן שלו, ולכן לא נקבעים עליו
+        <code>display</code>, רוחב, <code>overflow</code> או <code>white-space</code>.
+        <code>input</code> מקבל רק <code dir="ltr">text-overflow: ellipsis</code>, ו־<code
+          >textarea</code
+        >
+        לא מקבל דבר. <code>imsTruncateDisplay</code> ו־<code>imsTruncateMaxWidth</code> לא חלים על
+        שדה.
+      </li>
+      <li>
+        <strong>החלונית נפתחת מתחת.</strong> כשלא נקבע <code>imsTextTruncatePosition</code>,
+        החלונית נפתחת ב־<code>bottom</code> אם האלמנט הנמדד הוא שדה, וב־<code>center</code> בכל
+        מקרה אחר — כך היא לא מסתירה את הטקסט שמקלידים.
+      </li>
+      <li>
+        <strong>הקלדה סוגרת.</strong> אירוע <code>input</code> סוגר את החלונית, ומעבר העכבר או
+        המיקוד הבאים מודדים את הערך החדש.
+      </li>
+      <li>
+        <strong>סיסמה לא נחשפת.</strong> נקראים רק סוגי <code>input</code> שמציגים טקסט רגיל:
+        <code>text</code>, <code>search</code>, <code>email</code>, <code>url</code> ו־<code
+          >tel</code
+        >.
+      </li>
+      <li>
+        <strong>בלי הקראה כפולה.</strong> שדה לא מקבל <code>aria-describedby</code> שמצביע על
+        החלונית, כי הערך שלו כבר מוקרא. על כל אלמנט אחר נוסף רק המזהה של החלונית, והפניות שכבר
+        קיימות — רמז, חלונית שגיאה — נשמרות.
+      </li>
+      <li>
+        <strong>הדרך לחלונית פתוחה.</strong> ב־<code>imsTextTruncateInteractive</code> הרווח שבין
+        השדה לחלונית נחשב חלק מהאזור, כך שהחלונית לא נסגרת בזמן שהעכבר עובר אליה.
+      </li>
+    </ul>
+  </section>
+</section>

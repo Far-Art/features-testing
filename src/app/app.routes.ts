@@ -78,6 +78,13 @@ export const routes: Routes = [
             import('./pages/format-demo/format-demo').then((module) => module.FormatDemo)
     },
     {
+        path: 'text-truncate',
+        loadComponent: () =>
+            import('./pages/text-truncate-demo/text-truncate-demo').then(
+                (module) => module.TextTruncateDemo
+            )
+    },
+    {
         path: 'icons',
         loadComponent: () =>
             import('./pages/icons-demo/icons-demo').then((module) => module.IconsDemo)
