@@ -129,3 +129,9 @@ ripple.
   or the `d` morph stops interpolating.
 - Emit `checkedChange` only from user interaction. Programmatic updates flow
   through `writeValue` and the `checked` input.
+- Use only signal APIs available in Angular 18. `linkedSignal` is not one of
+  them, so the local `checked` copy (`checkedState`) is derived with `computed`:
+  `checkedBinding` is a new object each time `checked` changes, and a user
+  toggle in `checkedOverride` applies only while its binding object is current.
+  Do not replace this with an `effect`: in Angular 18 an effect first runs after
+  the initial render and needs `allowSignalWrites`.

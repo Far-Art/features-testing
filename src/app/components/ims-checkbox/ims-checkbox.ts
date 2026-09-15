@@ -5,7 +5,6 @@ import {
     Component,
     computed,
     input,
-    linkedSignal,
     model,
     output,
     signal
@@ -19,6 +18,12 @@ const IMS_CHECKBOX_RIPPLE_MS = 350;
 // browser interpolate between them via the CSS `d` transition.
 const CHECKMARK_PATH = 'M 3.5 9.5 L 7 13 L 14.5 5.5';
 const DASH_PATH = 'M 4.5 9 L 9 9 L 13.5 9';
+
+/** A user toggle, tied to the `checked` binding value it overrides. */
+interface CheckedOverride {
+    readonly binding: {readonly value: boolean | undefined};
+    readonly checked: boolean;
+}
 
 @Component({
     selector: 'ims-checkbox',
@@ -59,7 +64,16 @@ export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T 
 
     // Local copy of `checked`: a user toggle sticks even when the parent binds a
     // static value (`<ims-checkbox checked/>`), and a new parent value resets it.
-    private readonly checkedState = linkedSignal(() => this.checked());
+    // This is `linkedSignal(() => this.checked())` without `linkedSignal`, which
+    // Angular 18 lacks: `checkedBinding` makes a new object only when `checked`
+    // changes, so an override stops applying once its binding object is replaced.
+    private readonly checkedBinding = computed(() => ({value: this.checked()}));
+    private readonly checkedOverride = signal<CheckedOverride | null>(null);
+    private readonly checkedState = computed(() => {
+        const binding = this.checkedBinding();
+        const override = this.checkedOverride();
+        return override?.binding === binding ? override.checked : binding.value;
+    });
 
     // value is undefined until a form binding calls writeValue; fall back to
     // falseValue so the checkbox renders unchecked on first paint.
@@ -91,7 +105,7 @@ export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T 
         const nextValue = nextChecked ? this.trueValue() : this.falseValue();
 
         if (this.checkedState() !== undefined) {
-            this.checkedState.set(nextChecked);
+            this.checkedOverride.set({binding: this.checkedBinding(), checked: nextChecked});
         }
 
         this.value.set(nextValue);
