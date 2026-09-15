@@ -410,6 +410,40 @@
     </div>
 
     <div class="form-layout-demo__example">
+        <h2>תיבת סימון מושבתת ולקריאה בלבד</h2>
+        <p class="form-layout-demo__hint">
+            תיבה מושבתת מוצגת בגוונים חלשים. תיבה לקריאה בלבד שומרת על המסגרת הרגילה, ותיבה מסומנת
+            נצבעת בצבע הטקסט לקריאה בלבד, כך שהערך נשאר קריא.
+        </p>
+
+        <ims-form-field-grid columns="2">
+            <ims-form-field-row>
+                <ims-form-field column="1">
+                    <label>מושבתת, לא מסומנת</label>
+                    <ims-checkbox disabled/>
+                </ims-form-field>
+
+                <ims-form-field column="2">
+                    <label>מושבתת, מסומנת</label>
+                    <ims-checkbox checked disabled/>
+                </ims-form-field>
+            </ims-form-field-row>
+
+            <ims-form-field-row>
+                <ims-form-field column="1">
+                    <label>לקריאה בלבד, לא מסומנת</label>
+                    <ims-checkbox [ims-readonly]="true"/>
+                </ims-form-field>
+
+                <ims-form-field column="2">
+                    <label>לקריאה בלבד, מסומנת</label>
+                    <ims-checkbox checked [ims-readonly]="true"/>
+                </ims-form-field>
+            </ims-form-field-row>
+        </ims-form-field-grid>
+    </div>
+
+    <div class="form-layout-demo__example">
         <h2>שדה עצמאי</h2>
         <ims-form-field>
             <label imsFormFieldLabel>חיפוש חופשי</label>

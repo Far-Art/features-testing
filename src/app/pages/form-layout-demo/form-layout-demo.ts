@@ -21,6 +21,7 @@ import {
 } from '../../components/ims-grid';
 import {ImsOption, ImsSelect} from '../../components/ims-select';
 import {ImsInputDirective} from '../../ims-input.directive';
+import {ReadonlyDirective} from '../../shared/readonly.directive';
 
 interface FormGridDemoRow {
     readonly id: number;
@@ -54,7 +55,8 @@ function utcDate(value: string): Date {
         ImsFormFieldGrid,
         ImsInputDirective,
         ImsOption,
-        ImsSelect
+        ImsSelect,
+        ReadonlyDirective
     ],
     templateUrl: './form-layout-demo.html',
     changeDetection: ChangeDetectionStrategy.Eager,

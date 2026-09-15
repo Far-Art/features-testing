@@ -172,11 +172,17 @@
 }
 
 // Readable disabled treatment, see component-styling-guide.md. The input is
-// disabled whenever the host sits in an ims-readonly scope.
+// disabled whenever the host sits in an ims-readonly scope. Unlike a disabled
+// box it keeps the regular border, so an unchecked box stays visible, and a
+// checked box fills with the readonly text color in place of the accent.
 .ims-checkbox-host.ims-readonly .ims-checkbox__native:disabled + .ims-checkbox__track {
-    border-color: var(--ims-color-border-subtle);
+    border-color: var(--ims-color-border);
     background: var(--ims-color-surface-input-readonly);
-    color: var(--ims-color-on-surface-readonly);
+}
+
+.ims-checkbox-host.ims-readonly .ims-checkbox__native:disabled:is(:checked, :indeterminate) + .ims-checkbox__track {
+    border-color: var(--ims-color-on-surface-readonly);
+    background: var(--ims-color-on-surface-readonly);
 }
 
 // `ng-invalid` lands on the host, not on the native input. Kept after the hover

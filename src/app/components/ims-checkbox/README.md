@@ -77,9 +77,14 @@ clicks, focus, and form state. Styles read its `:checked`, `:indeterminate`,
 and `:disabled` pseudo-classes, so the visual state always matches what
 assistive technology reads.
 
-- Disabled: the native input is disabled; disabled tokens apply.
+- Disabled: the native input is disabled. An unchecked box uses the subtle
+  border on the disabled surface; a checked or indeterminate box fills with
+  `--ims-color-on-surface-disabled`.
 - Readonly: inside an `ims-readonly` scope the host gets `.ims-readonly` and the
-  native input is disabled, so the readable-disabled tokens apply.
+  native input is disabled. The box keeps the regular `--ims-color-border` on
+  the readonly surface, so an unchecked box stays visible, and a checked or
+  indeterminate box fills with `--ims-color-on-surface-readonly` behind the
+  white mark. The value stays readable and never looks enabled or disabled.
 - Invalid: `ng-invalid` on the host tints the box border (and the fill when
   checked) with `--ims-color-invalid`, and the focus ring with
   `--ims-color-invalid-focus-ring`. Disabled and readonly boxes are not
