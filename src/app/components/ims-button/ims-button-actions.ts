@@ -10,7 +10,8 @@ import {ImsButtonBase} from './ims-button';
  *
  * The glyph is pinned rather than passed, which is the whole reason this
  * exists: a delete button looks the same on every screen because no call site
- * gets to choose. The inherited `icon` input therefore has no effect here.
+ * gets to choose. The tone is pinned with it, so `ims-button-severity` is
+ * accepted here and ignored.
  *
  * The accessible name is a plain host attribute, so a call site overrides it
  * with either spelling — `aria-label="…"` or `[attr.aria-label]="…"` — since
@@ -32,14 +33,6 @@ export class ImsButtonDelete extends ImsButtonBase {
 }
 
 /**
- * Edit affordance, and delete's counterpart: same shape and size, same quiet
- * rest, on the interactive ramp instead of the danger one so a row carrying
- * both reads as one pair.
- *
- * Same contract as {@link ImsButtonDelete} — visual only, glyph pinned,
- * `aria-label` overridable at the call site.
- */
-/**
  * The glyph pinned by {@link ImsButtonEdit}.
  *
  * Exported so chrome that sits alongside an edit affordance — a dialog title
@@ -48,6 +41,17 @@ export class ImsButtonDelete extends ImsButtonBase {
  */
 export const IMS_BUTTON_EDIT_ICON = 'ink_pen';
 
+/**
+ * Edit affordance, and delete's counterpart: same shape and size, same quiet
+ * rest, on the interactive ramp instead of the danger one so a row carrying
+ * both reads as one pair.
+ *
+ * Same contract as {@link ImsButtonDelete} — visual only, glyph pinned,
+ * `aria-label` overridable at the call site — except for the tone. The
+ * interactive ramp is only the `info` default, so `ims-button-severity`
+ * repaints this preset the way it repaints any button. The rest stays muted in
+ * every severity; the tone shows under a pointer, on focus and on press.
+ */
 @Directive({
     selector: 'button[ims-button-edit]',
     standalone: true,

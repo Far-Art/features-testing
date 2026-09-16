@@ -289,9 +289,9 @@
 // active fills, the ring and the pulse take --ims-button-ring-color, the halo
 // takes slot 200 — all of which the variations now draw from the ramp.
 //
-// The row-action presets (--delete, --edit) are deliberately untouched by
-// this. They set the final tokens directly rather than through slots, so a
-// severity written on one is ignored — see ImsButtonBase.severity.
+// Of the row-action presets, --edit follows a severity the same way: it draws
+// from the slots like a variation. --delete does not — it sets its final tokens
+// directly, so a severity written on one is ignored. See the presets below.
 .ims-button--success {
   --ims-button-ramp-50: var(--ims-color-success-50);
   --ims-button-ramp-100: var(--ims-color-success-100);
@@ -365,6 +365,13 @@
 // Custom properties only — the ripple, the border press ring and the focus
 // halo all read these, so the hover tone below is the one real rule either
 // preset needs.
+//
+// The two part ways on severity. Delete's red is what makes it a delete, so it
+// names its tones outright and a severity cannot reach them. Edit's blue is
+// only the house default — the same ramp `info` names — so edit reads the ramp
+// slots and takes whichever severity the call site writes. Either way the rest
+// stays quiet: a severity shows where the tone already did, under a pointer,
+// on focus and on press.
 .ims-button--delete {
   // Under the 1.125rem default: the filled glyph lays down noticeably more ink
   // than the outlined pencil beside it, so matching the two by font size makes
@@ -376,6 +383,10 @@
   --ims-button-background-active: var(--ims-color-danger-150);
   --ims-button-color-active: var(--ims-color-danger-700);
   --ims-button-ring-color: var(--ims-color-danger-450);
+  // The base halo reads ramp slot 200, which is the one slot left for a
+  // severity to reach this preset through. This is the colour that slot
+  // resolves to when no severity is set, so nothing changes at rest.
+  --ims-button-focus-ring: var(--ims-color-focus-ring);
 }
 
 // Delete takes the filled glyph: at 18px the outlined `cancel` is a thin ring
@@ -396,18 +407,23 @@
   color: var(--ims-color-status-danger);
 }
 
+// Every tone is a ramp slot, and each one resolves under `info` to the token
+// this preset used to name (--interactive is 500, --interactive-strong 600,
+// --interactive-alt-strong 700), so an edit that writes no severity is
+// unchanged. The resting colour is the exception: it is neutral on purpose,
+// which is what keeps a column of these quiet in every severity.
 .ims-button--edit {
   --ims-button-background: transparent;
-  --ims-button-background-hover: var(--ims-color-primary-100);
-  --ims-button-background-active: var(--ims-color-primary-150);
+  --ims-button-background-hover: var(--ims-button-ramp-100);
+  --ims-button-background-active: var(--ims-button-ramp-150);
   --ims-button-color: var(--ims-color-on-surface-muted);
-  --ims-button-color-active: var(--ims-color-interactive-alt-strong);
-  --ims-button-ring-color: var(--ims-color-interactive);
+  --ims-button-color-active: var(--ims-button-ramp-700);
+  --ims-button-ring-color: var(--ims-button-ramp-500);
 }
 
 .ims-button--edit:hover,
 .ims-button--edit:focus-visible {
-  color: var(--ims-color-interactive-strong);
+  color: var(--ims-button-ramp-600);
 }
 
 // Call to action: the halo that marks the one button on a view that has to be
