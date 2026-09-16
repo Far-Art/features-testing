@@ -29,7 +29,7 @@ const DEFAULT_ERROR_TITLE = 'תקלה';
 
 const DEFAULT_ERROR_ICON = 'release_alert';
 
-const DEFAULT_ERROR_TEXT = 'אירעה שגיאה בלתי צפויה.';
+const DEFAULT_ERROR_TEXT = 'אירעה תקלה בהעברת הנתונים';
 
 const DEFAULT_CLOSE_BUTTON_LABEL = 'סגור';
 
@@ -95,7 +95,7 @@ export class ImsDialogService implements ImsDialogBuilderHost {
       resolveErrorContent(error),
       'danger',
       DEFAULT_ERROR_ICON,
-    ).title(DEFAULT_ERROR_TITLE);
+    ).title(DEFAULT_ERROR_TITLE).config({minWidth: 550});
   }
 
   openFromBuilder(options: ImsDialogOpenOptions): ImsDialogRef<unknown> {
