@@ -310,7 +310,9 @@ asConfirmation({ yes: 'Deploy now', no: 'Review first' });
 ```
 
 If the supplied component has no `ims-dialog-actions`, the shell generates the
-two confirmation buttons.
+two confirmation buttons: the negative action uses the `secondary` button
+variation and the affirmative action uses `primary`. Both use the dialog
+severity.
 
 Confirmation can be combined with `asReadonly()`. It remains a boolean result
 contract even while readonly temporarily replaces its generated actions.

@@ -89,7 +89,12 @@
   @if (!sections.hasActions()) {
     <ims-dialog-actions [generated]="true">
       @if (confirmationMode && !readonlyMode()) {
-        <button ims-button [ims-button-severity]="effectiveSeverity" (click)="reject()">
+        <button
+          ims-button
+          ims-button-variation="secondary"
+          [ims-button-severity]="effectiveSeverity"
+          (click)="reject()"
+        >
           {{ config.confirmationLabels?.no }}
         </button>
         <button
