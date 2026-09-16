@@ -42,21 +42,23 @@ export class ImsButtonDelete extends ImsButtonBase {
 export const IMS_BUTTON_EDIT_ICON = 'ink_pen';
 
 /**
- * Edit affordance, and delete's counterpart: same shape and size, same quiet
- * rest, on the interactive ramp instead of the danger one so a row carrying
- * both reads as one pair.
+ * Edit affordance, and delete's counterpart: same shape and size, so a row
+ * carrying both reads as one pair.
  *
- * Same contract as {@link ImsButtonDelete} — visual only, glyph pinned,
- * `aria-label` overridable at the call site — except for the tone. The
- * interactive ramp is only the `info` default, so `ims-button-severity`
- * repaints this preset the way it repaints any button. The rest stays muted in
- * every severity; the tone shows under a pointer, on focus and on press.
+ * Painted as an icon button, not as a preset of its own: the host carries the
+ * same two classes `ims-button-icon` applies, so this rests, hovers, presses
+ * and takes `ims-button-severity` exactly the way one does. That is where it
+ * parts from delete, which rests quiet and pins its tone.
+ * `ims-button--edit` stays on the host as a hook and styles nothing.
+ *
+ * Otherwise the same contract as {@link ImsButtonDelete} — visual only, glyph
+ * pinned, `aria-label` overridable at the call site.
  */
 @Directive({
     selector: 'button[ims-button-edit]',
     standalone: true,
     host: {
-        class: 'ims-button-icon ims-button--edit',
+        class: 'ims-button--default ims-button-icon ims-button--edit',
         'aria-label': 'Edit',
         '[disabled]': 'interactionDisabled()'
     }

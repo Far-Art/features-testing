@@ -153,12 +153,10 @@ export abstract class ImsButtonBase {
      * the ripple, the press ring, the focus halo and the call-to-action pulse
      * all follow it without a call site arranging anything.
      *
-     * Of the row-action presets, `ims-button-edit` takes it like any other
-     * button — though it still rests muted, so the severity shows under a
-     * pointer, on focus and on press. `ims-button-delete` ignores it: that
-     * preset pins its tone for the same reason it pins its glyph — a delete
-     * looks like a delete on every screen — so the input is accepted there and
-     * does nothing.
+     * Of the row-action presets, `ims-button-edit` takes it exactly the way
+     * `ims-button-icon` does. `ims-button-delete` ignores it: that preset pins
+     * its tone for the same reason it pins its glyph — a delete looks like a
+     * delete on every screen — so the input is accepted there and does nothing.
      */
     readonly severity = input<ImsButtonSeverity>('info', {alias: 'ims-button-severity'});
 

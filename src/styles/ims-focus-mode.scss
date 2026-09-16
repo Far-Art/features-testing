@@ -85,16 +85,18 @@
 }
 
 /**
- * Give both trigger states the same quiet rest tone.
+ * Give both trigger states a quiet rest tone.
  *
- * The editable trigger is `ims-button-edit`, which rests on the muted ramp;
- * the zoom-in trigger is a plain icon button, which rests on the stronger
- * default one. They occupy the same slot and are two states of one control, so
- * a user switching between them should see the glyph change and nothing else.
+ * The editable trigger is `ims-button-edit` and the zoom-in trigger is a plain
+ * icon button. They occupy the same slot and are two states of one control, so
+ * a user switching between them should see the glyph change and nothing else —
+ * which they already do, since the edit preset is painted as an icon button.
+ * What this rule adds is the tone: both rest on the muted colour here rather
+ * than on the default ramp's stronger one.
  *
- * Only the rest colour is restated — matching the whole ramp would duplicate
- * the preset and invite exactly the drift the preset exists to prevent. The
- * selector is doubled because `ims-buttons.scss` is loaded after this file.
+ * Only the rest colour is restated; the ripple, the press tone and the focus
+ * halo still come from the button. The selector is doubled because
+ * `ims-buttons.scss` is loaded after this file.
  */
 .ims-focus-mode .ims-focus-mode__trigger {
     --ims-button-color: var(--ims-color-on-surface-muted);
