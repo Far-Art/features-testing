@@ -283,7 +283,12 @@ export class ImsButton extends ImsButtonBase {
     readonly variation = input<ImsButtonVariation>('default', {alias: 'ims-button-variation'});
 }
 
-/** Icon-only button. Give it an accessible name with `aria-label`, since there's no visible text. */
+/**
+ * Icon-only button. Give it an accessible name with `aria-label`, since there's no visible text.
+ *
+ * With a severity other than `info`, the glyph takes that severity's vivid status colour
+ * rather than the darker tone a label would, since the glyph is all the colour it has.
+ */
 @Directive({
     selector: 'button[ims-button-icon]',
     standalone: true,

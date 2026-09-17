@@ -40,7 +40,10 @@
   // that needs a different weighting say so in one place (warning does: it is
   // the one hue here that is too light to sit under white text at 600).
   // `solid*` are separate slots rather than numbers because the solid variant
-  // never tracked the ramp evenly — see --primary's hover below.
+  // never tracked the ramp evenly — see --primary's hover below. `icon*` are
+  // separate for the same reason: the glyph of an icon-only button sits at 800
+  // for `info` but at a severity's vivid status step — see the icon-button rule
+  // below.
   --ims-button-ramp-50: var(--ims-color-primary-50);
   --ims-button-ramp-100: var(--ims-color-primary-100);
   --ims-button-ramp-150: var(--ims-color-primary-150);
@@ -55,6 +58,8 @@
   --ims-button-ramp-solid-hover: var(--ims-color-primary-650);
   --ims-button-ramp-solid-active: var(--ims-color-primary-850);
   --ims-button-ramp-solid-ring: var(--ims-color-primary-600);
+  --ims-button-ramp-icon: var(--ims-color-primary-800);
+  --ims-button-ramp-icon-active: var(--ims-color-primary-900);
 
   --ims-button-background: transparent;
   --ims-button-background-hover: transparent;
@@ -241,6 +246,22 @@
   --ims-button-ring-color: var(--ims-button-ramp-450);
 }
 
+// An icon-only button has no label and, at rest, no surface — the glyph is all
+// the colour it shows. At the 800 a label uses, every hue here is dark enough
+// that a severity barely shows at glyph size. So the glyph takes the icon slots
+// instead, which put a severity on its status step — the vivid colour the
+// snackbar and tooltip use for the same word, with warning half a step darker
+// (see its block) — and keep `info` on the navy it always had.
+//
+// Held at one class by :where(). The stylesheets that restyle an icon button in
+// place — focus mode, the transfer dialog, the datepicker, the selection
+// toolbar — each outrank --default by a class or more and load before this
+// file, so anything heavier here would take their colours away.
+.ims-button--default:where(.ims-button-icon) {
+  --ims-button-color: var(--ims-button-ramp-icon);
+  --ims-button-color-active: var(--ims-button-ramp-icon-active);
+}
+
 .ims-button--primary {
   --ims-button-background: var(--ims-button-ramp-solid);
   // One step lighter than the rest of the ramp's hover tones: brand navy is the
@@ -308,6 +329,8 @@
   --ims-button-ramp-solid-hover: var(--ims-color-success-700);
   --ims-button-ramp-solid-active: var(--ims-color-success-850);
   --ims-button-ramp-solid-ring: var(--ims-color-success-500);
+  --ims-button-ramp-icon: var(--ims-color-success-600);
+  --ims-button-ramp-icon-active: var(--ims-color-success-700);
 }
 
 // The one ramp that is not read straight across. Amber at 600 is 3.5:1 under
@@ -320,6 +343,11 @@
 //
 // Same shift the dialog already makes for a warning confirm button
 // (ims-dialog.scss), so the two agree on what a warning solid looks like.
+//
+// The icon glyph moves only half a step, to 650. A glyph is a graphic, so it
+// needs 3:1 rather than text's 4.5:1: 600 clears that on white (3.5:1) but not
+// on its own hover fill (2.9:1 against 100), while 650 holds it on both (4.4:1
+// and 3.7:1) and still reads as amber.
 .ims-button--warning {
   --ims-button-ramp-50: var(--ims-color-warning-50);
   --ims-button-ramp-100: var(--ims-color-warning-100);
@@ -335,6 +363,8 @@
   --ims-button-ramp-solid-hover: var(--ims-color-warning-800);
   --ims-button-ramp-solid-active: var(--ims-color-warning-900);
   --ims-button-ramp-solid-ring: var(--ims-color-warning-500);
+  --ims-button-ramp-icon: var(--ims-color-warning-650);
+  --ims-button-ramp-icon-active: var(--ims-color-warning-750);
 }
 
 .ims-button--danger {
@@ -352,6 +382,8 @@
   --ims-button-ramp-solid-hover: var(--ims-color-danger-700);
   --ims-button-ramp-solid-active: var(--ims-color-danger-850);
   --ims-button-ramp-solid-ring: var(--ims-color-danger-500);
+  --ims-button-ramp-icon: var(--ims-color-danger-600);
+  --ims-button-ramp-icon-active: var(--ims-color-danger-700);
 }
 
 // Row actions. Presets rather than variations: the glyph is pinned by the
