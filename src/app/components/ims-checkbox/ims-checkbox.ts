@@ -15,9 +15,6 @@ import {
 import {AbstractControl, NG_VALIDATORS, ValidationErrors, Validator} from '@angular/forms';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 
-/** Matches the ripple animation duration in ims-checkbox.scss. */
-const IMS_CHECKBOX_RIPPLE_MS = 350;
-
 // The checkmark and the dash share the same SVG commands (M L L), which lets the
 // browser interpolate between them via the CSS `d` transition.
 const CHECKMARK_PATH = 'M 3.5 9.5 L 7 13 L 14.5 5.5';
@@ -52,7 +49,6 @@ interface CheckedOverride {
  */
 export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T | F>
     implements OnChanges, Validator {
-    private rippleResetHandle: ReturnType<typeof setTimeout> | null = null;
     private validatorChange: (() => void) | null = null;
 
     readonly intermediate = model(false);
@@ -102,12 +98,10 @@ export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T 
     });
     readonly svgPath = computed(() => this.intermediate() ? DASH_PATH : CHECKMARK_PATH);
     readonly animationsReady = signal(false);
-    readonly rippleActive = signal(false);
 
     constructor() {
         super();
         afterNextRender(() => this.animationsReady.set(true));
-        this.destroyRef.onDestroy(() => this.clearRipple());
     }
 
     // Re-validates in the same pass that changed the rule, as Angular's own
@@ -149,25 +143,5 @@ export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T 
 
         this.onChange(nextValue);
         this.checkedChange.emit(nextChecked);
-
-        // Ripple is feedback for the user's click, not for programmatic updates.
-        if (nextChecked) {
-            this.triggerRipple();
-        }
-    }
-
-    private triggerRipple(): void {
-        this.clearRipple();
-        this.rippleActive.set(true);
-        this.rippleResetHandle = setTimeout(() => {
-            this.rippleActive.set(false);
-            this.rippleResetHandle = null;
-        }, IMS_CHECKBOX_RIPPLE_MS);
-    }
-
-    private clearRipple(): void {
-        if (this.rippleResetHandle === null) return;
-        clearTimeout(this.rippleResetHandle);
-        this.rippleResetHandle = null;
     }
 }

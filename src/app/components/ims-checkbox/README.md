@@ -7,7 +7,7 @@ of the component contract unless a requested change explicitly replaces it.
 ## File Map
 
 - `ims-checkbox.ts`: checked-state resolution, forms integration, the user
-  toggle, `checkedChange`, and the click ripple.
+  toggle, and `checkedChange`.
 - `ims-checkbox.html`: the native checkbox, the visual track with its SVG mark,
   and the projected label.
 - `index.ts`: public exports.
@@ -86,8 +86,8 @@ assistive technology reads.
   indeterminate box fills with `--ims-color-on-surface-readonly` behind the
   white mark. The value stays readable and never looks enabled or disabled.
 - Invalid: `ng-invalid` on the host tints the box border (and the fill when
-  checked) with `--ims-color-invalid`, and the focus ring with
-  `--ims-color-invalid-focus-ring`. Disabled and readonly boxes are not
+  checked) and the hover halo with `--ims-color-invalid`, and the focus ring
+  with `--ims-color-invalid-focus-ring`. Disabled and readonly boxes are not
   tinted.
 - Required: `required` makes a bound form control invalid until the box is
   checked, meaning its value equals `trueValue`. The checkbox validates this
@@ -115,9 +115,9 @@ associates its label with the native checkbox through `id`. See
 ## Styling
 
 Classes: `.ims-checkbox-host` (host), `.ims-checkbox`, `.ims-checkbox__native`,
-`.ims-checkbox__track`, `.ims-checkbox__ripple`, `.ims-checkbox__icon`,
-`.ims-checkbox__mark`, `.ims-checkbox__label`, plus the component-state
-modifiers `.ims-checkbox--animations-ready` and `.ims-checkbox--ripple`.
+`.ims-checkbox__track`, `.ims-checkbox__icon`, `.ims-checkbox__mark`,
+`.ims-checkbox__label`, plus the component-state modifier
+`.ims-checkbox--animations-ready`.
 
 The host is `inline-flex`, and `.ims-checkbox` is at least `--field-height`
 (26px) tall with the box centered in it, so a checkbox lines up with the inputs
@@ -130,9 +130,24 @@ Colors use semantic tokens only: `--ims-color-border`,
 `--ims-checkbox-size` (outer size, border included), declared on `:root` in
 `ims-checkbox.scss`.
 
-Transitions start only after the first render, so an initially checked box does
-not animate in. `prefers-reduced-motion: reduce` removes transitions and the
-ripple.
+The track rounds that size to whole pixels with CSS `round()`. On a low-DPI
+screen a fractional size, from a rem under a non-16px root or from browser zoom,
+would snap to a box a pixel wider than it is tall and move the mark off center.
+The rounding sits behind `@supports (width: round(1.5px, 1px))`. Without that
+guard, a browser lacking `round()` would compute the width to `auto` and
+collapse the box. Such a browser keeps the unrounded size.
+
+Hover turns the border to the accent and paints a 3px outline halo in an 18% tint
+of it, or of `--ims-color-invalid` on an invalid box. The halo is drawn with
+`outline`, so it costs no layout. A focused box shows its focus ring instead of
+the halo, since both sit in the same place. Hovering an associated
+`ims-form-field` label hovers the box through the label's `for`. The hover
+matches `ims-radio`.
+
+Motion is kept cheap for machines without a GPU, where the CPU paints every
+transformed frame: there is no hover scale and no click ripple. Transitions
+start only after the first render, so an initially checked box does not animate
+in. `prefers-reduced-motion: reduce` removes transitions.
 
 ## Safe Change Guide
 
@@ -141,11 +156,15 @@ ripple.
 - If you change `--ims-checkbox-size`, the form-field label offset follows it.
   A size that ignores the variable breaks direct-checkbox alignment in
   `ims-form-field`.
+- Keep the track size and the `ims-form-field` label offset rounded the same
+  way. If only one of them is rounded, the label sits a fraction of a pixel off
+  the box.
 - Keep `--ims-checkbox-size` on `:root`. The field label is a sibling of the
   checkbox host, so a variable declared on `.ims-checkbox` or the host never
   reaches it, and the label ends up on top of the box.
-- Keep the ripple duration in `ims-checkbox.scss` and `IMS_CHECKBOX_RIPPLE_MS`
-  equal.
+- Do not add scale, ripple, or other transform animations to hover or toggle.
+  The target machines have no GPU; use color, border, or outline changes
+  instead.
 - The checkmark and dash paths must keep the same command structure (`M L L`),
   or the `d` morph stops interpolating.
 - Emit `checkedChange` only from user interaction. Programmatic updates flow

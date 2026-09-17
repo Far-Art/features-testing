@@ -64,40 +64,39 @@
     height: var(--ims-checkbox-size);
     border: 2px solid var(--ims-color-border);
     border-radius: 0.3rem;
+    // The hover halo. Always present and transparent at rest, so hover only
+    // changes its color and never the layout.
+    outline: 3px solid transparent;
+    outline-offset: 0;
     background: transparent;
     // The mark strokes with currentColor, so this is the mark color.
     color: transparent;
 }
 
+// Whole pixels. On a low-DPI screen a fractional size (a rem under a
+// non-16px root, or browser zoom) snaps to a box a pixel wider than it is tall,
+// and shifts the mark inside it off center. Behind @supports: without round(),
+// this declaration would compute to `auto` and collapse the empty track.
+// ims-form-field rounds its label offset the same way.
+@supports (width: round(1.5px, 1px)) {
+    .ims-checkbox__track {
+        width: round(var(--ims-checkbox-size), 1px);
+        height: round(var(--ims-checkbox-size), 1px);
+    }
+}
+
 // Transitions wait for the first render, so a checkbox that starts checked
 // appears checked instead of animating into it.
+//
+// The machines these controls run on have no GPU, and the CPU paints every
+// transformed frame. So hover draws an outline halo rather than scaling, and
+// there is no click ripple, as in ims-radio.scss.
 .ims-checkbox--animations-ready .ims-checkbox__track {
     transition:
         background-color var(--ims-checkbox-duration) var(--ims-checkbox-ease),
         border-color var(--ims-checkbox-duration) var(--ims-checkbox-ease),
-        color var(--ims-checkbox-duration) var(--ims-checkbox-ease),
-        transform 120ms var(--ims-checkbox-ease);
-}
-
-// Larger than the track and not clipped by it, so it bleeds outward. Centered
-// with physical offsets and a physical translate, which cancel out in either
-// direction.
-.ims-checkbox__ripple {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: calc(var(--ims-checkbox-size) * 2);
-    height: calc(var(--ims-checkbox-size) * 2);
-    border-radius: 50%;
-    background: color-mix(in oklab, var(--ims-color-interactive) 18%, transparent);
-    transform: translate(-50%, -50%) scale(0);
-    opacity: 0;
-    pointer-events: none;
-}
-
-// Duration matches IMS_CHECKBOX_RIPPLE_MS in ims-checkbox.ts.
-.ims-checkbox--animations-ready.ims-checkbox--ripple .ims-checkbox__ripple {
-    animation: ims-checkbox-ripple 350ms ease-out forwards;
+        outline-color var(--ims-checkbox-duration) var(--ims-checkbox-ease),
+        color var(--ims-checkbox-duration) var(--ims-checkbox-ease);
 }
 
 .ims-checkbox__icon {
@@ -138,7 +137,12 @@
 
 .ims-checkbox__native:not(:disabled):hover + .ims-checkbox__track {
     border-color: var(--ims-color-interactive);
-    transform: scale(1.06);
+}
+
+// The halo sits where the focus ring does and would paint over it, so a
+// focused box keeps its focus ring instead.
+.ims-checkbox__native:not(:disabled):not(:focus-visible):hover + .ims-checkbox__track {
+    outline-color: color-mix(in srgb, var(--ims-color-interactive) 18%, transparent);
 }
 
 .ims-checkbox__native:focus-visible + .ims-checkbox__track {
@@ -196,32 +200,16 @@
     background: var(--ims-color-invalid);
 }
 
-.ims-checkbox-host.ng-invalid .ims-checkbox__native:focus-visible + .ims-checkbox__track {
-    box-shadow: 0 0 0 3px var(--ims-color-invalid-focus-ring);
+.ims-checkbox-host.ng-invalid .ims-checkbox__native:not(:disabled):not(:focus-visible):hover + .ims-checkbox__track {
+    outline-color: color-mix(in srgb, var(--ims-color-invalid) 18%, transparent);
 }
 
-@keyframes ims-checkbox-ripple {
-    0% {
-        transform: translate(-50%, -50%) scale(0.5);
-        opacity: 1;
-    }
-
-    60% {
-        opacity: 0.6;
-    }
-
-    100% {
-        transform: translate(-50%, -50%) scale(1);
-        opacity: 0;
-    }
+.ims-checkbox-host.ng-invalid .ims-checkbox__native:focus-visible + .ims-checkbox__track {
+    box-shadow: 0 0 0 3px var(--ims-color-invalid-focus-ring);
 }
 
 @media (prefers-reduced-motion: reduce) {
     .ims-checkbox--animations-ready :is(.ims-checkbox__track, .ims-checkbox__mark) {
         transition: none;
-    }
-
-    .ims-checkbox--animations-ready.ims-checkbox--ripple .ims-checkbox__ripple {
-        animation: none;
     }
 }
