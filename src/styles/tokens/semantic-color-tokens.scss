@@ -41,6 +41,8 @@
     --ims-color-border: var(--ims-color-neutral-400);
     // Low-emphasis divider/border (list separators, disabled borders).
     --ims-color-border-subtle: var(--ims-color-neutral-150);
+    // Readonly border for controls drawn only by their border (checkbox).
+    --ims-color-border-readonly: var(--ims-color-neutral-200);
 
     // Border and indicator color for invalid form controls.
     --ims-color-invalid: var(--ims-color-danger-600);

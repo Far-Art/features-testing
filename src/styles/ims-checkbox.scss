@@ -181,10 +181,11 @@
 
 // Readable disabled treatment, see component-styling-guide.md. The input is
 // disabled whenever the host sits in an ims-readonly scope. Unlike a disabled
-// box it keeps the regular border, so an unchecked box stays visible, and a
-// checked box fills with the readonly text color in place of the accent.
+// box it keeps a readonly border, lighter than the regular one but darker than
+// a field's subtle border, so an unchecked box stays visible; a checked box
+// fills with the readonly text color in place of the accent.
 .ims-checkbox-host.ims-readonly .ims-checkbox__native:disabled + .ims-checkbox__track {
-    border-color: var(--ims-color-border);
+    border-color: var(--ims-color-border-readonly);
     background: var(--ims-color-surface-input-readonly);
 }
 
