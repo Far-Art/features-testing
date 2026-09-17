@@ -18,8 +18,29 @@ export const IMS_FORMAT_DEFAULT = '#,###';
 /** The shape money is always shown in. */
 export const IMS_CURRENCY_FORMAT = '#,###.##';
 
-/** The symbol `imsFormatCurrency` appends when it is not given one. */
+/** The symbol `imsFormatCurrency` shows, when it shows one, if it is not given one. */
 export const IMS_CURRENCY_DEFAULT = '₪';
+
+/** Text placed around a formatted number. */
+export interface ImsFormatAffixes {
+  readonly prefix?: string;
+  readonly suffix?: string;
+}
+
+/** Spellings of the shekel, which is written before the number rather than after it. */
+const SHEKEL_SYMBOLS = new Set(['₪', 'ILS']);
+
+/**
+ * Where a currency symbol goes: the shekel in front — `₪ 5,000.00` — and every other symbol after
+ * the number — `5,000.00 $`. An empty symbol means `IMS_CURRENCY_DEFAULT`.
+ */
+export const currencyAffixes = (symbol: string): ImsFormatAffixes => {
+  const resolved = symbol || IMS_CURRENCY_DEFAULT;
+
+  return SHEKEL_SYMBOLS.has(resolved.toUpperCase())
+    ? { prefix: `${resolved} ` }
+    : { suffix: ` ${resolved}` };
+};
 
 /**
  * The grouped token that shows exactly `fractionDigits` decimals: `#,###.##` for two, `#,###` for
@@ -110,12 +131,12 @@ const formatterFor = (grouping: boolean, fractionDigits: number): Intl.NumberFor
 
 /**
  * Strips a displayed value back to the characters a number is made of, removing grouping
- * separators, a currency symbol and the space in front of it in one pass.
+ * separators, a currency symbol and the space beside it in one pass.
  */
 export const unformatNumeric = (text: string): string => text.replace(/[^0-9.-]/g, '');
 
 /**
- * Renders `value` in the shape `token` describes, with `suffix` appended.
+ * Renders `value` in the shape `token` describes, with `prefix` in front and `suffix` after it.
  *
  * A token that fixes the fraction — `#,###.##` — pads and rounds to that many digits. A token
  * that does not — `#,###` — only groups, and leaves every decimal the value carries in place.
@@ -124,17 +145,25 @@ export const unformatNumeric = (text: string): string => text.replace(/[^0-9.-]/
  * half-typed `-`, and a value the application wrote in some other notation are all left exactly
  * as they are rather than being coerced into a zero.
  *
- * Idempotent — an already formatted value has its suffix and grouping removed before it is
+ * Idempotent — an already formatted value has its affixes and grouping removed before it is
  * measured, so formatting twice is formatting once.
  */
-export function formatNumeric(value: string, token: string, suffix = ''): string {
+export function formatNumeric(
+  value: string,
+  token: string,
+  { prefix = '', suffix = '' }: ImsFormatAffixes = {},
+): string {
   const text = value.trim();
 
   if (text === '') {
     return value;
   }
 
-  const body = suffix !== '' && text.endsWith(suffix) ? text.slice(0, -suffix.length).trim() : text;
+  const unprefixed = prefix !== '' && text.startsWith(prefix.trim()) ? text.slice(prefix.trim().length) : text;
+  const body =
+    suffix !== '' && unprefixed.endsWith(suffix.trim())
+      ? unprefixed.slice(0, -suffix.trim().length).trim()
+      : unprefixed.trim();
 
   if (!NUMERIC_TEXT.test(body)) {
     return value;
@@ -150,5 +179,5 @@ export function formatNumeric(value: string, token: string, suffix = ''): string
   const shape = shapeOf(token) ?? DEFAULT_SHAPE;
   const fractionDigits = shape.fractionDigits ?? fractionDigitsOf(numeric);
 
-  return formatterFor(shape.grouping, fractionDigits).format(number) + suffix;
+  return prefix + formatterFor(shape.grouping, fractionDigits).format(number) + suffix;
 }

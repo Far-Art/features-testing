@@ -8,8 +8,9 @@ export {
   IMS_CURRENCY_DEFAULT,
   IMS_CURRENCY_FORMAT,
   IMS_FORMAT_DEFAULT,
+  currencyAffixes,
   formatNumeric,
   groupedToken,
   unformatNumeric,
 } from './ims-format';
-export type { ImsFormatToken } from './ims-format';
+export type { ImsFormatAffixes, ImsFormatToken } from './ims-format';

@@ -29,6 +29,7 @@ interface TokenCard {
 interface CurrencyCard {
   readonly title: string;
   readonly symbol: string;
+  readonly showSymbol: boolean;
   readonly source: string;
   readonly seed: string;
   readonly hint: string;
@@ -104,25 +105,36 @@ export class FormatDemo {
 
   readonly currencyCards: readonly CurrencyCard[] = [
     {
-      title: 'שקל · ברירת מחדל',
+      title: 'ברירת מחדל · בלי סימן',
       symbol: '',
+      showSymbol: false,
       source: 'imsFormatCurrency',
       seed: '1234.5',
-      hint: 'התכונה לבדה מספיקה: #,###.## ואחריו ₪.',
+      hint: 'התכונה לבדה מציגה רק #,###.##, בלי סימן מטבע.',
+    },
+    {
+      title: 'שקל',
+      symbol: '',
+      showSymbol: true,
+      source: 'imsFormatCurrency showSymbol',
+      seed: '1234.5',
+      hint: 'showSymbol מוסיף את הסימן, ובלי ערך לתכונה הוא ₪ — ושקל נכתב לפני המספר.',
     },
     {
       title: 'דולר',
       symbol: '$',
-      source: 'imsFormatCurrency="$"',
+      showSymbol: true,
+      source: 'imsFormatCurrency="$" showSymbol',
       seed: '1234.5',
       hint: 'ערך התכונה הוא הסימן. הצורה המספרית לא משתנה.',
     },
     {
       title: 'אירו',
       symbol: '€',
-      source: 'imsFormatCurrency="€"',
+      showSymbol: true,
+      source: 'imsFormatCurrency="€" showSymbol',
       seed: '99',
-      hint: 'כל סימן הוא טקסט רגיל שנוסף בסוף, בלי סימני כיווניות נסתרים.',
+      hint: 'כל סימן שאינו שקל נוסף בסוף, כטקסט רגיל בלי סימני כיווניות נסתרים.',
     },
   ];
 

@@ -1,5 +1,6 @@
 import {
   DestroyRef,
+  booleanAttribute,
   Directive,
   ElementRef,
   OnInit,
@@ -13,17 +14,18 @@ import {
 import { NgControl } from '@angular/forms';
 import { ImsPatternDirective } from '../ims-pattern.directive';
 import {
-  IMS_CURRENCY_DEFAULT,
   IMS_CURRENCY_FORMAT,
+  type ImsFormatAffixes,
   type ImsFormatToken,
+  currencyAffixes,
   formatNumeric,
   groupedToken,
 } from './ims-format';
 
 type ImsFormatElement = HTMLInputElement | HTMLTextAreaElement;
 
-/** Shared by every field that appends nothing after the number. */
-const NO_SUFFIX = signal('').asReadonly();
+/** Shared by every field that shows nothing around the number. */
+const NO_AFFIXES = signal<ImsFormatAffixes>({}).asReadonly();
 
 /**
  * The machinery both formatting directives are built from.
@@ -43,8 +45,8 @@ export abstract class ImsFormatBase implements OnInit {
   /** The `#` token the display is built from. */
   protected abstract readonly token: Signal<string>;
 
-  /** Text appended after the number, empty when there is none. */
-  protected readonly suffix: Signal<string> = NO_SUFFIX;
+  /** Text shown before and after the number, none by default. */
+  protected readonly affixes: Signal<ImsFormatAffixes> = NO_AFFIXES;
 
   private readonly element = inject<ElementRef<ImsFormatElement>>(ElementRef).nativeElement;
   private readonly ngControl = inject(NgControl, { optional: true, self: true });
@@ -62,7 +64,7 @@ export abstract class ImsFormatBase implements OnInit {
     // A token or symbol that changes while the field sits at rest has to reach the display.
     effect(() => {
       this.token();
-      this.suffix();
+      this.affixes();
       this.showFormatted();
     });
   }
@@ -95,7 +97,7 @@ export abstract class ImsFormatBase implements OnInit {
       return;
     }
 
-    this.write(formatNumeric(this.raw, this.token(), this.suffix()));
+    this.write(formatNumeric(this.raw, this.token(), this.affixes()));
   }
 
   /**
@@ -177,15 +179,18 @@ export class ImsFormatDirective extends ImsFormatBase {
 }
 
 /**
- * The same field, shown as money: `#,###.##` with a currency symbol appended.
+ * The same field, shown as money: `#,###.##`, with a currency symbol only when `showSymbol` asks
+ * for one.
  *
- * The symbol is the attribute's own value and defaults to `₪`. It is appended as plain text
+ * The symbol is the attribute's own value and defaults to `₪`. The shekel goes in front of the
+ * number — `₪ 5,000.00` — and any other symbol after it — `5,000.00 $`. It is added as plain text
  * rather than produced by `Intl`, which would wrap it in `U+200F` bidi marks — invisible
  * characters that would sit inside an editable field and travel with everything copied out of it.
  *
  * ```html
- * <input imsFormatCurrency />
- * <input imsFormatCurrency="$" [(ngModel)]="price" />
+ * <input imsFormatCurrency />                                    → 5,000.00
+ * <input imsFormatCurrency showSymbol />                         → ₪ 5,000.00
+ * <input imsFormatCurrency="$" showSymbol [(ngModel)]="price" /> → 5,000.00 $
  * ```
  */
 @Directive({
@@ -193,10 +198,15 @@ export class ImsFormatDirective extends ImsFormatBase {
   standalone: true,
 })
 export class ImsFormatCurrencyDirective extends ImsFormatBase {
-  /** The symbol to append. Absent — the bare attribute — means `₪`. */
+  /** The symbol to show. Absent — the bare attribute — means `₪`. */
   readonly symbol = input<string>('', { alias: 'imsFormatCurrency' });
+
+  /** Whether the symbol is shown at all. Absent means the bare number. */
+  readonly showSymbol = input(false, { transform: booleanAttribute });
 
   protected readonly token = signal(IMS_CURRENCY_FORMAT).asReadonly();
 
-  protected override readonly suffix = computed(() => ` ${this.symbol() || IMS_CURRENCY_DEFAULT}`);
+  protected override readonly affixes = computed(() =>
+    this.showSymbol() ? currencyAffixes(this.symbol()) : {},
+  );
 }

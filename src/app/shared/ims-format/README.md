@@ -21,7 +21,8 @@ export class InvoiceForm {}
 <input imsFormat />
 <input imsFormat="#,###.##" [(ngModel)]="amount" />
 <input imsFormatCurrency />
-<input imsFormatCurrency="$" [formControl]="price" />
+<input imsFormatCurrency showSymbol />
+<input imsFormatCurrency="$" showSymbol [formControl]="price" />
 ```
 
 ## The value contract
@@ -30,7 +31,7 @@ export class InvoiceForm {}
 
 | Moment | The field shows | The control holds |
 | --- | --- | --- |
-| at rest | `1,234.56 ₪` | `1234.56` |
+| at rest | `1,234.56` (`₪ 1,234.56` with `showSymbol`) | `1234.56` |
 | focused | `1234.56` | `1234.56` |
 | being typed | what was typed | what was typed |
 
@@ -47,7 +48,8 @@ source of truth and the display stays derived — there is no second copy to fal
 | Attribute | Type | Default | Meaning |
 | --- | --- | --- | --- |
 | `imsFormat` | `ImsFormatToken` | the shape of an `imsPattern` beside it, else `'#,###'` | The shape to show. The bare attribute, with no value, reads the guard on the same field. |
-| `imsFormatCurrency` | `string` | `'₪'` | The symbol to append. The number is always `#,###.##`. |
+| `imsFormatCurrency` | `string` | `'₪'` | The symbol to show when `showSymbol` is set. The number is always `#,###.##`. |
+| `showSymbol` | `boolean` | `false` | Shows the currency symbol. Without it the field shows the bare `#,###.##`. |
 
 The two are separate directives, not two spellings of one. A currency field needs only
 `imsFormatCurrency`.
@@ -78,9 +80,11 @@ and `#,###.###` need no new entry. A token that does not parse falls back to `#,
 
 ## Currency
 
-`imsFormatCurrency` appends its symbol as plain text rather than going through `Intl`. On `he-IL`,
+By default the `imsFormatCurrency` directive shows only the number. With `showSymbol` it adds its
+symbol: the shekel (`₪` or `ILS`) goes **before** the number — `₪ 5,000.00` — and every other symbol
+after it — `5,000.00 $`. The symbol is added as plain text rather than going through `Intl`. On `he-IL`,
 `Intl` produces `‏1,234.56 ‏₪` — two `U+200F` bidi marks that would sit invisibly inside an editable
-field and travel with everything copied out of it. The appended form is `1,234.56 ₪`, and nothing
+field and travel with everything copied out of it. The plain form is `₪ 1,234.56`, and nothing
 else.
 
 Formatting is pinned to `en-US` for the same reason of round-tripping: the separators must stay `,`
@@ -96,9 +100,13 @@ same `formatNumeric` the directives call, so the two can never disagree.
 ```html
 {{ total | imsFormat }}
 {{ total | imsFormat: '#,###.##' }}
-{{ premium | imsFormatCurrency }}
-{{ premium | imsFormatCurrency: '$' }}
+{{ premium | imsFormatCurrency }}              <!-- ₪ 1,234.56 -->
+{{ premium | imsFormatCurrency: '$' }}         <!-- 1,234.56 $ -->
+{{ premium | imsFormatCurrency: '' : false }}  <!-- 1,234.56 -->
 ```
+
+Unlike the directive, the currency pipe **shows the symbol by default**. Its second argument is the
+symbol, and its third, `false`, hides it.
 
 Both accept `number | string | null | undefined`; `null` and `undefined` render as an empty string.
 

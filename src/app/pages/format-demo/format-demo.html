@@ -61,6 +61,7 @@
           #currencyField
           imsInput
           imsFormatCurrency
+          showSymbol
           dir="ltr"
           autocomplete="off"
           placeholder="1234.5"
@@ -113,7 +114,7 @@
       <p class="format-demo__eyebrow">Currency</p>
       <h2 id="format-currency-title">מטבע היא דירקטיבה נפרדת</h2>
       <p>
-        <code>imsFormatCurrency</code> קובעת <code dir="ltr">#,###.##</code> ומוסיפה סימן בסוף.
+        <code>imsFormatCurrency</code> קובעת <code dir="ltr">#,###.##</code>, ועם <code dir="ltr">showSymbol</code> גם מוסיפה סימן: שקל לפני המספר, כל סימן אחר אחריו.
         הסימן נוסף כטקסט רגיל ולא דרך <code>Intl</code>, שהיה עוטף אותו בסימני
         <code dir="ltr">U+200F</code> — תווים בלתי נראים שהיו יושבים בתוך שדה עריכה ונוסעים עם כל
         העתקה ממנו.
@@ -130,6 +131,7 @@
             dir="ltr"
             autocomplete="off"
             [imsFormatCurrency]="card.symbol"
+            [showSymbol]="card.showSymbol"
             [value]="card.seed"
           />
           <p>{{ card.hint }}</p>
