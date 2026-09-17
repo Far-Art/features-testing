@@ -44,7 +44,7 @@ interface ImsSelectionToolbarSegment {
                 [disabled]="editDisabled()"
                 (click)="editRequested.emit()"
             >
-                <ims-icon>edit</ims-icon>
+                <ims-icon>edit_square</ims-icon>
             </button>
         }
 
@@ -99,10 +99,13 @@ export class ImsSelectionToolbar {
     protected readonly segments = computed<readonly ImsSelectionToolbarSegment[]>(() => {
         const labels = this.labels();
 
+        // One checkbox family, so the segments read as a set: checked and empty
+        // boxes for the two halves, and the mixed box for both together. The edit
+        // action's `edit_square` shares the same frame.
         return [
-            {mode: 'all', icon: 'list', label: labels.showAll},
-            {mode: 'selected', icon: 'check', label: labels.showSelected},
-            {mode: 'unselected', icon: 'crop_square', label: labels.showUnselected}
+            {mode: 'all', icon: 'indeterminate_check_box', label: labels.showAll},
+            {mode: 'selected', icon: 'check_box', label: labels.showSelected},
+            {mode: 'unselected', icon: 'check_box_outline_blank', label: labels.showUnselected}
         ];
     });
 }

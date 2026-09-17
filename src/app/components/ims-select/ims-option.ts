@@ -40,8 +40,12 @@ export class ImsOption<T = unknown> implements AfterViewInit, OnDestroy, ImsSele
     });
     private mutationObserver: MutationObserver | null = null;
 
-    /** Value emitted by the parent select when this option is selected. */
-    readonly value = input.required<T>();
+    /**
+     * Value emitted by the parent select when this option is selected.
+     * Also accepts a plain string attribute (`value="active"`); the IDE only
+     * allows static attributes on inputs whose write type accepts `string`.
+     */
+    readonly value = input.required<T, T | string>({transform: (value) => value as T});
 
     /**
      * Text used in the collapsed select field and default filtering.

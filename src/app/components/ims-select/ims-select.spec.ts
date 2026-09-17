@@ -1,4 +1,4 @@
-import {ApplicationRef, ChangeDetectionStrategy, Component} from '@angular/core';
+import {ApplicationRef, ChangeDetectionStrategy, Component, signal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {By} from '@angular/platform-browser';
@@ -40,6 +40,25 @@ class SelectHost {
     readonly plain = new FormControl<Bag | null>(BAGS[1]);
 
     readonly compareById = (first: Bag, second: Bag) => first?.id === second?.id;
+}
+
+@Component({
+    imports: [ImsOption, ImsSelect],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    template: `
+        <ims-select multiple>
+            @for (option of optionIds(); track option) {
+                <ims-option [value]="option">Option {{ option }}</ims-option>
+            }
+        </ims-select>
+    `
+})
+class MultipleSelectHost {
+    readonly optionIds = signal<readonly number[]>([]);
+
+    showOptions(count: number): void {
+        this.optionIds.set(Array.from({length: count}, (_, index) => index + 1));
+    }
 }
 
 describe('ImsSelect', () => {
@@ -117,6 +136,99 @@ describe('ImsSelect', () => {
         expect(select('plain').open()).toBe(false);
     });
 
+    it('hands focus back to the trigger on Tab from the open panel, before the browser moves it', async () => {
+        pressKey(trigger('plain'), {key: 'ArrowDown', altKey: true});
+        await settle(fixture);
+
+        const listbox = document.querySelector<HTMLElement>('.cdk-overlay-container .ims-select__listbox')!;
+        const tab = new KeyboardEvent('keydown', {key: 'Tab', bubbles: true, cancelable: true});
+        listbox.dispatchEvent(tab);
+
+        // Checked synchronously: the browser's own Tab runs right after dispatch.
+        expect(document.activeElement).toBe(trigger('plain'));
+        expect(tab.defaultPrevented).toBe(false);
+        expect(select('plain').open()).toBe(false);
+    });
+
+    it('tabs through the toolbar before Tab leaves the panel', async () => {
+        const multipleFixture = TestBed.createComponent(MultipleSelectHost);
+        const multipleSelect: ImsSelect<number> = multipleFixture.debugElement
+            .query(By.directive(ImsSelect)).componentInstance;
+        const multipleTrigger = multipleFixture.nativeElement.querySelector('.ims-select__trigger') as HTMLButtonElement;
+        multipleFixture.componentInstance.showOptions(10);
+        await settle(multipleFixture);
+
+        pressKey(multipleTrigger, {key: 'ArrowDown', altKey: true});
+        await settle(multipleFixture);
+
+        const listbox = document.querySelector<HTMLElement>('.cdk-overlay-container .ims-select__listbox')!;
+        const buttons = [...document.querySelectorAll<HTMLButtonElement>(
+            '.cdk-overlay-container .ims-selection-toolbar button:not(:disabled)'
+        )];
+        expect(buttons.length).toBeGreaterThan(1);
+
+        const fromListbox = tabFrom(listbox);
+        expect(fromListbox.defaultPrevented).toBe(true);
+        expect(document.activeElement).toBe(buttons[0]);
+
+        tabFrom(buttons[0], true);
+        expect(document.activeElement).toBe(listbox);
+
+        for (const button of buttons.slice(0, -1)) {
+            tabFrom(button);
+        }
+        expect(document.activeElement).toBe(buttons.at(-1));
+        expect(multipleSelect.open()).toBe(true);
+
+        const pastLast = tabFrom(buttons.at(-1)!);
+        expect(pastLast.defaultPrevented).toBe(false);
+        expect(document.activeElement).toBe(multipleTrigger);
+        expect(multipleSelect.open()).toBe(false);
+
+        multipleFixture.destroy();
+    });
+
+    it('returns focus to the options with one active after switching the view', async () => {
+        const multipleFixture = TestBed.createComponent(MultipleSelectHost);
+        const multipleSelect: ImsSelect<number> = multipleFixture.debugElement
+            .query(By.directive(ImsSelect)).componentInstance;
+        multipleFixture.componentInstance.showOptions(10);
+        await settle(multipleFixture);
+
+        pressKey(multipleFixture.nativeElement.querySelector('.ims-select__trigger'), {key: 'ArrowDown', altKey: true});
+        await settle(multipleFixture);
+
+        const unselectedSegment = [...document.querySelectorAll<HTMLButtonElement>(
+            '.cdk-overlay-container .ims-selection-toolbar__segment'
+        )].find((button) => button.getAttribute('aria-label') === multipleSelect.effectiveLabels().showUnselected)!;
+        unselectedSegment.focus();
+        unselectedSegment.click();
+        await settle(multipleFixture);
+
+        expect(multipleSelect.viewMode()).toBe('unselected');
+        expect(document.activeElement).toBe(document.querySelector('.cdk-overlay-container .ims-select__listbox'));
+        expect(multipleSelect.activeOption()?.value()).toBe(1);
+
+        multipleFixture.destroy();
+    });
+
+    it('shows the auto toolbar from 10 options, before the auto filter', async () => {
+        const multipleFixture = TestBed.createComponent(MultipleSelectHost);
+        const multipleSelect: ImsSelect<number> = multipleFixture.debugElement
+            .query(By.directive(ImsSelect)).componentInstance;
+
+        multipleFixture.componentInstance.showOptions(9);
+        await settle(multipleFixture);
+        expect(multipleSelect.showToolbar()).toBe(false);
+
+        multipleFixture.componentInstance.showOptions(10);
+        await settle(multipleFixture);
+        expect(multipleSelect.showToolbar()).toBe(true);
+        expect(multipleSelect.showFilter()).toBe(false);
+
+        multipleFixture.destroy();
+    });
+
     function hostElement(name: string): HTMLElement {
         return fixture.debugElement.query(By.css(`[data-test="${name}"]`)).nativeElement;
     }
@@ -141,4 +253,11 @@ async function settle(fixture: ComponentFixture<unknown>): Promise<void> {
 
 function pressKey(target: HTMLElement, init: KeyboardEventInit): void {
     target.dispatchEvent(new KeyboardEvent('keydown', {bubbles: true, cancelable: true, ...init}));
+}
+
+/** Presses Tab on an element and returns the event, to check whether the browser's own move was left to run. */
+function tabFrom(target: HTMLElement, shiftKey = false): KeyboardEvent {
+    const event = new KeyboardEvent('keydown', {key: 'Tab', shiftKey, bubbles: true, cancelable: true});
+    target.dispatchEvent(event);
+    return event;
 }

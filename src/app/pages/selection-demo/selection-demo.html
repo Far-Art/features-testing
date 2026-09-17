@@ -23,7 +23,8 @@
             >
                 @for (bag of bagOptions(); track bag.id) {
                     <ims-option [value]="bag" [selectionText]="bag.label" [disabled]="!!bag.disabled">
-                        {{ bag.label }} (+{{ bag.count }})
+                        {{ bag.label }}
+                        <span class="select-demo__option-count">(+{{ bag.count }})</span>
                     </ims-option>
                 }
             </ims-select>

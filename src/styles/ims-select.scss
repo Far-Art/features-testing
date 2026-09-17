@@ -5,6 +5,12 @@
 .ims-select-host {
     // Anchors the clear button, which sits over the trigger as its sibling.
     position: relative;
+    // The trigger is the host's only in-flow child, so as a grid item it
+    // stretches to a `height` or `min-height` set on the host. The zero track
+    // minimum keeps a long value from widening the host past its own width,
+    // where the value would otherwise stop truncating.
+    display: inline-grid;
+    grid-template-columns: minmax(0, 1fr);
 }
 
 .ims-select__trigger {
@@ -12,7 +18,10 @@
     align-items: center;
     gap: 0.5rem;
     inline-size: 100%;
-    block-size: var(--field-height);
+    // A floor, not a fixed size, so a taller host stretches the trigger with it.
+    // Set --field-height instead to make the select shorter.
+    block-size: auto;
+    min-block-size: var(--field-height);
     padding: 0 0.65rem;
     color: inherit;
     cursor: pointer;
@@ -23,6 +32,13 @@
     outline: none;
 }
 
+// The menu grows past the trigger's width to fit its options, but stops at the
+// viewport less the overlay's 8px margin on each side. An option wider than
+// that is clipped instead of pushing the menu off screen.
+.ims-select__menu {
+    max-inline-size: calc(100vw - 16px);
+}
+
 .ims-select__listbox {
     box-sizing: border-box;
     contain: layout style;
@@ -31,6 +47,31 @@
     padding: 0.25rem 0;
     scrollbar-gutter: stable both-edges;
     view-transition-name: ims-select-options-view;
+}
+
+// Names the view mode narrowing the options. It is the listbox's first row
+// rather than a row of the menu, so switching modes never changes the panel's
+// height, and sticky so it stays in view over the scrolling options.
+.ims-select__view-caption {
+    position: sticky;
+    // Sticks over the listbox's block padding too, so no sliver of a scrolled
+    // option shows above it.
+    inset-block-start: -0.25rem;
+    z-index: 1;
+    padding: 0.2rem 0.75rem;
+    // Warning tones, as the snackbar's warning variant uses them: the list is
+    // missing options, and the caption says so.
+    border-block-end: 1px solid var(--ims-color-status-warning-border);
+    background: var(--ims-color-status-warning-subtle);
+    color: var(--ims-color-on-status-warning);
+    font-size: 0.75rem;
+    font-weight: var(--ims-font-weight-semibold);
+    white-space: nowrap;
+}
+
+// Keeps keyboard navigation from scrolling the active option under the caption.
+.ims-select__listbox:has(> .ims-select__view-caption) {
+    scroll-padding-block-start: 1.75rem;
 }
 
 .ims-option {

@@ -215,15 +215,20 @@
 
 .ims-option,
 .ims-autocomplete__option {
+    // The checkmark's box and the gap before it. Every option reserves them, so
+    // selecting one never changes the row's width.
+    --ims-option-check-space: calc(0.35rem + 1.5px + 0.5rem);
+
+    position: relative;
     display: flex;
     align-items: center;
     box-sizing: border-box;
     padding: 0.2rem 0.5rem;
+    padding-inline-end: calc(0.5rem + var(--ims-option-check-space));
     border-block: 0.0625rem solid transparent;
     border-radius: 0.375rem;
     background-clip: padding-box;
     color: inherit;
-    font-size: 0.875rem;
     cursor: pointer;
     white-space: nowrap;
     user-select: none;
@@ -244,18 +249,26 @@
 .ims-option.ims-option--selected::after,
 .ims-autocomplete__option.ims-autocomplete__option--selected::after {
     content: "";
-    flex: 0 0 auto;
+    // Pinned to the row's end edge, out of the flex flow, in the space the option
+    // reserves for it. The row's free space then stays with the option's content:
+    // an item there given `margin-inline-start: auto`, such as a count, sits
+    // beside the checkmark instead of halfway to it.
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 0.5rem;
     width: 0.35rem;
     height: 0.6rem;
-    margin-inline-start: auto;
+    margin-block: auto;
     border-right: 1.5px solid currentColor;
     border-bottom: 1.5px solid currentColor;
     rotate: 45deg;
 }
 
+// Comes after the selected rule, so a selected option that is disabled turns
+// neutral too, checkmark included.
 .ims-option.ims-option--disabled,
 .ims-autocomplete__option.ims-autocomplete__option--disabled {
-    opacity: 0.45;
+    color: var(--ims-color-on-surface-disabled);
     cursor: not-allowed;
 }
 
@@ -309,8 +322,11 @@
     block-size: 2rem;
 }
 
+// Always outlined, the active segment included, so the checkbox family keeps
+// one stroke style. The two classes outrank `.ims-icon--filled`.
 .ims-selection-toolbar__action .ims-icon {
     --ims-icon-size: 1.125rem;
+    --ims-icon-fill: 0;
 }
 
 .ims-button.ims-selection-toolbar__segment.ims-selection-toolbar__segment--active {

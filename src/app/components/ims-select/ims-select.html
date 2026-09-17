@@ -125,7 +125,7 @@
                     />
                 }
 
-                <div #menu class="ims-select__menu" [style.width.px]="panelMinWidth()">
+                <div #menu class="ims-select__menu" [style.min-width.px]="menuMinWidth()">
                     @if (showFilter()) {
                         <label #filterField class="ims-select__filter">
                             <span class="ims-select__filter-label">{{ effectiveLabels().filter }}</span>
@@ -154,6 +154,10 @@
                         [style.min-height.px]="listboxMinHeight()"
                         [style.max-height.px]="listboxMaxHeight()"
                     >
+                        @if (viewModeCaption(); as caption) {
+                            <div class="ims-select__view-caption" role="note">{{ caption }}</div>
+                        }
+
                         <ng-content select="ims-option" />
 
                         @if (visibleOptions().length === 0) {

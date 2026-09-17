@@ -64,6 +64,10 @@ export interface ImsSelectionLabels {
     readonly showSelected: string;
     /** Accessible name of the segment listing unselected options. */
     readonly showUnselected: string;
+    /** Caption above the options while only selected ones are listed. */
+    readonly selectedOnly: string;
+    /** Caption above the options while only unselected ones are listed. */
+    readonly unselectedOnly: string;
     /** Default accessible name of the toolbar edit action. */
     readonly editSelection: string;
     /** Title of the built-in edit dialog. */
@@ -91,6 +95,8 @@ export const IMS_SELECTION_DEFAULT_LABELS: ImsSelectionLabels = {
     showAll: 'הצג את כל האפשרויות',
     showSelected: 'הצג אפשרויות שנבחרו',
     showUnselected: 'הצג אפשרויות שלא נבחרו',
+    selectedOnly: 'רק מסומנים',
+    unselectedOnly: 'רק לא מסומנים',
     editSelection: 'ערוך בחירה',
     editDialogTitle: 'עריכת בחירה',
     editDialogOptions: 'אפשרויות',

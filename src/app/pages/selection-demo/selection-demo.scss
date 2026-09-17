@@ -46,6 +46,13 @@
     font-weight: var(--ims-font-weight-semibold);
 }
 
+// Pushed to the option's far edge, beside the checkmark. The start padding keeps
+// it apart from a long label once the row has no free space left.
+.select-demo__option-count {
+    margin-inline-start: auto;
+    padding-inline-start: 1rem;
+}
+
 .playlist-demo-list {
     display: grid;
     gap: 4px;

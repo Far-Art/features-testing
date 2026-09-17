@@ -10,7 +10,9 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
+  Injector,
   OnDestroy,
+  afterNextRender,
   booleanAttribute,
   computed,
   contentChildren,
@@ -144,6 +146,7 @@ export class ImsSelect<T = unknown>
   private typeaheadResetTimer: ReturnType<typeof setTimeout> | null = null;
   readonly directionality = inject(Directionality);
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly injector = inject(Injector);
   private readonly transferDialog = inject(ImsTransferDialogService);
   private readonly injectedLabels = inject(IMS_SELECTION_LABELS);
 
@@ -191,8 +194,11 @@ export class ImsSelect<T = unknown>
   /** Emitted instead of opening the built-in dialog when `editDialogMode="custom"`. */
   readonly editDialogRequested = output<void>();
 
-  /** Option count threshold used by `filter="auto"` and `toolbar="auto"`. */
+  /** Option count threshold used by `filter="auto"`. */
   readonly filterAutoMinOptions = input(15, {transform: numberAttribute});
+
+  /** Option count threshold used by `toolbar="auto"`. */
+  readonly toolbarAutoMinOptions = input(10, {transform: numberAttribute});
 
   /** Equality function for option values. Defaults to strict reference equality. */
   readonly compareWith = input<ImsSelectCompareWith<T>>(defaultCompare);
@@ -218,6 +224,12 @@ export class ImsSelect<T = unknown>
   readonly activeIndex = signal(-1);
   readonly toolbarSide = signal<ImsSelectToolbarSide>('right');
   readonly panelMinWidth = signal(0);
+  /**
+   * Floor for the menu's width: the trigger's width, raised to the options' own
+   * width once the panel opens. The menu may grow past the trigger to fit its
+   * options, and filtering the widest one away does not narrow it again.
+   */
+  readonly menuMinWidth = signal(0);
   readonly listboxMinHeight = signal(0);
   readonly listboxMaxHeight = signal(LISTBOX_BOUNDS.max);
   readonly multiDisplay = signal<ImsSelectionDisplayState>(IMS_SELECTION_EMPTY_DISPLAY);
@@ -290,7 +302,7 @@ export class ImsSelect<T = unknown>
     const mode = this.toolbar();
     if (mode === 'on') return true;
     if (mode === 'off') return false;
-    return this.options().length >= this.filterAutoMinOptions();
+    return this.options().length >= this.toolbarAutoMinOptions();
   });
 
   readonly editDialogButtonDisabled = computed(() =>
@@ -314,6 +326,20 @@ export class ImsSelect<T = unknown>
   });
 
   readonly visibleOptions = computed(() => this.optionsInViewMode(this.viewMode()));
+
+  /** Caption naming the view mode while it narrows the options to one half, otherwise null. */
+  readonly viewModeCaption = computed(() => {
+    const labels = this.effectiveLabels();
+
+    switch (this.viewMode()) {
+      case 'selected':
+        return labels.selectedOnly;
+      case 'unselected':
+        return labels.unselectedOnly;
+      default:
+        return null;
+    }
+  });
 
   readonly viewOptionCounts = computed(() =>
     countViewModes(this.textFilteredOptions(), (option) => this.isOptionSelected(option))
@@ -427,6 +453,7 @@ export class ImsSelect<T = unknown>
     this.open.set(false);
     this.filterQuery.set('');
     this.viewMode.set('all');
+    this.menuMinWidth.set(0);
     this.listboxMinHeight.set(0);
     this.activeIndex.set(-1);
     this.markAsTouched();
@@ -455,15 +482,12 @@ export class ImsSelect<T = unknown>
         return;
       }
 
+      this.captureMenuWidth();
       this.updateToolbarSide();
       this.captureListboxHeight();
       this.setInitialActiveOption();
 
-      if (this.showFilter()) {
-        this.filterInput()?.nativeElement.focus({preventScroll: true});
-      } else {
-        this.listbox()?.nativeElement.focus({preventScroll: true});
-      }
+      this.panelEntry()?.focus({preventScroll: true});
 
       this.scrollActiveOptionIntoView();
     });
@@ -551,6 +575,10 @@ export class ImsSelect<T = unknown>
   setViewMode(mode: ImsSelectViewMode): void {
     if (this.isViewModeDisabled(mode)) return;
 
+    // Back from the toolbar to the options, with one of them active, so a
+    // keyboard user goes straight on to picking it with Enter.
+    this.panelEntry()?.focus({preventScroll: true});
+
     const nextMode = this.resolveViewMode(mode);
     if (nextMode === this.viewMode()) return;
 
@@ -558,7 +586,9 @@ export class ImsSelect<T = unknown>
     runViewTransition(
       () => {
         this.viewMode.set(nextMode);
-        this.activeIndex.set(-1);
+        this.setInitialActiveOption();
+        // Once the new view has rendered, where the active option now sits.
+        afterNextRender(() => this.activeOption()?.scrollIntoView(), {injector: this.injector});
       },
       () => this.changeDetectorRef.detectChanges()
     );
@@ -667,7 +697,7 @@ export class ImsSelect<T = unknown>
         event.preventDefault();
         this.close(true);
       } else if (event.key === 'Tab') {
-        this.close(false);
+        this.closeOnTab();
       }
       return;
     }
@@ -712,9 +742,53 @@ export class ImsSelect<T = unknown>
         this.close(true);
         break;
       case 'Tab':
-        this.close(false);
+        this.moveTabWithinPanel(event);
         break;
     }
+  }
+
+  /**
+   * Tab walks the panel's own stops: the filter, or the listbox when there is
+   * none, and then the toolbar's enabled buttons. Only a Tab past either end
+   * closes the panel.
+   */
+  private moveTabWithinPanel(event: KeyboardEvent): void {
+    const stops = this.panelTabStops();
+    const index = event.target instanceof HTMLElement ? stops.indexOf(event.target) : -1;
+    const next = stops[index + (event.shiftKey ? -1 : 1)];
+
+    if (index === -1 || !next) {
+      this.closeOnTab();
+      return;
+    }
+
+    event.preventDefault();
+    next.focus({preventScroll: true});
+  }
+
+  private panelTabStops(): HTMLElement[] {
+    const entry = this.panelEntry();
+    const toolbar: HTMLElement | undefined = this.toolbarPanel()?.nativeElement;
+    const toolbarButtons = toolbar?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? [];
+
+    return [...(entry ? [entry] : []), ...toolbarButtons];
+  }
+
+  /** Where the panel keeps focus while the options are navigated: the filter, or the listbox without one. */
+  private panelEntry(): HTMLElement | undefined {
+    return this.showFilter() ? this.filterInput()?.nativeElement : this.listbox()?.nativeElement;
+  }
+
+  /**
+   * Closes the panel and hands focus back to the trigger before the browser acts
+   * on Tab. The panel lives in the overlay container at the end of the document,
+   * so a Tab taken from there leaves the page's last element behind and escapes a
+   * surrounding dialog. From the trigger it reaches the field before or after the
+   * select, where a dialog's focus trap still holds it.
+   */
+  private closeOnTab(): void {
+    this.close(false);
+    this.triggerButton()?.nativeElement.focus({preventScroll: true});
   }
 
   private isToolbarKeyboardEvent(event: KeyboardEvent): boolean {
@@ -1000,6 +1074,7 @@ export class ImsSelect<T = unknown>
     if (!triggerRect) return;
 
     this.panelMinWidth.set(triggerRect.width);
+    this.menuMinWidth.update((width) => Math.max(width, triggerRect.width));
     this.updateListboxMaxHeight(this.overlaySide);
     this.updateToolbarSide(triggerRect);
   }
@@ -1027,6 +1102,18 @@ export class ImsSelect<T = unknown>
     this.listboxMaxHeight.set(maxHeight);
     if (this.listboxMinHeight() > maxHeight) {
       this.listboxMinHeight.set(maxHeight);
+    }
+  }
+
+  private captureMenuWidth(): void {
+    const menu = this.menu()?.nativeElement;
+    if (!menu) return;
+
+    // Kept exact: the overlay was placed at this width, and rounding it up would
+    // push the menu's aligned edge a pixel past the trigger's.
+    const width = menu.getBoundingClientRect().width;
+    if (width > this.menuMinWidth()) {
+      this.menuMinWidth.set(width);
     }
   }
 

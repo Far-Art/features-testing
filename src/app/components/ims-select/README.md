@@ -54,8 +54,10 @@ depend on Angular CDK overlay and bidi.
 ```
 
 `multiple` writes a readonly `T[]`; single-select writes `T | null`. `filter`
-and `toolbar` each accept `'on' | 'off' | 'auto'`, where `'auto'` activates
-once `options().length >= filterAutoMinOptions()` (default `15`).
+and `toolbar` each accept `'on' | 'off' | 'auto'`. With `'auto'` the filter
+appears once `options().length >= filterAutoMinOptions()` (default `15`), and
+the multi-select toolbar once `options().length >= toolbarAutoMinOptions()`
+(default `10`).
 
 When a multiple select is readonly or disabled, its trigger remains available
 as a disclosure that opens a semantic list containing only the selected
@@ -102,7 +104,10 @@ with `ims-autocomplete`) renders next to the panel with:
 - An optional edit icon button (`labels.editSelection`) whose behavior is
   controlled by `editDialogMode`.
 - Three view-mode segments (`all` / `selected` / `unselected`) that filter
-  `visibleOptions()` without touching the actual selection.
+  `visibleOptions()` without touching the actual selection. While `selected`
+  or `unselected` is active, a warning-toned caption (`labels.selectedOnly` /
+  `labels.unselectedOnly`) sticks to the top of the listbox, so the narrowed
+  list is never mistaken for the full one.
 
 There is intentionally no "select all / clear all" checkbox anymore — that
 behavior now lives entirely in the edit dialog.
