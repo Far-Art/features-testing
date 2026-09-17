@@ -83,6 +83,13 @@
     // Focus ring color for keyboard focus outlines (box-shadow halo around focused controls).
     --ims-color-focus-ring: var(--ims-color-primary-200);
 
+    // Positive accent for confirm-style selection, such as check-appearance radios: checked fill.
+    --ims-color-interactive-success: var(--ims-color-success-600);
+    // Positive accent, higher contrast — hover/pressed states of a positive fill.
+    --ims-color-interactive-success-strong: var(--ims-color-success-700);
+    // Focus halo around a control drawn in the positive accent.
+    --ims-color-success-focus-ring: var(--ims-color-success-200);
+
     // Alternate accent from the stronger end of the primary palette for duo-tone pairings.
     --ims-color-interactive-alt: var(--ims-color-primary-600);
     // Higher-contrast alternate accent for text, icons, hover, and pressed states.
