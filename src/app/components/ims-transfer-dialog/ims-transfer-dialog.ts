@@ -24,6 +24,7 @@ interface ImsTransferListState<T, ListId extends string> {
     readonly rows: WritableSignal<ImsTransferResultRow<T>[]>;
     readonly sort: WritableSignal<ImsTransferSortDirection | null>;
     readonly filteredRows: Signal<ImsTransferResultRow<T>[]>;
+    readonly movableRows: Signal<ImsTransferResultRow<T>[]>;
     connectedTo: string[];
 }
 
@@ -94,6 +95,21 @@ export class ImsTransferDialog<T, ListId extends string = string> extends ImsAbs
     }
 
     /**
+     * Moves the rows the source list currently shows (respecting the filter),
+     * except disabled ones, to the end of the target list in displayed order.
+     */
+    moveVisibleRows(
+        sourceList: ImsTransferListState<T, ListId>,
+        targetList: ImsTransferListState<T, ListId>
+    ): void {
+        const movedRows = new Set(sourceList.movableRows());
+        if (movedRows.size === 0) return;
+
+        sourceList.rows.update((rows) => rows.filter((row) => !movedRows.has(row)));
+        targetList.rows.update((rows) => [...rows, ...movedRows]);
+    }
+
+    /**
      * Reorders an unfiltered list or transfers a row between lists. A filtered
      * transfer is appended because rendered indices do not map to the full list.
      */
@@ -159,15 +175,15 @@ export class ImsTransferDialog<T, ListId extends string = string> extends ImsAbs
         const states = lists.map((list, index) => {
             const rows = signal(list.rows.map((row) => this.normalizeRow(row)));
             const sort = signal<ImsTransferSortDirection | null>(null);
+            const filteredRows = computed(() => this.filterRows(this.sortedRows(rows(), sort())));
             const state: ImsTransferListState<T, ListId> = {
                 id: list.id,
                 title: list.title,
                 dropListId: `ims-transfer-list-${this.instanceId}-${index}`,
                 rows,
                 sort,
-                filteredRows: computed(() =>
-                    this.filterRows(this.sortedRows(rows(), sort()))
-                ),
+                filteredRows,
+                movableRows: computed(() => filteredRows().filter((row) => !row.disabled)),
                 connectedTo: []
             };
             return state;

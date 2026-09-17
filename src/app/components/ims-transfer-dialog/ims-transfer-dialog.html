@@ -12,7 +12,7 @@
   </label>
 
   <div class="ims-transfer-dialog__lists">
-    @for (list of listStates; track list.id) {
+    @for (list of listStates; track list.id; let index = $index, first = $first, last = $last) {
       <section class="ims-transfer-dialog__list-column">
         <header class="ims-transfer-dialog__list-header">
           <span class="ims-transfer-dialog__list-title" [imsTextTruncate]="list.title">{{
@@ -37,6 +37,28 @@
             >
               <ims-icon>sort</ims-icon>
             </button>
+            @if (!first) {
+              <button
+                ims-button-icon
+                class="ims-transfer-dialog__header-action ims-transfer-dialog__header-action--previous"
+                [attr.aria-label]="'העבר הכל אל ' + listStates[index - 1].title"
+                [disabled]="list.movableRows().length === 0"
+                (click)="moveVisibleRows(list, listStates[index - 1])"
+              >
+                <ims-icon>arrow_forward</ims-icon>
+              </button>
+            }
+            @if (!last) {
+              <button
+                ims-button-icon
+                class="ims-transfer-dialog__header-action ims-transfer-dialog__header-action--next"
+                [attr.aria-label]="'העבר הכל אל ' + listStates[index + 1].title"
+                [disabled]="list.movableRows().length === 0"
+                (click)="moveVisibleRows(list, listStates[index + 1])"
+              >
+                <ims-icon>arrow_forward</ims-icon>
+              </button>
+            }
             <span class="ims-transfer-dialog__count">{{ list.rows().length }}</span>
           </span>
         </header>
@@ -57,6 +79,7 @@
               class="ims-transfer-dialog__row"
               [class.ims-transfer-dialog__row--disabled]="row.disabled"
               cdkDrag
+              cdkDragBoundary=".ims-transfer-dialog__lists"
               [cdkDragDisabled]="!!row.disabled"
               [cdkDragData]="row"
             >

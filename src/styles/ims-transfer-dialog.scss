@@ -27,9 +27,10 @@
 
 .ims-transfer-dialog__list-column {
   display: flex;
-  flex: 1 0 min(16rem, 80vw);
+  box-sizing: border-box;
+  flex: 1 1 16rem;
   flex-direction: column;
-  min-inline-size: 0;
+  min-inline-size: min(14rem, 80vw);
   overflow: hidden;
   border: 1px solid var(--ims-color-border-subtle);
   border-radius: 0.5rem;
@@ -90,6 +91,18 @@
 .ims-transfer-dialog__header-action--sort.ims-transfer-dialog__header-action--desc
   .ims-icon {
   transform: scaleY(-1);
+}
+
+.ims-transfer-dialog__header-action--previous .ims-icon {
+  transform: scaleX(-1);
+}
+
+.ims-transfer-dialog__header-action--next:dir(rtl) .ims-icon {
+  transform: scaleX(-1);
+}
+
+.ims-transfer-dialog__header-action--previous:dir(rtl) .ims-icon {
+  transform: none;
 }
 
 .ims-button.ims-transfer-dialog__header-action--sort.ims-transfer-dialog__header-action--active {
@@ -240,6 +253,16 @@
 
   .ims-transfer-dialog__list-column {
     flex-basis: auto;
+  }
+
+  .ims-transfer-dialog__header-action--previous .ims-icon,
+  .ims-transfer-dialog__header-action--previous:dir(rtl) .ims-icon {
+    transform: rotate(-90deg);
+  }
+
+  .ims-transfer-dialog__header-action--next .ims-icon,
+  .ims-transfer-dialog__header-action--next:dir(rtl) .ims-icon {
+    transform: rotate(90deg);
   }
 }
 

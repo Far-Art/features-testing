@@ -53,17 +53,24 @@ and order from `result.lists[id]`.
 
 - The dialog owns cloned working rows. Confirm returns a new snapshot; cancel,
   Escape, and backdrop dismissal return `undefined`. Caller data is never mutated.
-- Clicking a checkbox only toggles that row. Dragging is the only transfer and
-  reorder interaction, and it preserves `checked`.
+- Clicking a checkbox only toggles that row. Dragging transfers or reorders one
+  row and preserves `checked`. A dragged row stays inside the lists area and
+  cannot move over the filter field.
+- Each list header has an arrow button toward every neighboring list (previous
+  and next in display order). It moves the rows the list currently shows, so a
+  filter limits it to the matching rows; disabled rows stay. Moved rows keep
+  `checked` and are appended to the destination in displayed order. The button
+  is disabled when there is nothing to move.
 - Every list is connected to every other list. Drops within a list reorder it;
   cross-list drops insert at the destination position.
 - Filtering applies to all lists. Reordering is disabled while filtered, and a
   cross-list filtered drop appends to the destination's underlying rows.
 - Sorting is independent per list. A positional drag clears destination sorting.
-- Disabled rows cannot be checked, dragged, or reordered.
+- Disabled rows cannot be checked, dragged, reordered, or moved in bulk.
 - Reset restores original membership, order, checked state, sorting, and filter.
-- One list fills the available width. Additional desktop lists form a
-  horizontally scrollable row; narrow screens stack lists vertically.
+- One list fills the available width. Lists share the row, each at least 14rem
+  wide, and scroll horizontally once they no longer fit; narrow screens stack
+  lists vertically.
 
 ## Consumers
 
