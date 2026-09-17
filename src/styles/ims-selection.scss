@@ -62,6 +62,11 @@
     font-weight: var(--ims-font-weight-semibold);
     line-height: 1.35;
     text-align: center;
+    // "+N" reads left to right in either direction. In an RTL trigger the bidi
+    // algorithm would otherwise put the sign after the number. Isolated, so the
+    // badge's own direction leaves its place in the trigger alone.
+    direction: ltr;
+    unicode-bidi: isolate;
 }
 
 .ims-select__trigger > .ims-select__mode-icon,
