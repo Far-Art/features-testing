@@ -59,6 +59,15 @@ appears once `options().length >= filterAutoMinOptions()` (default `15`), and
 the multi-select toolbar once `options().length >= toolbarAutoMinOptions()`
 (default `10`).
 
+The host sets no width of its own. A grid cell stretches it; in a block or flex
+container it sizes to its content, and a multiple select compacts its labels to
+that size. Give it a width with a sizing class, as any field takes one:
+
+```html
+<ims-select class="field-m" [formControl]="status">...</ims-select>
+<ims-select class="field-stretch" [formControl]="branch">...</ims-select>
+```
+
 When a multiple select is readonly or disabled, its trigger remains available
 as a disclosure that opens a semantic list containing only the selected
 values; the editing toolbar, filter, and available options are not rendered.

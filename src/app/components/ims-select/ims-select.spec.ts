@@ -32,12 +32,19 @@ const BAGS: readonly Bag[] = [
                 <ims-option [value]="bag">{{ bag.label }}</ims-option>
             }
         </ims-select>
+
+        <ims-select data-test="filtered" filter="on" [formControl]="filtered" [compareWith]="compareById">
+            @for (bag of bags; track bag.id) {
+                <ims-option [value]="bag" [disabled]="bag.id === 1">{{ bag.label }}</ims-option>
+            }
+        </ims-select>
     `
 })
 class SelectHost {
     readonly bags = BAGS;
     readonly clearable = new FormControl<Bag | null>(BAGS[1]);
     readonly plain = new FormControl<Bag | null>(BAGS[1]);
+    readonly filtered = new FormControl<Bag | null>(null);
 
     readonly compareById = (first: Bag, second: Bag) => first?.id === second?.id;
 }
@@ -148,6 +155,28 @@ describe('ImsSelect', () => {
         expect(document.activeElement).toBe(trigger('plain'));
         expect(tab.defaultPrevented).toBe(false);
         expect(select('plain').open()).toBe(false);
+    });
+
+    it('marks the first enabled match active when the filter changes', async () => {
+        pressKey(trigger('filtered'), {key: 'ArrowDown', altKey: true});
+        await settle(fixture);
+
+        const filterInput = document.querySelector<HTMLInputElement>('.cdk-overlay-container .ims-select__filter input')!;
+        const typeFilter = async (query: string) => {
+            filterInput.value = query;
+            filterInput.dispatchEvent(new Event('input', {bubbles: true}));
+            await settle(fixture);
+        };
+
+        // Documents and Receipts match, and Documents is disabled.
+        await typeFilter('ts');
+        expect(select('filtered').activeOption()?.value()).toEqual(BAGS[1]);
+
+        await typeFilter('cl');
+        expect(select('filtered').activeOption()?.value()).toEqual(BAGS[3]);
+
+        await typeFilter('nothing matches');
+        expect(select('filtered').activeOption()).toBeNull();
     });
 
     it('tabs through the toolbar before Tab leaves the panel', async () => {

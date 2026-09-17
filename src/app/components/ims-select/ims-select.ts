@@ -516,7 +516,9 @@ export class ImsSelect<T = unknown>
     if (!(target instanceof HTMLInputElement)) return;
 
     this.filterQuery.set(target.value);
-    this.activeIndex.set(-1);
+    // The first match that can be picked is active, so Enter takes it.
+    this.activeIndex.set(this.visibleOptions().findIndex((option) => !option.disabled()));
+    afterNextRender(() => this.activeOption()?.scrollIntoView(), {injector: this.injector});
   }
 
   openEditDialog(): void {
@@ -1003,8 +1005,15 @@ export class ImsSelect<T = unknown>
     this.scheduleDisplayMeasure();
   }
 
+  /**
+   * Returns focus to the trigger as visible focus, even when a pointer picked the
+   * option. The trigger keeps its focus fill either way (see ims-input.scss), and
+   * without the ring it would look focused and unfocused at once.
+   */
   private focusTrigger(): void {
-    queueMicrotask(() => this.triggerButton()?.nativeElement.focus({preventScroll: true}));
+    queueMicrotask(() =>
+      this.triggerButton()?.nativeElement.focus({preventScroll: true, focusVisible: true})
+    );
   }
 
   private setInitialActiveOption(): void {

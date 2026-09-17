@@ -8,8 +8,10 @@
 
 .ims-select-host,
 .ims-autocomplete-host {
+    // No inline size of its own: the host takes the width its container or a
+    // sizing class gives it (`field-*`, a grid cell's stretch), and a flex row
+    // does not stretch it across the whole line.
     display: inline-block;
-    inline-size: 100%;
     min-inline-size: var(--field-width-xxs);
     color: var(--ims-color-on-surface);
 }
