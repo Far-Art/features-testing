@@ -151,6 +151,10 @@ in. `prefers-reduced-motion: reduce` removes transitions.
 
 ## Safe Change Guide
 
+- Keep `pointer-events: none` on `.ims-checkbox__track`. It is positioned
+  after the native input, so it paints above it. Without the rule, a pointer
+  over the box misses the input and no hover style applies; only the label
+  text reacts.
 - Keep `.ims-checkbox__native` immediately before `.ims-checkbox__track`; every
   state selector depends on that adjacency.
 - If you change `--ims-checkbox-size`, the form-field label offset follows it.

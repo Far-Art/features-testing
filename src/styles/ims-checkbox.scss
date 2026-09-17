@@ -71,6 +71,10 @@
     background: transparent;
     // The mark strokes with currentColor, so this is the mark color.
     color: transparent;
+    // The track is positioned after the native input, so it paints above it and
+    // would take the pointer. Every hover rule reads the input's :hover, which
+    // would then match only over the label text and never over the box itself.
+    pointer-events: none;
 }
 
 // Whole pixels. On a low-DPI screen a fractional size (a rem under a
