@@ -56,6 +56,13 @@ describe('ImsErrorPopoverDirective', () => {
         return (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('#name')!;
     }
 
+    /** Moves the pointer onto the open panel from outside, as a user reaching for it would. */
+    function enterPanel(): void {
+        const pane = overlayContainer.getContainerElement().querySelector('.cdk-overlay-pane')!;
+        pane.dispatchEvent(new PointerEvent('pointerleave'));
+        pane.dispatchEvent(new PointerEvent('pointerenter'));
+    }
+
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [ErrorPopoverTestHost]
@@ -144,5 +151,36 @@ describe('ImsErrorPopoverDirective', () => {
         render();
 
         expect(visibleMessages()).toEqual(['This field is required.']);
+    });
+
+    it('dismisses on entering the panel while the host is focused, until focus leaves', () => {
+        const input = nameInput();
+        host.name.markAsTouched();
+        input.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+        render();
+        expect(visibleMessages()).toEqual(['This field is required.']);
+
+        enterPanel();
+        render();
+        expect(visibleMessages()).toEqual([]);
+
+        input.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+        input.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+        render();
+        expect(visibleMessages()).toEqual(['This field is required.']);
+    });
+
+    it('shows changed errors again after a dismissal on a focused host', () => {
+        host.name.markAsTouched();
+        nameInput().dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+        render();
+        enterPanel();
+        render();
+        expect(visibleMessages()).toEqual([]);
+
+        host.name.setErrors({ policyRejected: true });
+        render();
+
+        expect(visibleMessages()).toEqual(['Policy Rejected.']);
     });
 });

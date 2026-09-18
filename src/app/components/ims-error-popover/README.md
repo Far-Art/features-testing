@@ -49,9 +49,11 @@ Additional inputs:
   opposite side remains available as a viewport fallback.
 
 Focus keeps the popover visible, while hovering the host reopens existing
-errors. Entering the popover deliberately dismisses it. When the popover first
-appears beneath a stationary pointer, the initial entry is ignored until the
-pointer leaves once. Angular disabled state, native disabled state, and the
+errors. Entering the popover deliberately dismisses it, even while the host is
+focused: focus then stops holding it open until focus leaves the host or the
+errors change, and hovering the host shows it only while the pointer stays
+there. When the popover first appears beneath a stationary pointer, the initial
+entry is ignored until the pointer leaves once. Angular disabled state, native disabled state, and the
 nearest `ims-readonly` provider all suppress the popover.
 
 ## Whose error it is

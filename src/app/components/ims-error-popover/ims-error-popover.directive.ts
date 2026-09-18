@@ -155,6 +155,11 @@ export class ImsErrorPopoverDirective
     private positionFrame: number | null = null;
     private hostHovered = false;
     private hostFocused = false;
+    /**
+     * Set when the user dismisses the panel while the host is focused. Focus then stops
+     * holding the panel open until it leaves the host or the errors change.
+     */
+    private focusDismissed = false;
     private autoVisible = false;
     private lastPointer: {readonly x: number; readonly y: number} | null = null;
     private panelEntryArmed = false;
@@ -284,6 +289,7 @@ export class ImsErrorPopoverDirective
         const nextTarget = event.relatedTarget;
         if (nextTarget instanceof Node && this.popoverHost.contains(nextTarget)) return;
         this.hostFocused = false;
+        this.focusDismissed = false;
         this.reconcileVisibility();
     }
 
@@ -459,6 +465,8 @@ export class ImsErrorPopoverDirective
         }
 
         if (errorsChanged || mappedErrorsChanged || sourceChanged || becameEnabled || becameOwned) {
+            // Changed errors are news again, even to a user who dismissed the old ones.
+            this.focusDismissed = false;
             this.restartTimeoutWindow();
             this.reconcileVisibility();
             return;
@@ -502,7 +510,7 @@ export class ImsErrorPopoverDirective
         // at an untouched field, or tabbing into one to start filling it in, says nothing.
         const errors = this.errorsOwned() ? this.mappedErrors() : [];
         const sourceVisible = errors.length > 0
-            && (this.autoVisible || this.hostHovered || this.hostFocused);
+            && (this.autoVisible || this.hostHovered || (this.hostFocused && !this.focusDismissed));
         // An open announcement is shown on its own terms, under the rows of the source.
         const rows = sourceVisible ? [...errors, ...this.announcedRows] : this.announcedRows;
 
@@ -572,19 +580,19 @@ export class ImsErrorPopoverDirective
         this.panelListenersElement = null;
     }
 
-    /** Dismisses on deliberate panel entry after the initial pointer guard is armed. */
+    /**
+     * Dismisses on deliberate panel entry after the initial pointer guard is armed.
+     *
+     * A focused host is dismissed too: a panel the pointer has to move around is in the way
+     * whether or not the field has focus. Focus then stops holding it open until it leaves
+     * the host or the errors change, while hovering the host still brings it back for as
+     * long as the pointer stays there.
+     */
     private readonly onPanelPointerEnter = (): void => {
         if (!this.panelEntryArmed) return;
 
-        // The focused host keeps showing its own errors, but never an announcement: that is
-        // one-way, and a panel the pointer has to move around has outstayed its welcome.
         this.clearAnnouncement();
-
-        if (this.hostFocused) {
-            this.reconcileVisibility();
-            return;
-        }
-
+        if (this.hostFocused) this.focusDismissed = true;
         this.hostHovered = false;
         this.autoVisible = false;
         this.clearTimeoutWindow();
