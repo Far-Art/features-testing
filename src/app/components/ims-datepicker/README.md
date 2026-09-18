@@ -528,7 +528,7 @@ available. In constrained containers the field shrinks so the complete control
 stays within the available inline size. The calendar overlay and validation
 popover remain anchored to the bordered field rather than the adjacent action.
 
-The bordered field defaults to `--field-width-s`, while the field and calendar
+The bordered field defaults to `--field-width-xs`, while the field and calendar
 button use `--field-height`. Apply one of the shared sizing utility classes to
 override the preferred field width from consumer markup:
 
@@ -570,7 +570,11 @@ change cell layout.
 The text input renders dates left to right (`direction: ltr`) in both page
 directions and aligns them with `text-align: end`. `end` resolves against the
 input's own direction, so the text sits on the field's right edge in RTL and LTR
-pages alike.
+pages alike. The date text and placeholder are set at `0.85em` of the host's
+font size, and the placeholder uses `--ims-color-on-surface-subtle`, a barely
+visible neutral. The input pads only its right edge, where the text sits, and the
+clear button is `1.25rem` wide, so a full date still fits the default
+`--field-width-xs` field while the clear button is shown.
 
 Sass nesting follows the repository rule: use nesting for descendants,
 pseudo-classes, pseudo-elements, attributes, and state scopes only. Write full

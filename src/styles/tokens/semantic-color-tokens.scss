@@ -29,6 +29,9 @@
     --ims-color-on-surface-muted: var(--ims-color-neutral-700);
     // Text on a disabled control. Lower-contrast than muted — do not reuse muted for disabled state.
     --ims-color-on-surface-disabled: var(--ims-color-neutral-400);
+    // Barely-there text on a surface: format hints and placeholders that must not compete
+    // with entered values. Lighter than disabled.
+    --ims-color-on-surface-subtle: var(--ims-color-neutral-300);
     // Readable text for readonly controls. Higher contrast than disabled, lower emphasis than editable.
     --ims-color-on-surface-readonly: var(--ims-color-on-surface-muted);
     --ims-color-on-surface-inverse: #FFFFFF;

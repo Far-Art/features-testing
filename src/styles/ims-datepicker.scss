@@ -1,7 +1,7 @@
 .ims-datepicker-host {
     --ims-input-action-size: var(--field-height);
 
-    inline-size: var(--field-width-s);
+    inline-size: var(--field-width-xs);
     color: var(--ims-color-on-surface);
 }
 
@@ -24,19 +24,25 @@
         flex: 1 1 auto;
         min-inline-size: 0;
         padding-block: 0;
-        padding-inline: 0.65rem;
+        // Padding only where the text sits. The input is ltr (below), so its
+        // inline end is always the right edge that `text-align: end` aligns to;
+        // beside the clear button, the button's own spacing is enough. That is
+        // what lets a full date fit a --field-width-xs field.
+        padding-inline: 0 0.5rem;
         border: 0;
         outline: 0;
         background: transparent;
         color: inherit;
         font: inherit;
+        // After the `font` shorthand, which resets it.
+        font-size: 0.85em;
         // Dates read left to right in either page direction. `end` resolves
         // against this input's own ltr direction, so the text sits on the right.
         direction: ltr;
         text-align: end;
 
         &::placeholder {
-            color: var(--ims-color-on-surface-muted);
+            color: var(--ims-color-on-surface-subtle);
             text-transform: lowercase;
         }
 
@@ -49,7 +55,7 @@
     .ims-datepicker__clear {
         display: grid;
         place-items: center;
-        flex: 0 0 var(--field-height);
+        flex: 0 0 1.25rem;
         padding: 0;
         border: 0;
         outline: 0;
