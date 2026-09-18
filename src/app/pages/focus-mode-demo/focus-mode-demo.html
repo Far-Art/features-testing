@@ -34,35 +34,35 @@
       metadata cannot know — here, the pattern the reference expects, spelled out.
     </p>
 
-    <ims-form-field span="stretch">
+    <ims-form-field span="row">
       <label>הערות</label>
       <ims-focus-mode label="הערות" hint="לפחות עשרים תווים, עד מאתיים וארבעים">
         <textarea imsInput rows="2" [formControl]="notes"></textarea>
       </ims-focus-mode>
     </ims-form-field>
 
-    <ims-form-field span="stretch">
+    <ims-form-field span="row">
       <label>מספר אסמכתא</label>
       <ims-focus-mode label="מספר אסמכתא" hint="בפורמט REF-0000-0000, למשל REF-2026-0041">
         <input imsInput type="text" [formControl]="reference"/>
       </ims-focus-mode>
     </ims-form-field>
 
-    <ims-form-field span="stretch">
+    <ims-form-field span="row">
       <label>סכום מאושר</label>
       <ims-focus-mode label="סכום מאושר">
         <input imsInput type="text" [formControl]="locked"/>
       </ims-focus-mode>
     </ims-form-field>
 
-    <ims-form-field span="stretch">
+    <ims-form-field span="row">
       <label>סיכום שיחה</label>
       <ims-focus-mode label="סיכום שיחה">
         <textarea imsInput rows="2" [(ngModel)]="summary"></textarea>
       </ims-focus-mode>
     </ims-form-field>
 
-    <ims-form-field span="stretch">
+    <ims-form-field span="row">
       <label>שדה לקריאה בלבד</label>
       <ims-focus-mode label="פרטי מסמך">
         <input imsInput type="text" value="מסמך 4471 — הופק ב-12/03/2026" [ims-readonly]="true"/>
@@ -79,14 +79,14 @@
       them to push it harder.
     </p>
 
-    <ims-form-field span="stretch">
+    <ims-form-field span="row">
       <label>טקסט רחב (cols=90)</label>
       <ims-focus-mode label="טקסט רחב">
         <textarea imsInput rows="1" cols="90" [formControl]="wideText"></textarea>
       </ims-focus-mode>
     </ims-form-field>
 
-    <ims-form-field span="stretch">
+    <ims-form-field span="row">
       <label>שדה ברוחב קבוע</label>
       <!--
         The width class goes on the host, not on the field: it sizes the whole
@@ -99,14 +99,14 @@
       </ims-focus-mode>
     </ims-form-field>
 
-    <ims-form-field span="stretch">
+    <ims-form-field span="row">
       <label>ערך רציף ללא רווחים</label>
       <ims-focus-mode label="ערך רציף ללא רווחים">
         <input imsInput type="text" [formControl]="unbroken"/>
       </ims-focus-mode>
     </ims-form-field>
 
-    <ims-form-field span="stretch">
+    <ims-form-field span="row">
       <label>שורה אחת בלבד (rows=1)</label>
       <ims-focus-mode label="שורה אחת בלבד">
         <textarea imsInput rows="1" [formControl]="singleRow"></textarea>
@@ -146,7 +146,7 @@
         <input imsInput type="text" [formControl]="phone"/>
       </ims-form-field>
 
-      <ims-form-field span="stretch">
+      <ims-form-field span="row">
         <label>כתובת</label>
         <ims-focus-mode label="כתובת">
           <textarea imsInput rows="4" [formControl]="address"></textarea>
@@ -229,7 +229,7 @@
       switches to zoom-in — reading a locked value is still allowed.
     </p>
 
-    <ims-form-field span="stretch">
+    <ims-form-field span="row">
       <label>תנאי התקשרות</label>
       <ims-focus-mode label="תנאי התקשרות">
         <textarea imsInput rows="2" [ims-readonly]="null">
