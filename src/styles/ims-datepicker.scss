@@ -1,90 +1,64 @@
 .ims-datepicker-host {
-    --ims-input-action-size: var(--field-height);
+  --ims-input-action-size: var(--field-height);
 
-    inline-size: var(--field-width-xs);
-    color: var(--ims-color-on-surface);
+  inline-size: var(--field-width-xs);
+  color: var(--ims-color-on-surface);
 }
 
 .ims-datepicker__field {
-    --ims-input-padding: 0;
+  --ims-input-padding: 0;
 
-    display: flex;
-    inline-size: 100%;
-    block-size: var(--field-height);
-    overflow: hidden;
+  display: flex;
+  inline-size: 100%;
+  block-size: var(--field-height);
+  overflow: hidden;
 
-    &:focus-within {
-        border-color: var(--ims-input-focus-border, var(--ims-color-interactive));
-        box-shadow:
-            0 0 0 3px var(--ims-input-focus-ring, var(--ims-color-focus-ring)),
-            var(--ims-input-field-shadow);
+  &:focus-within {
+    border-color: var(--ims-input-focus-border, var(--ims-color-interactive));
+    box-shadow: 0 0 0 3px var(--ims-input-focus-ring, var(--ims-color-focus-ring)),
+    var(--ims-input-field-shadow);
+  }
+
+  .ims-datepicker__input {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    padding-block: 0;
+    // Padding only where the text sits. The input is ltr (below), so its
+    // inline end is always the right edge that `text-align: end` aligns to.
+    padding-inline: 0 0.5rem;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    // After the `font` shorthand, which resets it.
+    font-size: 0.86em;
+    // Dates read left to right in either page direction. `end` resolves
+    // against this input's own ltr direction, so the text sits on the right.
+    direction: ltr;
+    text-align: end;
+    line-height: 1;
+
+    &::placeholder {
+      color: var(--ims-color-on-surface-subtle);
+      text-transform: lowercase;
     }
 
-    .ims-datepicker__input {
-        flex: 1 1 auto;
-        min-inline-size: 0;
-        padding-block: 0;
-        // Padding only where the text sits. The input is ltr (below), so its
-        // inline end is always the right edge that `text-align: end` aligns to;
-        // beside the clear button, the button's own spacing is enough. That is
-        // what lets a full date fit a --field-width-xs field.
-        padding-inline: 0 0.5rem;
-        border: 0;
-        outline: 0;
-        background: transparent;
-        color: inherit;
-        font: inherit;
-        // After the `font` shorthand, which resets it.
-        font-size: 0.85em;
-        // Dates read left to right in either page direction. `end` resolves
-        // against this input's own ltr direction, so the text sits on the right.
-        direction: ltr;
-        text-align: end;
-
-        &::placeholder {
-            color: var(--ims-color-on-surface-subtle);
-            text-transform: lowercase;
-        }
-
-        &:disabled {
-            opacity: 1;
-            -webkit-text-fill-color: currentColor;
-        }
+    &:disabled {
+      opacity: 1;
+      -webkit-text-fill-color: currentColor;
     }
-
-    .ims-datepicker__clear {
-        display: grid;
-        place-items: center;
-        flex: 0 0 1.25rem;
-        padding: 0;
-        border: 0;
-        outline: 0;
-        background: transparent;
-        color: var(--ims-color-interactive-alt-strong);
-        cursor: pointer;
-
-        &:focus-visible {
-            box-shadow: inset 0 0 0 3px var(--ims-color-focus-ring);
-        }
-
-        &:disabled {
-            cursor: not-allowed;
-        }
-
-        .ims-icon {
-            --ims-icon-size: 1rem;
-        }
-    }
+  }
 }
 
 .ims-datepicker-host > .ims-datepicker__toggle {
-    min-inline-size: var(--ims-input-action-size);
-    min-block-size: var(--ims-input-action-size);
-    padding: 0;
+  min-inline-size: var(--ims-input-action-size);
+  min-block-size: var(--ims-input-action-size);
+  padding: 0;
 }
 
 .ims-datepicker__field.ims-datepicker__field--open {
-    border-color: var(--ims-color-interactive);
+  border-color: var(--ims-color-interactive);
 }
 
 // `ng-invalid` lands on the host, not on the `.ims-input` field inside it, so the
@@ -92,364 +66,352 @@
 // border, so hovering an invalid field answers in its danger tone.
 .ims-datepicker-host.ng-invalid .ims-datepicker__field:not(.ims-datepicker__field--disabled):not(.ims-datepicker__field--readonly),
 .ims-datepicker__field.ims-datepicker__field--invalid:not(.ims-datepicker__field--disabled):not(.ims-datepicker__field--readonly) {
-    --ims-input-fill: var(--ims-input-invalid-fill, var(--ims-color-status-danger-subtle));
+  --ims-input-fill: var(--ims-input-invalid-fill, var(--ims-color-status-danger-subtle));
 
-    border-color: var(--ims-input-invalid-border, var(--ims-color-invalid));
-}
-
-.ims-datepicker-host.ng-invalid .ims-datepicker__field:not(.ims-datepicker__field--disabled):not(.ims-datepicker__field--readonly) .ims-datepicker__clear,
-.ims-datepicker__field.ims-datepicker__field--invalid:not(.ims-datepicker__field--disabled):not(.ims-datepicker__field--readonly) .ims-datepicker__clear {
-    color: var(--ims-input-invalid-border, var(--ims-color-invalid));
+  border-color: var(--ims-input-invalid-border, var(--ims-color-invalid));
 }
 
 .ims-datepicker-host.ng-invalid > .ims-datepicker__toggle:not(:disabled),
 .ims-datepicker__field.ims-datepicker__field--invalid:not(.ims-datepicker__field--disabled):not(.ims-datepicker__field--readonly) + .ims-datepicker__toggle:not(:disabled) {
-    color: var(--ims-input-invalid-border, var(--ims-color-invalid));
+  color: var(--ims-input-invalid-border, var(--ims-color-invalid));
 }
 
 .ims-datepicker-host.ng-invalid .ims-datepicker__field:not(.ims-datepicker__field--disabled):not(.ims-datepicker__field--readonly):focus-within,
 .ims-datepicker__field.ims-datepicker__field--invalid:not(.ims-datepicker__field--disabled):not(.ims-datepicker__field--readonly):focus-within {
-    box-shadow:
-        0 0 0 3px var(--ims-input-invalid-focus-ring, var(--ims-color-invalid-focus-ring)),
-        var(--ims-input-field-shadow);
+  box-shadow: 0 0 0 3px var(--ims-input-invalid-focus-ring, var(--ims-color-invalid-focus-ring)),
+  var(--ims-input-field-shadow);
 }
 
 .ims-datepicker__field.ims-datepicker__field--disabled,
 .ims-datepicker__field.ims-datepicker__field--readonly {
+  border-color: var(--ims-input-disabled-border, var(--ims-color-border-subtle));
+  background: var(--ims-input-disabled-background, var(--ims-color-surface-input-disabled));
+  color: var(--ims-input-disabled-color, var(--ims-color-on-surface-disabled));
+
+  &:hover {
     border-color: var(--ims-input-disabled-border, var(--ims-color-border-subtle));
-    background: var(--ims-input-disabled-background, var(--ims-color-surface-input-disabled));
-    color: var(--ims-input-disabled-color, var(--ims-color-on-surface-disabled));
-
-    .ims-datepicker__clear {
-        color: var(--ims-color-on-surface-disabled);
-    }
-
-    &:hover {
-        border-color: var(--ims-input-disabled-border, var(--ims-color-border-subtle));
-    }
+  }
 }
 
 .ims-datepicker__panel {
+  display: grid;
+  gap: 0.5rem;
+  box-sizing: border-box;
+  width: min(21rem, calc(100vw - 1rem));
+  color: var(--ims-color-on-surface);
+
+  .ims-datepicker__header,
+  .ims-datepicker__calendar {
+    border: 1px solid var(--ims-color-border-subtle);
+    background: var(--ims-background-dialog);
+    box-shadow: 0 0.5rem 1.5rem color-mix(
+      in oklch,
+      var(--ims-color-on-surface) 14%,
+      transparent
+    );
+  }
+
+  .ims-datepicker__header {
     display: grid;
-    gap: 0.5rem;
-    box-sizing: border-box;
-    width: min(21rem, calc(100vw - 1rem));
-    color: var(--ims-color-on-surface);
+    gap: 0.25rem;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+  }
 
-    .ims-datepicker__header,
-    .ims-datepicker__calendar {
-        border: 1px solid var(--ims-color-border-subtle);
-        background: var(--ims-background-dialog);
-        box-shadow: 0 0.5rem 1.5rem color-mix(
-            in oklch,
-            var(--ims-color-on-surface) 14%,
-            transparent
-        );
+  .ims-datepicker__calendar {
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+  }
+
+  .ims-datepicker__navigation {
+    display: grid;
+    grid-template-columns: auto auto minmax(5rem, 1fr) auto auto;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .ims-datepicker__view-button,
+  .ims-datepicker__shortcut,
+  .ims-datepicker__cell {
+    border: 0;
+    border-radius: 0.5rem;
+    outline: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background: var(--ims-color-interactive-alt-subtle);
     }
 
-    .ims-datepicker__header {
-        display: grid;
-        gap: 0.25rem;
-        padding: 0.5rem;
-        border-radius: 0.75rem;
+    &:focus-visible {
+      box-shadow: 0 0 0 3px var(--ims-color-focus-ring);
     }
 
-    .ims-datepicker__calendar {
-        padding: 0.75rem;
-        border-radius: 0.75rem;
+    &:disabled {
+      color: var(--ims-color-on-surface-disabled);
+      cursor: not-allowed;
     }
+  }
 
-    .ims-datepicker__navigation {
-        display: grid;
-        grid-template-columns: auto auto minmax(5rem, 1fr) auto auto;
-        align-items: center;
-        gap: 0.25rem;
-    }
+  // Quiet at rest, like the selection toolbar's actions: stepping changes which
+  // period the grid shows, so these tint only on hover and press.
+  .ims-button.ims-datepicker__step {
+    --ims-button-background: transparent;
+    --ims-button-background-hover: var(--ims-color-interactive-alt-subtle);
+    --ims-button-background-active: var(--ims-color-interactive-subtle);
+    --ims-button-color: var(--ims-color-on-surface);
+    --ims-button-color-active: var(--ims-color-interactive-strong);
+    --ims-button-ring-color: var(--ims-color-interactive-alt);
+    --ims-button-border: transparent;
 
-    .ims-datepicker__view-button,
-    .ims-datepicker__shortcut,
-    .ims-datepicker__cell {
-        border: 0;
-        border-radius: 0.5rem;
-        outline: 0;
-        background: transparent;
-        color: inherit;
-        font: inherit;
-        cursor: pointer;
+    inline-size: 2.25rem;
+    min-inline-size: 2.25rem;
+    block-size: 2.25rem;
+  }
 
-        &:hover:not(:disabled) {
-            background: var(--ims-color-interactive-alt-subtle);
-        }
+  .ims-icon.ims-datepicker__step-icon {
+    --ims-icon-size: 1.35rem;
+  }
 
-        &:focus-visible {
-            box-shadow: 0 0 0 3px var(--ims-color-focus-ring);
-        }
+  .ims-datepicker__view-button {
+    min-height: 2.25rem;
+    padding: 0.25rem 0.5rem;
+    font-weight: var(--ims-font-weight-bold);
+  }
 
-        &:disabled {
-            color: var(--ims-color-on-surface-disabled);
-            cursor: not-allowed;
-        }
-    }
+  .ims-datepicker__shortcuts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.25rem;
+    padding-block-start: 0.25rem;
+    border-block-start: 1px solid var(--ims-color-border-subtle);
+  }
 
-    // Quiet at rest, like the selection toolbar's actions: stepping changes which
-    // period the grid shows, so these tint only on hover and press.
-    .ims-button.ims-datepicker__step {
-        --ims-button-background: transparent;
-        --ims-button-background-hover: var(--ims-color-interactive-alt-subtle);
-        --ims-button-background-active: var(--ims-color-interactive-subtle);
-        --ims-button-color: var(--ims-color-on-surface);
-        --ims-button-color-active: var(--ims-color-interactive-strong);
-        --ims-button-ring-color: var(--ims-color-interactive-alt);
-        --ims-button-border: transparent;
-
-        inline-size: 2.25rem;
-        min-inline-size: 2.25rem;
-        block-size: 2.25rem;
-    }
-
-    .ims-icon.ims-datepicker__step-icon {
-        --ims-icon-size: 1.35rem;
-    }
-
-    .ims-datepicker__view-button {
-        min-height: 2.25rem;
-        padding: 0.25rem 0.5rem;
-        font-weight: var(--ims-font-weight-bold);
-    }
-
-    .ims-datepicker__shortcuts {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 0.25rem;
-        padding-block-start: 0.25rem;
-        border-block-start: 1px solid var(--ims-color-border-subtle);
-    }
-
-    .ims-datepicker__shortcuts--today-only {
-        .ims-datepicker__shortcut {
-            grid-column: 2;
-        }
-    }
-
+  .ims-datepicker__shortcuts--today-only {
     .ims-datepicker__shortcut {
-        min-height: 1.85rem;
-        padding: 0.25rem;
-        font-size: 0.72rem;
-        font-weight: var(--ims-font-weight-semibold);
+      grid-column: 2;
+    }
+  }
+
+  .ims-datepicker__shortcut {
+    min-height: 1.85rem;
+    padding: 0.25rem;
+    font-size: 0.72rem;
+    font-weight: var(--ims-font-weight-semibold);
+  }
+
+  .ims-datepicker__weekdays,
+  .ims-datepicker__days {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.2rem;
+    user-select: none;
+  }
+
+  .ims-datepicker__weekdays.ims-datepicker__weekdays--week-numbers,
+  .ims-datepicker__days.ims-datepicker__days--week-numbers {
+    grid-template-columns: minmax(2rem, 0.75fr) repeat(7, minmax(0, 1fr));
+  }
+
+  // Each row is a subgrid of its grid, so the `role="row"` wrapper assistive
+  // technology needs costs nothing in layout: cells still sit on the grid's own
+  // columns and gaps.
+  .ims-datepicker__row {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+
+  .ims-datepicker__weekdays {
+    span {
+      padding: 0.45rem 0;
+      color: var(--ims-color-on-surface-muted);
+      font-size: 0.72rem;
+      font-weight: var(--ims-font-weight-bold);
+      text-align: center;
+    }
+  }
+
+  .ims-datepicker__week-heading,
+  .ims-datepicker__week-number {
+    border-inline-end: 1px solid var(--ims-color-border-subtle);
+  }
+
+  .ims-datepicker__week-number {
+    display: grid;
+    place-items: center;
+    min-width: 2rem;
+    color: var(--ims-color-on-surface-muted);
+    font-size: 0.72rem;
+    font-weight: var(--ims-font-weight-bold);
+  }
+
+  .ims-datepicker__cell {
+    position: relative;
+    display: grid;
+    place-items: center;
+  }
+
+  .ims-datepicker__cell--today {
+    box-shadow: inset 0 0 0 2px var(--ims-color-interactive);
+    color: var(--ims-color-interactive-strong);
+    font-weight: var(--ims-font-weight-bold);
+
+    &:focus-visible {
+      box-shadow: inset 0 0 0 2px var(--ims-color-interactive),
+      0 0 0 3px var(--ims-color-focus-ring);
+    }
+  }
+
+  .ims-datepicker__cell--active:not(.ims-datepicker__cell--selected) {
+    background: var(--ims-color-interactive-subtle);
+  }
+
+  .ims-datepicker__cell--selected {
+    background: var(--ims-color-interactive);
+    color: var(--ims-color-on-interactive);
+    font-weight: var(--ims-font-weight-bold);
+
+    &:hover:not(:disabled) {
+      background: var(--ims-color-interactive-strong);
+    }
+  }
+
+  .ims-datepicker__cell--today.ims-datepicker__cell--selected {
+    box-shadow: inset 0 0 0 2px var(--ims-color-on-interactive);
+    color: var(--ims-color-on-interactive);
+
+    &:focus-visible {
+      box-shadow: inset 0 0 0 2px var(--ims-color-on-interactive),
+      0 0 0 3px var(--ims-color-focus-ring);
+    }
+  }
+
+  .ims-datepicker__cell:disabled {
+    background: transparent;
+    color: var(--ims-color-on-surface-disabled);
+    box-shadow: none;
+  }
+
+  .ims-datepicker__day {
+    aspect-ratio: 1;
+    min-height: 2.1rem;
+  }
+
+  .ims-datepicker__months,
+  .ims-datepicker__years {
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  .ims-datepicker__months {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .ims-datepicker__years {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .ims-datepicker__month,
+  .ims-datepicker__year {
+    min-height: 2.75rem;
+    padding: 0.4rem;
+  }
+
+  .ims-datepicker__grid {
+    contain: layout style;
+
+    &:focus-within {
+      .ims-datepicker__cell--active {
+        z-index: 1;
+      }
     }
 
-    .ims-datepicker__weekdays,
-    .ims-datepicker__days {
-        display: grid;
-        grid-template-columns: repeat(7, minmax(0, 1fr));
-        gap: 0.2rem;
-        user-select: none;
+    &::view-transition {
+      pointer-events: none;
     }
 
-    .ims-datepicker__weekdays.ims-datepicker__weekdays--week-numbers,
-    .ims-datepicker__days.ims-datepicker__days--week-numbers {
-        grid-template-columns: minmax(2rem, 0.75fr) repeat(7, minmax(0, 1fr));
+    &::view-transition-group(root) {
+      animation: none;
     }
 
-    // Each row is a subgrid of its grid, so the `role="row"` wrapper assistive
-    // technology needs costs nothing in layout: cells still sit on the grid's own
-    // columns and gaps.
-    .ims-datepicker__row {
-        display: grid;
-        grid-column: 1 / -1;
-        grid-template-columns: subgrid;
+    &::view-transition-old(root),
+    &::view-transition-new(root) {
+      mix-blend-mode: normal;
+    }
+  }
+
+  .ims-datepicker__grid[data-transition-direction='right-to-left'] {
+    &::view-transition-old(root) {
+      animation: ims-datepicker-wipe-out-right-to-left 210ms cubic-bezier(0.55, 0, 0.35, 1) both;
     }
 
-    .ims-datepicker__weekdays {
-        span {
-            padding: 0.45rem 0;
-            color: var(--ims-color-on-surface-muted);
-            font-size: 0.72rem;
-            font-weight: var(--ims-font-weight-bold);
-            text-align: center;
-        }
+    &::view-transition-new(root) {
+      animation: ims-datepicker-wipe-in-right-to-left 260ms 60ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+  }
+
+  .ims-datepicker__grid[data-transition-direction='left-to-right'] {
+    &::view-transition-old(root) {
+      animation: ims-datepicker-wipe-out-left-to-right 210ms cubic-bezier(0.55, 0, 0.35, 1) both;
     }
 
-    .ims-datepicker__week-heading,
-    .ims-datepicker__week-number {
-        border-inline-end: 1px solid var(--ims-color-border-subtle);
+    &::view-transition-new(root) {
+      animation: ims-datepicker-wipe-in-left-to-right 260ms 60ms cubic-bezier(0.22, 1, 0.36, 1) both;
     }
-
-    .ims-datepicker__week-number {
-        display: grid;
-        place-items: center;
-        min-width: 2rem;
-        color: var(--ims-color-on-surface-muted);
-        font-size: 0.72rem;
-        font-weight: var(--ims-font-weight-bold);
-    }
-
-    .ims-datepicker__cell {
-        position: relative;
-        display: grid;
-        place-items: center;
-    }
-
-    .ims-datepicker__cell--today {
-        box-shadow: inset 0 0 0 2px var(--ims-color-interactive);
-        color: var(--ims-color-interactive-strong);
-        font-weight: var(--ims-font-weight-bold);
-
-        &:focus-visible {
-            box-shadow:
-                inset 0 0 0 2px var(--ims-color-interactive),
-                0 0 0 3px var(--ims-color-focus-ring);
-        }
-    }
-
-    .ims-datepicker__cell--active:not(.ims-datepicker__cell--selected) {
-        background: var(--ims-color-interactive-subtle);
-    }
-
-    .ims-datepicker__cell--selected {
-        background: var(--ims-color-interactive);
-        color: var(--ims-color-on-interactive);
-        font-weight: var(--ims-font-weight-bold);
-
-        &:hover:not(:disabled) {
-            background: var(--ims-color-interactive-strong);
-        }
-    }
-
-    .ims-datepicker__cell--today.ims-datepicker__cell--selected {
-        box-shadow: inset 0 0 0 2px var(--ims-color-on-interactive);
-        color: var(--ims-color-on-interactive);
-
-        &:focus-visible {
-            box-shadow:
-                inset 0 0 0 2px var(--ims-color-on-interactive),
-                0 0 0 3px var(--ims-color-focus-ring);
-        }
-    }
-
-    .ims-datepicker__cell:disabled {
-        background: transparent;
-        color: var(--ims-color-on-surface-disabled);
-        box-shadow: none;
-    }
-
-    .ims-datepicker__day {
-        aspect-ratio: 1;
-        min-height: 2.1rem;
-    }
-
-    .ims-datepicker__months,
-    .ims-datepicker__years {
-        display: grid;
-        gap: 0.4rem;
-    }
-
-    .ims-datepicker__months {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .ims-datepicker__years {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-
-    .ims-datepicker__month,
-    .ims-datepicker__year {
-        min-height: 2.75rem;
-        padding: 0.4rem;
-    }
-
-    .ims-datepicker__grid {
-        contain: layout style;
-
-        &:focus-within {
-            .ims-datepicker__cell--active {
-                z-index: 1;
-            }
-        }
-
-        &::view-transition {
-            pointer-events: none;
-        }
-
-        &::view-transition-group(root) {
-            animation: none;
-        }
-
-        &::view-transition-old(root),
-        &::view-transition-new(root) {
-            mix-blend-mode: normal;
-        }
-    }
-
-    .ims-datepicker__grid[data-transition-direction='right-to-left'] {
-        &::view-transition-old(root) {
-            animation: ims-datepicker-wipe-out-right-to-left 210ms cubic-bezier(0.55, 0, 0.35, 1) both;
-        }
-
-        &::view-transition-new(root) {
-            animation: ims-datepicker-wipe-in-right-to-left 260ms 60ms cubic-bezier(0.22, 1, 0.36, 1) both;
-        }
-    }
-
-    .ims-datepicker__grid[data-transition-direction='left-to-right'] {
-        &::view-transition-old(root) {
-            animation: ims-datepicker-wipe-out-left-to-right 210ms cubic-bezier(0.55, 0, 0.35, 1) both;
-        }
-
-        &::view-transition-new(root) {
-            animation: ims-datepicker-wipe-in-left-to-right 260ms 60ms cubic-bezier(0.22, 1, 0.36, 1) both;
-        }
-    }
+  }
 }
 
 .ims-datepicker__panel.ims-datepicker__panel--week-numbers {
-    width: min(23rem, calc(100vw - 1rem));
+  width: min(23rem, calc(100vw - 1rem));
 }
 
 @keyframes ims-datepicker-wipe-in-right-to-left {
-    from {
-        opacity: 0;
-        clip-path: inset(0 0 0 100%);
-    }
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 0 100%);
+  }
 
-    to {
-        opacity: 1;
-        clip-path: inset(0 0 0 0);
-    }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 @keyframes ims-datepicker-wipe-out-right-to-left {
-    from {
-        opacity: 1;
-        clip-path: inset(0 0 0 0);
-    }
+  from {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
 
-    to {
-        opacity: 0.16;
-        clip-path: inset(0 100% 0 0);
-    }
+  to {
+    opacity: 0.16;
+    clip-path: inset(0 100% 0 0);
+  }
 }
 
 @keyframes ims-datepicker-wipe-in-left-to-right {
-    from {
-        opacity: 0;
-        clip-path: inset(0 100% 0 0);
-    }
+  from {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+  }
 
-    to {
-        opacity: 1;
-        clip-path: inset(0 0 0 0);
-    }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 @keyframes ims-datepicker-wipe-out-left-to-right {
-    from {
-        opacity: 1;
-        clip-path: inset(0 0 0 0);
-    }
+  from {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
 
-    to {
-        opacity: 0.16;
-        clip-path: inset(0 0 0 100%);
-    }
+  to {
+    opacity: 0.16;
+    clip-path: inset(0 0 0 100%);
+  }
 }

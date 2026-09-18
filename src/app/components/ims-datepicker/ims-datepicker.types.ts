@@ -28,7 +28,6 @@ export type ImsDatepickerDateFilter = (date: DateTime) => boolean;
 export interface ImsDatepickerLabels {
     readonly openCalendar: string;
     readonly closeCalendar: string;
-    readonly clearDate: string;
     readonly changeCalendarView: string;
     readonly calendarFor: string;
     readonly chooseMonthIn: string;
@@ -116,7 +115,6 @@ export const IMS_DATEPICKER_DEFAULT_FORMATS: ImsDatepickerFormats = {
 export const IMS_DATEPICKER_DEFAULT_LABELS: ImsDatepickerLabels = {
     openCalendar: 'פתח לוח שנה',
     closeCalendar: 'סגור לוח שנה',
-    clearDate: 'נקה תאריך',
     changeCalendarView: 'שנה תצוגת לוח שנה',
     calendarFor: 'לוח שנה עבור {period}',
     chooseMonthIn: 'בחר חודש ב-{period}',

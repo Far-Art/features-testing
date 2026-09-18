@@ -35,19 +35,6 @@
         (blur)="onInputBlur()"
         (keydown)="onInputKeydown($event)"
     />
-
-    @if (canClear()) {
-        <button
-            type="button"
-            class="ims-datepicker__clear"
-            [attr.aria-label]="effectiveLabels().clearDate"
-            [attr.title]="effectiveLabels().clearDate"
-            (pointerdown)="$event.preventDefault()"
-            (click)="clearDate()"
-        >
-            <ims-icon>close</ims-icon>
-        </button>
-    }
 </div>
 
 <button

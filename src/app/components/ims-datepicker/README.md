@@ -77,8 +77,7 @@ provideImsDatepickerConfig({
     firstDayOfWeek: 7,
     valueType: 'date',
     labels: {
-        today: 'Today',
-        clearDate: 'Clear date'
+        today: 'Today'
     }
 })
 ```
@@ -119,7 +118,6 @@ mapper, duration, position, and disabled inputs.
 | `zone` | `string \| null` | `null` | Zone used to interpret millisecond inputs and calculate today. |
 | `firstDayOfWeek` | `1 \| 7 \| null` | `null` | Monday or Sunday grid start. |
 | `labels` | `PartialImsDatepickerLabels \| null` | `null` | Instance text and accessible-label translations. |
-| `clearable` | `boolean` | `true` | Shows a clear action when the control contains text. |
 | `showWeekNumbers` | `boolean` | `false` | Shows informational ISO week numbers in the day view. |
 | `placeholder` | `string \| null` | `null` | Input placeholder override. |
 | `ariaLabel` | `string \| null` | `null` | Accessible input label. |
@@ -474,11 +472,7 @@ Header shortcuts are:
 A shortcut moves the active cursor and focuses the resulting grid cell. It does
 not commit the form value immediately. Disabled shortcuts cannot be activated.
 
-## Clear, Weeks, And Events
-
-The clear button appears for non-empty editable controls when `clearable` is
-enabled. Clearing writes `null`, marks the control touched, emits `dateChange`,
-and restores focus to the text input.
+## Weeks And Events
 
 `showWeekNumbers` adds a non-interactive ISO week-number row-header column to
 the day view. Week numbers are informational and do not affect focus,
@@ -488,7 +482,7 @@ Public interaction events are:
 
 - `opened` and `closed` when the overlay state changes.
 - `viewChanged` when day, month, or year view changes.
-- `dateChange` when a user commits or clears a value.
+- `dateChange` when a user commits a value, including `null` for an emptied field.
 
 All visible control text and generated navigation ARIA labels can be translated
 globally through `ImsDatepickerConfig.labels` or per instance through `labels`.
@@ -562,7 +556,7 @@ their inset indicator and the external focus ring.
 An invalid field retunes `--ims-input-fill` together with its border, so its
 hover fill uses the danger tone. The header step buttons are `ims-button-icon`
 buttons with `<ims-icon>` glyphs, kept quiet at rest through the
-`--ims-button-*` variables. The clear action renders `<ims-icon>close</ims-icon>`.
+`--ims-button-*` variables.
 
 Each grid row is a CSS subgrid of its grid, so the `role="row"` wrappers do not
 change cell layout.
@@ -570,11 +564,9 @@ change cell layout.
 The text input renders dates left to right (`direction: ltr`) in both page
 directions and aligns them with `text-align: end`. `end` resolves against the
 input's own direction, so the text sits on the field's right edge in RTL and LTR
-pages alike. The date text and placeholder are set at `0.85em` of the host's
+pages alike. The date text and placeholder are set at `0.86em` of the host's
 font size, and the placeholder uses `--ims-color-on-surface-subtle`, a barely
-visible neutral. The input pads only its right edge, where the text sits, and the
-clear button is `1.25rem` wide, so a full date still fits the default
-`--field-width-xs` field while the clear button is shown.
+visible neutral. The input pads only its right edge, where the text sits.
 
 Sass nesting follows the repository rule: use nesting for descendants,
 pseudo-classes, pseudo-elements, attributes, and state scopes only. Write full

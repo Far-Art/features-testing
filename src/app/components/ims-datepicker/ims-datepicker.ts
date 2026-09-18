@@ -219,7 +219,6 @@ export class ImsDatepicker
     readonly zone = input<string | null>(null);
     readonly firstDayOfWeek = input<ImsDatepickerFirstDayOfWeek | null>(null);
     readonly labels = input<PartialImsDatepickerLabels | null>(null);
-    readonly clearable = input(true, {transform: booleanAttribute});
     readonly showWeekNumbers = input(false, {transform: booleanAttribute});
     readonly placeholder = input<string | null>(null);
     readonly ariaLabel = input<string | null>(null, {alias: 'ariaLabel'});
@@ -246,9 +245,6 @@ export class ImsDatepicker
     readonly overlayPositions = OVERLAY_POSITIONS;
     readonly calendarYear = dateYear;
 
-    readonly canClear = computed(() =>
-        this.clearable() && this.rawText().length > 0 && !this.interactionDisabled()
-    );
     readonly errorPopoverErrors = computed<ValidationErrors | null>(() =>
         this.resolveValidationErrors(this.value())
     );
@@ -696,19 +692,6 @@ export class ImsDatepicker
         if (target instanceof Node && this.hostElement.nativeElement.contains(target)) return;
         this.closePicker();
         this.markAsTouched();
-    }
-
-    clearDate(): void {
-        if (!this.canClear()) return;
-
-        this.userEditing.set(false);
-        this.parseInvalid.set(false);
-        this.rawText.set('');
-        this.setValue(null);
-        this.dateChange.emit(null);
-        this.closePicker();
-        this.markAsTouched();
-        this.textInput()?.nativeElement.focus({preventScroll: true});
     }
 
     cycleView(): void {
