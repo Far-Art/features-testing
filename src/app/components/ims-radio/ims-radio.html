@@ -1,16 +1,21 @@
 <label
     class="ims-radio"
     [class.ims-radio--check]="appearance() === 'check'"
+    [class.ims-radio--selected]="selected()"
     [class.ims-radio--animations-ready]="animationsReady()"
 >
-    <!-- Every visual state is styled from this input's pseudo-classes. -->
+    <!--
+        The input's :disabled and :hover drive those states. The selected look
+        comes from .ims-radio--selected instead of :checked, because in single mode
+        only one of several options sharing the selected value can be :checked.
+    -->
     <input
         class="ims-radio__native"
         [attr.type]="inputType()"
         [attr.name]="name()"
         [attr.id]="id()"
         [attr.aria-label]="ariaLabel()"
-        [checked]="selected()"
+        [checked]="nativeChecked()"
         [disabled]="disabled()"
         (change)="onNativeChange($event)"
     />

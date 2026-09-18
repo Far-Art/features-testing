@@ -207,6 +207,28 @@
             <code>value: {{ describe(mixedAppearance()) }}</code>
         </article>
 
+        <article class="radio-demo__card">
+            <h3 id="radio-demo-duplicate">ערך כפול</h3>
+            <!-- Two options share each value; selecting the value checks both. -->
+            <ims-radio-group aria-labelledby="radio-demo-duplicate" [(value)]="duplicateSingle">
+                @for (option of duplicateOptions; track $index) {
+                    <ims-radio [value]="option.value">{{ option.label }}</ims-radio>
+                }
+            </ims-radio-group>
+            <code>value: {{ describe(duplicateSingle()) }}</code>
+            <ims-radio-group
+                multiple
+                appearance="check"
+                aria-labelledby="radio-demo-duplicate"
+                [(value)]="duplicateMultiple"
+            >
+                @for (option of duplicateOptions; track $index) {
+                    <ims-radio [value]="option.value">{{ option.label }}</ims-radio>
+                }
+            </ims-radio-group>
+            <code>value: {{ describe(duplicateMultiple()) }}</code>
+        </article>
+
         <article class="radio-demo__card radio-demo__card--custom-accent">
             <h3 id="radio-demo-accent">צבע מותאם</h3>
             <ims-radio-group

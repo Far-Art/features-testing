@@ -43,6 +43,14 @@ export class RadioDemo {
         {value: 'mail', label: 'דואר רגיל'}
     ];
 
+    // The same value listed twice, as when one choice appears in two places.
+    readonly duplicateOptions: readonly ChannelOption[] = [
+        {value: 'email', label: 'דואר אלקטרוני'},
+        {value: 'sms', label: 'SMS'},
+        {value: 'email', label: 'דואר אלקטרוני (שוב)'},
+        {value: 'sms', label: 'SMS (שוב)'}
+    ];
+
     readonly plans: readonly CoverageOption[] = [
         {id: 1, label: 'בסיסי'},
         {id: 2, label: 'מורחב'},
@@ -64,6 +72,8 @@ export class RadioDemo {
     readonly mixedAppearance = signal<DemoGroupValue<Channel>>('phone');
     readonly customAccent = signal<DemoGroupValue<Channel>>(['email']);
     readonly customCheckAccent = signal<DemoGroupValue<Channel>>('mail');
+    readonly duplicateSingle = signal<DemoGroupValue<Channel>>('email');
+    readonly duplicateMultiple = signal<DemoGroupValue<Channel>>(['sms']);
 
     // Object values, so the groups need compareWith: the form holds copies.
     readonly planControl = new FormControl<CoverageOption | null>(null, Validators.required);

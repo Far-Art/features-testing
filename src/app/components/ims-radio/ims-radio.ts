@@ -4,6 +4,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
+    DestroyRef,
     inject,
     input,
     signal
@@ -44,19 +45,23 @@ export class ImsRadio<T = unknown> {
     readonly appearance = computed(() => this.appearanceInput() ?? this.group.appearance());
     readonly inputType = computed(() => this.group.multiple() ? 'checkbox' : 'radio');
     readonly name = computed(() => this.group.multiple() ? null : this.group.groupName());
+    /** Shown as selected: true for every option holding a selected value. */
     readonly selected = computed(() => this.group.isSelected(this.value()));
+    /** The native input's checked state, which can differ from `selected` for duplicates. */
+    readonly nativeChecked = computed(() => this.group.isNativeChecked(this));
     readonly disabled = computed(() => this.disabledInput() || this.group.interactionDisabled());
     readonly animationsReady = signal(false);
 
     constructor() {
         afterNextRender(() => this.animationsReady.set(true));
+        inject(DestroyRef).onDestroy(() => this.group.removeOption(this));
     }
 
     onNativeChange(event: Event): void {
         // Keep the native change event inside the component; consumers listen to
         // the group's selectionChange / valueChange instead.
         event.stopPropagation();
-        this.group.selectFromUser(this.value(), (event.target as HTMLInputElement).checked);
+        this.group.selectFromUser(this, (event.target as HTMLInputElement).checked);
     }
 }
 

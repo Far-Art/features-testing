@@ -7,7 +7,8 @@ import {
     forwardRef,
     inject,
     input,
-    output
+    output,
+    signal
 } from '@angular/core';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {ImsSelectionCompareWith} from '../../shared/ims-selection/ims-selection.types';
@@ -16,7 +17,8 @@ import {
     IMS_RADIO_GROUP,
     ImsRadioAppearance,
     ImsRadioGroupLayout,
-    ImsRadioGroupParent
+    ImsRadioGroupParent,
+    ImsRadioOption
 } from './ims-radio.types';
 
 /** Single mode holds one value, multiple mode an array; `null` is no selection. */
@@ -41,6 +43,11 @@ let nextRadioGroupId = 0;
         // validation ARIA: see ims-form-field and ims-error-popover.
         'data-ims-main-control': '',
         'data-ims-labelled-group': '',
+        // BasicValueAccessor clears the host id and forwards it to an inner
+        // native control. The group has none: its host is the element that ARIA
+        // references point at, so the id stays here. Declared after the
+        // inherited binding, so it runs later and wins.
+        '[attr.id]': 'id()',
         '[attr.role]': 'multiple() ? "group" : "radiogroup"',
         '[attr.aria-required]': '(required() && !multiple()) || null',
         '[attr.aria-disabled]': 'disabled() || null',
@@ -63,6 +70,11 @@ export class ImsRadioGroup<T = unknown> extends BasicValueAccessor<ImsRadioGroup
     implements ImsRadioGroupParent<T> {
     private readonly hostElement: HTMLElement = inject(ElementRef).nativeElement;
     private readonly generatedName = `ims-radio-group-${nextRadioGroupId++}`;
+    /**
+     * The option the user last selected in single mode. While its value stays
+     * selected, it alone holds the native check among options sharing that value.
+     */
+    private readonly userPickedOption = signal<ImsRadioOption | null>(null);
 
     /** Lets the user select any number of options; the value becomes an array. */
     readonly multiple = input(false, {transform: booleanAttribute});
@@ -100,10 +112,41 @@ export class ImsRadioGroup<T = unknown> extends BasicValueAccessor<ImsRadioGroup
         return this.selectedValues().some((selectedValue) => equals(selectedValue, value));
     }
 
-    selectFromUser(value: T, checked: boolean): void {
-        if (this.interactionDisabled() || this.isSelected(value) === checked) return;
-        // A native radio only reports being checked; it is unchecked by its sibling.
-        if (!this.multiple() && !checked) return;
+    // Reads only the asking option's value and the picked option's. Another
+    // option's required `value` may not be set yet while this one renders.
+    isNativeChecked(option: ImsRadioOption<T>): boolean {
+        if (!this.isSelected(option.value())) return false;
+        // Checkboxes have no `name` limit, so every option holding a value is checked.
+        if (this.multiple()) return true;
+        // A `name` holds only one checked radio, and the browser unchecks the rest
+        // as soon as another is checked. Among options sharing the selected value,
+        // the one the user picked keeps the check, so the binding never fights the
+        // browser over it. Before any pick they are all bound checked and the
+        // browser keeps the last one it was given.
+        const picked = this.userPickedOption();
+        return picked === null || picked === option || !this.isSelected(picked.value() as T);
+    }
+
+    removeOption(option: ImsRadioOption<T>): void {
+        if (this.userPickedOption() === option) {
+            this.userPickedOption.set(null);
+        }
+    }
+
+    selectFromUser(option: ImsRadioOption<T>, checked: boolean): void {
+        if (this.interactionDisabled()) return;
+        const value = option.value();
+
+        if (this.multiple()) {
+            if (this.isSelected(value) === checked) return;
+        } else {
+            // A native radio only reports being checked; it is unchecked by its sibling.
+            if (!checked) return;
+            // Picking a duplicate of the selected value changes no value, but that
+            // option now holds the browser's check, so the binding follows it.
+            this.userPickedOption.set(option);
+            if (this.isSelected(value)) return;
+        }
 
         const nextValue = this.multiple()
             ? toggleSelectedValue(this.selectedValues(), value, this.compareWith())

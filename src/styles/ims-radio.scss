@@ -41,10 +41,17 @@
     vertical-align: middle;
 }
 
-// The native input is the real control: it covers the whole label, takes the
-// click, the focus and the form state, and its :checked and :disabled
-// pseudo-classes drive every visual state below. It is a radio in single mode
-// and a checkbox in multiple mode; both match :checked.
+// The native input is the real control: it covers the whole label and takes
+// the click, the focus and the form state. Its :disabled, :hover and
+// :focus-visible drive those states below. It is a radio in single mode and a
+// checkbox in multiple mode.
+//
+// The selected look alone comes from .ims-radio--selected, which the option
+// sets from the group's value, not from :checked. In single mode the radios
+// share a `name`, which holds only one checked radio, so of several options
+// sharing the selected value only one can be :checked. The class marks them
+// all. Every selected rule swaps :checked on the input for the class on
+// .ims-radio at equal specificity, so the cascade order is unchanged.
 .ims-radio {
     --ims-radio-duration: 200ms;
     --ims-radio-ease: cubic-bezier(0.4, 0, 0.2, 1);
@@ -267,7 +274,7 @@ ims-form-field:has(> :is(label, [imsFormFieldLabel]):hover) .ims-radio__native:n
 // Unlike a disabled option, a readonly one keeps the regular border, so an
 // unselected option stays visible. Limited to unselected options, because this
 // selector outranks the selected border below.
-.ims-radio-group-host.ims-readonly .ims-radio__native:disabled:not(:checked) + .ims-radio__control {
+.ims-radio-group-host.ims-readonly .ims-radio:not(.ims-radio--selected) > .ims-radio__native:disabled + .ims-radio__control {
     border-color: var(--ims-color-border);
 }
 
@@ -279,33 +286,33 @@ ims-form-field:has(> :is(label, [imsFormFieldLabel]):hover) .ims-radio__native:n
 
 // Selected states come last: in every state the tone is already right, so a
 // selected option only needs to paint with it.
-.ims-radio .ims-radio__native:checked + .ims-radio__control {
+.ims-radio.ims-radio--selected .ims-radio__native + .ims-radio__control {
     border-color: var(--ims-radio-tone);
 }
 
-.ims-radio.ims-radio--check .ims-radio__native:checked + .ims-radio__control {
+.ims-radio.ims-radio--check.ims-radio--selected .ims-radio__native + .ims-radio__control {
     background: var(--ims-radio-tone);
     color: var(--ims-color-on-interactive);
 }
 
-.ims-radio__native:checked + .ims-radio__control .ims-radio__dot {
+.ims-radio--selected .ims-radio__native + .ims-radio__control .ims-radio__dot {
     transform: scale(1);
 }
 
-.ims-radio__native:checked + .ims-radio__control .ims-radio__mark {
+.ims-radio--selected .ims-radio__native + .ims-radio__control .ims-radio__mark {
     stroke-dashoffset: 0;
     opacity: 1;
 }
 
-.ims-radio .ims-radio__native:checked:not(:disabled):hover + .ims-radio__control,
-ims-form-field:has(> :is(label, [imsFormFieldLabel]):hover) .ims-radio .ims-radio__native:checked:not(:disabled) + .ims-radio__control {
+.ims-radio.ims-radio--selected .ims-radio__native:not(:disabled):hover + .ims-radio__control,
+ims-form-field:has(> :is(label, [imsFormFieldLabel]):hover) .ims-radio.ims-radio--selected .ims-radio__native:not(:disabled) + .ims-radio__control {
     border-color: var(--ims-radio-tone-strong);
 }
 
-.ims-radio.ims-radio--check .ims-radio__native:checked:not(:disabled):hover + .ims-radio__control,
-.ims-radio__native:checked:not(:disabled):hover + .ims-radio__control .ims-radio__dot,
-ims-form-field:has(> :is(label, [imsFormFieldLabel]):hover) .ims-radio.ims-radio--check .ims-radio__native:checked:not(:disabled) + .ims-radio__control,
-ims-form-field:has(> :is(label, [imsFormFieldLabel]):hover) .ims-radio__native:checked:not(:disabled) + .ims-radio__control .ims-radio__dot {
+.ims-radio.ims-radio--check.ims-radio--selected .ims-radio__native:not(:disabled):hover + .ims-radio__control,
+.ims-radio--selected .ims-radio__native:not(:disabled):hover + .ims-radio__control .ims-radio__dot,
+ims-form-field:has(> :is(label, [imsFormFieldLabel]):hover) .ims-radio.ims-radio--check.ims-radio--selected .ims-radio__native:not(:disabled) + .ims-radio__control,
+ims-form-field:has(> :is(label, [imsFormFieldLabel]):hover) .ims-radio--selected .ims-radio__native:not(:disabled) + .ims-radio__control .ims-radio__dot {
     background: var(--ims-radio-tone-strong);
 }
 

@@ -79,6 +79,7 @@ than the option, such as a value loaded from the server:
 | `name` | input | Native `name` shared by the options in single mode. Generated when omitted. |
 | `required` | input | Sets `aria-required` in single mode. Validation comes from Angular's `required` validator; see States. |
 | `disabled` | input | Disables every option; a parent form can also disable the group. |
+| `id` | input | Kept on the group host, so ARIA references elsewhere can point at the group. Unlike other `BasicValueAccessor` controls, it is not forwarded to an inner input: the group has none. |
 | `value` | model | From `BasicValueAccessor`, for `[(value)]` without forms. |
 | `selectionChange` | output | New group value, emitted only on a user change. |
 | `valueChange` | output | From `BasicValueAccessor`; see Events. |
@@ -86,6 +87,22 @@ than the option, such as a value loaded from the server:
 `null` and `undefined` mean nothing is selected, so an option cannot use `null`
 as its value. In multiple mode a scalar value counts as a one-value selection,
 as in `ims-select`. A value matching no option is kept and selects nothing.
+
+### Options sharing a value
+
+Several options may hold the same value, for example when one choice is listed
+in two places. Selecting that value shows every one of them as selected, in both
+modes:
+
+- Multiple mode: every option holding a selected value is checked. Clicking any
+  of them toggles the value, so they all check or uncheck together.
+- Single mode: the radios share a `name`, and a `name` holds only one checked
+  radio. Every duplicate is drawn selected, but only one is natively checked:
+  the one the user clicked or reached with the arrow keys, or, before any user
+  pick, the last one in the group. Picking another duplicate moves the native
+  check to it without changing the value, so `selectionChange` does not fire.
+  Assistive technology reports the natively checked duplicate as checked and
+  the others as not checked, because a radiogroup has one checked radio.
 
 ### `ims-radio`
 
@@ -127,9 +144,11 @@ An `ims-radio` outside an `ims-radio-group` throws.
 ## States
 
 The native input is the real control: it covers the whole option and receives
-clicks, focus, and form state. Styles read its `:checked` and `:disabled`
-pseudo-classes, so the visual state always matches what assistive technology
-reads.
+clicks, focus, and form state. Styles read its `:disabled`, `:hover`, and
+`:focus-visible` pseudo-classes. The selected look comes from
+`.ims-radio--selected`, which the option sets from the group's value, rather than
+from `:checked`: in single mode only one of several options sharing the selected
+value can be `:checked`. See Options sharing a value.
 
 - Disabled: the native input is disabled. An unselected option uses the subtle
   border on the disabled surface; a selected one paints its dot or fill with
@@ -276,6 +295,10 @@ Watch for two silent failures:
 
 ## Safe Change Guide
 
+- Keep `[attr.id]: 'id()'` in the group's host bindings, after the inherited
+  `BasicValueAccessor` binding that clears the host id. Without it, the group
+  silently loses the id a consumer gives it.
+
 - Keep `pointer-events: none` on `.ims-radio__control`. It is positioned
   after the native input, so it paints above it. Without the rule, a pointer
   over the circle misses the input and no hover style applies; only the label
@@ -291,6 +314,15 @@ Watch for two silent failures:
   `stroke-dasharray` longer than the path.
 - Keep `.ims-radio__native` immediately before `.ims-radio__control`; every
   state selector depends on that adjacency.
+- Style the selected state from `.ims-radio--selected`, never `:checked`. The
+  class swaps in for `:checked` at equal specificity, so the cascade order is
+  unchanged.
+- Bind the native `checked` only through `isNativeChecked`. Binding it to
+  `selected` for every duplicate makes Angular and the browser fight over which
+  radio is checked.
+- `isNativeChecked` must read only the asking option's value and the picked
+  option's value. Another option's required `value` input may not be set yet
+  while this one renders, and reading it throws NG0950.
 - Do not add scale, ripple, or other transform animations to hover or
   selection. The target machines have no GPU; use color, border, or outline
   changes instead.
