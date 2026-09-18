@@ -1,8 +1,12 @@
 // Declared on :root, like --ims-checkbox-size, so a page can resize every radio
 // from any ancestor.
 :root {
-    // Outer size of the circle, border included.
+    // The slot every option's circle sits in, and the outer size of the check
+    // appearance's circle, border included.
     --ims-radio-size: 1.25rem;
+    // Outer size of the radio appearance's ring, border included: a little
+    // smaller than its slot, closer to a native radio.
+    --ims-radio-ring-size: 1rem;
 }
 
 // Stacked by default: one option per row. Every option is a field-height row,
@@ -123,6 +127,17 @@
     pointer-events: none;
 }
 
+// Radio appearance: the ring is drawn smaller than its slot and the margin makes
+// up the difference, so the option keeps the same footprint as a check-style
+// option or a checkbox. Its label stays in line with theirs, and the row stays a
+// field height tall. Sized rather than scaled: a transform would blur on the
+// low-DPI screens and cost the CPU a repaint.
+.ims-radio:not(.ims-radio--check) .ims-radio__control {
+    width: var(--ims-radio-ring-size);
+    height: var(--ims-radio-ring-size);
+    margin: calc((var(--ims-radio-size) - var(--ims-radio-ring-size)) / 2);
+}
+
 // Transitions wait for the first render, so an option that starts selected
 // appears selected instead of animating into it.
 //
@@ -139,10 +154,11 @@
 }
 
 // Radio appearance: a dot that grows from the center. Sized by its inset, a
-// quarter of the inner box on each side, so it is half the inner box wide.
+// sixth of the inner box on each side, so it is two thirds of the inner box
+// wide: 8px inside the default 16px ring, with a 2px gap, as a native radio.
 .ims-radio__dot {
     position: absolute;
-    inset: 25%;
+    inset: calc(100% / 6);
     border-radius: 50%;
     background: var(--ims-radio-tone);
     transform: scale(0);
@@ -164,10 +180,20 @@
         height: round(var(--ims-radio-size), 1px);
     }
 
+    // A whole-pixel margin, and the ring takes the rest of the rounded slot, so
+    // the ring stays centered in the slot whatever the two sizes are.
+    .ims-radio:not(.ims-radio--check) .ims-radio__control {
+        --ims-radio-ring-margin: round((var(--ims-radio-size) - var(--ims-radio-ring-size)) / 2, 1px);
+
+        width: calc(round(var(--ims-radio-size), 1px) - 2 * var(--ims-radio-ring-margin));
+        height: calc(round(var(--ims-radio-size), 1px) - 2 * var(--ims-radio-ring-margin));
+        margin: var(--ims-radio-ring-margin);
+    }
+
     // The same whole-pixel gap on every side, so the dot stays centered even
     // when the inner box has an odd size.
     .ims-radio__dot {
-        inset: round(25%, 1px);
+        inset: round(100% / 6, 1px);
     }
 }
 
