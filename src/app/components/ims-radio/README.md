@@ -17,8 +17,8 @@ change explicitly replaces it.
   and the appearance and layout types.
 - `index.ts`: public exports.
 - `src/styles/ims-radio.scss`: all radio styles, loaded globally from
-  `src/styles.scss`, including `--ims-radio-size` and `--ims-radio-ring-size`
-  on `:root`.
+  `src/styles.scss`, including `--ims-radio-size`, `--ims-radio-ring-size`,
+  and `--ims-radio-check-size` on `:root`.
 - `src/styles/tokens/semantic-color-tokens.scss`: the
   `--ims-color-interactive-success*` and `--ims-color-success-focus-ring` tokens
   used by the check appearance.
@@ -174,24 +174,30 @@ Classes: `.ims-radio-group-host` (group host, with `[data-layout]`),
 `.ims-radio--check` and `.ims-radio--animations-ready`.
 
 Every option is at least `--field-height` (26px) tall with the circle centered
-in it. Two sizes are declared on `:root`, both outer sizes with the border
+in it. Three sizes are declared on `:root`, all outer sizes with the border
 included:
 
 | Property | Default | Purpose |
 | --- | --- | --- |
-| `--ims-radio-size` | `1.25rem` (20px) | The slot every circle sits in, and the check appearance's circle. The same as `--ims-checkbox-size`. |
+| `--ims-radio-size` | `1.25rem` (20px) | The slot every circle sits in: the space it takes in the layout. The same as `--ims-checkbox-size`. |
 | `--ims-radio-ring-size` | `1rem` (16px) | The radio appearance's ring, drawn a little smaller than its slot so it reads like a native radio. |
+| `--ims-radio-check-size` | `1.375rem` (22px) | The check appearance's circle, drawn a little larger than its slot so the checkmark reads clearly. |
 
-The radio ring keeps the full slot as its footprint, with a margin making up
-the difference. Its label therefore lines up with check-style options and
-checkboxes, and the row stays a field height tall. The ring is sized, not
-scaled, because a transform would blur on low-DPI screens. The dot is two
-thirds of the ring's inner box: 8px with a 2px gap at the default size.
+Each circle is drawn at its appearance's size but laid out at the slot size.
+The margin makes up the difference: +2px around the ring and -1px around the
+check circle at the default sizes. Every option therefore has the footprint of
+a checkbox, labels line up across both appearances and checkboxes, and the row
+stays a field height tall. The circles are sized, not scaled, because a
+transform would blur on low-DPI screens.
+
+The dot is two thirds of the ring's inner box: 8px with a 2px gap at the
+default size. The checkmark's viewBox matches the check circle's 18px inner box,
+so its 2px stroke stays on whole pixels.
 
 As in `ims-checkbox`, the slot rounds its size to whole pixels with CSS
-`round()`, so a low-DPI screen cannot snap a circle to an oval. The ring's
-margin rounds to whole pixels too, and the ring takes the rest of the slot, so
-it stays centered whatever the two sizes are. The dot is sized by a rounded
+`round()`, so a low-DPI screen cannot snap a circle to an oval. The margin
+rounds to whole pixels too, and the circle takes the slot plus or minus twice
+the margin, so it stays centered whatever the sizes are. The dot is sized by a rounded
 inset on every side, so it stays centered even when the inner box has an odd
 size. These rules sit behind `@supports (width: round(1.5px, 1px))`. A browser
 without `round()` keeps the unrounded sizes instead of collapsing the circle to
@@ -267,13 +273,15 @@ Watch for two silent failures:
   after the native input, so it paints above it. Without the rule, a pointer
   over the circle misses the input and no hover style applies; only the label
   text reacts.
-- Keep sizes that must stay square or centered, meaning the slot, the ring
+- Keep sizes that must stay square or centered, meaning the slot, the circle
   margin, and the dot inset, rounded to whole pixels inside the `@supports`
   block.
-- Shrink the radio ring through `--ims-radio-ring-size`, never
-  `--ims-radio-size` or a transform. The slot must stay the same as the check
-  appearance's circle and the checkbox, or labels in a mixed group stop lining
-  up.
+- Resize a circle through `--ims-radio-ring-size` or `--ims-radio-check-size`,
+  never `--ims-radio-size` or a transform. The slot must stay the same as the
+  checkbox's, or labels in a mixed group stop lining up.
+- If you change `--ims-radio-check-size`, update the checkmark's viewBox and
+  path to the new inner box, or the 2px stroke scales off whole pixels. Keep
+  `stroke-dasharray` longer than the path.
 - Keep `.ims-radio__native` immediately before `.ims-radio__control`; every
   state selector depends on that adjacency.
 - Do not add scale, ripple, or other transform animations to hover or
