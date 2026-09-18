@@ -30,6 +30,16 @@
     line-height: 1.55;
 }
 
+// Review aid: a band one field height tall with a line through its centre, so
+// every label in a row can be checked against it. It is painted on the row,
+// since a text-only field is shorter than the band. Controls cover it with
+// their own background, so it shows only beside them.
+.form-layout-demo__height-guide ims-form-field-row {
+    background:
+        linear-gradient(#7aa7d6, #7aa7d6) center top calc(var(--field-height) / 2 - 1px) / 100% 2px no-repeat,
+        linear-gradient(#e3eef9, #e3eef9) top / 100% var(--field-height) no-repeat;
+}
+
 .form-layout-demo__checkbox-group {
     display: flex;
     flex-wrap: wrap;

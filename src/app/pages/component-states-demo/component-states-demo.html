@@ -133,6 +133,136 @@
 
   <div class="component-states-demo__matrix">
     <article class="component-states-demo__card">
+      <h3 id="radio-state-normal">Radio · רגיל</h3>
+      <ims-radio-group aria-labelledby="radio-state-normal" [formControl]="radioNormal">
+        @for (option of options; track option.id) {
+          <ims-radio [value]="option.id" [disabled]="!!option.disabled">{{ option.label }}</ims-radio>
+        }
+      </ims-radio-group>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3 id="radio-state-disabled">Radio · מושבת</h3>
+      <ims-radio-group aria-labelledby="radio-state-disabled" [formControl]="radioDisabled">
+        @for (option of options; track option.id) {
+          <ims-radio [value]="option.id" [disabled]="!!option.disabled">{{ option.label }}</ims-radio>
+        }
+      </ims-radio-group>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3 id="radio-state-readonly">Radio · קריאה בלבד</h3>
+      <ims-radio-group
+        aria-labelledby="radio-state-readonly"
+        [formControl]="radioReadonly"
+        [ims-readonly]="true"
+      >
+        @for (option of options; track option.id) {
+          <ims-radio [value]="option.id" [disabled]="!!option.disabled">{{ option.label }}</ims-radio>
+        }
+      </ims-radio-group>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3 id="radio-state-invalid">Radio · לא תקין</h3>
+      <ims-radio-group aria-labelledby="radio-state-invalid" required [formControl]="radioInvalid">
+        @for (option of options; track option.id) {
+          <ims-radio [value]="option.id" [disabled]="!!option.disabled">{{ option.label }}</ims-radio>
+        }
+      </ims-radio-group>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3 id="radio-state-invalid-readonly">Radio · לא תקין + קריאה בלבד</h3>
+      <ims-radio-group
+        aria-labelledby="radio-state-invalid-readonly"
+        required
+        [formControl]="radioInvalidReadonly"
+        [ims-readonly]="true"
+      >
+        @for (option of options; track option.id) {
+          <ims-radio [value]="option.id" [disabled]="!!option.disabled">{{ option.label }}</ims-radio>
+        }
+      </ims-radio-group>
+    </article>
+  </div>
+
+  <div class="component-states-demo__matrix">
+    <article class="component-states-demo__card">
+      <h3 id="check-group-state-normal">Radio check · מרובה · רגיל</h3>
+      <ims-radio-group
+        multiple
+        appearance="check"
+        aria-labelledby="check-group-state-normal"
+        [formControl]="checkGroupNormal"
+      >
+        @for (option of options; track option.id) {
+          <ims-radio [value]="option.id" [disabled]="!!option.disabled">{{ option.label }}</ims-radio>
+        }
+      </ims-radio-group>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3 id="check-group-state-disabled">Radio check · מרובה · מושבת</h3>
+      <ims-radio-group
+        multiple
+        appearance="check"
+        aria-labelledby="check-group-state-disabled"
+        [formControl]="checkGroupDisabled"
+      >
+        @for (option of options; track option.id) {
+          <ims-radio [value]="option.id" [disabled]="!!option.disabled">{{ option.label }}</ims-radio>
+        }
+      </ims-radio-group>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3 id="check-group-state-readonly">Radio check · מרובה · קריאה בלבד</h3>
+      <ims-radio-group
+        multiple
+        appearance="check"
+        aria-labelledby="check-group-state-readonly"
+        [formControl]="checkGroupReadonly"
+        [ims-readonly]="true"
+      >
+        @for (option of options; track option.id) {
+          <ims-radio [value]="option.id" [disabled]="!!option.disabled">{{ option.label }}</ims-radio>
+        }
+      </ims-radio-group>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3 id="check-group-state-invalid">Radio check · מרובה · לא תקין</h3>
+      <ims-radio-group
+        multiple
+        appearance="check"
+        aria-labelledby="check-group-state-invalid"
+        [formControl]="checkGroupInvalid"
+      >
+        @for (option of options; track option.id) {
+          <ims-radio [value]="option.id" [disabled]="!!option.disabled">{{ option.label }}</ims-radio>
+        }
+      </ims-radio-group>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3 id="check-group-state-invalid-readonly">Radio check · מרובה · לא תקין + קריאה בלבד</h3>
+      <ims-radio-group
+        multiple
+        appearance="check"
+        aria-labelledby="check-group-state-invalid-readonly"
+        [formControl]="checkGroupInvalidReadonly"
+        [ims-readonly]="true"
+      >
+        @for (option of options; track option.id) {
+          <ims-radio [value]="option.id" [disabled]="!!option.disabled">{{ option.label }}</ims-radio>
+        }
+      </ims-radio-group>
+    </article>
+  </div>
+
+  <div class="component-states-demo__matrix">
+    <article class="component-states-demo__card">
       <h3>Select · רגיל</h3>
       <ims-select
         placeholder="בחר מצב"

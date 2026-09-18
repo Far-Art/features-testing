@@ -7,6 +7,7 @@ import {
 } from '../../components/ims-datepicker';
 import { ImsAutocomplete, ImsAutocompleteOption } from '../../components/ims-autocomplete';
 import { ImsCheckbox } from '../../components/ims-checkbox';
+import { ImsRadio, ImsRadioGroup } from '../../components/ims-radio';
 import { ImsOption, ImsSelect } from '../../components/ims-select';
 import { ReadonlyDirective } from '../../shared/readonly.directive';
 
@@ -28,6 +29,8 @@ type NativeDatepickerValue = ImsDatepickerValue<Date>;
     ImsCheckbox,
     ImsDatepicker,
     ImsOption,
+    ImsRadio,
+    ImsRadioGroup,
     ImsSelect,
     ReadonlyDirective,
   ],
@@ -93,6 +96,27 @@ export class ComponentStatesDemo {
   readonly checkboxInvalidReadonly = new FormControl(false, {
     nonNullable: true,
     validators: Validators.requiredTrue,
+  });
+
+  readonly radioNormal = new FormControl<number | null>(1);
+  readonly radioDisabled = new FormControl<number | null>({ value: 2, disabled: true });
+  readonly radioReadonly = new FormControl<number | null>(3);
+  readonly radioInvalid = new FormControl<number | null>(null, Validators.required);
+  readonly radioInvalidReadonly = new FormControl<number | null>(null, Validators.required);
+
+  readonly checkGroupNormal = new FormControl<readonly number[]>([1, 2], { nonNullable: true });
+  readonly checkGroupDisabled = new FormControl<readonly number[]>(
+    { value: [1, 3], disabled: true },
+    { nonNullable: true },
+  );
+  readonly checkGroupReadonly = new FormControl<readonly number[]>([2, 3], { nonNullable: true });
+  readonly checkGroupInvalid = new FormControl<readonly number[]>([], {
+    nonNullable: true,
+    validators: Validators.required,
+  });
+  readonly checkGroupInvalidReadonly = new FormControl<readonly number[]>([], {
+    nonNullable: true,
+    validators: Validators.required,
   });
 
   readonly selectNormal = new FormControl<ComponentStateDemoOption | null>(this.options[0]);
@@ -200,6 +224,10 @@ export class ComponentStatesDemo {
       this.textareaInvalidReadonly,
       this.checkboxInvalid,
       this.checkboxInvalidReadonly,
+      this.radioInvalid,
+      this.radioInvalidReadonly,
+      this.checkGroupInvalid,
+      this.checkGroupInvalidReadonly,
       this.selectInvalid,
       this.selectInvalidReadonly,
       this.multiSelectInvalid,

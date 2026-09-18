@@ -248,6 +248,50 @@
     </div>
 
     <div class="form-layout-demo__example">
+        <h2>תווית לצד שדה גבוה</h2>
+        <p class="form-layout-demo__hint">
+            התווית ממורכזת בגובה של שדה רגיל, 26 פיקסלים. לצד שדה גבוה היא נשארת בראש השדה,
+            בגובה השורה הראשונה שלו, ולא עוברת לאמצעו. הרצועה הצבועה מסמנת את גובה השדה הרגיל
+            והקו שבתוכה את מרכזו. אפשר לגרור את פינת תיבת הטקסט כדי להגביה אותה.
+        </p>
+
+        <ims-form-field-grid columns="3" class="form-layout-demo__height-guide">
+            <ims-form-field-row>
+                <ims-form-field column="1">
+                    <label>תיאור האירוע</label>
+                    <textarea imsInput rows="8">הרכב נפגע מאחור בזמן עצירה ברמזור.
+הנהג השני מסר פרטים במקום.
+לא היו נפגעים.
+הרכב נגרר למוסך מורשה בחולון.</textarea>
+                </ims-form-field>
+
+                <ims-form-field column="2">
+                    <label>מספר תביעה</label>
+                    <input imsInput value="CL-2026-4471" dir="ltr">
+                </ims-form-field>
+
+                <ims-form-field column="3">
+                    <span imsFormFieldLabel>סטטוס</span>
+                    <span>בטיפול</span>
+                </ims-form-field>
+            </ims-form-field-row>
+
+            <ims-form-field-row>
+                <ims-form-field column="1">
+                    <label>הערה קצרה</label>
+                    <textarea imsInput rows="1">שורה אחת</textarea>
+                </ims-form-field>
+
+                <ims-form-field column="2" span="2">
+                    <label>סיכום שיחה עם המבוטח</label>
+                    <textarea imsInput rows="4">המבוטח ביקש לעדכן את כתובת המגורים ואת מספר הטלפון.
+נשלח אליו טופס לחתימה בדואר אלקטרוני.</textarea>
+                </ims-form-field>
+            </ims-form-field-row>
+        </ims-form-field-grid>
+    </div>
+
+    <div class="form-layout-demo__example">
         <h2>תיבת סימון לצד שדות קלט</h2>
         <p class="form-layout-demo__hint">
             תיבת סימון שהיא ילד ישיר של ims-form-field מוצגת בעמודת הערך, והתווית מופיעה לצידה.
