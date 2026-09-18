@@ -15,7 +15,7 @@ import {
 let nextFormControlId = 0;
 
 /** Supported complete-field span modes. */
-export type ImsFormFieldSpan = number | 'stretch';
+export type ImsFormFieldSpan = number | 'row';
 
 /** Converts a span-like input to a positive integer or its fallback value. */
 function positiveInteger(value: number | string | null, fallback: number | null): number | null {
@@ -23,10 +23,10 @@ function positiveInteger(value: number | string | null, fallback: number | null)
     return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
 
-/** Converts the public span input to a logical count or stretch mode. */
+/** Converts the public span input to a logical count or row mode. */
 function formFieldSpanAttribute(value: number | string): ImsFormFieldSpan {
-    if (typeof value === 'string' && value.trim().toLowerCase() === 'stretch') {
-        return 'stretch';
+    if (typeof value === 'string' && value.trim().toLowerCase() === 'row') {
+        return 'row';
     }
 
     return positiveInteger(value, 1) ?? 1;
@@ -58,7 +58,9 @@ function formFieldSpanAttribute(value: number | string): ImsFormFieldSpan {
  * A native main label is automatically associated with the first labelable
  * control owned by this field. Existing explicit `for`/`id` associations are
  * preserved. Nested `ims-form-field` controls are ignored, which prevents an
- * outer field from taking ownership of a nested field's control.
+ * outer field from taking ownership of a nested field's control. A grouped
+ * control marked `data-ims-labelled-group`, such as `ims-radio-group`, is named
+ * through its `aria-labelledby` instead of a `for` on its first option.
  *
  * The component always owns its intrinsic label/value tracks. Inside an
  * `ims-form-field-grid` or `ims-form-field-row`, the complete field is placed
@@ -77,6 +79,10 @@ export class ImsFormField {
     private mainLabel: HTMLElement | null = null;
     /** `for` value created by this component, used to distinguish it from consumer input. */
     private automaticLabelFor: string | null = null;
+    /** Group whose `aria-labelledby` this component extended with the main label id. */
+    private labelledGroup: HTMLElement | null = null;
+    /** Label id this component added to `labelledGroup`, removed again on cleanup. */
+    private labelledGroupReference: string | null = null;
     /** Automatic logical column assigned by the nearest form-field grid. */
     private readonly automaticColumn = signal<number | null>(null);
     /** Logical column count supplied by the nearest form-field grid. */
@@ -100,14 +106,14 @@ export class ImsFormField {
     /**
      * Logical form-grid columns occupied by this field.
      *
-     * A positive number requests that many columns. `stretch` consumes every
+     * A positive number requests that many columns. `row` consumes every
      * column remaining after the field's resolved starting position. Numeric
      * spans are clamped to the available columns. Invalid values use one.
      *
      * @example
      * ```html
      * <ims-form-field span="2">...</ims-form-field>
-     * <ims-form-field span="stretch">...</ims-form-field>
+     * <ims-form-field span="row">...</ims-form-field>
      * <ims-form-field [span]="fieldSpan">...</ims-form-field>
      * ```
      */
@@ -123,7 +129,7 @@ export class ImsFormField {
      * @example
      * ```html
      * <ims-form-field span="3" labelSpan="1">...</ims-form-field>
-     * <ims-form-field span="stretch" [labelSpan]="labelColumns">...</ims-form-field>
+     * <ims-form-field span="row" [labelSpan]="labelColumns">...</ims-form-field>
      * ```
      */
     readonly labelSpan = input<number | null, number | string | null>(null, {
@@ -138,7 +144,7 @@ export class ImsFormField {
      * @example
      * ```html
      * <ims-form-field span="3" valueSpan="2">...</ims-form-field>
-     * <ims-form-field span="stretch" [valueSpan]="valueColumns">...</ims-form-field>
+     * <ims-form-field span="row" [valueSpan]="valueColumns">...</ims-form-field>
      * ```
      */
     readonly valueSpan = input<number | null, number | string | null>(null, {
@@ -180,11 +186,11 @@ export class ImsFormField {
         const columnCount = this.gridColumnCount();
         const startColumn = this.column() ?? this.automaticColumn();
         if (columnCount === null || startColumn === null || startColumn > columnCount) {
-            return span === 'stretch' ? 1 : span;
+            return span === 'row' ? 1 : span;
         }
 
         const availableColumns = columnCount - startColumn + 1;
-        return span === 'stretch'
+        return span === 'row'
             ? availableColumns
             : Math.min(span, availableColumns);
     });
@@ -311,6 +317,13 @@ export class ImsFormField {
             return;
         }
 
+        if (!hasExplicitTarget && target.hasAttribute('data-ims-labelled-group')) {
+            this.syncGroupLabel(label, target);
+            return;
+        }
+
+        this.clearGroupLabel();
+
         if (!target.id) {
             target.id = `ims-form-control-${nextFormControlId++}`;
         }
@@ -330,9 +343,59 @@ export class ImsFormField {
     }
 
     /**
+     * Names a grouped control, such as `ims-radio-group`, with the main label.
+     *
+     * A group is not labelable: `for` would point at its first option, so a
+     * click on the field label would select that option and a screen reader
+     * would read the field label as that option's name. The label id is added
+     * to the group's `aria-labelledby` instead, next to any consumer ids.
+     */
+    private syncGroupLabel(label: HTMLLabelElement, group: HTMLElement): void {
+        if (this.automaticLabelFor !== null && label.htmlFor === this.automaticLabelFor) {
+            label.removeAttribute('for');
+        }
+        this.automaticLabelFor = null;
+
+        if (!label.id) {
+            label.id = `ims-form-label-${nextFormControlId++}`;
+        }
+
+        if (this.labelledGroup === group && this.labelledGroupReference === label.id) {
+            return;
+        }
+
+        this.clearGroupLabel();
+
+        const references = idReferences(group);
+        if (!references.includes(label.id)) {
+            group.setAttribute('aria-labelledby', [...references, label.id].join(' '));
+            this.labelledGroup = group;
+            this.labelledGroupReference = label.id;
+        }
+    }
+
+    /** Removes only the `aria-labelledby` reference added by `syncGroupLabel`. */
+    private clearGroupLabel(): void {
+        const group = this.labelledGroup;
+        const reference = this.labelledGroupReference;
+        this.labelledGroup = null;
+        this.labelledGroupReference = null;
+        if (group === null || reference === null) return;
+
+        const references = idReferences(group).filter((id) => id !== reference);
+        if (references.length > 0) {
+            group.setAttribute('aria-labelledby', references.join(' '));
+        } else {
+            group.removeAttribute('aria-labelledby');
+        }
+    }
+
+    /**
      * Returns the first supported control descendant owned by this field.
      *
      * Supported controls are buttons, non-hidden inputs, selects, and textareas.
+     * A `[data-ims-labelled-group]` element also counts, and because it comes
+     * before its own options in document order, it is found instead of them.
      *
      * Two kinds of element are skipped. A focus-mode trigger is an adjacent
      * action rather than a field's primary control, so a field whose control is
@@ -343,7 +406,7 @@ export class ImsFormField {
      */
     private findFirstLabelableControl(): HTMLElement | null {
         const controls = this.hostElement.querySelectorAll<HTMLElement>(
-            'button:not([data-ims-focus-mode-trigger]), input:not([type="hidden"]), select, textarea'
+            '[data-ims-labelled-group], button:not([data-ims-focus-mode-trigger]), input:not([type="hidden"]), select, textarea'
         );
 
         return Array.from(controls).find((control) =>
@@ -360,7 +423,7 @@ export class ImsFormField {
     /**
      * Removes only the label association generated by this component.
      *
-     * Consumer-provided `for` and `id` attributes are left intact.
+     * Consumer-provided `for`, `id`, and `aria-labelledby` values are left intact.
      */
     private clearLabelAssociation(): void {
         if (this.automaticLabelFor !== null) {
@@ -371,7 +434,13 @@ export class ImsFormField {
         }
 
         this.automaticLabelFor = null;
+        this.clearGroupLabel();
     }
+}
+
+/** Reads an element's space-delimited `aria-labelledby` ids. */
+function idReferences(element: HTMLElement): string[] {
+    return (element.getAttribute('aria-labelledby') ?? '').split(/\s+/).filter(Boolean);
 }
 
 /** Maps a one-based logical field column to its label-track grid line. */

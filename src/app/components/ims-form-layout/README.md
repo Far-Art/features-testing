@@ -92,7 +92,7 @@ semantics.
 | Input | Type | Default | Purpose |
 | --- | --- | --- | --- |
 | `column` | `number \| string \| null` | `null` | One-based logical column inside a grid or row. Invalid and non-positive values use automatic placement. |
-| `span` | `number \| 'stretch'` | `1` | Number of logical grid columns occupied by the field, or every column remaining after its start. |
+| `span` | `number \| 'row'` | `1` | Number of logical grid columns occupied by the field, or every column remaining after its start. |
 | `labelSpan` | `number \| string \| null` | `null` | Optional logical-column allocation for the main label in a multi-column field. |
 | `valueSpan` | `number \| string \| null` | `null` | Optional logical-column allocation for the main value in a multi-column field. |
 
@@ -102,7 +102,7 @@ semantics.
 | --- | --- | --- | --- |
 | `columns` | `number \| string \| null` | `null` | Positive integer for fixed mode. Omit it for responsive mode. |
 | `columnDistribution` | `'max-content' \| 'even'` | `'max-content'` | Uses intrinsic logical-column widths or distributes available width evenly. |
-| `minColumnWidth` | `number \| string` | `320` | Column-width estimate used to resolve open-ended `stretch` capacity. |
+| `minColumnWidth` | `number \| string` | `320` | Column-width estimate used to resolve open-ended `row` capacity. |
 | `columnGap` | `string` | `'1rem'` | Minimum space between complete field pairs. Remaining width is also distributed through these spacer tracks. |
 | `rowGap` | `string` | `'0.4rem'` | Vertical space between generated rows and explicit row wrappers. |
 
@@ -185,14 +185,14 @@ Numeric `span` values count complete logical form columns. Automatic placement
 accounts for the requested span and wraps the field when it no longer fits on
 the current row.
 
-`span="stretch"` consumes every logical column remaining after the field's
+`span="row"` consumes every logical column remaining after the field's
 resolved start. The label stays in its normal label track and the value extends
 through the rest of the field.
 
 ```html
 <ims-form-field-grid columns="3" columnDistribution="even">
     <ims-form-field
-        span="stretch"
+        span="row"
     >
         <label>Full address</label>
         <input style="inline-size: 100%">
@@ -201,7 +201,7 @@ through the rest of the field.
 ```
 
 Providing `labelSpan` or `valueSpan` takes precedence over the default
-label/value placement supplied by `stretch` and partitions the field into
+label/value placement supplied by `row` and partitions the field into
 explicit logical regions. If only one part span is provided, the other receives
 the remaining columns. Values that exceed the available field span are
 clamped.
@@ -233,7 +233,7 @@ Responsive fitting works in two stages:
    overflow the grid.
 
 Explicit `column` positions are included in the occupancy limit.
-For open-ended `span="stretch"`, the available width and `minColumnWidth`
+For open-ended `span="row"`, the available width and `minColumnWidth`
 estimate how many logical columns it can consume.
 
 Candidate templates are measured synchronously within one animation frame.
@@ -251,7 +251,7 @@ height changes caused by wrapping must not do so.
 
 ### Responsive Caveats
 
-- `minColumnWidth` estimates open-ended `stretch` capacity. Ordinary field
+- `minColumnWidth` estimates open-ended `row` capacity. Ordinary field
   columns are fitted from their actual intrinsic widths.
 - Responsive changes are intentionally delayed by the resize debounce.
 - Fixed `columns` mode does not reduce the requested count when content is too
@@ -376,7 +376,38 @@ This exception requires `ims-checkbox` to be a direct child of
 The placement offset uses `--ims-form-checkbox-size`, defaulting to
 `--ims-checkbox-size`, the `:root` variable from `ims-checkbox.scss` that also
 sizes the checkbox box. Override it only for a checkbox that does not use that
-variable.
+variable. Where `round()` is supported, the offset rounds that size to whole
+pixels, matching the checkbox track.
+
+## Grouped Control Exception
+
+A grouped control, such as `ims-radio-group`, marks its host with
+`data-ims-labelled-group`:
+
+```html
+<ims-form-field>
+    <label>Coverage plan</label>
+    <ims-radio-group [formControl]="plan">...</ims-radio-group>
+</ims-form-field>
+```
+
+A group is not labelable. An automatic `for` would point at its first option, so
+clicking the field label would select that option and a screen reader would
+read the field label as that option's name. For this structure:
+
+- The marked group counts as the field's control. It comes before its own
+  options in document order, so it is found instead of them.
+- The label gets a generated id when it has none, and that id is added to the
+  group's `aria-labelledby`, next to any ids the consumer already put there.
+- The label gets no `for`, so clicking it selects nothing, and the label keeps
+  the default cursor.
+- Hovering the label still colors it while the group has an enabled option, as
+  hovering a checkbox's label does. The group's own stylesheet highlights its
+  options for the same hover.
+- Cleanup removes only the id the field added. A consumer-provided `for` on the
+  label still wins and bypasses this path.
+- Layout is unchanged: the group sits in the value track like any other value
+  content.
 
 ## Native And Custom Value Content
 
@@ -386,6 +417,19 @@ values, custom components, and compound groups retain their own styles.
 
 Set control sizing directly on the control or through the control component's
 own API.
+
+## Vertical Alignment
+
+The main label is offset from the top of the field by half the difference
+between `--field-height` and its own line height, so its first line is centered
+on a single-line control. A taller value, such as a textarea, a radio group, or
+a wrapped read-only value, does not move the label to its middle. The label stays
+level with the value's first row.
+
+A value with only text and no child elements gets the same offset, so a
+read-only value stays on the label's line. Native `input`, `textarea`, and
+`button` values are excluded. The direct `ims-checkbox` exception keeps its own
+vertical centering.
 
 ## Label Interaction Styling
 

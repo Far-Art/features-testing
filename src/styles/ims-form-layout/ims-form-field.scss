@@ -25,6 +25,15 @@ ims-form-field {
         box-sizing: border-box;
     }
 
+    // Centres the first line of text on a single-line field height. This covers
+    // the label and a read-only value that holds only text, so the two stay on
+    // one line. Beside a taller value, such as a textarea or a radio group, the
+    // label stays level with the value's first row instead of its middle.
+    > :is(label, [imsFormFieldLabel]),
+    > :not(label, [imsFormFieldLabel], input, textarea, button):not(:has(*)) {
+        margin-block-start: max(0px, (var(--field-height) - 1lh) / 2);
+    }
+
     &:has(> ims-checkbox) {
         > ims-checkbox {
             justify-self: start;
@@ -36,9 +45,15 @@ ims-form-field {
         > :is(label, [imsFormFieldLabel]) {
             width: max-content;
             align-self: center;
+            margin-block-start: 0;
             grid-column: 2;
             grid-row: 1;
             margin-inline-start: calc(var(--ims-form-checkbox-size, var(--ims-checkbox-size)) + var(--ims-form-field-gap));
+
+            // Matches ims-checkbox.scss, which rounds the track to whole pixels.
+            @supports (width: round(1.5px, 1px)) {
+                margin-inline-start: calc(round(var(--ims-form-checkbox-size, var(--ims-checkbox-size)), 1px) + var(--ims-form-field-gap));
+            }
         }
     }
 
@@ -46,8 +61,11 @@ ims-form-field {
         cursor: pointer;
     }
 
+    // A grouped control has no `for` to hover it from the label, so the label
+    // answers its own hover while the group has an enabled option.
     &:has(:is(input, select, textarea, button):not(:disabled):hover) > :is(label, [imsFormFieldLabel]),
-    &:has(:is(input, select, textarea, button):not(:disabled):focus) > :is(label, [imsFormFieldLabel]) {
+    &:has(:is(input, select, textarea, button):not(:disabled):focus) > :is(label, [imsFormFieldLabel]),
+    &:has([data-ims-labelled-group] input:not(:disabled)) > :is(label, [imsFormFieldLabel]):hover {
         color: var(--ims-color-primary-400);
     }
 }

@@ -88,7 +88,7 @@ export class ImsFormFieldGrid {
     });
     /**
      * Approximate width, in CSS pixels, used to estimate how many logical
-     * columns an open-ended `span="stretch"` field can consume.
+     * columns an open-ended `span="row"` field can consume.
      *
      * @example
      * ```html
@@ -155,12 +155,12 @@ export class ImsFormFieldGrid {
     private resetColumnsBeforeLayout = false;
     /** Maximum responsive column count that projected fields can occupy. */
     private readonly maximumAutomaticColumns = computed(() => {
-        const stretchColumnEstimate = Math.max(
+        const rowColumnEstimate = Math.max(
             1,
             Math.floor(this.availableWidth() / this.minColumnWidth())
         );
 
-        return this.maximumUsefulContentColumns(stretchColumnEstimate);
+        return this.maximumUsefulContentColumns(rowColumnEstimate);
     });
 
     /**
@@ -305,9 +305,9 @@ export class ImsFormFieldGrid {
      *
      * Direct fields share one flow context. Each explicit row is independent,
      * so rows contribute their widest useful count rather than being summed.
-     * A stretch field can occupy every estimated width-supported column.
+     * A `span="row"` field can occupy every estimated width-supported column.
      */
-    private maximumUsefulContentColumns(stretchColumnEstimate: number): number {
+    private maximumUsefulContentColumns(rowColumnEstimate: number): number {
         const projectedFields = this.projectedFields();
         const fieldGroups: ImsFormField[][] = [
             projectedFields.filter(
@@ -328,7 +328,7 @@ export class ImsFormFieldGrid {
         return Math.max(
             1,
             ...fieldGroups.map((fields) =>
-                this.usefulColumnCount(fields, stretchColumnEstimate)
+                this.usefulColumnCount(fields, rowColumnEstimate)
             )
         );
     }
@@ -336,15 +336,15 @@ export class ImsFormFieldGrid {
     /** Returns the logical columns that one field flow can meaningfully occupy. */
     private usefulColumnCount(
         fields: readonly ImsFormField[],
-        stretchColumnEstimate: number
+        rowColumnEstimate: number
     ): number {
         let totalSpan = 0;
         let furthestExplicitColumn = 0;
 
         for (const field of fields) {
             const span = field.span();
-            if (span === 'stretch') {
-                return stretchColumnEstimate;
+            if (span === 'row') {
+                return rowColumnEstimate;
             }
 
             totalSpan += span;
@@ -391,7 +391,7 @@ export class ImsFormFieldGrid {
             let requestedSpan: number;
 
             if (explicitColumn === null) {
-                if (span === 'stretch') {
+                if (span === 'row') {
                     automaticColumn = nextColumn;
                     requestedSpan = columnCount - nextColumn + 1;
                 } else {
@@ -404,7 +404,7 @@ export class ImsFormFieldGrid {
                 }
                 nextColumn += requestedSpan;
             } else {
-                requestedSpan = span === 'stretch'
+                requestedSpan = span === 'row'
                     ? Math.max(1, columnCount - explicitColumn + 1)
                     : Math.min(span, columnCount);
                 nextColumn = explicitColumn + requestedSpan;
