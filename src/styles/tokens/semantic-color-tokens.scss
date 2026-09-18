@@ -10,7 +10,8 @@
     // Background for disabled editable controls.
     --ims-color-surface-input-disabled: var(--ims-color-neutral-100);
     // Enabled-like background for disabled controls whose value must remain easy to read.
-    --ims-color-surface-input-readonly: var(--ims-color-neutral-50);
+    // Semi-transparent so the readonly field takes on the tone of whatever surface it sits on.
+    --ims-color-surface-input-readonly: color-mix(in srgb, var(--ims-color-neutral-50) 40%, transparent);
     // High-contrast surface used for inverse treatments such as dark notifications.
     --ims-color-surface-inverse: var(--ims-color-brand);
 
