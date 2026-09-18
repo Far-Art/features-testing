@@ -128,8 +128,10 @@ answers in the danger tone rather than the house blue:
 Scoping the rule to the primary control keeps auxiliary inputs, such as filters,
 unaffected. When the component uses `ims-error-popover`, also mark that control
 with `data-ims-main-control`: the directive puts `aria-invalid` and
-`aria-describedby` on the marked element, and otherwise falls back to the host's
-first focusable descendant.
+`aria-describedby` on the marked element, or on the first focusable element
+inside it, and otherwise falls back to the host's first focusable descendant. A marked element
+with `role="radiogroup"` or `role="group"`, such as the `ims-radio-group` host,
+receives them itself.
 
 ```html
 <div class="ims-example">
@@ -227,7 +229,12 @@ Use these semantic tokens:
 ```scss
 --ims-color-surface-input-readonly
 --ims-color-on-surface-readonly
+--ims-color-border-readonly
 ```
+
+`--ims-color-border-readonly` is for controls drawn only by their border, such
+as a checkbox. Shared inputs keep `--ims-color-border-subtle`, which would leave
+an unchecked box barely visible against the readonly surface.
 
 Add `.ims-readonly` to a disabled shared input:
 
