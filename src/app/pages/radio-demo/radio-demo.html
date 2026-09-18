@@ -1,0 +1,234 @@
+<header class="page-heading">
+    <h1>כפתורי בחירה</h1>
+    <p>
+        <code>ims-radio-group</code> עם <code>ims-radio</code>: בחירה יחידה או מרובה,
+        סגנון עיגול עם נקודה (כחול) או עיגול עם סימן וי (ירוק).
+    </p>
+</header>
+
+<section class="radio-demo" aria-labelledby="radio-demo-appearance-title">
+    <div class="radio-demo__description">
+        <h2 id="radio-demo-appearance-title">סגנונות · בחירה יחידה</h2>
+        <p><code>appearance="radio"</code> הוא ברירת המחדל. <code>layout="stacked"</code> הוא ברירת המחדל.</p>
+    </div>
+
+    <div class="radio-demo__grid">
+        <article class="radio-demo__card">
+            <h3 id="radio-demo-single-radio">radio</h3>
+            <ims-radio-group aria-labelledby="radio-demo-single-radio" [(value)]="singleRadio">
+                @for (channel of channels; track channel.value) {
+                    <ims-radio [value]="channel.value">{{ channel.label }}</ims-radio>
+                }
+            </ims-radio-group>
+            <code>value: {{ describe(singleRadio()) }}</code>
+        </article>
+
+        <article class="radio-demo__card">
+            <h3 id="radio-demo-single-check">check</h3>
+            <ims-radio-group
+                appearance="check"
+                aria-labelledby="radio-demo-single-check"
+                [(value)]="singleCheck"
+            >
+                @for (channel of channels; track channel.value) {
+                    <ims-radio [value]="channel.value">{{ channel.label }}</ims-radio>
+                }
+            </ims-radio-group>
+            <code>value: {{ describe(singleCheck()) }}</code>
+        </article>
+    </div>
+</section>
+
+<section class="radio-demo" aria-labelledby="radio-demo-multiple-title">
+    <div class="radio-demo__description">
+        <h2 id="radio-demo-multiple-title">בחירה מרובה · inline</h2>
+        <p>
+            <code>multiple</code> כותב מערך לפי סדר הבחירה. מתחת לפני השטח אלה תיבות סימון,
+            כך שקורא מסך מכריז על בחירה מרובה.
+        </p>
+    </div>
+
+    <div class="radio-demo__grid">
+        <article class="radio-demo__card">
+            <h3 id="radio-demo-multiple-radio">radio · multiple</h3>
+            <ims-radio-group
+                multiple
+                layout="inline"
+                aria-labelledby="radio-demo-multiple-radio"
+                [(value)]="multipleRadio"
+            >
+                @for (channel of channels; track channel.value) {
+                    <ims-radio [value]="channel.value">{{ channel.label }}</ims-radio>
+                }
+            </ims-radio-group>
+            <code>value: {{ describe(multipleRadio()) }}</code>
+        </article>
+
+        <article class="radio-demo__card">
+            <h3 id="radio-demo-multiple-check">check · multiple</h3>
+            <ims-radio-group
+                multiple
+                appearance="check"
+                layout="inline"
+                aria-labelledby="radio-demo-multiple-check"
+                [(value)]="multipleCheck"
+            >
+                @for (channel of channels; track channel.value) {
+                    <ims-radio [value]="channel.value">{{ channel.label }}</ims-radio>
+                }
+            </ims-radio-group>
+            <code>value: {{ describe(multipleCheck()) }}</code>
+        </article>
+    </div>
+</section>
+
+<section class="radio-demo" aria-labelledby="radio-demo-form-title">
+    <div class="radio-demo__description">
+        <h2 id="radio-demo-form-title">בתוך טופס</h2>
+        <p>
+            <code>formControl</code> עם ערכי אובייקט ו־<code>compareWith</code>, חובה עם
+            <code>ims-error-popover</code>, ותווית השדה שמשמשת כשם הקבוצה.
+        </p>
+    </div>
+
+    <ims-form-field-grid columns="1">
+        <ims-form-field>
+            <label>מסלול ביטוח</label>
+            <ims-radio-group
+                appearance="check"
+                required
+                ims-error-popover
+                [formControl]="planControl"
+                [compareWith]="compareById"
+                (selectionChange)="logSelection('מסלול', $event)"
+            >
+                @for (plan of plans; track plan.id) {
+                    <ims-radio [value]="plan" [disabled]="!!plan.disabled">{{ plan.label }}</ims-radio>
+                }
+            </ims-radio-group>
+        </ims-form-field>
+
+        <ims-form-field>
+            <label>הרחבות</label>
+            <ims-radio-group
+                multiple
+                layout="inline"
+                ims-error-popover
+                [formControl]="addonsControl"
+                [compareWith]="compareById"
+                (selectionChange)="logSelection('הרחבות', $event)"
+            >
+                @for (addon of addons; track addon.id) {
+                    <ims-radio [value]="addon">{{ addon.label }}</ims-radio>
+                }
+            </ims-radio-group>
+        </ims-form-field>
+    </ims-form-field-grid>
+
+    <div class="radio-demo__actions">
+        <button type="button" (click)="setPlanFromCode()">setValue מהקוד</button>
+        <button type="button" (click)="resetForm()">reset</button>
+    </div>
+
+    <dl class="radio-demo__readout">
+        <dt>מסלול</dt>
+        <dd>{{ describe(planControl.value) }} · {{ planControl.status }}</dd>
+        <dt>הרחבות</dt>
+        <dd>{{ describe(addonsControl.value) }} · {{ addonsControl.status }}</dd>
+        <dt>selectionChange</dt>
+        <dd>
+            @for (entry of selectionLog(); track $index) {
+                <span class="radio-demo__log-entry">{{ entry }}</span>
+            } @empty {
+                —
+            }
+        </dd>
+    </dl>
+</section>
+
+<section class="radio-demo" aria-labelledby="radio-demo-states-title">
+    <div class="radio-demo__description">
+        <h2 id="radio-demo-states-title">מצבים והתאמות</h2>
+    </div>
+
+    <div class="radio-demo__grid">
+        <article class="radio-demo__card">
+            <h3 id="radio-demo-disabled">מושבת</h3>
+            <ims-radio-group aria-labelledby="radio-demo-disabled" layout="inline" [formControl]="disabledSingle">
+                @for (channel of channels; track channel.value) {
+                    <ims-radio [value]="channel.value">{{ channel.label }}</ims-radio>
+                }
+            </ims-radio-group>
+            <ims-radio-group
+                multiple
+                appearance="check"
+                layout="inline"
+                aria-labelledby="radio-demo-disabled"
+                [formControl]="disabledMultiple"
+            >
+                @for (channel of channels; track channel.value) {
+                    <ims-radio [value]="channel.value">{{ channel.label }}</ims-radio>
+                }
+            </ims-radio-group>
+        </article>
+
+        <article class="radio-demo__card" [ims-readonly]="true">
+            <h3 id="radio-demo-readonly">קריאה בלבד</h3>
+            <ims-radio-group aria-labelledby="radio-demo-readonly" layout="inline" [formControl]="readonlySingle">
+                @for (channel of channels; track channel.value) {
+                    <ims-radio [value]="channel.value">{{ channel.label }}</ims-radio>
+                }
+            </ims-radio-group>
+            <ims-radio-group
+                multiple
+                appearance="check"
+                layout="inline"
+                aria-labelledby="radio-demo-readonly"
+                [formControl]="readonlyMultiple"
+            >
+                @for (channel of channels; track channel.value) {
+                    <ims-radio [value]="channel.value">{{ channel.label }}</ims-radio>
+                }
+            </ims-radio-group>
+        </article>
+
+        <article class="radio-demo__card">
+            <h3 id="radio-demo-mixed">סגנון לכל אפשרות</h3>
+            <ims-radio-group aria-labelledby="radio-demo-mixed" [(value)]="mixedAppearance">
+                @for (channel of channels; track channel.value) {
+                    <ims-radio
+                        [value]="channel.value"
+                        [appearance]="channel.value === 'phone' ? 'check' : null"
+                    >
+                        {{ channel.label }}
+                    </ims-radio>
+                }
+            </ims-radio-group>
+            <code>value: {{ describe(mixedAppearance()) }}</code>
+        </article>
+
+        <article class="radio-demo__card radio-demo__card--custom-accent">
+            <h3 id="radio-demo-accent">צבע מותאם</h3>
+            <ims-radio-group
+                multiple
+                layout="inline"
+                aria-labelledby="radio-demo-accent"
+                [(value)]="customAccent"
+            >
+                @for (channel of channels; track channel.value) {
+                    <ims-radio [value]="channel.value">{{ channel.label }}</ims-radio>
+                }
+            </ims-radio-group>
+            <ims-radio-group
+                appearance="check"
+                layout="inline"
+                aria-labelledby="radio-demo-accent"
+                [(value)]="customCheckAccent"
+            >
+                @for (channel of channels; track channel.value) {
+                    <ims-radio [value]="channel.value">{{ channel.label }}</ims-radio>
+                }
+            </ims-radio-group>
+        </article>
+    </div>
+</section>

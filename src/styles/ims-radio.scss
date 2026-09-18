@@ -1,0 +1,285 @@
+// Declared on :root, like --ims-checkbox-size, so a page can resize every radio
+// from any ancestor.
+:root {
+    // Outer size of the circle, border included.
+    --ims-radio-size: 1.25rem;
+}
+
+// Stacked by default: one option per row. Every option is a field-height row,
+// so stacked options line up with the inputs of neighbouring fields.
+.ims-radio-group-host {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.ims-radio-group-host[data-layout="inline"] {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 1.25rem;
+}
+
+// Inline-level like a native input. As a flex container the host is exactly as
+// tall as the option; as an inline box it would add line-box space below it.
+.ims-radio-host {
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+// The native input is the real control: it covers the whole label, takes the
+// click, the focus and the form state, and its :checked and :disabled
+// pseudo-classes drive every visual state below. It is a radio in single mode
+// and a checkbox in multiple mode; both match :checked.
+.ims-radio {
+    --ims-radio-duration: 200ms;
+    --ims-radio-ease: cubic-bezier(0.4, 0, 0.2, 1);
+    // The tone every selected, hover and focus state paints with. The
+    // appearance and the state rules below retune it. The public hooks
+    // (--ims-radio-accent, --ims-radio-check-accent and their -strong pairs)
+    // are only read here as fallbacks and never declared, so a consumer can set
+    // them on any ancestor. A -strong hook left unset follows its accent, so
+    // recoloring only the accent never leaves a default hover color behind.
+    --ims-radio-tone: var(--ims-radio-accent, var(--ims-color-interactive));
+    --ims-radio-tone-strong: var(
+        --ims-radio-accent-strong,
+        var(--ims-radio-accent, var(--ims-color-interactive-strong))
+    );
+    --ims-radio-tone-ring: var(--ims-color-focus-ring);
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    // As tall as a text field, with the circle centered in it, so an option
+    // lines up with the inputs placed beside it.
+    min-height: var(--field-height);
+    color: var(--ims-color-on-surface);
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.ims-radio.ims-radio--check {
+    --ims-radio-tone: var(--ims-radio-check-accent, var(--ims-color-interactive-success));
+    --ims-radio-tone-strong: var(
+        --ims-radio-check-accent-strong,
+        var(--ims-radio-check-accent, var(--ims-color-interactive-success-strong))
+    );
+    --ims-radio-tone-ring: var(--ims-color-success-focus-ring);
+}
+
+// `ng-invalid` lands on the group host. Disabled and readonly options are
+// retuned again by the rules after this one, as in ims-checkbox.scss.
+.ims-radio-group-host.ng-invalid .ims-radio {
+    --ims-radio-tone: var(--ims-color-invalid);
+    --ims-radio-tone-strong: var(--ims-color-invalid);
+    --ims-radio-tone-ring: var(--ims-color-invalid-focus-ring);
+}
+
+.ims-radio:has(> .ims-radio__native:disabled) {
+    --ims-radio-tone: var(--ims-color-on-surface-disabled);
+
+    color: var(--ims-color-on-surface-disabled);
+    cursor: not-allowed;
+}
+
+// Readable disabled treatment, see component-styling-guide.md. The inputs are
+// disabled whenever the group sits in an ims-readonly scope.
+.ims-radio-group-host.ims-readonly .ims-radio:has(> .ims-radio__native:disabled) {
+    --ims-radio-tone: var(--ims-color-on-surface-readonly);
+
+    color: var(--ims-color-on-surface-readonly);
+}
+
+.ims-radio__native {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: inherit;
+}
+
+.ims-radio__control {
+    position: relative;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    width: var(--ims-radio-size);
+    height: var(--ims-radio-size);
+    border: 2px solid var(--ims-color-border);
+    border-radius: 50%;
+    // The hover halo. Always present and transparent at rest, so hover only
+    // changes its color and never the layout.
+    outline: 3px solid transparent;
+    outline-offset: 0;
+    background: transparent;
+    // The check mark strokes with currentColor, so this is the mark color.
+    color: transparent;
+    // The circle is positioned after the native input, so it paints above it and
+    // would take the pointer. Every hover rule reads the input's :hover, which
+    // would then match only over the label text and never over the circle itself.
+    pointer-events: none;
+}
+
+// Transitions wait for the first render, so an option that starts selected
+// appears selected instead of animating into it.
+//
+// The machines these controls run on have no GPU, and the CPU paints every
+// transformed frame. So hover draws an outline halo rather than scaling, and
+// there is no click ripple. The only transform is the small selected dot
+// growing in.
+.ims-radio--animations-ready .ims-radio__control {
+    transition:
+        background-color var(--ims-radio-duration) var(--ims-radio-ease),
+        border-color var(--ims-radio-duration) var(--ims-radio-ease),
+        outline-color var(--ims-radio-duration) var(--ims-radio-ease),
+        color var(--ims-radio-duration) var(--ims-radio-ease);
+}
+
+// Radio appearance: a dot that grows from the center. Sized by its inset, a
+// quarter of the inner box on each side, so it is half the inner box wide.
+.ims-radio__dot {
+    position: absolute;
+    inset: 25%;
+    border-radius: 50%;
+    background: var(--ims-radio-tone);
+    transform: scale(0);
+}
+
+.ims-radio--animations-ready .ims-radio__dot {
+    transition:
+        background-color var(--ims-radio-duration) var(--ims-radio-ease),
+        transform var(--ims-radio-duration) var(--ims-radio-ease);
+}
+
+// Whole pixels, as in ims-checkbox.scss. On a low-DPI screen a fractional size
+// (a rem under a non-16px root, or browser zoom) snaps to an oval and shifts the
+// dot or mark inside it off center. Behind @supports: without round(), these
+// declarations would compute to `auto` and collapse the empty circle.
+@supports (width: round(1.5px, 1px)) {
+    .ims-radio__control {
+        width: round(var(--ims-radio-size), 1px);
+        height: round(var(--ims-radio-size), 1px);
+    }
+
+    // The same whole-pixel gap on every side, so the dot stays centered even
+    // when the inner box has an odd size.
+    .ims-radio__dot {
+        inset: round(25%, 1px);
+    }
+}
+
+// Check appearance: the viewBox matches the circle's 16px inner box at the
+// default size, so the 2px stroke stays 2px.
+.ims-radio__icon {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+// stroke-dasharray is fixed at 12, longer than the mark (~9.9), so
+// stroke-dashoffset alone draws the mark in (12 → 0) and erases it (0 → 12).
+.ims-radio__mark {
+    stroke-dasharray: 12;
+    stroke-dashoffset: 12;
+    opacity: 0;
+}
+
+.ims-radio--animations-ready .ims-radio__mark {
+    transition:
+        stroke-dashoffset calc(var(--ims-radio-duration) * 1.6) var(--ims-radio-ease),
+        opacity 80ms ease;
+}
+
+.ims-radio__label {
+    line-height: 1.4;
+}
+
+// Without projected text the label would still take a flex gap and push the
+// host wider than the circle.
+.ims-radio__label:empty {
+    display: none;
+}
+
+// Hovering the ims-form-field label that names the group hovers every enabled
+// option at once. A checkbox gets this from its label's `for`; a group has no
+// `for` (see the grouped control exception in ims-form-layout/README.md), so
+// the label hover is matched here next to each real hover selector.
+.ims-radio__native:not(:disabled):hover + .ims-radio__control,
+ims-form-field:has(> :is(label, [imsFormFieldLabel]):hover) .ims-radio__native:not(:disabled) + .ims-radio__control {
+    border-color: var(--ims-radio-tone);
+}
+
+// The halo sits where the focus ring does and would paint over it, so a
+// focused option keeps its focus ring instead.
+.ims-radio__native:not(:disabled):not(:focus-visible):hover + .ims-radio__control,
+ims-form-field:has(> :is(label, [imsFormFieldLabel]):hover) .ims-radio__native:not(:disabled):not(:focus-visible) + .ims-radio__control {
+    outline-color: color-mix(in srgb, var(--ims-radio-tone) 18%, transparent);
+}
+
+.ims-radio__native:focus-visible + .ims-radio__control {
+    box-shadow: 0 0 0 3px var(--ims-radio-tone-ring);
+}
+
+.ims-radio__native:disabled + .ims-radio__control {
+    border-color: var(--ims-color-border-subtle);
+    background: var(--ims-color-surface-input-disabled);
+}
+
+.ims-radio-group-host.ims-readonly .ims-radio__native:disabled + .ims-radio__control {
+    background: var(--ims-color-surface-input-readonly);
+}
+
+// Unlike a disabled option, a readonly one keeps the regular border, so an
+// unselected option stays visible. Limited to unselected options, because this
+// selector outranks the selected border below.
+.ims-radio-group-host.ims-readonly .ims-radio__native:disabled:not(:checked) + .ims-radio__control {
+    border-color: var(--ims-color-border);
+}
+
+// Kept after the hover rule so an invalid option keeps its danger tone under
+// the pointer; disabled and readonly options are left alone.
+.ims-radio-group-host.ng-invalid .ims-radio__native:not(:disabled) + .ims-radio__control {
+    border-color: var(--ims-color-invalid);
+}
+
+// Selected states come last: in every state the tone is already right, so a
+// selected option only needs to paint with it.
+.ims-radio .ims-radio__native:checked + .ims-radio__control {
+    border-color: var(--ims-radio-tone);
+}
+
+.ims-radio.ims-radio--check .ims-radio__native:checked + .ims-radio__control {
+    background: var(--ims-radio-tone);
+    color: var(--ims-color-on-interactive);
+}
+
+.ims-radio__native:checked + .ims-radio__control .ims-radio__dot {
+    transform: scale(1);
+}
+
+.ims-radio__native:checked + .ims-radio__control .ims-radio__mark {
+    stroke-dashoffset: 0;
+    opacity: 1;
+}
+
+.ims-radio .ims-radio__native:checked:not(:disabled):hover + .ims-radio__control,
+ims-form-field:has(> :is(label, [imsFormFieldLabel]):hover) .ims-radio .ims-radio__native:checked:not(:disabled) + .ims-radio__control {
+    border-color: var(--ims-radio-tone-strong);
+}
+
+.ims-radio.ims-radio--check .ims-radio__native:checked:not(:disabled):hover + .ims-radio__control,
+.ims-radio__native:checked:not(:disabled):hover + .ims-radio__control .ims-radio__dot,
+ims-form-field:has(> :is(label, [imsFormFieldLabel]):hover) .ims-radio.ims-radio--check .ims-radio__native:checked:not(:disabled) + .ims-radio__control,
+ims-form-field:has(> :is(label, [imsFormFieldLabel]):hover) .ims-radio__native:checked:not(:disabled) + .ims-radio__control .ims-radio__dot {
+    background: var(--ims-radio-tone-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ims-radio--animations-ready :is(.ims-radio__control, .ims-radio__dot, .ims-radio__mark) {
+        transition: none;
+    }
+}

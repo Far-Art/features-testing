@@ -12,6 +12,11 @@ export const routes: Routes = [
             import('./pages/selection-demo/selection-demo').then((module) => module.SelectionDemo)
     },
     {
+        path: 'radio',
+        loadComponent: () =>
+            import('./pages/radio-demo/radio-demo').then((module) => module.RadioDemo)
+    },
+    {
         path: 'buttons',
         loadComponent: () =>
             import('./pages/buttons-demo/buttons-demo').then((module) => module.ButtonsDemo)

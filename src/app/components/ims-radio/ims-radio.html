@@ -1,0 +1,40 @@
+<label
+    class="ims-radio"
+    [class.ims-radio--check]="appearance() === 'check'"
+    [class.ims-radio--animations-ready]="animationsReady()"
+>
+    <!-- Every visual state is styled from this input's pseudo-classes. -->
+    <input
+        class="ims-radio__native"
+        [attr.type]="inputType()"
+        [attr.name]="name()"
+        [attr.id]="id()"
+        [attr.aria-label]="ariaLabel()"
+        [checked]="selected()"
+        [disabled]="disabled()"
+        (change)="onNativeChange($event)"
+    />
+
+    <span class="ims-radio__control" aria-hidden="true">
+        @if (appearance() === 'check') {
+            <!-- stroke-dashoffset drives the pen-draw / erase effect, as in ims-checkbox. -->
+            <svg class="ims-radio__icon" viewBox="0 0 16 16" fill="none" focusable="false">
+                <path
+                    class="ims-radio__mark"
+                    d="M 4.5 8.25 L 6.75 10.5 L 11.5 5.75"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                />
+            </svg>
+        } @else {
+            <span class="ims-radio__dot"></span>
+        }
+    </span>
+
+    <span class="ims-radio__label">
+        <ng-content />
+    </span>
+</label>
