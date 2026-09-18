@@ -628,9 +628,14 @@ export class ImsErrorPopoverDirective
 
     /** Finds the focusable element that should own validation ARIA attributes. */
     private resolveAriaTarget(): HTMLElement {
-        const primaryControl = this.popoverHost.querySelector<HTMLElement>(
-            '[data-ims-main-control]'
-        );
+        const primaryControl = this.popoverHost.matches('[data-ims-main-control]')
+            ? this.popoverHost
+            : this.popoverHost.querySelector<HTMLElement>('[data-ims-main-control]');
+        // A group control such as ims-radio-group is what assistive technology
+        // announces the field by; its first focusable option is only one choice.
+        if (primaryControl?.matches('[role="radiogroup"], [role="group"]')) {
+            return primaryControl;
+        }
         const targetRoot = primaryControl ?? this.popoverHost;
         return findFocusable(targetRoot) ?? targetRoot;
     }
