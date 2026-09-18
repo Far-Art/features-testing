@@ -14,10 +14,17 @@
 
 // Stacked by default: one option per row. Every option is a field-height row,
 // so stacked options line up with the inputs of neighbouring fields.
+// As wide as its options (max-content), not its container, so a grid or form
+// field does not stretch the group across empty space. fit-content rather than
+// max-content: where the options do not fit, the group takes the available
+// width and an inline group wraps. max-content, even capped with
+// max-width: 100%, forces an auto grid track open to the full row, so the group
+// overflows its container instead of wrapping.
 .ims-radio-group-host {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    width: fit-content;
 }
 
 .ims-radio-group-host[data-layout="inline"] {

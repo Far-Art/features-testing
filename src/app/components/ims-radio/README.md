@@ -173,6 +173,13 @@ Classes: `.ims-radio-group-host` (group host, with `[data-layout]`),
 `.ims-radio__icon`, `.ims-radio__mark`, `.ims-radio__label`, plus the modifiers
 `.ims-radio--check` and `.ims-radio--animations-ready`.
 
+The group host is `width: fit-content`: as wide as its options (their
+max-content width), not stretched across its container, and capped at the
+available width, where an inline group wraps and long labels break. Do not
+change it to `max-content`. Even capped with `max-width: 100%`, `max-content`
+forces an auto grid track open to the full row. The group then overflows its
+container instead of wrapping.
+
 Every option is at least `--field-height` (26px) tall with the circle centered
 in it. Three sizes are declared on `:root`, all outer sizes with the border
 included:
