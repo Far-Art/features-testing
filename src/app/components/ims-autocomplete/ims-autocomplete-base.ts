@@ -20,7 +20,6 @@ import {
     ElementRef,
     inject,
     input,
-    linkedSignal,
     numberAttribute,
     OnDestroy,
     output,
@@ -67,12 +66,6 @@ import {
     ImsAutocompleteValue,
     ImsAutocompleteViewMode
 } from './ims-autocomplete.types';
-
-interface ImsAutocompleteLabelSource<T> {
-    readonly options: readonly ImsAutocompleteOption<T>[];
-    readonly values: readonly T[];
-    readonly compare: ImsAutocompleteCompareWith<T>;
-}
 
 /** Template dependencies of every autocomplete component, all of which render `ims-autocomplete.html`. */
 export const IMS_AUTOCOMPLETE_IMPORTS = [
@@ -287,26 +280,34 @@ export abstract class ImsAutocompleteBase<T = unknown>
     /** True once the source options answer the current query; see `sourceMatchesQuery()`. */
     private readonly sourceCurrent = computed(() => this.sourceMatchesQuery());
 
+    /** Options of values about to be selected that may no longer be loaded; see `rememberOptions()`. */
+    private readonly rememberedOptions = signal<readonly ImsAutocompleteOption<T>[]>([]);
+
+    /** The result `selectedOptionCache` last computed, which its next computation builds on. */
+    private previousSelectedOptions: readonly ImsAutocompleteOption<T>[] = [];
+
     /**
      * Options that label the current selection, kept after they leave the
      * source options. An async source holds only the latest query's results, so
      * without this a selected value would lose its label as soon as the user
      * searched for something else.
+     *
+     * This is a `linkedSignal` without `linkedSignal`, which Angular 18 lacks:
+     * the computation keeps its last result in `previousSelectedOptions` to look
+     * up values the source no longer holds.
      */
-    private readonly selectedOptionCache = linkedSignal<
-        ImsAutocompleteLabelSource<T>,
-        readonly ImsAutocompleteOption<T>[]
-    >({
-        source: () => ({
-            options: this.sourceOptions(),
-            values: this.selectedValues(),
-            compare: this.compareWith()
-        }),
-        computation: ({options, values, compare}, previous) => values.flatMap((value) => {
+    private readonly selectedOptionCache = computed(() => {
+        const options = this.sourceOptions();
+        const compare = this.compareWith();
+        const knownOptions = [...this.previousSelectedOptions, ...this.rememberedOptions()];
+        const selectedOptions = this.selectedValues().flatMap((value) => {
             const option = options.find((candidate) => compare(candidate.value, value))
-                ?? previous?.value.find((candidate) => compare(candidate.value, value));
+                ?? knownOptions.find((candidate) => compare(candidate.value, value));
             return option ? [option] : [];
-        })
+        });
+
+        this.previousSelectedOptions = selectedOptions;
+        return selectedOptions;
     });
 
     /** True when some selected value has neither a known option nor a `displayWith` label. */
@@ -346,16 +347,18 @@ export abstract class ImsAutocompleteBase<T = unknown>
     constructor() {
         super();
 
-        // A linked signal recomputes only when read, and label lookups reach the
-        // cache only once an option has already left the source. Reading it here
-        // keeps it current while the options it must remember are still loaded.
+        // The cache recomputes only when read, and label lookups reach it only
+        // once an option has already left the source. Reading it here keeps it
+        // current while the options it must remember are still loaded.
         effect(() => this.selectedOptionCache());
 
+        // Angular 18 throws when an effect writes a signal unless it passes
+        // `allowSignalWrites`. Later versions allow it and ignore the flag.
         effect(() => {
             if (this.interactionDisabled() && !this.readonlyMultipleMode() && this.open()) {
                 this.closePanel(false);
             }
-        });
+        }, {allowSignalWrites: true});
 
         effect(() => {
             if (!this.open() || this.readonlyMultipleMode()) return;
@@ -379,7 +382,7 @@ export abstract class ImsAutocompleteBase<T = unknown>
             if (activeIndex < 0 || activeIndex >= options.length || options[activeIndex].disabled) {
                 this.activeIndex.set(this.findInitialActiveIndex(options));
             }
-        });
+        }, {allowSignalWrites: true});
 
         effect(() => {
             if (this.multiple()) {
@@ -397,7 +400,7 @@ export abstract class ImsAutocompleteBase<T = unknown>
         effect(() => {
             if (this.multiple() || this.open() || this.pendingStrictCommit()) return;
             this.syncSingleTextFromValue();
-        });
+        }, {allowSignalWrites: true});
 
         effect(() => {
             if (!this.pendingStrictCommit() || !this.sourceCurrent()) return;
@@ -408,7 +411,7 @@ export abstract class ImsAutocompleteBase<T = unknown>
                     this.commitSingleInput();
                 }
             });
-        });
+        }, {allowSignalWrites: true});
     }
 
     ngAfterViewInit(): void {
@@ -915,9 +918,13 @@ export abstract class ImsAutocompleteBase<T = unknown>
         return typeof value === 'object' && value !== null ? '' : String(value);
     }
 
-    /** Keeps labels for values about to be selected from options that may no longer be loaded. */
+    /**
+     * Keeps labels for values about to be selected from options that may no
+     * longer be loaded. Replaces the previous batch: by now `selectedOptionCache`
+     * holds whichever of those options label a selected value.
+     */
     private rememberOptions(options: readonly ImsAutocompleteOption<T>[]): void {
-        this.selectedOptionCache.update((cachedOptions) => [...cachedOptions, ...options]);
+        this.rememberedOptions.set(options);
     }
 
     private findInitialActiveIndex(options: readonly ImsAutocompleteOption<T>[]): number {
@@ -944,11 +951,20 @@ export abstract class ImsAutocompleteBase<T = unknown>
         }
     }
 
+    /** `findLastIndex` of an enabled option. That method is ES2023, and Angular 18 projects compile against ES2022. */
+    private findLastEnabledIndex(options: readonly ImsAutocompleteOption<T>[]): number {
+        for (let index = options.length - 1; index >= 0; index--) {
+            if (!options[index].disabled) return index;
+        }
+
+        return -1;
+    }
+
     private moveToBoundary(boundary: 'first' | 'last'): void {
         const options = this.visibleOptions();
         const index = boundary === 'first'
             ? options.findIndex((option) => !option.disabled)
-            : options.findLastIndex((option) => !option.disabled);
+            : this.findLastEnabledIndex(options);
 
         if (index < 0) return;
         this.activeIndex.set(index);

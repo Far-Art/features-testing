@@ -61,6 +61,8 @@ export class ImsAutocompleteAsync<T = unknown> extends ImsAutocompleteBase<T> {
     constructor() {
         super();
 
+        // `allowSignalWrites` lets this effect set `optionsLoading` on Angular 18,
+        // which otherwise throws. Later versions allow the write and ignore the flag.
         effect((onCleanup) => {
             const loader = this.loadOptions();
             const query = this.query();
@@ -124,7 +126,7 @@ export class ImsAutocompleteAsync<T = unknown> extends ImsAutocompleteBase<T> {
                 window.clearTimeout(timeoutId);
                 this.clearOptionsSubscription(activeSubscription);
             });
-        });
+        }, {allowSignalWrites: true});
     }
 
     protected override getSourceOptions(): readonly ImsAutocompleteOption<T>[] {
