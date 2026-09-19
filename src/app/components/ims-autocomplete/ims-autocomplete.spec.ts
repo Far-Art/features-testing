@@ -59,6 +59,10 @@ function filterOptions(query: string): readonly ImsAutocompleteOption<Bag>[] {
             [formControl]="asyncFree"
             [compareWith]="compareById"
         />
+
+        <ims-autocomplete data-test="strings" strict [options]="colors" [formControl]="color" />
+        <ims-autocomplete data-test="strings-multi" multiple [options]="colors" [formControl]="colorList" />
+        <ims-autocomplete-async data-test="strings-async" [loadOptions]="loadColors" [formControl]="asyncColor" />
     `
 })
 class AutocompleteHost {
@@ -80,6 +84,14 @@ class AutocompleteHost {
         this.recordedQueries.push(query);
         return filterOptions(query);
     };
+
+    readonly colors: readonly string[] = ['Red', 'Green', 'Blue'];
+    readonly color = new FormControl<string | null>(null);
+    readonly colorList = new FormControl<readonly string[]>([], {nonNullable: true});
+    readonly asyncColor = new FormControl<string | null>(null);
+    readonly loadColors = (query: string) => Promise.resolve(
+        this.colors.filter((color) => color.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()))
+    );
 }
 
 describe('ImsAutocomplete', () => {
@@ -191,6 +203,55 @@ describe('ImsAutocomplete', () => {
         component.openPanel();
         await settle(fixture, 10);
         expect(host.recordedQueries).toEqual(['free text']);
+    });
+
+    it('uses each string option as both value and label, and marks the chosen one selected', async () => {
+        const component = autocomplete<ImsAutocomplete<string>>(fixture, 'strings');
+        const input = hostElement(fixture, 'strings').querySelector('input')!;
+
+        input.focus();
+        typeInto(input, 'green');
+        input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Tab', bubbles: true}));
+        await settle(fixture);
+
+        expect(fixture.componentInstance.color.value).toBe('Green');
+        expect(input.value).toBe('Green');
+
+        component.openPanel();
+        await settle(fixture);
+        const selected = overlayOptions().filter((option) => option.getAttribute('aria-selected') === 'true');
+        expect(selected.map((option) => option.textContent?.trim())).toEqual(['Green']);
+    });
+
+    it('writes the chosen strings in multiple mode', async () => {
+        const component = autocomplete<ImsAutocomplete<string>>(fixture, 'strings-multi');
+
+        component.openPanel();
+        await settle(fixture);
+        component.selectOption(component.sourceOptions()[2]);
+        component.selectOption(component.sourceOptions()[0]);
+        await settle(fixture);
+
+        expect(fixture.componentInstance.colorList.value).toEqual(['Blue', 'Red']);
+        expect(component.selectedLabels()).toEqual(['Blue', 'Red']);
+    });
+
+    it('takes string options from an async loader', async () => {
+        const component = autocomplete<ImsAutocompleteAsync<string>>(fixture, 'strings-async');
+
+        component.openPanel();
+        await settle(fixture);
+        await settle(fixture);
+        expect(component.sourceOptions()).toEqual([
+            {value: 'Red', label: 'Red'},
+            {value: 'Green', label: 'Green'},
+            {value: 'Blue', label: 'Blue'}
+        ]);
+
+        pressWithMouse(overlayOptions().find((option) => option.textContent?.trim() === 'Blue')!);
+        await settle(fixture);
+
+        expect(fixture.componentInstance.asyncColor.value).toBe('Blue');
     });
 });
 

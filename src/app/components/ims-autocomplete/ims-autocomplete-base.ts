@@ -60,6 +60,7 @@ import {
     ImsAutocompleteEditDialogMode,
     ImsAutocompleteHighlightPart,
     ImsAutocompleteOption,
+    ImsAutocompleteOptionInput,
     ImsAutocompleteSortMode,
     ImsAutocompleteToolbarMode,
     ImsAutocompleteToolbarSide,
@@ -111,6 +112,10 @@ const OVERLAY_POSITIONS: ConnectedPosition[] = [
 ];
 
 const defaultCompare = <T>(first: T, second: T) => first === second;
+
+/** Turns each string into an option whose value and label are that string. */
+const toOptions = <T>(inputs: readonly ImsAutocompleteOptionInput<T>[]): readonly ImsAutocompleteOption<T>[] =>
+    inputs.map((option) => typeof option === 'string' ? {value: option, label: option} : option);
 const LISTBOX_BOUNDS = {min: 96, max: 350};
 
 let nextAutocompleteId = 0;
@@ -199,8 +204,16 @@ export abstract class ImsAutocompleteBase<T = unknown>
             return Array.isArray(currentValue) ? currentValue as readonly T[] : [];
         }
 
-        if (currentValue === null || currentValue === undefined || typeof currentValue === 'string') {
+        if (currentValue === null || currentValue === undefined) {
             return [];
+        }
+
+        // A string is free text, unless it is the value of a string option.
+        if (typeof currentValue === 'string') {
+            const isOptionValue = this.sourceOptions().some((option) =>
+                typeof option.value === 'string' && this.valuesEqual(option.value, currentValue as T)
+            );
+            return isOptionValue ? [currentValue as T] : [];
         }
 
         return [currentValue as T];
@@ -213,7 +226,7 @@ export abstract class ImsAutocompleteBase<T = unknown>
         const currentValue = this.value();
         return currentValue !== null && currentValue !== undefined && currentValue !== '';
     });
-    readonly sourceOptions = computed(() => this.getSourceOptions());
+    readonly sourceOptions = computed(() => toOptions(this.getSourceOptions()));
     readonly loading = computed(() => this.isLoading());
     readonly showToolbar = computed(() => {
         if (this.readonlyMultipleMode() || !this.multiple()) return false;
@@ -788,8 +801,8 @@ export abstract class ImsAutocompleteBase<T = unknown>
         ];
     }
 
-    /** The options this autocomplete currently offers and filters. */
-    protected abstract getSourceOptions(): readonly ImsAutocompleteOption<T>[];
+    /** The options this autocomplete currently offers and filters. `sourceOptions` turns strings into options. */
+    protected abstract getSourceOptions(): readonly ImsAutocompleteOptionInput<T>[];
 
     protected isLoading(): boolean {
         return false;

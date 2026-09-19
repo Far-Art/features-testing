@@ -19,10 +19,12 @@ replaces it.
 - `ims-autocomplete.html`: the single template both components render — single
   input or multi trigger, CDK connected overlay, toolbar, filter input, and the
   virtualized listbox.
-- `ims-autocomplete.types.ts`: `ImsAutocompleteOption`, the value, loader,
+- `ims-autocomplete.types.ts`: `ImsAutocompleteOption`,
+  `ImsAutocompleteOptionInput` (an option or a string), the value, loader,
   compare and display types, and aliases of the shared selection types.
 - `index.ts`: public exports, plus the selection labels re-exported from
-  `src/app/shared/ims-selection`.
+  `src/app/shared/ims-selection`. Every export is listed by name, types in
+  `export type` blocks, so a new public type or class must be added there.
 - `src/app/shared/ims-selection`: pieces shared with `ims-select` — types, the
   `IMS_SELECTION_LABELS` token, helpers in `ims-selection.utils.ts`, and the
   toolbar and readonly-panel components. See `../ims-select/README.md` for the
@@ -63,8 +65,20 @@ way, and may override these hooks:
 />
 ```
 
-`options` is a readonly `ImsAutocompleteOption<T>[]` of
-`{value, label, disabled?}`. It is filtered in the browser.
+`options` is a readonly `ImsAutocompleteOptionInput<T>[]`: options of
+`{value, label, disabled?}`, strings, or both. A string is both the value and
+the label of its option, so `['Red', 'Green']` writes `'Red'` or `'Green'` and
+makes `T` `string`. `sourceOptions()` turns strings into options once per source
+change; everything past it sees only `ImsAutocompleteOption<T>`. The list is
+filtered in the browser.
+
+```html
+<ims-autocomplete strict [options]="['Red', 'Green', 'Blue']" [formControl]="color" />
+```
+
+`ImsAutocompleteOptionInput<T>` is `ImsAutocompleteOption<T> | (T extends string
+? T : never)`. Keep the conditional type: TypeScript infers `T` from a
+`string[]` through it, but not through `T & string`.
 
 ### Async options
 
@@ -81,7 +95,8 @@ way, and may override these hooks:
 ```
 
 `loadOptions` is required. It receives the raw query and may return an array, a
-`Promise`, or an `Observable` of options; an Observable may emit several times
+`Promise`, or an `Observable` of options or strings, as for `options`; an
+Observable may emit several times
 and each emission replaces the list. `loadDebounceMs` (default `0`) delays the
 call after the query changes.
 
@@ -107,6 +122,10 @@ Values flow through `BasicValueAccessor`, so the components work with
 - **Single, free text (default):** typing writes the text as a `string` on
   every input. Choosing an option writes its `value` (`T`). On blur the text is
   committed as a string unless it still equals the selected option's label.
+  A string value counts as a selection only when it equals (by `compareWith`)
+  the value of a string-valued source option; any other string is free text.
+  `compareWith` is only ever called with two strings there, so an object
+  comparer such as `compareById` never sees free text.
 - **Single, `strict`:** typing writes nothing. On blur, Tab, Escape or an
   outside click the text is matched (trimmed, whitespace-collapsed,
   case-insensitive) against the visible, non-disabled option labels; an exact

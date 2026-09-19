@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, input} from '@angular/core';
 import {provideValueAccessor} from '../../shared/basic-value-accessor';
 import {IMS_AUTOCOMPLETE_IMPORTS, ImsAutocompleteBase} from './ims-autocomplete-base';
-import {ImsAutocompleteOption} from './ims-autocomplete.types';
+import {ImsAutocompleteOptionInput} from './ims-autocomplete.types';
 
 @Component({
     selector: 'ims-autocomplete',
@@ -19,10 +19,13 @@ import {ImsAutocompleteOption} from './ims-autocomplete.types';
  * virtualized in the browser. See `ImsAutocompleteBase` for the value contract.
  */
 export class ImsAutocomplete<T = unknown> extends ImsAutocompleteBase<T> {
-    /** Static options displayed and filtered by the component. */
-    readonly options = input<readonly ImsAutocompleteOption<T>[]>([]);
+    /**
+     * Static options displayed and filtered by the component. A string is both
+     * the value and the label of its option.
+     */
+    readonly options = input<readonly ImsAutocompleteOptionInput<T>[]>([]);
 
-    protected override getSourceOptions(): readonly ImsAutocompleteOption<T>[] {
+    protected override getSourceOptions(): readonly ImsAutocompleteOptionInput<T>[] {
         return this.options();
     }
 }

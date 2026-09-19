@@ -11,7 +11,7 @@ import {isObservable, Subscription} from 'rxjs';
 import {provideValueAccessor} from '../../shared/basic-value-accessor';
 import {IMS_AUTOCOMPLETE_IMPORTS, ImsAutocompleteBase} from './ims-autocomplete-base';
 import {
-    ImsAutocompleteOption,
+    ImsAutocompleteOptionInput,
     ImsAutocompleteOptionsLoader
 } from './ims-autocomplete.types';
 
@@ -48,13 +48,17 @@ export class ImsAutocompleteAsync<T = unknown> extends ImsAutocompleteBase<T> {
     private optionsSubscription: Subscription | null = null;
     private asyncRequestId = 0;
 
-    /** Async option source called whenever the search query changes while options are needed. */
+    /**
+     * Async option source called whenever the search query changes while
+     * options are needed. It may return strings, each both the value and the
+     * label of its option.
+     */
     readonly loadOptions = input.required<ImsAutocompleteOptionsLoader<T>>();
 
     /** Delay in milliseconds before calling `loadOptions` after the query changes. */
     readonly loadDebounceMs = input(0, {transform: numberAttribute});
 
-    private readonly asyncOptions = signal<readonly ImsAutocompleteOption<T>[]>([]);
+    private readonly asyncOptions = signal<readonly ImsAutocompleteOptionInput<T>[]>([]);
     private readonly optionsLoading = signal(false);
     private readonly loadedQuery = signal<ImsAutocompleteLoadedQuery<T> | null>(null);
 
@@ -129,7 +133,7 @@ export class ImsAutocompleteAsync<T = unknown> extends ImsAutocompleteBase<T> {
         }, {allowSignalWrites: true});
     }
 
-    protected override getSourceOptions(): readonly ImsAutocompleteOption<T>[] {
+    protected override getSourceOptions(): readonly ImsAutocompleteOptionInput<T>[] {
         return this.asyncOptions();
     }
 
@@ -154,7 +158,7 @@ export class ImsAutocompleteAsync<T = unknown> extends ImsAutocompleteBase<T> {
     private setAsyncOptions(
         requestId: number,
         loadedQuery: ImsAutocompleteLoadedQuery<T>,
-        options: readonly ImsAutocompleteOption<T>[]
+        options: readonly ImsAutocompleteOptionInput<T>[]
     ): void {
         if (requestId !== this.asyncRequestId) return;
         this.loadedQuery.set(loadedQuery);
