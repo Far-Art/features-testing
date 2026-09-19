@@ -518,6 +518,41 @@
   // background-image and take the ripple gradient with it.
   background-color: transparent;
   aspect-ratio: 1;
+  // No ripple on an icon button. At 26px the gradient's feathered edge is
+  // under a pixel wide, so without a GPU to smooth it the growing circle steps
+  // visibly. The hover plate below replaces it.
+  background-image: none;
+}
+
+// Hover plate: the fill tone as a solid rounded square that scales up from
+// slightly smaller while it fades in. One small layer with transform and
+// opacity only — no gradient edge to rasterise each frame, so it stays smooth
+// on the CPU-rendered targets. z-index -1 keeps it under the glyph; the base's
+// `isolation: isolate` keeps it above the button's own background.
+// Reads the -hover/-active tokens directly: --ims-button-fill-color is
+// registered with `inherits: false`, so it never reaches the pseudo-element.
+.ims-button-icon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background-color: var(--ims-button-background-hover);
+  opacity: 0;
+  transform: scale(0.6);
+  transition: transform 160ms ease-out, opacity 160ms ease-out, background-color 90ms ease-out;
+  pointer-events: none;
+}
+
+.ims-button-icon:hover::before,
+.ims-button-icon:active::before,
+.ims-button-icon:focus-visible::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.ims-button-icon:active::before {
+  background-color: var(--ims-button-background-active);
 }
 
 // Class, not attribute, for the same reason as the optical-centering rules
@@ -613,6 +648,12 @@
   background-image: none;
 }
 
+.ims-button-icon.ims-button--disabled::before,
+.ims-button-icon.ims-button--readonly::before,
+.ims-button-icon:disabled::before {
+  content: none;
+}
+
 // See ImsButtonBase.justMounted — a freshly mounted button can pick up a
 // phantom :hover/:active from a stationary pointer with no real mouse
 // movement. Force every transition off for that first frame so whatever
@@ -621,6 +662,7 @@
 .ims-button--mounting,
 .ims-button--mounting:hover,
 .ims-button--mounting:active,
-.ims-button--mounting:focus-visible {
+.ims-button--mounting:focus-visible,
+.ims-button--mounting::before {
   transition: none;
 }
