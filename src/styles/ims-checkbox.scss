@@ -68,7 +68,14 @@
     // changes its color and never the layout.
     outline: 3px solid transparent;
     outline-offset: 0;
-    background: transparent;
+    // The box is a field, so it paints the input surface like every other
+    // control rather than letting whatever is behind it show through. It was
+    // transparent, which cost nothing on the white surfaces this component grew
+    // up on and disappeared on a toned one: against an ims-panel header band the
+    // only thing left drawing the box was its border, at 1.6:1 — under the 3:1
+    // WCAG asks of a control boundary. An opaque fill is also what a native
+    // checkbox does, and it separates the box from any surface, not just this one.
+    background: var(--ims-color-surface-input);
     // The mark strokes with currentColor, so this is the mark color.
     color: transparent;
     // The track is positioned after the native input, so it paints above it and
