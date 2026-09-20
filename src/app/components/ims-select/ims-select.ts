@@ -511,6 +511,11 @@ export class ImsSelect<T = unknown>
     }
   }
 
+  /** The trigger is the whole field: it is what a user tabs to and clicks. */
+  protected override focusTarget(): HTMLElement | null {
+    return this.triggerButton()?.nativeElement ?? null;
+  }
+
   onFilterInput(event: Event): void {
     const target = event.target;
     if (!(target instanceof HTMLInputElement)) return;

@@ -261,10 +261,15 @@
     background: var(--ims-color-interactive-alt-subtle);
 }
 
+// Color and the checkmark below, never weight. A heavier row is wider than the
+// same row unselected, so its text shifts the moment it becomes selected — and
+// in a free-text single autocomplete that is mid-typing, the keystroke that
+// makes the typed text match an option exactly. The sizer rows that give the
+// menu its width are never selected, so a heavier selected row would also
+// outgrow the width measured for it and truncate.
 .ims-option.ims-option--selected,
 .ims-autocomplete__option.ims-autocomplete__option--selected {
     color: var(--ims-color-interactive-strong);
-    font-weight: var(--ims-font-weight-semibold);
 }
 
 .ims-option.ims-option--selected::after,

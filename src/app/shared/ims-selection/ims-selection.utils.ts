@@ -32,8 +32,17 @@ export function normalizeSearchText(text: string): string {
 
 /** True when every space-separated term of an already normalized query occurs in the text. */
 export function matchesSearchQuery(text: string, normalizedQuery: string): boolean {
-    const normalizedText = normalizeSearchText(text);
-    return normalizedQuery.split(' ').every((term) => normalizedText.includes(term));
+    return matchesSearchTerms(normalizeSearchText(text), normalizedQuery.split(' '));
+}
+
+/**
+ * The same match against text and terms that are already normalized and split.
+ * A list filtered per keystroke should normalize its texts once and split its
+ * query once, rather than paying a trim, a regex, a locale lowercase and a
+ * split per item per character typed.
+ */
+export function matchesSearchTerms(normalizedText: string, terms: readonly string[]): boolean {
+    return terms.every((term) => normalizedText.includes(term));
 }
 
 /** Narrows options to a view mode without touching the selection. */
