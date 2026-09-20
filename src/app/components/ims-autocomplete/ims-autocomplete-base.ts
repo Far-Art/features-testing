@@ -161,11 +161,15 @@ export abstract class ImsAutocompleteBase<T = unknown>
     implements AfterViewInit, OnDestroy {
     readonly directionality = inject(Directionality);
     /** Enables multi-selection. Multi-select always requires choosing options from the list. */
-    readonly multiple = input(false, {transform: booleanAttribute});
+    readonly multiple = input<boolean, boolean | string | null | undefined>(false, {
+        transform: booleanAttribute
+    });
     /** Placeholder displayed in the input or trigger when empty. Defaults to `labels.autocompletePlaceholder`. */
     readonly placeholder = input<string | null>(null);
     /** Requires single-selection text to resolve to an option. Multi-select is always strict. */
-    readonly strict = input(false, {transform: booleanAttribute});
+    readonly strict = input<boolean, boolean | string | null | undefined>(false, {
+        transform: booleanAttribute
+    });
     /** Sort mode for the visible option labels. `default` preserves source order. */
     readonly sort = input<ImsAutocompleteSortMode>('default');
     /** Controls whether the multi-select toolbar is shown: always, never, or above the auto threshold. */
@@ -175,7 +179,9 @@ export abstract class ImsAutocompleteBase<T = unknown>
     /** Controls whether the toolbar edit action uses the built-in dialog, emits a request, or is hidden. */
     readonly editDialogMode = input<ImsAutocompleteEditDialogMode>('default');
     /** Lets a custom edit-dialog owner disable the toolbar action independently. */
-    readonly editDialogDisabled = input(false, {transform: booleanAttribute});
+    readonly editDialogDisabled = input<boolean, boolean | string | null | undefined>(false, {
+        transform: booleanAttribute
+    });
     /** Accessible label for the toolbar edit action. Defaults to `labels.editSelection`. */
     readonly editDialogAriaLabel = input<string | null>(null);
     /** Emitted instead of opening the built-in dialog when `editDialogMode="custom"`. */
@@ -389,6 +395,7 @@ export abstract class ImsAutocompleteBase<T = unknown>
     private readonly origin = viewChild<ElementRef<HTMLElement>>('origin');
     private readonly connectedOverlay = viewChild(CdkConnectedOverlay);
     private readonly singleInput = viewChild<ElementRef<HTMLInputElement>>('singleInput');
+    private readonly trigger = viewChild<ElementRef<HTMLButtonElement>>('trigger');
     private readonly filterInput = viewChild<ElementRef<HTMLInputElement>>('filterInput');
     private readonly menu = viewChild<ElementRef<HTMLElement>>('menu');
     private readonly readonlyPanel = viewChild(ImsSelectionReadonlyPanel);
@@ -786,6 +793,16 @@ export abstract class ImsAutocompleteBase<T = unknown>
 
     trackByOption = (_index: number, option: ImsAutocompleteOption<T>) => option.value;
 
+    /**
+     * The trigger in multiple mode, the text input otherwise: only one of the
+     * two is ever rendered, and each is the whole field.
+     */
+    protected override focusTarget(): HTMLElement | null {
+        return this.multiple()
+            ? this.trigger()?.nativeElement ?? null
+            : this.singleInput()?.nativeElement ?? null;
+    }
+
     highlightParts(label: string): readonly ImsAutocompleteHighlightPart[] {
         const terms = this.searchTerms();
         if (terms.length === 0) {
@@ -1065,13 +1082,7 @@ export abstract class ImsAutocompleteBase<T = unknown>
     }
 
     private focusOrigin(): void {
-        queueMicrotask(() => {
-            if (this.multiple()) {
-                this.origin()?.nativeElement.querySelector<HTMLElement>('.ims-autocomplete__trigger')?.focus();
-            } else {
-                this.singleInput()?.nativeElement.focus({preventScroll: true});
-            }
-        });
+        queueMicrotask(() => this.focus({preventScroll: true}));
     }
 
     private updatePanelGeometry(): void {

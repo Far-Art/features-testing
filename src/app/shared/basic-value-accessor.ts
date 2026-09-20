@@ -1,5 +1,18 @@
-import {booleanAttribute, computed, DestroyRef, Directive, forwardRef, inject, input, model, signal, Type} from '@angular/core';
+import {
+    booleanAttribute,
+    computed,
+    DestroyRef,
+    Directive,
+    ElementRef,
+    forwardRef,
+    inject,
+    input,
+    model,
+    signal,
+    Type
+} from '@angular/core';
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
+import {findFocusable, findMainControl} from './ims-focus-target';
 import {ReadonlyDirective} from './readonly.directive';
 
 /**
@@ -11,6 +24,7 @@ import {ReadonlyDirective} from './readonly.directive';
  *   `id` attribute is nulled out so assistive technology targets the real input
  * - `readonlyMode` — inherited from the nearest `ims-readonly` provider
  * - `interactionDisabled` — true when disabled or readonly
+ * - `focus()` — moves focus to the control from code
  * - All CVA callbacks are wired up automatically
  *
  * Usage:
@@ -27,6 +41,7 @@ import {ReadonlyDirective} from './readonly.directive';
 })
 export abstract class BasicValueAccessor<T = unknown> implements ControlValueAccessor {
     protected readonly destroyRef = inject(DestroyRef);
+    protected readonly hostElement: HTMLElement = inject(ElementRef).nativeElement;
 
     protected readonly formDisabled = signal(false);
     protected onChange: (value: T) => void = () => undefined;
@@ -77,6 +92,37 @@ export abstract class BasicValueAccessor<T = unknown> implements ControlValueAcc
 
     markAsTouched(): void {
         this.onTouched();
+    }
+
+    /**
+     * Moves focus to the control, landing where a user tabbing into the field
+     * would, and doing nothing where tabbing would reach nothing: before the
+     * view has rendered, or while the control renders a disabled native
+     * element. `ims-checkbox` and `ims-datepicker` disable theirs in readonly
+     * mode as well as disabled, so neither takes focus in either state.
+     *
+     * Focus has whatever effect the control gives a real one: an
+     * `ims-autocomplete` opens its panel, as clicking its input does.
+     */
+    focus(options?: FocusOptions): void {
+        this.focusTarget()?.focus(options);
+    }
+
+    /**
+     * The element `focus()` moves focus to. Every control here overrides this
+     * with a view or content reference to the element it actually renders,
+     * because the fallback below answers from template order and would pick a
+     * different element the moment one is added before it.
+     *
+     * The fallback stands for controls that have not: the
+     * `[data-ims-main-control]` part of the field when it marks one, else the
+     * first focusable element inside it. That is also how `ims-error-popover`
+     * picks the element it puts `aria-invalid` on, so a control leaving this
+     * alone keeps focus and validation ARIA on the same element. One that
+     * overrides it is responsible for keeping them together.
+     */
+    protected focusTarget(): HTMLElement | null {
+        return findFocusable(findMainControl(this.hostElement));
     }
 }
 

@@ -77,6 +77,33 @@ filtered in the browser.
 <ims-autocomplete strict [options]="['Red', 'Green', 'Blue']" [formControl]="color" />
 ```
 
+`multiple`, `strict` and `editDialogDisabled` declare their accepted type
+explicitly rather than letting it be inferred:
+
+```ts
+readonly strict = input<boolean, boolean | string | null | undefined>(false, {
+    transform: booleanAttribute
+});
+```
+
+Angular types `booleanAttribute` as taking `unknown`, so an inferred input
+accepts anything a template binds — `[strict]="{}"` type-checks and is silently
+true — and leaves an IDE nothing to tell it the valueless attribute form is
+meant to work. WebStorm then reports `strict` on its own as an attribute
+missing its value. It does not report `multiple`, only because HTML already
+knows that name as a boolean attribute. Naming `string`, which is what a
+valueless attribute writes, keeps every form usable:
+
+```html
+<ims-autocomplete strict />
+<ims-autocomplete strict="false" />
+<ims-autocomplete [strict]="requireKnownValue()" />
+```
+
+The library's other `booleanAttribute` inputs whose names HTML does not know —
+`clearable`, `filled`, `hideHaze` and the rest — still warn the same way and
+have not been given an explicit type.
+
 `ImsAutocompleteOptionInput<T>` is `ImsAutocompleteOption<T> | (T extends string
 ? T : never)`. Keep the conditional type: TypeScript infers `T` from a
 `string[]` through it, but not through `T & string`.
