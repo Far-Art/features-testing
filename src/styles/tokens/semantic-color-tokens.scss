@@ -102,4 +102,20 @@
     --ims-color-interactive-alt-strong: var(--ims-color-primary-700);
     // More saturated alternate fill, distinct from the primary subtle fill.
     --ims-color-interactive-alt-subtle: var(--ims-color-primary-100);
+
+    // Fill behind the matched part of a search result: the highlighter yellow a
+    // reader expects, and a literal rather than a ramp step on purpose. No
+    // brand ramp is yellow, and aliasing --warning-* would tie the highlight to
+    // a status hue it has nothing to do with — a retheme of warning would
+    // recolor every search result.
+    //
+    // A match must stay visible on a hovered or active row, which is filled
+    // with --interactive-alt-subtle. Drawing it from that same ramp step is
+    // what made it disappear there: the two were one color, a ratio of 1.00.
+    // Yellow is bright, so it separates from that pale blue by hue rather than
+    // by lightness (1.17); the matched text carries the contrast that has to
+    // survive, at 9.52 against this fill.
+    --ims-color-search-match: #FFC400;
+    // Text and icons displayed on a search match fill.
+    --ims-color-on-search-match: var(--ims-color-on-surface);
 }
