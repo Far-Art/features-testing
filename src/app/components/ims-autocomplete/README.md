@@ -32,7 +32,8 @@ replaces it.
 - `src/styles/ims-selection.scss`: styles shared with `ims-select`.
   `src/styles/ims-autocomplete.scss` keeps the autocomplete-only rules.
 - `src/app/pages/selection-demo`: working examples, including async loading
-  with `loadDebounceMs`. `readonly-demo` and `component-states-demo` cover the
+  with `loadDebounceMs` and narrow (`field-xs`) fields whose menu grows past
+  them. `readonly-demo` and `component-states-demo` cover the
   readonly and disabled states.
 
 Both components are standalone, use `ChangeDetectionStrategy.OnPush`, and
@@ -180,6 +181,31 @@ again cancels the pending commit.
   (default `33`, one `ims-select` option row) must match the rendered row
   height, or scrolling and active-option tracking drift.
 
+## Panel Width
+
+The options menu is at least as wide as the field and grows past it to fit its
+options, as `ims-select`'s does. A `field-xs` autocomplete with long labels
+opens a menu wide enough to show them in full.
+
+- The virtual viewport lays its rows out of flow, so they give the menu no
+  width. The menu instead holds `.ims-autocomplete__sizer`: hidden, bold,
+  role-less copies of `sizingLabels()`, the 8 longest source labels by
+  character count. The browser sizes the menu to them, padding, checkmark
+  space and scrollbar gutters included, without rendering every option. A
+  label wider than those 8 by glyph width alone (e.g. few wide CJK characters
+  beside many narrow Latin ones) can still be truncated.
+- The labels come from all source options, not the filtered ones, so typing
+  does not change a static list's width. An async menu widens when wider
+  results arrive and is placed again (`overlayRef.updatePosition()`) so it can
+  move or flip.
+- `menuMinWidth` keeps the widest width the menu reached while open, so it
+  never narrows while open; closing resets it to the field's width.
+- The menu stops at `100vw - 16px`. Past that, the CDK content wrapper is held
+  to the viewport and long labels end in an ellipsis instead of being clipped.
+- The readonly panel of a disabled multi-select keeps the field's width.
+- Select options in tests by `[role="option"]`: the sizer rows share
+  `.ims-autocomplete__option` for their styles.
+
 ## Keyboard
 
 - ArrowDown/ArrowUp open the panel and move the active option, wrapping and
@@ -210,6 +236,19 @@ Selected labels are compacted to fit the trigger: as many labels as fit are
 shown, followed by a `+N` badge. Widths are measured with hidden measuring
 elements and remeasured on resize (`ResizeObserver`) and on selection changes.
 Truncated text exposes its full value through `ImsTextTruncateDirective`.
+
+In a trigger too narrow for all of it — a `field-xs` multi with two long values
+— the row gives way in this order, so the label never collapses to nothing
+beside the badge (rules shared with `ims-select`, in `ims-selection.scss`):
+
+1. The mode icon, which is decorative, is dropped by a container query on the
+   trigger below `8rem`, and only while an overflow badge is rendered.
+2. The badge is `box-sizing: border-box`, so its `min-width` is the whole pill
+   rather than its content: `+1` takes 28px, not 42px.
+3. The label truncates with an ellipsis in whatever is left.
+
+Narrower still (`field-xxs` with a badge), the count wins and the label is left
+with no room again. There is no floor on the label.
 
 ## Multi-Select Toolbar and Edit Dialog
 

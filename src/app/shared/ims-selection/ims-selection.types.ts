@@ -44,9 +44,9 @@ export interface ImsSelectionLabels {
     readonly selectPlaceholder: string;
     /** Placeholder of an empty `ims-autocomplete`. */
     readonly autocompletePlaceholder: string;
-    /** Visible label of the `ims-select` filter field. */
+    /** Placeholder of the `ims-select` filter field. */
     readonly filter: string;
-    /** Visible label of the multi `ims-autocomplete` search field. */
+    /** Placeholder of the multi `ims-autocomplete` search field. */
     readonly search: string;
     /** Shown when no option matches. */
     readonly noOptions: string;
@@ -85,8 +85,8 @@ export interface ImsSelectionLabels {
 export const IMS_SELECTION_DEFAULT_LABELS: ImsSelectionLabels = {
     selectPlaceholder: 'בחר',
     autocompletePlaceholder: 'חיפוש',
-    filter: 'סינון',
-    search: 'חיפוש',
+    filter: 'חיפוש...',
+    search: 'חיפוש...',
     noOptions: 'אין אפשרויות',
     loading: 'טוען...',
     clear: 'נקה בחירה',

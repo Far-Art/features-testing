@@ -205,6 +205,22 @@ describe('ImsAutocomplete', () => {
         expect(host.recordedQueries).toEqual(['free text']);
     });
 
+    it('sizes the menu with hidden copies of the longest options, whatever the query', async () => {
+        const component = autocomplete<ImsAutocomplete<Bag>>(fixture, 'single');
+        const input = hostElement(fixture, 'single').querySelector('input')!;
+
+        input.focus();
+        typeInto(input, 'Cla');
+        await settle(fixture);
+
+        const sizer = document.querySelector('.cdk-overlay-container .ims-autocomplete__sizer')!;
+        const sizerLabels = Array.from(sizer.children, (row) => row.textContent?.trim());
+        expect(overlayOptions().map((option) => option.textContent?.trim())).toEqual(['Claims']);
+        expect(sizerLabels).toEqual(['Documents', 'Receipts', 'Policies', 'Claims']);
+        expect(component.sizingLabels()).toEqual(sizerLabels);
+        expect(sizer.getAttribute('aria-hidden')).toBe('true');
+    });
+
     it('uses each string option as both value and label, and marks the chosen one selected', async () => {
         const component = autocomplete<ImsAutocomplete<string>>(fixture, 'strings');
         const input = hostElement(fixture, 'strings').querySelector('input')!;
@@ -272,8 +288,9 @@ function autocomplete<C>(fixture: ComponentFixture<unknown>, name: string): C {
     return fixture.debugElement.query(By.css(`[data-test="${name}"]`)).componentInstance as C;
 }
 
+/** Listed options only: the menu also holds hidden, role-less copies of the longest ones. */
 function overlayOptions(): HTMLElement[] {
-    return Array.from(document.querySelectorAll<HTMLElement>('.cdk-overlay-container .ims-autocomplete__option'));
+    return Array.from(document.querySelectorAll<HTMLElement>('.cdk-overlay-container [role="option"]'));
 }
 
 function typeInto(input: HTMLInputElement, text: string): void {

@@ -127,20 +127,21 @@
 
                 <div #menu class="ims-select__menu" [style.min-width.px]="menuMinWidth()">
                     @if (showFilter()) {
-                        <label #filterField class="ims-select__filter">
-                            <span class="ims-select__filter-label">{{ effectiveLabels().filter }}</span>
+                        <div #filterField class="ims-select__filter">
                             <input
                                 #filterInput
                                 class="ims-input"
                                 type="text"
                                 autocomplete="off"
                                 [attr.id]="filterInputId"
+                                [attr.placeholder]="effectiveLabels().filter"
+                                [attr.aria-label]="effectiveLabels().filter"
                                 [attr.aria-controls]="listboxId"
                                 [attr.aria-activedescendant]="activeOptionId()"
                                 [value]="filterQuery()"
                                 (input)="onFilterInput($event)"
                             />
-                        </label>
+                        </div>
                     }
 
                     <div

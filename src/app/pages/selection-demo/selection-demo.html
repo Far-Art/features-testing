@@ -199,6 +199,54 @@
 
 <section class="select-demo">
     <div>
+        <h2>השלמה אוטומטית בשדה צר</h2>
+        <p>
+            השדות ברוחב 6rem בלבד. הרשימה הנפתחת מתרחבת מעבר לשדה כדי להציג את האפשרויות
+            הארוכות במלואן, ונעצרת בקצה החלון. בשדה מול השרת היא מתרחבת כשהתוצאות מגיעות.
+            בשדה המרובה נבחרו שני ערכים: התווית נחתכת אך נשארת גלויה לצד תג הספירה, ואייקון
+            המצב מפנה לה את מקומו.
+        </p>
+    </div>
+
+    <div class="select-demo__grid">
+        <label class="select-demo__field">
+            <span>יחידה, תוויות ארוכות</span>
+            <ims-autocomplete
+                class="field-xs"
+                ariaLabel="השלמה אוטומטית יחידה בשדה צר"
+                [options]="bagAutocompleteOptions"
+                [formControl]="narrowSingleControl"
+                [compareWith]="compareBagById"
+            />
+        </label>
+
+        <label class="select-demo__field">
+            <span>מרובה, רשימת מחרוזות, שני ערכים נבחרים</span>
+            <ims-autocomplete
+                class="field-xs"
+                multiple
+                ariaLabel="השלמה אוטומטית מרובה בשדה צר"
+                [options]="narrowCityOptions"
+                [formControl]="narrowCitiesControl"
+            />
+        </label>
+
+        <label class="select-demo__field">
+            <span>מול שרת, 2 שניות</span>
+            <ims-autocomplete-async
+                class="field-xs"
+                ariaLabel="השלמה אוטומטית מול שרת בשדה צר"
+                [loadDebounceMs]="350"
+                [loadOptions]="loadServerAutocompleteOptions"
+                [formControl]="narrowServerControl"
+                [compareWith]="compareBagById"
+            />
+        </label>
+    </div>
+</section>
+
+<section class="select-demo">
+    <div>
         <h2>השלמה אוטומטית מושבתת במצב צפייה בלבד</h2>
         <p>
             השלמה מרובה מציגה רשימה של הערכים שנבחרו. השלמה יחידה מושבתת נשארת

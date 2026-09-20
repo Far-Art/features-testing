@@ -58,9 +58,30 @@
     color: var(--ims-color-on-surface-disabled);
 }
 
+// The menu grows past the field's width to fit its options, but stops at the
+// viewport less the overlay's 8px margin on each side. An option wider than
+// that is truncated instead of pushing the menu off screen.
+.ims-autocomplete__menu {
+    max-inline-size: calc(100vw - 16px);
+}
+
 .ims-autocomplete__panel {
     contain: layout style paint;
     view-transition-name: ims-autocomplete-options-view;
+}
+
+// Hidden copies of the longest options, sized like real rows: the same
+// scrollbar gutters as the viewport, and bold, the widest weight a row shows
+// (a highlighted match). No height, so only their width reaches the menu.
+.ims-autocomplete__sizer {
+    block-size: 0;
+    overflow: hidden;
+    scrollbar-gutter: stable both-edges;
+    visibility: hidden;
+}
+
+.ims-autocomplete__sizer .ims-autocomplete__option {
+    font-weight: var(--ims-font-weight-bold);
 }
 
 // Gutters on both edges, as the ims-select listbox has, so the rounded option
@@ -69,6 +90,14 @@
     width: 100%;
     overflow-x: hidden;
     scrollbar-gutter: stable both-edges;
+}
+
+// The CDK sizes this wrapper to its widest row, and a no-wrap label never lets
+// a row shrink. Held to the viewport, a row longer than the menu can grow to
+// truncates its label with an ellipsis instead of being clipped, checkmark and
+// all, at the viewport's edge.
+.ims-autocomplete__viewport .cdk-virtual-scroll-content-wrapper {
+    max-inline-size: 100%;
 }
 
 .ims-autocomplete__option-label {

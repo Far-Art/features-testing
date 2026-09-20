@@ -52,7 +52,10 @@
 .ims-select__badge,
 .ims-autocomplete__badge {
     order: -1;
+    box-sizing: border-box;
     flex: 0 0 auto;
+    // The whole pill, padding included. Counted outside the box it would take
+    // half a narrow trigger and leave the label it counts for no room.
     min-width: 1.75rem;
     padding: 0.1rem 0.45rem;
     border-radius: 999px;
@@ -72,6 +75,24 @@
 .ims-select__trigger > .ims-select__mode-icon,
 .ims-autocomplete__trigger > .ims-autocomplete__mode-icon {
     order: -2;
+}
+
+// Each trigger sizes itself from its field, never from its content, so it can
+// answer container queries about the room its own row has.
+.ims-select__trigger,
+.ims-autocomplete__trigger {
+    container-type: inline-size;
+}
+
+// A trigger this narrow cannot show the mode icon, an overflow badge and a
+// readable label at once. The icon is decorative and goes, so the label keeps a
+// few characters beside the count instead of collapsing to nothing. A trigger
+// with nothing overflowing keeps its icon.
+@container (max-width: 8rem) {
+    .ims-select__trigger:has(> .ims-select__badge) > .ims-select__mode-icon,
+    .ims-autocomplete__trigger:has(> .ims-autocomplete__badge) > .ims-autocomplete__mode-icon {
+        display: none;
+    }
 }
 
 .ims-select__trigger:dir(rtl) > .ims-select__badge,
@@ -184,22 +205,15 @@
 .ims-select__filter,
 .ims-autocomplete__filter {
     display: grid;
-    gap: 0.25rem;
-    padding: 0.5rem;
+    padding: 0.375rem 0.5rem;
     border-bottom: 1px solid var(--ims-color-border-subtle);
-}
-
-.ims-select__filter-label,
-.ims-autocomplete__filter-label {
-    color: var(--ims-color-on-surface-muted);
-    font-size: 0.75rem;
 }
 
 .ims-select__filter input,
 .ims-autocomplete__filter input {
     width: 100%;
-    min-height: 2rem;
-    padding: 0.3rem 0.45rem;
+    min-height: 1.75rem;
+    padding: 0.2rem 0.45rem;
     border-radius: 0.375rem;
     color: inherit;
 }

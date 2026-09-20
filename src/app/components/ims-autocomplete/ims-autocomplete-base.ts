@@ -116,6 +116,28 @@ const defaultCompare = <T>(first: T, second: T) => first === second;
 /** Turns each string into an option whose value and label are that string. */
 const toOptions = <T>(inputs: readonly ImsAutocompleteOptionInput<T>[]): readonly ImsAutocompleteOption<T>[] =>
     inputs.map((option) => typeof option === 'string' ? {value: option, label: option} : option);
+
+/** How many of the longest labels `sizingLabels` renders to size the menu. */
+const SIZING_LABEL_COUNT = 8;
+
+/**
+ * The `count` longest labels by character count, longest first. One pass, so it
+ * stays cheap for a static list of 100,000 options.
+ */
+function longestLabels(options: readonly ImsAutocompleteOption<unknown>[], count: number): readonly string[] {
+    const longest: string[] = [];
+
+    for (const {label} of options) {
+        if (longest.length === count && label.length <= longest[count - 1].length) continue;
+
+        let index = longest.length;
+        while (index > 0 && longest[index - 1].length < label.length) index--;
+        longest.splice(index, 0, label);
+        if (longest.length > count) longest.pop();
+    }
+
+    return longest;
+}
 const LISTBOX_BOUNDS = {min: 96, max: 350};
 
 let nextAutocompleteId = 0;
@@ -181,6 +203,12 @@ export abstract class ImsAutocompleteBase<T = unknown>
     readonly activeIndex = signal(-1);
     readonly toolbarSide = signal<ImsAutocompleteToolbarSide>('right');
     readonly panelWidth = signal(0);
+    /**
+     * Floor for the menu's width: the field's width, raised to the menu's own
+     * width while the panel is open. The menu may grow past the field to fit its
+     * options, and new results or a narrower match do not narrow it again.
+     */
+    readonly menuMinWidth = signal(0);
     readonly listboxMinHeight = signal(0);
     readonly listboxMaxHeight = signal(LISTBOX_BOUNDS.max);
     readonly multiDisplay = signal<ImsSelectionDisplayState>(IMS_SELECTION_EMPTY_DISPLAY);
@@ -227,6 +255,13 @@ export abstract class ImsAutocompleteBase<T = unknown>
         return currentValue !== null && currentValue !== undefined && currentValue !== '';
     });
     readonly sourceOptions = computed(() => toOptions(this.getSourceOptions()));
+    /**
+     * Labels of the widest-looking source options, rendered as hidden rows that
+     * give the menu its width. The virtual viewport lays its rows out of flow,
+     * so they give it none. Taken from all source options, not the filtered
+     * ones, so typing does not change the width.
+     */
+    readonly sizingLabels = computed(() => longestLabels(this.sourceOptions(), SIZING_LABEL_COUNT));
     readonly loading = computed(() => this.isLoading());
     readonly showToolbar = computed(() => {
         if (this.readonlyMultipleMode() || !this.multiple()) return false;
@@ -345,6 +380,7 @@ export abstract class ImsAutocompleteBase<T = unknown>
     private readonly changeDetectorRef = inject(ChangeDetectorRef);
     private readonly transferDialog = inject(ImsTransferDialogService);
     private readonly origin = viewChild<ElementRef<HTMLElement>>('origin');
+    private readonly connectedOverlay = viewChild(CdkConnectedOverlay);
     private readonly singleInput = viewChild<ElementRef<HTMLInputElement>>('singleInput');
     private readonly filterInput = viewChild<ElementRef<HTMLInputElement>>('filterInput');
     private readonly menu = viewChild<ElementRef<HTMLElement>>('menu');
@@ -404,10 +440,16 @@ export abstract class ImsAutocompleteBase<T = unknown>
             }
         });
 
+        // Anything that can widen the menu, or change the room the toolbar needs beside it.
         effect(() => {
             if (!this.open()) return;
             this.showToolbar();
-            queueMicrotask(() => this.updateToolbarSide());
+            this.sizingLabels();
+            this.loading();
+            queueMicrotask(() => {
+                this.captureMenuWidth();
+                this.updateToolbarSide();
+            });
         });
 
         effect(() => {
@@ -461,6 +503,7 @@ export abstract class ImsAutocompleteBase<T = unknown>
 
         this.open.set(false);
         this.viewMode.set('all');
+        this.menuMinWidth.set(0);
         this.listboxMinHeight.set(0);
         this.activeIndex.set(-1);
 
@@ -492,6 +535,7 @@ export abstract class ImsAutocompleteBase<T = unknown>
                 return;
             }
 
+            this.captureMenuWidth();
             this.updateToolbarSide();
             this.captureListboxHeight();
             if (this.multiple()) {
@@ -1005,6 +1049,7 @@ export abstract class ImsAutocompleteBase<T = unknown>
         if (!originRect) return;
 
         this.panelWidth.set(originRect.width);
+        this.menuMinWidth.update((width) => Math.max(width, originRect.width));
         this.updateListboxMaxHeight(this.overlaySide);
         this.updateToolbarSide(originRect);
     }
@@ -1034,6 +1079,21 @@ export abstract class ImsAutocompleteBase<T = unknown>
         if (this.listboxMinHeight() > maxHeight) {
             this.listboxMinHeight.set(maxHeight);
         }
+    }
+
+    private captureMenuWidth(): void {
+        const menu = this.menu()?.nativeElement;
+        if (!menu) return;
+
+        // Kept exact: the overlay was placed at this width, and rounding it up would
+        // push the menu's aligned edge a pixel past the field's.
+        const width = menu.getBoundingClientRect().width;
+        if (width <= this.menuMinWidth()) return;
+
+        this.menuMinWidth.set(width);
+        // The overlay was placed for a narrower menu, such as before async results
+        // arrived. Placing it again lets one that no longer fits move or flip.
+        this.connectedOverlay()?.overlayRef?.updatePosition();
     }
 
     private captureListboxHeight(): void {

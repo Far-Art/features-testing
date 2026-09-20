@@ -159,6 +159,26 @@ export class SelectionDemo {
     );
     readonly largeAutocompleteControl = new FormControl<LargeAutocompleteRow | string | null>(null);
     readonly serverAutocompleteControl = new FormControl<LargeAutocompleteRow | string | null>(null);
+    readonly narrowCityOptions: readonly string[] = [
+        'תל אביב-יפו',
+        'ירושלים',
+        'חיפה',
+        'ראשון לציון',
+        'פתח תקווה',
+        'באר שבע',
+        'מודיעין-מכבים-רעות',
+        'קריית שמונה',
+        'מעלה אדומים',
+        'זכרון יעקב'
+    ];
+    readonly narrowSingleControl = new FormControl<SelectDemoBag | string | null>(null);
+    // Starts with two long names, the case where the trigger has to show a
+    // truncated label and a `+1` badge in 6rem.
+    readonly narrowCitiesControl = new FormControl<readonly string[]>(
+        ['מודיעין-מכבים-רעות', 'זכרון יעקב'],
+        {nonNullable: true}
+    );
+    readonly narrowServerControl = new FormControl<LargeAutocompleteRow | string | null>(null);
     selectedBagModel: SelectDemoBag | null = this.initialBagOptions[0];
 
     readonly loadBagAutocompleteOptions = (query: string) => {

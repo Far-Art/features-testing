@@ -138,21 +138,22 @@
                     />
                 }
 
-                <div #menu class="ims-autocomplete__menu" [style.width.px]="panelWidth()">
+                <div #menu class="ims-autocomplete__menu" [style.min-width.px]="menuMinWidth()">
                     @if (multiple()) {
-                        <label class="ims-autocomplete__filter">
-                            <span class="ims-autocomplete__filter-label">{{ effectiveLabels().search }}</span>
+                        <div class="ims-autocomplete__filter">
                             <input
                                 #filterInput
                                 type="text"
                                 class="ims-input"
                                 autocomplete="off"
+                                [attr.placeholder]="effectiveLabels().search"
+                                [attr.aria-label]="effectiveLabels().search"
                                 [attr.aria-controls]="listboxId"
                                 [attr.aria-activedescendant]="activeOptionId()"
                                 [value]="query()"
                                 (input)="onMultiFilterInput($event)"
                             />
-                        </label>
+                        </div>
                     }
 
                     <div class="ims-autocomplete__panel">
@@ -206,6 +207,19 @@
                             </cdk-virtual-scroll-viewport>
                         } @else if (!loading()) {
                             <div class="ims-autocomplete__state" role="note">{{ effectiveLabels().noOptions }}</div>
+                        }
+                    </div>
+
+                    <!--
+                        The virtual viewport lays its rows out of flow, so they give the menu
+                        no width. These hidden copies of the longest options do, letting the
+                        menu grow past the field to fit them.
+                    -->
+                    <div class="ims-autocomplete__sizer" aria-hidden="true">
+                        @for (label of sizingLabels(); track $index) {
+                            <div class="ims-autocomplete__option">
+                                <span class="ims-autocomplete__option-label">{{ label }}</span>
+                            </div>
                         }
                     </div>
                 </div>

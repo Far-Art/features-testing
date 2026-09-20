@@ -17,7 +17,7 @@ const TOOLBAR_GAP = 8;
 const TRIGGER_ITEM_GAP = 8;
 
 /** Height reserved for a filter field that has not rendered yet. */
-export const SELECTION_FILTER_FALLBACK_HEIGHT = 56;
+export const SELECTION_FILTER_FALLBACK_HEIGHT = 40;
 
 /** Smallest and largest height a listbox may be given. */
 export interface ImsSelectionListboxBounds {
