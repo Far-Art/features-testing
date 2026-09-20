@@ -173,6 +173,7 @@
                                 [itemSize]="optionHeight()"
                                 [style.height.px]="listboxHeight()"
                                 [style.max-height.px]="listboxMaxHeight()"
+                                (scrolledIndexChange)="onListboxScrolled()"
                             >
                                 <!--
                                     Pressing a row must not take focus from the field. A row that

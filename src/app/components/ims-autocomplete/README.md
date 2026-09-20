@@ -222,6 +222,15 @@ again cancels the pending commit.
   in any order.
 - `sort` accepts `'default'` (source order), `'asc'` or `'desc'`
   (`localeCompare` on labels).
+- The filter runs on every keystroke, so nothing that scales with the list may
+  run inside it. `sortedOptions` sorts once per source or `sort` change —
+  filtering a sorted list and sorting a filtered one give the same order — and
+  `searchableOptions` normalizes each label once per source change, leaving the
+  filter an `includes` per already-split term (`matchesSearchTerms`). Doing
+  either per keystroke costs a trim, a regex, a locale lowercase and a split
+  per option: on a static list of 100,000 that measured ~85ms per character,
+  enough that a held backspace fell seconds behind. Normalizing once puts it
+  at ~10ms, after a ~110ms first filter that builds the index.
 - Matching substrings are highlighted in option labels; overlapping term
   matches are merged.
 - Single mode filters with the input itself. Multiple mode renders a separate
@@ -241,9 +250,41 @@ again cancels the pending commit.
   `.ims-autocomplete__viewport` also sets `overflow-anchor: none`, or the
   browser would hold an anchor row still while rows are inserted above it and
   drift the offset further with every character deleted.
-- Matches are marked with a background and color only. A bolder match is wider
-  than the text it replaces, which would shift the rest of the label on every
-  keystroke.
+- Nothing about an option row changes its font weight. A heavier run of text is
+  wider than the same text at the row's own weight, so it shifts everything
+  after it. Two rules used to:
+  - a highlighted match (`.ims-autocomplete__option mark`), which shifted the
+    rest of the label on every keystroke. Matches now carry a background and
+    color only.
+  - a selected row (`.ims-option--selected`, shared with `ims-select`), which
+    shifted that row's whole label the moment it became selected. In a
+    free-text single autocomplete that is mid-typing: the value is written on
+    every keystroke, so the character that makes the typed text match an option
+    exactly selects it, and deleting it deselects it — the row measured 29.73px
+    unselected and 30.94px selected, moving every glyph. Selected rows keep
+    their color and checkmark.
+
+  This also keeps the menu's width honest: the sizer rows are never selected or
+  highlighted, so any row that rendered heavier than them would outgrow the
+  width measured for it and truncate.
+- A match is filled with `--ims-color-search-match`, its own semantic token,
+  not one of the `--interactive-alt` steps. Rows draw their hover and active
+  state with `--interactive-alt-subtle`, so a match filled from the same ramp
+  step vanished on exactly the row the user was pointing at — the two were one
+  color, a contrast ratio of 1.00.
+
+  The token is highlighter yellow, and a literal rather than a ramp step: no
+  brand ramp is yellow, and aliasing `--warning-*` would tie the highlight to a
+  status hue, so a retheme of warning would recolor every search result. Yellow
+  separates from the pale blue of an active row by hue rather than lightness
+  (1.17, against 1.60 on a plain row), which is how a highlighter has always
+  worked; the contrast that has to survive is the matched text on the fill, at
+  9.52. A reader with a blue-yellow deficiency is the case it serves least
+  well — `--ims-color-primary-300` scores 2.03 and 2.77 there and is a one-line
+  swap if that matters more than the convention.
+
+  The `mark` sets its own color, so a selected or disabled row does not change
+  it.
 
 ## Panel Width
 
@@ -257,8 +298,17 @@ opens a menu wide enough to show them in full.
   The browser sizes the menu to them, padding, checkmark space and scrollbar
   gutters included, without rendering every option. They carry no weight of
   their own, which matches a real row now that a highlighted match is not
-  bold. A label wider than those 8 by glyph width alone (e.g. few wide CJK
-  characters beside many narrow Latin ones) can still be truncated.
+  bold.
+- Character count is only a proxy for rendered width, so the rows on screen
+  correct it. A truncated label reports the width it wanted as its
+  `scrollWidth`, and `renderedLabelOverflow()` adds the largest shortfall among
+  the rendered rows to the menu's width. Without it a label of few wide glyphs
+  loses to eight of many narrow ones and is truncated in a menu that could
+  have grown: measured on labels of 12 wide characters against eight of 22
+  narrow ones, the sizer asked for 182px where the widest row needed 252px.
+  Only rendered rows are measured, so the cost does not grow with the list;
+  `(scrolledIndexChange)` re-measures when scrolling brings wider rows in, and
+  `menuMinWidth` keeps the menu from narrowing again.
 - The labels come from all source options, not the filtered ones, so typing
   does not change a static list's width. An async menu widens when wider
   results arrive and is placed again (`overlayRef.updatePosition()`) so it can

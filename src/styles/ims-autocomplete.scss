@@ -112,7 +112,7 @@
 // replaces, so the rest of the label shifts with every character typed.
 .ims-autocomplete__option mark {
     border-radius: 0.1875rem;
-    background: var(--ims-color-interactive-alt-subtle);
-    color: var(--ims-color-interactive-alt-strong);
+    background: var(--ims-color-search-match);
+    color: var(--ims-color-on-search-match);
     font-weight: inherit;
 }

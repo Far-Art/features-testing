@@ -42,7 +42,7 @@ import {
 import {
     SELECTION_FILTER_FALLBACK_HEIGHT,
     countViewModes,
-    matchesSearchQuery,
+    matchesSearchTerms,
     measureTextWidth,
     mergeEditDialogResult,
     normalizeSearchText,
@@ -289,22 +289,38 @@ export abstract class ImsAutocompleteBase<T = unknown>
         || this.editDialogDisabled()
         || (this.editDialogMode() === 'default' && this.editableOptions().length === 0)
     );
+    /**
+     * The source options in display order. Sorted here rather than inside
+     * `filteredOptions` so a sorted list is not re-sorted on every keystroke;
+     * filtering a sorted list and sorting a filtered one give the same order.
+     */
+    private readonly sortedOptions = computed(() => {
+        const options = this.sourceOptions();
+        const sort = this.sort();
+        if (sort === 'default') return options;
+
+        return [...options].sort((first, second) =>
+            first.label.localeCompare(second.label) * (sort === 'asc' ? 1 : -1)
+        );
+    });
+    /**
+     * `sortedOptions` with each label normalized for search once per source
+     * change. Normalizing inside the filter costs a trim, a regex and a locale
+     * lowercase per option, which a static list of 100,000 would pay again on
+     * every character typed — enough to fall visibly behind a held backspace.
+     */
+    private readonly searchableOptions = computed(() =>
+        this.sortedOptions().map((option) => ({option, text: normalizeSearchText(option.label)}))
+    );
     readonly filteredOptions = computed(() => {
         const query = normalizeSearchText(this.query());
-        let options = this.sourceOptions();
+        if (!query) return this.sortedOptions();
 
-        if (query) {
-            options = options.filter((option) => matchesSearchQuery(option.label, query));
-        }
+        const terms = query.split(' ');
 
-        const sort = this.sort();
-        if (sort !== 'default') {
-            options = [...options].sort((first, second) =>
-                first.label.localeCompare(second.label) * (sort === 'asc' ? 1 : -1)
-            );
-        }
-
-        return options;
+        return this.searchableOptions()
+            .filter((entry) => matchesSearchTerms(entry.text, terms))
+            .map((entry) => entry.option);
     });
     readonly visibleOptions = computed(() => this.optionsInViewMode(this.viewMode()));
     readonly viewOptionCounts = computed(() =>
@@ -454,11 +470,14 @@ export abstract class ImsAutocompleteBase<T = unknown>
             }
         });
 
-        // Anything that can widen the menu, or change the room the toolbar needs beside it.
+        // Anything that can widen the menu, or change the room the toolbar needs
+        // beside it. `visibleOptions` is one of them: the menu also grows to fit
+        // whichever rows are rendered, and filtering changes those.
         effect(() => {
             if (!this.open()) return;
             this.showToolbar();
             this.sizingLabels();
+            this.visibleOptions();
             this.loading();
             queueMicrotask(() => {
                 this.captureMenuWidth();
@@ -1122,19 +1141,52 @@ export abstract class ImsAutocompleteBase<T = unknown>
         }
     }
 
+    /** Re-measures the menu after the viewport renders a different set of rows. */
+    onListboxScrolled(): void {
+        if (!this.open()) return;
+        queueMicrotask(() => this.captureMenuWidth());
+    }
+
     private captureMenuWidth(): void {
         const menu = this.menu()?.nativeElement;
         if (!menu) return;
 
         // Kept exact: the overlay was placed at this width, and rounding it up would
         // push the menu's aligned edge a pixel past the field's.
-        const width = menu.getBoundingClientRect().width;
+        const width = menu.getBoundingClientRect().width + this.renderedLabelOverflow();
         if (width <= this.menuMinWidth()) return;
 
         this.menuMinWidth.set(width);
         // The overlay was placed for a narrower menu, such as before async results
         // arrived. Placing it again lets one that no longer fits move or flip.
         this.connectedOverlay()?.overlayRef?.updatePosition();
+    }
+
+    /**
+     * How much wider the widest rendered label needs the menu to be.
+     *
+     * `sizingLabels` gives the menu its width from the longest labels by
+     * character count, which is only a proxy for rendered width: in a
+     * proportional font a shorter label made of wide glyphs outruns them, and
+     * the browser truncates it even though the menu could have grown. A
+     * truncated label still reports the width it wanted as its `scrollWidth`,
+     * so the rows on screen correct the sizer's guess. Only rendered rows are
+     * measured, so this stays cheap however long the list is; scrolling to a
+     * wider row widens the menu then.
+     */
+    private renderedLabelOverflow(): number {
+        const viewport = this.viewport()?.elementRef.nativeElement;
+        if (!viewport) return 0;
+
+        let overflow = 0;
+        for (const label of viewport.querySelectorAll<HTMLElement>('.ims-autocomplete__option-label')) {
+            // Both are rounded to whole pixels, so a label reported as fitting
+            // exactly may still be a fraction short of its text.
+            const missing = label.scrollWidth - label.clientWidth;
+            if (missing > 0) overflow = Math.max(overflow, missing + 1);
+        }
+
+        return overflow;
     }
 
     private captureListboxHeight(): void {
