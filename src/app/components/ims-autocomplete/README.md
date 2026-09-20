@@ -139,6 +139,29 @@ Values flow through `BasicValueAccessor`, so the components work with
 form value. Supply it whenever values are objects that are rebuilt, such as
 server results.
 
+### `selectionChange`
+
+```html
+<ims-autocomplete
+    [options]="bagOptions"
+    [formControl]="bag"
+    (selectionChange)="onBagChosen($event)"
+/>
+```
+
+`selectionChange` emits the new `ImsAutocompleteValue<T>` whenever the **user**
+changes it: an option picked or toggled, a free-text commit, a strict commit
+that found no match (`null`), or an edit-dialog result. `writeValue`, a
+`formControl` write and a `value` binding never emit, as in
+`ims-radio-group`.
+
+Every user-driven write goes through one private `emitValue()`, which emits
+after the form is updated and only when the value actually changed by
+`Object.is`. That last guard matters in free-text mode: typing writes on every
+keystroke and blur commits the same text again, which would otherwise emit it
+twice. Multi values and edit-dialog results are always freshly built arrays, so
+they are never suppressed.
+
 ### Labels for selected values
 
 A selected value's label is resolved in this order:
@@ -180,6 +203,20 @@ again cancels the pending commit.
 - The listbox is a CDK fixed-size virtual scroll viewport. `optionHeight`
   (default `33`, one `ims-select` option row) must match the rendered row
   height, or scrolling and active-option tracking drift.
+- A new query, or new results for one, puts the listbox back on its active
+  option. The viewport keeps its scroll offset when its options change, so
+  without this a narrowed list that was scrolled — even by the browser clamping
+  the offset to a shorter list — would leave the next, wider one starting part
+  way down, with the matches above the offset hidden until the user scrolled
+  up. The effect tracks `query()` and `sourceOptions()`, not
+  `filteredOptions()`: deleting the last character returns the same array
+  instance the source already held, which a `computed` does not notify for.
+  `.ims-autocomplete__viewport` also sets `overflow-anchor: none`, or the
+  browser would hold an anchor row still while rows are inserted above it and
+  drift the offset further with every character deleted.
+- Matches are marked with a background and color only. A bolder match is wider
+  than the text it replaces, which would shift the rest of the label on every
+  keystroke.
 
 ## Panel Width
 
@@ -188,12 +225,13 @@ options, as `ims-select`'s does. A `field-xs` autocomplete with long labels
 opens a menu wide enough to show them in full.
 
 - The virtual viewport lays its rows out of flow, so they give the menu no
-  width. The menu instead holds `.ims-autocomplete__sizer`: hidden, bold,
-  role-less copies of `sizingLabels()`, the 8 longest source labels by
-  character count. The browser sizes the menu to them, padding, checkmark
-  space and scrollbar gutters included, without rendering every option. A
-  label wider than those 8 by glyph width alone (e.g. few wide CJK characters
-  beside many narrow Latin ones) can still be truncated.
+  width. The menu instead holds `.ims-autocomplete__sizer`: hidden, role-less
+  copies of `sizingLabels()`, the 8 longest source labels by character count.
+  The browser sizes the menu to them, padding, checkmark space and scrollbar
+  gutters included, without rendering every option. They carry no weight of
+  their own, which matches a real row now that a highlighted match is not
+  bold. A label wider than those 8 by glyph width alone (e.g. few wide CJK
+  characters beside many narrow Latin ones) can still be truncated.
 - The labels come from all source options, not the filtered ones, so typing
   does not change a static list's width. An async menu widens when wider
   results arrive and is placed again (`overlayRef.updatePosition()`) so it can

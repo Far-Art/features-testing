@@ -180,6 +180,13 @@ export abstract class ImsAutocompleteBase<T = unknown>
     readonly editDialogAriaLabel = input<string | null>(null);
     /** Emitted instead of opening the built-in dialog when `editDialogMode="custom"`. */
     readonly editDialogRequested = output<void>();
+    /**
+     * Emitted whenever the user changes the value: an option picked or toggled,
+     * a free-text commit, a strict commit that found no match, or an edit-dialog
+     * result. Form writes and `value` bindings never emit, and neither does a
+     * commit that writes back the value the field already holds.
+     */
+    readonly selectionChange = output<ImsAutocompleteValue<T>>();
     /** Fixed item height used by the CDK virtual scroll viewport. Defaults to an `ims-select` option row. */
     readonly optionHeight = input(33, {transform: numberAttribute});
     /** Equality function for option values. Defaults to strict reference equality. */
@@ -450,6 +457,20 @@ export abstract class ImsAutocompleteBase<T = unknown>
                 this.captureMenuWidth();
                 this.updateToolbarSide();
             });
+        });
+
+        // The viewport keeps its scroll offset when its options change, so a
+        // narrowed list that was scrolled — even by the browser clamping the
+        // offset to a shorter list — leaves the next, wider one starting part
+        // way down, with the matches above the offset hidden until the user
+        // scrolls up. A new query, or new results for one, puts the view back
+        // on the active option. Selecting in multiple mode does not reach
+        // here: it changes the view of the options, not the options.
+        effect(() => {
+            this.query();
+            this.sourceOptions();
+            if (!untracked(this.open)) return;
+            queueMicrotask(() => this.scrollActiveOptionIntoView());
         });
 
         effect(() => {
@@ -902,9 +923,18 @@ export abstract class ImsAutocompleteBase<T = unknown>
     }
 
     private emitValue(value: ImsAutocompleteValue<T>): void {
+        // A multi value and an edit-dialog result are always freshly built
+        // arrays, so only an unchanged single value can be identical here —
+        // a blur that re-commits the text it already wrote, for instance.
+        const changed = !Object.is(untracked(this.value), value);
+
         this.value.set(value);
         this.onChange(value);
         this.scheduleDisplayMeasure();
+
+        if (changed) {
+            this.selectionChange.emit(value);
+        }
     }
 
     private commitSingleInput(): void {

@@ -179,6 +179,7 @@ export class SelectionDemo {
         {nonNullable: true}
     );
     readonly narrowServerControl = new FormControl<LargeAutocompleteRow | string | null>(null);
+    readonly autocompleteSelectionLog = signal<readonly string[]>([]);
     selectedBagModel: SelectDemoBag | null = this.initialBagOptions[0];
 
     readonly loadBagAutocompleteOptions = (query: string) => {
@@ -273,6 +274,21 @@ export class SelectionDemo {
         policy: DemoPolicyType
     ): boolean {
         return control.value.some((selectedPolicy) => selectedPolicy.code === policy.code);
+    }
+
+    logAutocompleteSelection(source: string, value: unknown): void {
+        this.autocompleteSelectionLog.update((log) =>
+            [`${source}: ${this.describeSelection(value)}`, ...log].slice(0, 6)
+        );
+    }
+
+    private describeSelection(value: unknown): string {
+        if (value === null || value === undefined) return '—';
+        if (Array.isArray(value)) {
+            return value.length === 0 ? '[]' : `[${value.map((item) => this.describeSelection(item)).join(', ')}]`;
+        }
+        if (this.isSelectDemoBag(value)) return value.label;
+        return `"${String(value)}"`;
     }
 
     private tracksToRows(tracks: readonly DemoTrack[]): ImsTransferRow<DemoTrack>[] {

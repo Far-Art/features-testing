@@ -1,3 +1,4 @@
+import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 import {ApplicationRef, ChangeDetectionStrategy, Component} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
@@ -121,6 +122,7 @@ describe('ImsAutocomplete', () => {
     afterEach(() => {
         fixture.destroy();
         document.querySelectorAll('.cdk-overlay-container').forEach((element) => element.remove());
+        vi.restoreAllMocks();
     });
 
     it('keeps a single panel closed after an option is picked with the mouse', async () => {
@@ -137,6 +139,76 @@ describe('ImsAutocomplete', () => {
 
         expect(fixture.componentInstance.single.value).toEqual(BAGS[1]);
         expect(component.open()).toBe(false);
+    });
+
+    it('emits selectionChange only for user changes, and not twice for the same value', async () => {
+        const component = autocomplete<ImsAutocomplete<Bag>>(fixture, 'single');
+        const input = hostElement(fixture, 'single').querySelector('input')!;
+        const emitted: unknown[] = [];
+        component.selectionChange.subscribe((value) => emitted.push(value));
+
+        // A form write is not a user change.
+        fixture.componentInstance.single.setValue(BAGS[0]);
+        await settle(fixture);
+        expect(emitted).toEqual([]);
+
+        input.focus();
+        typeInto(input, 'Rec');
+        await settle(fixture);
+        expect(emitted).toEqual(['Rec']);
+
+        // Tab commits the free text the field already holds.
+        input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Tab', bubbles: true}));
+        await settle(fixture);
+        expect(emitted).toEqual(['Rec']);
+
+        // The input never lost focus, so refocusing it would fire no event.
+        component.openPanel();
+        await settle(fixture);
+        pressWithMouse(overlayOptions().find((element) => element.textContent?.trim() === 'Receipts')!);
+        await settle(fixture);
+        expect(emitted).toEqual(['Rec', BAGS[1]]);
+    });
+
+    it('emits each multi toggle as a new value', async () => {
+        const component = autocomplete<ImsAutocomplete<string>>(fixture, 'strings-multi');
+        const emitted: unknown[] = [];
+        component.selectionChange.subscribe((value) => emitted.push(value));
+
+        component.openPanel();
+        await settle(fixture);
+        component.selectOption(component.sourceOptions()[2]);
+        component.selectOption(component.sourceOptions()[0]);
+        component.selectOption(component.sourceOptions()[2]);
+        await settle(fixture);
+
+        expect(emitted).toEqual([['Blue'], ['Blue', 'Red'], ['Red']]);
+    });
+
+    it('puts the listbox back on its active option when the query changes', async () => {
+        const component = autocomplete<ImsAutocomplete<Bag>>(fixture, 'single');
+        const input = hostElement(fixture, 'single').querySelector('input')!;
+
+        // jsdom lays nothing out, so the offset a narrowed list leaves behind
+        // and the room the viewport has for rows are both supplied here.
+        vi.spyOn(CdkVirtualScrollViewport.prototype, 'measureScrollOffset').mockReturnValue(200);
+        vi.spyOn(CdkVirtualScrollViewport.prototype, 'getViewportSize').mockReturnValue(330);
+        const scrollToOffset = vi
+            .spyOn(CdkVirtualScrollViewport.prototype, 'scrollToOffset')
+            .mockImplementation(() => undefined);
+
+        input.focus();
+        typeInto(input, 'Claims');
+        await settle(fixture);
+        scrollToOffset.mockClear();
+
+        typeInto(input, 'C');
+        await settle(fixture);
+
+        expect(component.visibleOptions().map((option) => option.label))
+            .toEqual(['Documents', 'Receipts', 'Policies', 'Claims']);
+        expect(component.activeIndex()).toBe(0);
+        expect(scrollToOffset).toHaveBeenCalledWith(0, 'auto');
     });
 
     it('labels selected values that the current async results no longer include', async () => {

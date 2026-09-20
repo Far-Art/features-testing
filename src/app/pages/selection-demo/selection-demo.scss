@@ -46,6 +46,24 @@
     font-weight: var(--ims-font-weight-semibold);
 }
 
+.select-demo__readout {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.35rem 1rem;
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.select-demo__readout dt {
+    color: var(--ims-color-on-surface-muted);
+}
+
+.select-demo__readout dd {
+    display: grid;
+    gap: 0.15rem;
+    margin: 0;
+}
+
 // Pushed to the option's far edge, beside the checkmark. The start padding keeps
 // it apart from a long label once the row has no free space left.
 .select-demo__option-count {

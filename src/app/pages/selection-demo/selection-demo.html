@@ -165,7 +165,11 @@
 <section class="select-demo">
     <div>
         <h2>רכיב השלמה אוטומטית</h2>
-        <p>אפשרויות מתוך רשימה עם הדגשת התאמות, גלילה וירטואלית, טעינה אסינכרונית, מיון ובחירה מרובה מחייבת.</p>
+        <p>
+            אפשרויות מתוך רשימה עם הדגשת התאמות, גלילה וירטואלית, טעינה אסינכרונית, מיון ובחירה
+            מרובה מחייבת. <code>selectionChange</code> נפלט בכל שינוי ערך שהמשתמש עשה — בחירת
+            אפשרות, סימון או ביטול סימון, וטקסט חופשי — ולא בכתיבה מהטופס.
+        </p>
     </div>
 
     <div class="select-demo__grid">
@@ -178,6 +182,7 @@
                 [options]="bagAutocompleteOptions"
                 [formControl]="autocompleteSingleControl"
                 [compareWith]="compareBagById"
+                (selectionChange)="logAutocompleteSelection('יחידה', $event)"
             />
         </label>
 
@@ -192,9 +197,21 @@
                 [loadOptions]="loadBagAutocompleteOptions"
                 [formControl]="autocompleteMultiControl"
                 [compareWith]="compareBagById"
+                (selectionChange)="logAutocompleteSelection('מרובה', $event)"
             />
         </label>
     </div>
+
+    <dl class="select-demo__readout">
+        <dt>selectionChange</dt>
+        <dd>
+            @for (entry of autocompleteSelectionLog(); track $index) {
+                <span>{{ entry }}</span>
+            } @empty {
+                —
+            }
+        </dd>
+    </dl>
 </section>
 
 <section class="select-demo">

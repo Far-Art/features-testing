@@ -70,9 +70,9 @@
     view-transition-name: ims-autocomplete-options-view;
 }
 
-// Hidden copies of the longest options, sized like real rows: the same
-// scrollbar gutters as the viewport, and bold, the widest weight a row shows
-// (a highlighted match). No height, so only their width reaches the menu.
+// Hidden copies of the longest options, sized like real rows, with the same
+// scrollbar gutters as the viewport. No height, so only their width reaches
+// the menu.
 .ims-autocomplete__sizer {
     block-size: 0;
     overflow: hidden;
@@ -80,14 +80,16 @@
     visibility: hidden;
 }
 
-.ims-autocomplete__sizer .ims-autocomplete__option {
-    font-weight: var(--ims-font-weight-bold);
-}
-
 // Gutters on both edges, as the ims-select listbox has, so the rounded option
 // rows sit inset from the panel border instead of running into it.
+//
+// Scroll anchoring works against a virtual scroller, so it is off: widening
+// the filter inserts rows above the anchor row, and the browser would push the
+// offset down to hold that row still, drifting further from the top of the
+// results with every character deleted.
 .ims-autocomplete__viewport {
     width: 100%;
+    overflow-anchor: none;
     overflow-x: hidden;
     scrollbar-gutter: stable both-edges;
 }
@@ -106,9 +108,11 @@
     text-overflow: ellipsis;
 }
 
+// Background and color only: a bolder match is wider than the text it
+// replaces, so the rest of the label shifts with every character typed.
 .ims-autocomplete__option mark {
     border-radius: 0.1875rem;
     background: var(--ims-color-interactive-alt-subtle);
     color: var(--ims-color-interactive-alt-strong);
-    font-weight: var(--ims-font-weight-bold);
+    font-weight: inherit;
 }
