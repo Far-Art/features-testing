@@ -470,6 +470,24 @@ export abstract class ImsAutocompleteBase<T = unknown>
             }
         });
 
+        // The CDK re-measures its viewport only when told to, and nothing but a
+        // window resize tells it on its own: it never watches the element. This
+        // viewport's height follows the option count and the room the overlay
+        // has, and it can settle in a later pass than the options that changed
+        // it — change detection is coalesced, and the overlay may reposition as
+        // the panel grows. A list that grows from one row then keeps the range
+        // the CDK decided for one row: eight rows, whatever the viewport's
+        // height, until something unrelated re-runs a measurement. Watching the
+        // element itself covers every cause, including ones not listed here.
+        effect((onCleanup) => {
+            const element = this.viewport()?.elementRef.nativeElement;
+            if (!element) return;
+
+            const observer = new ResizeObserver(() => this.scheduleListboxMeasure());
+            observer.observe(element);
+            onCleanup(() => observer.disconnect());
+        });
+
         // Anything that can widen the menu, or change the room the toolbar needs
         // beside it. `visibleOptions` is one of them: the menu also grows to fit
         // whichever rows are rendered, and filtering changes those.
@@ -1199,25 +1217,21 @@ export abstract class ImsAutocompleteBase<T = unknown>
     }
 
     /**
-     * Re-measures the listbox after its options change, and renders the range
-     * that measurement produces.
+     * Has the CDK re-measure the listbox and render the range it arrives at.
+     * Runs when the options change and whenever the viewport element resizes.
      *
      * The CDK decides how many rows to render from a viewport size it measured
-     * earlier, and this viewport's height tracks the option count, so a filter
-     * that widens the list has its range decided against the old, shorter
-     * viewport: fewer rows than the dropdown now has room for.
-     * `checkViewportSize` corrects that, and the microtask runs after the
-     * height binding has been applied, so it measures the new height.
+     * earlier, and grows that range only while too little of it lies past the
+     * viewport's end. Measured at one row's height, it settles on eight rows;
+     * measured again at the full height, it finds too few and grows. So the
+     * measurement has to happen at the height the viewport ends up with, which
+     * is why the element's own resizes trigger it and not only option changes:
+     * measuring twice at the old height changes nothing, since
+     * `setRenderedRange` ignores a range equal to the one it holds.
      *
-     * `detectChanges` is the other half, and the half that is easy to miss.
-     * The CDK records a corrected range the moment it computes one, and
-     * `setRenderedRange` then ignores any later request for the same range —
-     * so a range whose render was deferred is never asked for again. It waits
-     * for whatever change detection happens next, which with coalesced events
-     * can be an unrelated one: a pointer moving over the list, which is what
-     * makes the list look like it fills in on hover. The option rows are
-     * embedded views of this component's own template, so running change
-     * detection here renders them now.
+     * `detectChanges` renders the new range in the same turn. The option rows
+     * are embedded views of this component's own template, so this does not
+     * wait for the CDK's own scheduling to reach them.
      */
     private scheduleListboxMeasure(): void {
         queueMicrotask(() => {
