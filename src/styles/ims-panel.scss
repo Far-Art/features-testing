@@ -113,8 +113,8 @@
     // the block padding (2 x 0.5rem), which is the 2.625rem this used to be: a
     // header holding a select or a checkbox is sized by that control and lands
     // taller than this floor rather than on it, so the two are no longer equal.
-    min-block-size: 2.2rem;
-    padding: 0.5rem var(--ims-panel-padding, 1rem);
+    min-block-size: 2rem;
+    padding: 0.4rem 1rem 0.26rem;
     border-block-end: 1px solid var(--ims-panel-border, var(--ims-color-status-neutral-border));
     background: var(--ims-panel-header-fill, var(--ims-color-status-neutral-accent));
     color: var(--ims-panel-header-color, var(--ims-color-on-status-neutral));
@@ -131,6 +131,7 @@
 // visible difference between an h2 and an h4 sitting in the same band.
 .ims-panel-header :is(h1, h2, h3, h4, h5, h6) {
     margin: 0;
+    font-weight: bold;
     color: var(--ims-panel-header-heading-color, var(--ims-color-primary-700));
 }
 
