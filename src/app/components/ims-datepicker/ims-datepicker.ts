@@ -176,7 +176,6 @@ export class ImsDatepicker
     private readonly dateParser = inject(IMS_DATEPICKER_PARSER);
     private readonly angularLocale = inject(LOCALE_ID);
     private readonly changeDetectorRef = inject(ChangeDetectorRef);
-    private readonly hostElement = inject<ElementRef<HTMLElement>>(ElementRef);
     readonly directionality = inject(Directionality);
     private readonly textInput = viewChild<ElementRef<HTMLInputElement>>('textInput');
     private readonly toggleButton = viewChild<ElementRef<HTMLButtonElement>>('toggleButton');
@@ -689,9 +688,17 @@ export class ImsDatepicker
 
     onOutsideClick(event: MouseEvent): void {
         const target = event.target;
-        if (target instanceof Node && this.hostElement.nativeElement.contains(target)) return;
+        if (target instanceof Node && this.hostElement.contains(target)) return;
         this.closePicker();
         this.markAsTouched();
+    }
+
+    /**
+     * The text input, not the calendar toggle beside it: typing a date is the
+     * field's primary interaction, and both sit inside the same marked field.
+     */
+    protected override focusTarget(): HTMLElement | null {
+        return this.textInput()?.nativeElement ?? null;
     }
 
     cycleView(): void {
