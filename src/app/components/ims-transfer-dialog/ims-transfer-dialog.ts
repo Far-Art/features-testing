@@ -1,5 +1,18 @@
-import {ChangeDetectionStrategy, Component, computed, Signal, signal, WritableSignal} from '@angular/core';
+import {
+    afterNextRender,
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    DestroyRef,
+    inject,
+    Injector,
+    Signal,
+    signal,
+    WritableSignal
+} from '@angular/core';
+import {DOCUMENT} from '@angular/common';
 import {CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
+import {CdkScrollable} from '@angular/cdk/scrolling';
 import {ImsInputDirective} from '../../ims-input.directive';
 import {ImsTextTruncateDirective} from '../../shared/ims-text-truncate.directive';
 import {ImsButton, ImsButtonIcon} from '../ims-button';
@@ -36,6 +49,7 @@ let nextDialogInstanceId = 0;
     imports: [
         CdkDropList,
         CdkDrag,
+        CdkScrollable,
         ImsButton,
         ImsButtonIcon,
         ImsCheckbox,
@@ -49,7 +63,8 @@ let nextDialogInstanceId = 0;
     templateUrl: './ims-transfer-dialog.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
-        class: 'ims-transfer-dialog'
+        class: 'ims-transfer-dialog',
+        '[class.ims-transfer-dialog--dragging]': 'dragging()'
     }
 })
 /**
@@ -61,6 +76,8 @@ export class ImsTransferDialog<T, ListId extends string = string> extends ImsAbs
     ImsTransferDialogData<T, ListId>,
     ImsTransferDialogResult<T, ListId>
 > {
+    private readonly document = inject(DOCUMENT);
+    private readonly injector = inject(Injector);
     private readonly data = this.dialogData;
     private readonly instanceId = nextDialogInstanceId++;
     private readonly initialLists = this.data.lists.map((list) => ({
@@ -68,8 +85,15 @@ export class ImsTransferDialog<T, ListId extends string = string> extends ImsAbs
         rows: list.rows.map((row) => this.normalizeRow(row))
     }));
 
+    private static readonly draggingBodyClass = 'ims-transfer-dialog-dragging';
+
     readonly filterQuery = signal('');
     readonly listStates = this.createListStates(this.initialLists);
+
+    constructor() {
+        super();
+        inject(DestroyRef).onDestroy(() => this.setDragging(false));
+    }
 
     onFilterInput(event: Event): void {
         const target = event.target;
@@ -109,6 +133,19 @@ export class ImsTransferDialog<T, ListId extends string = string> extends ImsAbs
         targetList.rows.update((rows) => [...rows, ...movedRows]);
     }
 
+    /** Suppresses row hover styling while a row is being dragged over the lists. */
+    readonly dragging = signal(false);
+
+    /**
+     * Mirrors the drag state on the body because the pointer can leave the
+     * dialog mid-drag, and the drag preview cannot carry the grabbing cursor
+     * itself: the CDK renders it with `pointer-events: none`.
+     */
+    setDragging(isDragging: boolean): void {
+        this.dragging.set(isDragging);
+        this.document.body.classList.toggle(ImsTransferDialog.draggingBodyClass, isDragging);
+    }
+
     /**
      * Reorders an unfiltered list or transfers a row between lists. A filtered
      * transfer is appended because rendered indices do not map to the full list.
@@ -124,6 +161,7 @@ export class ImsTransferDialog<T, ListId extends string = string> extends ImsAbs
 
         if (sourceList === targetList) {
             this.reorderList(targetList, event.previousIndex, event.currentIndex);
+            this.revealRow(targetList, event.item.data);
             return;
         }
 
@@ -138,6 +176,26 @@ export class ImsTransferDialog<T, ListId extends string = string> extends ImsAbs
             return next;
         });
         if (dropIndex !== undefined) targetList.sort.set(null);
+        this.revealRow(targetList, movedRow);
+    }
+
+    /**
+     * Scrolls a just-dropped row into view. The lists have a fixed height, so a
+     * row dropped at the end can land past the fold with nothing to indicate it
+     * arrived; `nearest` leaves an already-visible row untouched.
+     */
+    private revealRow(list: ImsTransferListState<T, ListId>, row: ImsTransferResultRow<T>): void {
+        afterNextRender(
+            () => {
+                const index = list.filteredRows().indexOf(row);
+                if (index < 0) return;
+
+                const listElement = this.document.getElementById(list.dropListId);
+                const rowElement = listElement?.querySelectorAll('.ims-transfer-dialog__row')[index];
+                rowElement?.scrollIntoView({block: 'nearest'});
+            },
+            {injector: this.injector}
+        );
     }
 
     reset(): void {

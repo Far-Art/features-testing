@@ -65,44 +65,57 @@
 
         <ims-scroll-container
           class="ims-transfer-dialog__list"
+          cdkScrollable
           [ariaLabel]="list.title"
           [hazeSize]="24"
-          cdkDropList
-          [cdkDropListSortingDisabled]="!!filterQuery().trim()"
-          [id]="list.dropListId"
-          [cdkDropListData]="list.filteredRows()"
-          [cdkDropListConnectedTo]="list.connectedTo"
-          (cdkDropListDropped)="drop($event, list)"
         >
-          @for (row of list.filteredRows(); track row.id) {
-            <div
-              class="ims-transfer-dialog__row"
-              [class.ims-transfer-dialog__row--disabled]="row.disabled"
-              cdkDrag
-              cdkDragBoundary=".ims-transfer-dialog__lists"
-              [cdkDragDisabled]="!!row.disabled"
-              [cdkDragData]="row"
-            >
-              <span class="ims-icon ims-transfer-dialog__handle" aria-hidden="true">
-                drag_indicator
-              </span>
-              <ims-checkbox
-                class="ims-transfer-dialog__checkbox"
-                [checked]="row.checked"
-                [disabled]="!!row.disabled"
-                (checkedChange)="setChecked(list, row, $event)"
+          <!--
+            The drop list is this inner wrapper rather than the scroll container
+            itself: the CDK appends the placeholder to the drop list element when
+            a row lands last, which outside the projected content would render it
+            below the scrolled viewport.
+          -->
+          <div
+            class="ims-transfer-dialog__drop"
+            cdkDropList
+            [cdkDropListSortingDisabled]="!!filterQuery().trim()"
+            [id]="list.dropListId"
+            [cdkDropListData]="list.filteredRows()"
+            [cdkDropListConnectedTo]="list.connectedTo"
+            (cdkDropListDropped)="drop($event, list)"
+          >
+            @for (row of list.filteredRows(); track row.id) {
+              <div
+                class="ims-transfer-dialog__row"
+                [class.ims-transfer-dialog__row--disabled]="row.disabled"
+                cdkDrag
+                cdkDragBoundary=".ims-transfer-dialog__lists"
+                [cdkDragDisabled]="!!row.disabled"
+                [cdkDragData]="row"
+                (cdkDragStarted)="setDragging(true)"
+                (cdkDragEnded)="setDragging(false)"
               >
-                <span class="ims-transfer-dialog__checkbox-accessible-label">{{ row.label }}</span>
-              </ims-checkbox>
-              <span class="ims-transfer-dialog__label" [imsTextTruncate]="row.label">{{
-                row.label
-              }}</span>
-            </div>
-          } @empty {
-            <p class="ims-transfer-dialog__empty">
-              {{ filterQuery().trim() ? 'אין תוצאות' : 'אין פריטים' }}
-            </p>
-          }
+                <span class="ims-icon ims-transfer-dialog__handle" aria-hidden="true">
+                  drag_indicator
+                </span>
+                <ims-checkbox
+                  class="ims-transfer-dialog__checkbox"
+                  [checked]="row.checked"
+                  [disabled]="!!row.disabled"
+                  (checkedChange)="setChecked(list, row, $event)"
+                >
+                  <span class="ims-transfer-dialog__checkbox-accessible-label">{{ row.label }}</span>
+                </ims-checkbox>
+                <span class="ims-transfer-dialog__label" [imsTextTruncate]="row.label">{{
+                  row.label
+                }}</span>
+              </div>
+            } @empty {
+              <p class="ims-transfer-dialog__empty">
+                {{ filterQuery().trim() ? 'אין תוצאות' : 'אין פריטים' }}
+              </p>
+            }
+          </div>
         </ims-scroll-container>
       </section>
     }

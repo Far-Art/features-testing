@@ -137,10 +137,16 @@
 .ims-transfer-dialog__list .ims-scroll-container__content {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
   box-sizing: border-box;
   min-block-size: 100%;
   padding: 0.25rem;
+}
+
+.ims-transfer-dialog__drop {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.15rem;
 }
 
 .ims-transfer-dialog__row {
@@ -163,7 +169,13 @@
   cursor: grabbing;
 }
 
-.ims-transfer-dialog__row:hover {
+body.ims-transfer-dialog-dragging,
+body.ims-transfer-dialog-dragging * {
+  cursor: grabbing !important;
+}
+
+.ims-transfer-dialog:not(.ims-transfer-dialog--dragging)
+  .ims-transfer-dialog__row:not(.ims-transfer-dialog__row--disabled):hover {
   background: var(--ims-color-surface-subtle);
 }
 
@@ -231,7 +243,7 @@
   opacity: 0.35;
 }
 
-.ims-transfer-dialog__list.cdk-drop-list-dragging
+.ims-transfer-dialog__drop.cdk-drop-list-dragging
   .ims-transfer-dialog__row:not(.cdk-drag-placeholder) {
   transition: transform 150ms ease;
 }
@@ -269,7 +281,7 @@
 @media (prefers-reduced-motion: reduce) {
   .ims-transfer-dialog__header-action--sort .ims-icon,
   .ims-transfer-dialog__row,
-  .ims-transfer-dialog__list.cdk-drop-list-dragging
+  .ims-transfer-dialog__drop.cdk-drop-list-dragging
     .ims-transfer-dialog__row:not(.cdk-drag-placeholder) {
     transition: none;
   }
