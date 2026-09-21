@@ -239,6 +239,23 @@ again cancels the pending commit.
 - The listbox is a CDK fixed-size virtual scroll viewport. `optionHeight`
   (default `33`, one `ims-select` option row) must match the rendered row
   height, or scrolling and active-option tracking drift.
+- `scheduleListboxMeasure()` runs after every change to the visible options,
+  and has to do two things. The CDK decides how many rows to render from a
+  viewport size it measured earlier, and this viewport's height tracks the
+  option count, so a filter that widens the list has its range decided against
+  the old, shorter viewport — fewer rows than the dropdown now has room for.
+  `checkViewportSize()` corrects that, from a microtask, after the height
+  binding has been applied.
+
+  `detectChanges()` is the other half. `setRenderedRange` records a corrected
+  range the moment it computes one and then ignores any later request for the
+  same range, so a range whose render was deferred is never asked for again —
+  it waits for whatever change detection happens next, which with coalesced
+  events can be an unrelated one. That is what makes a short list appear to
+  fill in when the pointer moves over it. The option rows are embedded views of
+  this component's own template, so running change detection here renders them
+  without waiting. Calling `checkViewportSize()` a second time does not help:
+  `rangesEqual` makes it a no-op.
 - A new query, or new results for one, puts the listbox back on its active
   option. The viewport keeps its scroll offset when its options change, so
   without this a narrowed list that was scrolled — even by the browser clamping
