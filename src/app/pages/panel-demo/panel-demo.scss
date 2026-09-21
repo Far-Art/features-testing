@@ -1,0 +1,92 @@
+.page-heading {
+    margin-block-end: 1.5rem;
+}
+
+.page-heading h1,
+.page-heading p {
+    margin: 0;
+}
+
+.page-heading p {
+    margin-block-start: 0.5rem;
+    color: var(--ims-color-on-surface-muted);
+}
+
+// Every section on this page stacks its heading above the examples rather than
+// sitting it alongside: the panels are full-width boxes, so there is nothing
+// usable beside them.
+.panel-demo {
+    margin-block-end: 2rem;
+    padding: 1.75rem 2rem;
+    border-radius: 1.25rem;
+    background: var(--ims-background-panel);
+    box-shadow: 0 0.5rem 1.75rem color-mix(in srgb, var(--ims-color-primary-950) 8%, transparent);
+}
+
+.panel-demo--stacked {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
+}
+
+.panel-demo__description h2 {
+    margin: 0 0 0.5rem;
+    color: var(--ims-color-on-surface);
+}
+
+.panel-demo__description p {
+    max-width: 46rem;
+    margin: 0;
+    color: var(--ims-color-on-surface-muted);
+}
+
+.panel-demo__description code {
+    direction: ltr;
+    unicode-bidi: isolate;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.85em;
+}
+
+// Five severities across where there is room, collapsing to fewer tracks rather
+// than to a sideways scroll — the page itself must never scroll horizontally.
+.panel-demo__severity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 1rem;
+}
+
+.panel-demo__pair {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+    align-items: start;
+    gap: 1rem;
+}
+
+// The panel's own body text, distinct from the section prose above it: it sits
+// on the panel tint, so it keeps the panel's ink rather than the muted grey the
+// explanatory paragraphs use.
+.panel-demo__body-text {
+    color: inherit;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+// A real heading inside the header, which is what a header that also holds
+// controls should carry instead of role="heading" on the row itself. The block
+// margins an h3 arrives with are zeroed by the component; what is left here is
+// sizing it to the row, which the component deliberately leaves to the caller.
+.panel-demo__header-title {
+    font-size: 1rem;
+    font-weight: inherit;
+}
+
+.panel-demo__header-select {
+    inline-size: var(--field-width-s);
+}
+
+@media (max-width: 720px) {
+    .panel-demo {
+        padding: 1.25rem;
+    }
+}

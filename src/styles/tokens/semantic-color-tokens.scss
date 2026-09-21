@@ -53,7 +53,18 @@
     // Focus halo for invalid form controls.
     --ims-color-invalid-focus-ring: var(--ims-color-danger-200);
 
-    // Status treatments shared by notifications, dialogs, banners, and badges.
+    // Status treatments shared by notifications, dialogs, panels, banners, and badges.
+    //
+    // Neutral is the quiet member of the family: a container with no state to
+    // report is grey rather than untoned, which is what lets ims-panel default to a
+    // severity instead of to a separate no-severity appearance. Its steps mirror
+    // info exactly — border at 150, accent at 200 — so the two band identically.
+    --ims-color-status-neutral: var(--ims-color-neutral-600);
+    --ims-color-status-neutral-subtle: var(--ims-color-neutral-50);
+    --ims-color-status-neutral-border: var(--ims-color-neutral-150);
+    --ims-color-on-status-neutral: var(--ims-color-neutral-800);
+    --ims-color-status-neutral-accent: var(--ims-color-neutral-200);
+
     --ims-color-status-info: var(--ims-color-brand);
     --ims-color-status-info-subtle: var(--ims-color-primary-50);
     --ims-color-status-info-border: var(--ims-color-primary-150);

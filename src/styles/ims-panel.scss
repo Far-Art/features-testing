@@ -1,0 +1,227 @@
+// A panel is a box with a banded top row, and its severity is four colours.
+//
+// The slots below are the whole colour API. Every paint rule in this file names
+// a slot and never a palette token, so a severity is one block that repoints the
+// four — see .ims-panel--info and its three neighbours. Unset severity is
+// `neutral`, whose values are the ones declared here, so a panel that names no
+// severity is painted from exactly these and cannot drift from the grey one.
+//
+// The header takes its colours by inheritance rather than by a class of its own:
+// ims-panel-header is projected into the panel, so it is a DOM descendant, and
+// the slots reach it for free. That is why the severity classes below sit on the
+// panel alone and the header never learns which severity it is in.
+.ims-panel {
+    // Body fill. One step off white, so content reads as content.
+    --ims-panel-fill: var(--ims-color-status-neutral-subtle);
+    // The surrounding hairline, the header's lower edge, and the hr. One colour
+    // for all three: every line in a panel is the same line.
+    --ims-panel-border: var(--ims-color-status-neutral-border);
+    // Header band. Darker than the body but still a tint — the header is part of
+    // the panel, not a lid on it.
+    //
+    // Neutral takes a blue band rather than a grey one. An untoned panel is the
+    // default, and the default should still look like this application: blue is
+    // the house colour, and a grey band on a grey body left the whole thing drab.
+    //
+    // A softer blue than info uses, though. Step 100 is the nearest the ramp comes
+    // to the #CCD8FF this was drawn to — 9/4/7 per channel off it, where 150 is 21
+    // away and the 200 that info paints with is 48 — and the gap between the two
+    // steps is what keeps a default panel from being mistaken for an `info` one.
+    // A primitive step rather than a status token because this block is the
+    // neutral severity, and a severity is where this file names palette steps.
+    --ims-panel-header-fill: var(--ims-color-primary-100);
+    // Header text, and the header icon with it. Follows the band it sits on: the
+    // pairing is what carries the contrast, so the two move together.
+    --ims-panel-header-color: var(--ims-color-on-status-info);
+    // Heading ink, a step or two up the ramp from the header text toward the 600
+    // base. The shade steps are the base darkened, so moving up is the only
+    // saturation this palette has — a heading reads as its severity rather than as
+    // near-black. How far each severity can move is a property of its own hue; the
+    // four blocks at the bottom of this file each say where they stop, and why.
+    //
+    // Neutral takes the same step as info here because it takes the same band:
+    // see the header-fill note above. Grey would have had nothing to move toward
+    // in any case.
+    --ims-panel-header-heading-color: var(--ims-color-primary-700);
+
+    // Customization API. The padding is the content box, the header's inline
+    // padding and the hr's bleed distance, all three: a call site that changes it
+    // keeps body text and header text on one inline edge, and keeps the divider
+    // reaching the panel edges rather than stopping short or overshooting.
+    --ims-panel-padding: 0.6rem;
+    --ims-panel-radius: 0.75rem;
+
+    display: block;
+    box-sizing: border-box;
+    // A panel is as tall as what is in it, and will not be stretched taller by a
+    // grid or flex row it sits in — a row of panels of unequal length ends ragged
+    // rather than levelled. A call site that wants them levelled sets its own
+    // `align-items: stretch` child rule, since this only caps the panel itself.
+    max-block-size: max-content;
+    // `clip` rather than `hidden`: the header band has to stop at the rounded
+    // corners, but a panel is in flow and may hold a select or a tooltip whose
+    // overlay must not be trapped by a scroll container.
+    overflow: clip;
+    border: 1px solid var(--ims-panel-border);
+    border-radius: var(--ims-panel-radius);
+    background: var(--ims-panel-fill);
+    color: var(--ims-color-on-surface);
+}
+
+.ims-panel__content {
+    padding: var(--ims-panel-padding);
+}
+
+// A bare `hr` is the section divider, and it spans the panel rather than the
+// content box — it separates parts of the panel, so it is drawn at the panel's
+// width. The negative inline margin is exactly the padding it sits in.
+//
+// The child combinator matters: without it a nested panel's divider would be
+// pulled out to the outer panel's edges and paint in the outer severity.
+.ims-panel__content > hr {
+    margin-block: var(--ims-panel-padding);
+    margin-inline: calc(var(--ims-panel-padding) * -1);
+    border: 0;
+    border-block-start: 1px solid var(--ims-panel-border);
+}
+
+// An hr as the first or last thing in the body would double the padding on that
+// side, which reads as a gap rather than a divider.
+.ims-panel__content > hr:first-child {
+    margin-block-start: calc(var(--ims-panel-padding) * -1);
+}
+
+.ims-panel__content > hr:last-child {
+    margin-block-end: calc(var(--ims-panel-padding) * -1);
+}
+
+// The header is a row that wraps, not a title bar. It is specified to hold
+// whatever the caller has — text, an icon, a checkbox, a select, buttons — so it
+// lays them out on the baseline of one line and lets them fall to a second line
+// together rather than clipping or stretching.
+//
+// Each colour below names its slot with the neutral token as a fallback. Inside
+// a panel the panel's value wins; a header used on its own still paints grey
+// rather than falling back to the initial value of the property.
+.ims-panel-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    box-sizing: border-box;
+    gap: 0.5rem 0.75rem;
+    // Sized for a band that holds text. It sits below --field-height (26px) plus
+    // the block padding (2 x 0.5rem), which is the 2.625rem this used to be: a
+    // header holding a select or a checkbox is sized by that control and lands
+    // taller than this floor rather than on it, so the two are no longer equal.
+    min-block-size: 2.2rem;
+    padding: 0.5rem var(--ims-panel-padding, 1rem);
+    border-block-end: 1px solid var(--ims-panel-border, var(--ims-color-status-neutral-border));
+    background: var(--ims-panel-header-fill, var(--ims-color-status-neutral-accent));
+    color: var(--ims-panel-header-color, var(--ims-color-on-status-neutral));
+    font-weight: var(--ims-font-weight-semibold);
+}
+
+// A projected heading is the honest way to make this row a heading, since the
+// header carries no role of its own — but one arrives with user-agent block
+// margins, sized in em, so every level inflates the band by a different amount
+// and the row centres its items around that empty space. Zeroed here rather than
+// at each call site, which is what the README used to ask for without saying so.
+//
+// Size and weight are left alone: the level is the caller's choice, and it is the
+// visible difference between an h2 and an h4 sitting in the same band.
+.ims-panel-header :is(h1, h2, h3, h4, h5, h6) {
+    margin: 0;
+    color: var(--ims-panel-header-heading-color, var(--ims-color-primary-700));
+}
+
+// Matched on the header as well as on itself, which is not decoration: .ims-icon
+// declares its own --ims-icon-size, styles.scss loads ims-icon after this file,
+// and at equal specificity the later rule wins. The descendant selector puts
+// this one a class ahead so the size holds wherever the sheets are ordered.
+.ims-panel-header .ims-panel-header__icon {
+    flex: 0 0 auto;
+    // A shade larger than the house default, to match the weight of the header
+    // text beside it rather than the body text the default is sized for.
+    --ims-icon-size: 20px;
+}
+
+// Takes the slack so the actions slot can push itself to the far end, and
+// min-inline-size: 0 lets a long title ellipsize or wrap instead of forcing the
+// row wider than the panel.
+.ims-panel-header__content {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    min-inline-size: 0;
+}
+
+// Logical, so the actions pin to the left in this RTL application and to the
+// right in an LTR one without either being named.
+.ims-panel-header__actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.25rem;
+    margin-inline-start: auto;
+}
+
+// The slot is always in the template; an unused one must not spend the row's gap.
+.ims-panel-header__actions:empty {
+    display: none;
+}
+
+// Severity: which voice the panel speaks in. Each block repoints the four slots
+// and does nothing else.
+//
+// `neutral` has no block. It is what .ims-panel already declares, so the
+// severity a call site does not write costs nothing.
+.ims-panel--info {
+    --ims-panel-fill: var(--ims-color-status-info-subtle);
+    --ims-panel-border: var(--ims-color-status-info-border);
+    --ims-panel-header-fill: var(--ims-color-status-info-accent);
+    --ims-panel-header-color: var(--ims-color-on-status-info);
+    // Two steps up from the header ink. Navy has the most headroom of the five
+    // — 6.1:1 on its own band — so it moves furthest and reads plainly blue.
+    --ims-panel-header-heading-color: var(--ims-color-primary-700);
+}
+
+.ims-panel--success {
+    --ims-panel-fill: var(--ims-color-status-success-subtle);
+    --ims-panel-border: var(--ims-color-status-success-border);
+    --ims-panel-header-fill: var(--ims-color-status-success-accent);
+    --ims-panel-header-color: var(--ims-color-on-status-success);
+    // Stays where the header ink is. Green sits on the lightest-but-one band and
+    // is already only 5.4:1 against it; 750 measures 4.44:1 and 700 measures
+    // 3.7:1, so there is no step up from here that still clears AA.
+    --ims-panel-header-heading-color: var(--ims-color-success-800);
+}
+
+// The one severity that is not read straight across. Amber's accent step is the
+// lightest of the five bands and its on-status text the lightest of the five
+// inks, and the two together land at 4.0:1 — the only pairing here that misses
+// AA. The text goes one step darker, to 900, which puts it at 6.5:1 and still
+// reads as amber.
+//
+// Same correction .ims-button--warning makes for the same reason, so a warning
+// panel and a warning button agree on what amber-on-amber looks like.
+.ims-panel--warning {
+    --ims-panel-fill: var(--ims-color-status-warning-subtle);
+    --ims-panel-border: var(--ims-color-status-warning-border);
+    --ims-panel-header-fill: var(--ims-color-status-warning-accent);
+    --ims-panel-header-color: var(--ims-color-warning-900);
+    // One step up, which is as far as amber goes: 800 is the value the header
+    // text already could not use, at 4.0:1.
+    --ims-panel-header-heading-color: var(--ims-color-warning-850);
+}
+
+.ims-panel--danger {
+    --ims-panel-fill: var(--ims-color-status-danger-subtle);
+    --ims-panel-border: var(--ims-color-status-danger-border);
+    --ims-panel-header-fill: var(--ims-color-status-danger-accent);
+    --ims-panel-header-color: var(--ims-color-on-status-danger);
+    // Stays put, as green does: 5.0:1 on its band already, and 750 measures
+    // 4.2:1.
+    --ims-panel-header-heading-color: var(--ims-color-danger-800);
+}

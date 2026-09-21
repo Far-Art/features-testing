@@ -1,0 +1,190 @@
+<header class="page-heading">
+    <h1>פאנלים</h1>
+    <p>מיכל לעטיפת תוכן, עם כותרת מוקרנת, חומרה שצובעת את כולו וקו מפריד שנמתח לרוחב הפאנל.</p>
+</header>
+
+<section class="panel-demo panel-demo--stacked">
+    <div class="panel-demo__description">
+        <h2>חומרות</h2>
+        <p>
+            <code>severity</code> צובע את הפאנל כולו: הגוף מקבל את הגוון העדין של החומרה,
+            והכותרת מקבלת גוון אחד כהה יותר. אלו אותן ארבע החומרות של הכפתור, הסנאקבר
+            והדיאלוג, בתוספת <code>neutral</code> — אפור, שהוא ברירת המחדל ואינו נכתב.
+        </p>
+    </div>
+
+    <div class="panel-demo__severity-grid">
+        @for (severity of severities; track severity) {
+            <ims-panel [severity]="severity">
+                <ims-panel-header icon="dashboard">{{ severity }}</ims-panel-header>
+                <p class="panel-demo__body-text">{{ severityCaptions[severity] }}</p>
+            </ims-panel>
+        }
+    </div>
+</section>
+
+<section class="panel-demo panel-demo--stacked">
+    <div class="panel-demo__description">
+        <h2>קו מפריד</h2>
+        <p>
+            אלמנט <code>hr</code> רגיל בגוף הפאנל נמתח עד שני הקצוות הפנימיים, מעבר לריפוד
+            של התוכן, ונצבע בצבע הקו של החומרה. אין מחלקה לסמן בה — האלמנט עצמו הוא הממשק.
+        </p>
+    </div>
+
+    <div class="panel-demo__pair">
+        <ims-panel severity="info">
+            <ims-panel-header icon="receipt_long">פרטי פוליסה</ims-panel-header>
+            <p class="panel-demo__body-text">מספר פוליסה 41-220-8873, בתוקף עד 31.12.2026.</p>
+            <hr>
+            <p class="panel-demo__body-text">בעל הפוליסה: דנה כהן, תל אביב.</p>
+            <hr>
+            <p class="panel-demo__body-text">סוכן מטפל: מיכאל לוי.</p>
+        </ims-panel>
+
+        <ims-panel severity="warning">
+            <ims-panel-header icon="warning">פאנל בתוך פאנל</ims-panel-header>
+            <p class="panel-demo__body-text">הקו הזה נמתח עד קצוות הפאנל החיצוני.</p>
+            <hr>
+
+            <ims-panel severity="danger">
+                <ims-panel-header icon="error">פאנל פנימי</ims-panel-header>
+                <p class="panel-demo__body-text">והקו הזה נעצר בקצוות הפאנל הפנימי.</p>
+                <hr>
+                <p class="panel-demo__body-text">כל פאנל מפריד בתוך עצמו.</p>
+            </ims-panel>
+        </ims-panel>
+    </div>
+</section>
+
+<section class="panel-demo panel-demo--stacked">
+    <div class="panel-demo__description">
+        <h2>מה נכנס לכותרת</h2>
+        <p>
+            הכותרת היא שורה גמישה, לא סרגל כותרת: היא מחזיקה טקסט, אייקון דרך
+            <code>icon</code>, וגם פקדים ממשיים — תיבות סימון, כפתורי בחירה,
+            רשימות בחירה וכפתורים.
+            אלמנט שמסומן ב-<code>imsPanelHeaderActions</code> נצמד לקצה הרחוק של השורה.
+        </p>
+    </div>
+
+    <div class="panel-demo__pair">
+        <ims-panel severity="info">
+            <ims-panel-header icon="filter_alt">
+                <h3 class="panel-demo__header-title">חיובים</h3>
+
+                <ims-checkbox [formControl]="includeCancelled">כלול חיובים שבוטלו</ims-checkbox>
+
+                <ims-select
+                    class="panel-demo__header-select"
+                    ariaLabel="שנת חיוב"
+                    [formControl]="selectedYear"
+                >
+                    @for (year of yearOptions(); track year.value) {
+                        <ims-option
+                            [value]="year.value"
+                            [selectionText]="year.label"
+                        >
+                            {{ year.label }}
+                        </ims-option>
+                    }
+                </ims-select>
+
+                <button
+                    ims-button-icon
+                    imsPanelHeaderActions
+                    aria-label="אפשרויות נוספות"
+                >
+                    <ims-icon>more_vert</ims-icon>
+                </button>
+            </ims-panel-header>
+
+            <p class="panel-demo__body-text">
+                שנה נבחרת: {{ selectedYear.value }}. חיובים שבוטלו:
+                {{ includeCancelled.value ? 'מוצגים' : 'מוסתרים' }}.
+            </p>
+        </ims-panel>
+
+        <ims-panel severity="success">
+            <ims-panel-header icon="task_alt">
+                הסליקה הושלמה
+
+                <button
+                    ims-button
+                    ims-button-variation="outline"
+                    ims-button-severity="success"
+                    imsPanelHeaderActions
+                >
+                    הצג קבלה
+                </button>
+            </ims-panel-header>
+
+            <p class="panel-demo__body-text">14 מתוך 14 החיובים נסלקו בהצלחה.</p>
+        </ims-panel>
+
+        <ims-panel severity="neutral">
+            <ims-panel-header icon="visibility">
+                <h3 class="panel-demo__header-title">תצוגה</h3>
+
+                <ims-radio-group
+                    layout="inline"
+                    aria-label="מצב תצוגה"
+                    [(value)]="viewMode"
+                >
+                    @for (mode of viewModes; track mode.value) {
+                        <ims-radio [value]="mode.value">{{ mode.label }}</ims-radio>
+                    }
+                </ims-radio-group>
+            </ims-panel-header>
+
+            <p class="panel-demo__body-text">מצב תצוגה נבחר: {{ viewModeLabel() }}.</p>
+        </ims-panel>
+    </div>
+</section>
+
+<section class="panel-demo panel-demo--stacked">
+    <div class="panel-demo__description">
+        <h2>כותרות בתוך הכותרת</h2>
+        <p>
+            הכותרת אינה נושאת <code>role="heading"</code>: היא נועדה להחזיק גם פקדים,
+            וכותרת ARIA אינה יכולה להכיל אלמנטים שניתן למקד. לכן מי שצריך כותרת
+            אמיתית מקרין אלמנט <code>h1</code> עד <code>h6</code>, והדפדפן קובע את
+            ההיררכיה ואת מה שקורא המסך מכריז.
+        </p>
+    </div>
+
+    <ims-panel severity="info">
+        <ims-panel-header icon="title">
+            <h1>h1</h1>
+            <h2>h2</h2>
+            <h3>h3</h3>
+            <h4>h4</h4>
+            <h5>h5</h5>
+            <h6>h6</h6>
+        </ims-panel-header>
+
+        <p class="panel-demo__body-text">שש רמות הכותרת כפי שהן מוקרנות לתוך שורת הכותרת.</p>
+    </ims-panel>
+</section>
+
+<section class="panel-demo panel-demo--stacked">
+    <div class="panel-demo__description">
+        <h2>בלי כותרת</h2>
+        <p>
+            הכותרת אופציונלית. בלעדיה הפאנל הוא קופסה צבועה בלבד — שימושי כשהכותרת כבר
+            נמצאת מעל הפאנל בעמוד עצמו.
+        </p>
+    </div>
+
+    <div class="panel-demo__pair">
+        <ims-panel>
+            <p class="panel-demo__body-text">פאנל אפור בלי כותרת.</p>
+        </ims-panel>
+
+        <ims-panel severity="danger">
+            <p class="panel-demo__body-text">פאנל שגיאה בלי כותרת.</p>
+            <hr>
+            <p class="panel-demo__body-text">הקו עדיין נמתח לרוחב מלא.</p>
+        </ims-panel>
+    </div>
+</section>

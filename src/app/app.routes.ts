@@ -90,6 +90,16 @@ export const routes: Routes = [
             )
     },
     {
+        path: 'panel',
+        loadComponent: () =>
+            import('./pages/panel-demo/panel-demo').then((module) => module.PanelDemo)
+    },
+    {
+        path: 'tooltip',
+        loadComponent: () =>
+            import('./pages/tooltip-demo/tooltip-demo').then((module) => module.TooltipDemo)
+    },
+    {
         path: 'icons',
         loadComponent: () =>
             import('./pages/icons-demo/icons-demo').then((module) => module.IconsDemo)
