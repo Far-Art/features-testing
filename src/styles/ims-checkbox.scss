@@ -2,8 +2,13 @@
 // field label by this size, and that label is a sibling of the checkbox host,
 // so it could not inherit a variable declared inside the checkbox.
 :root {
-    // Outer size of the box, border included.
+    // The slot every box sits in: the space it takes in the layout, and the
+    // outer size the checkbox appearance is drawn at, border included.
     --ims-checkbox-size: 1.25rem;
+    // Outer size the check appearance's circle is drawn at, border included: a
+    // little larger than its slot, so the checkmark reads clearly. The same as
+    // --ims-radio-check-size, so the two check appearances match.
+    --ims-checkbox-check-size: 1.375rem;
 }
 
 // Inline-level like a native input. As a flex container the host is exactly as
@@ -21,6 +26,23 @@
 .ims-checkbox {
     --ims-checkbox-duration: 200ms;
     --ims-checkbox-ease: cubic-bezier(0.4, 0, 0.2, 1);
+    // The tone every checked, hover and focus state paints with. The appearance
+    // and the state rules below retune it. The public hooks
+    // (--ims-checkbox-accent, --ims-checkbox-check-accent and their -strong
+    // pairs) are only read here as fallbacks and never declared, so a consumer
+    // can set them on any ancestor. A -strong hook left unset follows its
+    // accent, so recoloring only the accent never leaves a default hover color
+    // behind. The same arrangement as ims-radio.scss.
+    --ims-checkbox-tone: var(--ims-checkbox-accent, var(--ims-color-interactive));
+    --ims-checkbox-tone-strong: var(
+        --ims-checkbox-accent-strong,
+        var(--ims-checkbox-accent, var(--ims-color-interactive-strong))
+    );
+    --ims-checkbox-tone-ring: var(--ims-color-focus-ring);
+    // The size this box is drawn at and the dash pattern its mark is drawn
+    // with; the appearance picks both.
+    --ims-checkbox-drawn-size: var(--ims-checkbox-size);
+    --ims-checkbox-mark-dash: 22;
 
     position: relative;
     display: inline-flex;
@@ -33,6 +55,33 @@
     cursor: pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+}
+
+// Check appearance: the green circle ims-radio draws for its own check
+// appearance, so a checkbox can sit among check options without standing out.
+// Only the tone, the drawn size and the mark change; every state rule below is
+// shared.
+.ims-checkbox.ims-checkbox--check {
+    --ims-checkbox-tone: var(--ims-checkbox-check-accent, var(--ims-color-interactive-success));
+    --ims-checkbox-tone-strong: var(
+        --ims-checkbox-check-accent-strong,
+        var(--ims-checkbox-check-accent, var(--ims-color-interactive-success-strong))
+    );
+    --ims-checkbox-tone-ring: var(--ims-color-success-focus-ring);
+    --ims-checkbox-drawn-size: var(--ims-checkbox-check-size);
+    // The circle's checkmark is ~11.1 long, so the 22 pattern the square's mark
+    // uses would finish drawing it halfway through the transition.
+    --ims-checkbox-mark-dash: 12;
+}
+
+// `ng-invalid` lands on the host, not on the native input. It outranks the
+// appearance, so an invalid box is tinted whichever shape it has. Disabled and
+// readonly boxes paint their own colors in the rules below and are left
+// untinted, as in ims-input.scss.
+.ims-checkbox-host.ng-invalid .ims-checkbox {
+    --ims-checkbox-tone: var(--ims-color-invalid);
+    --ims-checkbox-tone-strong: var(--ims-color-invalid);
+    --ims-checkbox-tone-ring: var(--ims-color-invalid-focus-ring);
 }
 
 .ims-checkbox:has(> .ims-checkbox__native:disabled) {
@@ -54,14 +103,22 @@
     cursor: inherit;
 }
 
-// Size the box only through --ims-checkbox-size: ims-form-field uses the same
+// Drawn at the appearance's size but laid out at the slot size: the margin
+// makes up the difference, zero for the square box and negative for the larger
+// check circle. Both appearances therefore keep the footprint of a checkbox,
+// their labels line up with each other and with an ims-radio's, and the
+// ims-form-field label offset keeps matching. Sized rather than scaled: a
+// transform would blur on the low-DPI screens and cost the CPU a repaint.
+//
+// Size the slot only through --ims-checkbox-size: ims-form-field uses the same
 // value to place a field label beside a direct checkbox.
 .ims-checkbox__track {
     position: relative;
     flex: 0 0 auto;
     box-sizing: border-box;
-    width: var(--ims-checkbox-size);
-    height: var(--ims-checkbox-size);
+    width: var(--ims-checkbox-drawn-size);
+    height: var(--ims-checkbox-drawn-size);
+    margin: calc((var(--ims-checkbox-size) - var(--ims-checkbox-drawn-size)) / 2);
     border: 2px solid var(--ims-color-border);
     border-radius: 0.3rem;
     // The hover halo. Always present and transparent at rest, so hover only
@@ -87,13 +144,28 @@
 // Whole pixels. On a low-DPI screen a fractional size (a rem under a
 // non-16px root, or browser zoom) snaps to a box a pixel wider than it is tall,
 // and shifts the mark inside it off center. Behind @supports: without round(),
-// this declaration would compute to `auto` and collapse the empty track.
+// these declarations would compute to `auto` and collapse the empty track.
 // ims-form-field rounds its label offset the same way.
+//
+// A whole-pixel slot and margin, with the box taking the slot plus or minus
+// twice the margin, so it stays centered in the slot whatever the sizes are, as
+// in ims-radio.scss.
 @supports (width: round(1.5px, 1px)) {
     .ims-checkbox__track {
-        width: round(var(--ims-checkbox-size), 1px);
-        height: round(var(--ims-checkbox-size), 1px);
+        --ims-checkbox-box-margin: round((var(--ims-checkbox-size) - var(--ims-checkbox-drawn-size)) / 2, 1px);
+
+        width: calc(round(var(--ims-checkbox-size), 1px) - 2 * var(--ims-checkbox-box-margin));
+        height: calc(round(var(--ims-checkbox-size), 1px) - 2 * var(--ims-checkbox-box-margin));
+        margin: var(--ims-checkbox-box-margin);
     }
+}
+
+// Check appearance: a circle in place of the rounded square. The checkmark's
+// viewBox matches its 18px inner box at the default size (a 22px circle less
+// its 2px border), so the 2px stroke stays 2px instead of blurring across pixel
+// edges.
+.ims-checkbox--check .ims-checkbox__track {
+    border-radius: 50%;
 }
 
 // Transitions wait for the first render, so a checkbox that starts checked
@@ -121,11 +193,13 @@
 // shapes share the same command structure (M L L), so the CSS `d` transition
 // morphs one into the other.
 //
-// stroke-dasharray is fixed at 22, longer than either shape (~15.6 and 9), so
-// stroke-dashoffset alone draws the mark in (22 → 0) and erases it (0 → 22).
+// stroke-dasharray is the appearance's --ims-checkbox-mark-dash, longer than
+// either of its shapes, so stroke-dashoffset alone draws the mark in
+// (dash → 0) and erases it (0 → dash). The square's shapes are ~15.6 and 9
+// long against a 22 pattern, the circle's ~11.1 and 6.5 against a 12 one.
 .ims-checkbox__mark {
-    stroke-dasharray: 22;
-    stroke-dashoffset: 22;
+    stroke-dasharray: var(--ims-checkbox-mark-dash);
+    stroke-dashoffset: var(--ims-checkbox-mark-dash);
     opacity: 0;
 }
 
@@ -147,28 +221,36 @@
 }
 
 .ims-checkbox__native:not(:disabled):hover + .ims-checkbox__track {
-    border-color: var(--ims-color-interactive);
+    border-color: var(--ims-checkbox-tone);
 }
 
 // The halo sits where the focus ring does and would paint over it, so a
 // focused box keeps its focus ring instead.
 .ims-checkbox__native:not(:disabled):not(:focus-visible):hover + .ims-checkbox__track {
-    outline-color: color-mix(in srgb, var(--ims-color-interactive) 18%, transparent);
+    outline-color: color-mix(in srgb, var(--ims-checkbox-tone) 18%, transparent);
 }
 
 .ims-checkbox__native:focus-visible + .ims-checkbox__track {
-    box-shadow: 0 0 0 3px var(--ims-color-focus-ring);
+    box-shadow: 0 0 0 3px var(--ims-checkbox-tone-ring);
+}
+
+// An invalid box carries its tone at rest as well, not only under the pointer,
+// so the danger reads without hovering. Every other state rule already paints
+// with the retuned tone; disabled and readonly boxes paint their own colors and
+// are left alone, as in ims-input.scss.
+.ims-checkbox-host.ng-invalid .ims-checkbox__native:not(:disabled) + .ims-checkbox__track {
+    border-color: var(--ims-checkbox-tone);
 }
 
 .ims-checkbox__native:is(:checked, :indeterminate) + .ims-checkbox__track {
-    border-color: var(--ims-color-interactive);
-    background: var(--ims-color-interactive);
+    border-color: var(--ims-checkbox-tone);
+    background: var(--ims-checkbox-tone);
     color: var(--ims-color-on-interactive);
 }
 
 .ims-checkbox__native:is(:checked, :indeterminate):not(:disabled):hover + .ims-checkbox__track {
-    border-color: var(--ims-color-interactive-strong);
-    background: var(--ims-color-interactive-strong);
+    border-color: var(--ims-checkbox-tone-strong);
+    background: var(--ims-checkbox-tone-strong);
 }
 
 .ims-checkbox__native:is(:checked, :indeterminate) + .ims-checkbox__track .ims-checkbox__mark {
@@ -199,25 +281,6 @@
 .ims-checkbox-host.ims-readonly .ims-checkbox__native:disabled:is(:checked, :indeterminate) + .ims-checkbox__track {
     border-color: var(--ims-color-on-surface-readonly);
     background: var(--ims-color-on-surface-readonly);
-}
-
-// `ng-invalid` lands on the host, not on the native input. Kept after the hover
-// rules so an invalid box keeps its danger tone under the pointer; disabled and
-// readonly boxes are left alone, as in ims-input.scss.
-.ims-checkbox-host.ng-invalid .ims-checkbox__native:not(:disabled) + .ims-checkbox__track {
-    border-color: var(--ims-color-invalid);
-}
-
-.ims-checkbox-host.ng-invalid .ims-checkbox__native:not(:disabled):is(:checked, :indeterminate) + .ims-checkbox__track {
-    background: var(--ims-color-invalid);
-}
-
-.ims-checkbox-host.ng-invalid .ims-checkbox__native:not(:disabled):not(:focus-visible):hover + .ims-checkbox__track {
-    outline-color: color-mix(in srgb, var(--ims-color-invalid) 18%, transparent);
-}
-
-.ims-checkbox-host.ng-invalid .ims-checkbox__native:focus-visible + .ims-checkbox__track {
-    box-shadow: 0 0 0 3px var(--ims-color-invalid-focus-ring);
 }
 
 @media (prefers-reduced-motion: reduce) {

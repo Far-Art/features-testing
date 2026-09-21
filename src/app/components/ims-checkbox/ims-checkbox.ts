@@ -4,21 +4,44 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
+    ElementRef,
     forwardRef,
     input,
     model,
     OnChanges,
     output,
     signal,
-    SimpleChanges
+    SimpleChanges,
+    viewChild
 } from '@angular/core';
 import {AbstractControl, NG_VALIDATORS, ValidationErrors, Validator} from '@angular/forms';
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 
-// The checkmark and the dash share the same SVG commands (M L L), which lets the
-// browser interpolate between them via the CSS `d` transition.
-const CHECKMARK_PATH = 'M 3.5 9.5 L 7 13 L 14.5 5.5';
-const DASH_PATH = 'M 4.5 9 L 9 9 L 13.5 9';
+/** Visual style of the box: a rounded square, or a circle that fills with a checkmark. */
+export type ImsCheckboxAppearance = 'checkbox' | 'check';
+
+/** The two shapes one appearance's mark morphs between. */
+interface ImsCheckboxMarkPaths {
+    readonly checkmark: string;
+    readonly dash: string;
+}
+
+// Within an appearance the checkmark and the dash share the same SVG commands
+// (M L L), which lets the browser interpolate between them via the CSS `d`
+// transition. Both appearances draw in the same 18-unit viewBox and differ only
+// in how far the mark is inset: the circle's round edge cuts the corners a
+// square leaves free, so its mark is drawn smaller. The check appearance's
+// checkmark is the one ims-radio draws, so the two components match.
+const MARK_PATHS: Record<ImsCheckboxAppearance, ImsCheckboxMarkPaths> = {
+    checkbox: {
+        checkmark: 'M 3.5 9.5 L 7 13 L 14.5 5.5',
+        dash: 'M 4.5 9 L 9 9 L 13.5 9'
+    },
+    check: {
+        checkmark: 'M 5.05 9.3 L 7.6 11.8 L 12.95 6.45',
+        dash: 'M 5.75 9 L 9 9 L 12.25 9'
+    }
+};
 
 /** A user toggle, tied to the `checked` binding value it overrides. */
 interface CheckedOverride {
@@ -50,6 +73,7 @@ interface CheckedOverride {
 export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T | F>
     implements OnChanges, Validator {
     private validatorChange: (() => void) | null = null;
+    private readonly nativeInput = viewChild<ElementRef<HTMLInputElement>>('native');
 
     readonly intermediate = model(false);
     readonly trueValue = input<T>(true as T);
@@ -65,6 +89,12 @@ export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T 
      * `required` validator counts an unchecked `false` as filled in.
      */
     readonly required = input(false, {transform: booleanAttribute});
+    /**
+     * `'checkbox'` (default) draws the rounded box; `'check'` draws the green
+     * circle `ims-radio`'s check appearance uses, so a checkbox can sit in a
+     * group of check options without standing out.
+     */
+    readonly appearance = input<ImsCheckboxAppearance>('checkbox');
 
     /**
      * Emitted only when the user toggles the checkbox, with the new checked state.
@@ -96,7 +126,10 @@ export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T 
         const explicit = this.checkedState();
         return explicit !== undefined ? explicit : Object.is(this.currentValue(), this.trueValue());
     });
-    readonly svgPath = computed(() => this.intermediate() ? DASH_PATH : CHECKMARK_PATH);
+    readonly svgPath = computed(() => {
+        const paths = MARK_PATHS[this.appearance()];
+        return this.intermediate() ? paths.dash : paths.checkmark;
+    });
     readonly animationsReady = signal(false);
 
     constructor() {
@@ -143,5 +176,13 @@ export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T 
 
         this.onChange(nextValue);
         this.checkedChange.emit(nextChecked);
+    }
+
+    /**
+     * The native checkbox. Every visual state is drawn from its pseudo-classes,
+     * so it is the element that must hold focus for the ring to appear.
+     */
+    protected override focusTarget(): HTMLElement | null {
+        return this.nativeInput()?.nativeElement ?? null;
     }
 }

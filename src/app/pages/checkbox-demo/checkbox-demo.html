@@ -1,0 +1,180 @@
+<header class="page-heading">
+    <h1>תיבות סימון</h1>
+    <p>
+        <code>ims-checkbox</code>: תיבת סימון עם מצב ביניים, בסגנון ריבוע (כחול) או עיגול עם סימן וי (ירוק),
+        אותו עיגול שמצייר סגנון ה־check של <code>ims-radio</code>.
+    </p>
+</header>
+
+<section class="checkbox-demo" aria-labelledby="checkbox-demo-appearance-title">
+    <div class="checkbox-demo__description">
+        <h2 id="checkbox-demo-appearance-title">סגנונות · סימון חלקי</h2>
+        <p>
+            <code>appearance="checkbox"</code> הוא ברירת המחדל. תיבת "כל הערוצים" מסומנת כשכל הערוצים מסומנים,
+            ובמצב ביניים (<code>intermediate</code>) כשרק חלקם מסומנים: סימן הווי הופך לקו, בשני הסגנונות.
+        </p>
+    </div>
+
+    <div class="checkbox-demo__grid">
+        @for (selection of selections; track selection.appearance) {
+            <article class="checkbox-demo__card">
+                <h3 [id]="'checkbox-demo-appearance-' + selection.appearance">{{ selection.appearance }}</h3>
+                <ims-checkbox
+                    [appearance]="selection.appearance"
+                    [checked]="selection.all()"
+                    [intermediate]="selection.some()"
+                    (checkedChange)="selection.setAll($event)"
+                >
+                    כל הערוצים
+                </ims-checkbox>
+                <div
+                    class="checkbox-demo__children"
+                    role="group"
+                    [attr.aria-labelledby]="'checkbox-demo-appearance-' + selection.appearance"
+                >
+                    @for (channel of channels; track channel.value) {
+                        <ims-checkbox
+                            [appearance]="selection.appearance"
+                            [checked]="selection.isSelected(channel.value)"
+                            (checkedChange)="selection.toggle(channel.value, $event)"
+                        >
+                            {{ channel.label }}
+                        </ims-checkbox>
+                    }
+                </div>
+                <code>selected: {{ describe(selection.selected()) }}</code>
+            </article>
+        }
+    </div>
+</section>
+
+<section class="checkbox-demo" aria-labelledby="checkbox-demo-form-title">
+    <div class="checkbox-demo__description">
+        <h2 id="checkbox-demo-form-title">בתוך טופס</h2>
+        <p>
+            תיבות ישירות בתוך <code>ims-form-field</code>: חובה עם <code>ims-error-popover</code>, ערכים מותאמים עם
+            <code>trueValue</code> ו־<code>falseValue</code>, ו־<code>checkedChange</code> שנפלט רק מפעולת משתמש ולא
+            מ־<code>setValue</code> או <code>reset</code>.
+        </p>
+    </div>
+
+    <ims-form-field-grid columns="1">
+        <ims-form-field>
+            <label>אישור תנאי שימוש</label>
+            <ims-checkbox
+                appearance="check"
+                required
+                ims-error-popover
+                [formControl]="termsControl"
+                (checkedChange)="logChecked('תנאי שימוש', $event)"
+            />
+        </ims-form-field>
+
+        <ims-form-field>
+            <label>מנוי פעיל</label>
+            <ims-checkbox
+                appearance="check"
+                trueValue="active"
+                falseValue="inactive"
+                [formControl]="statusControl"
+                (checkedChange)="logChecked('מנוי', $event)"
+            />
+        </ims-form-field>
+
+        <ims-form-field>
+            <label>לקוח VIP</label>
+            <ims-checkbox
+                [formControl]="vipControl"
+                (checkedChange)="logChecked('VIP', $event)"
+            />
+        </ims-form-field>
+    </ims-form-field-grid>
+
+    <div class="checkbox-demo__actions">
+        <button type="button" (click)="setFromCode()">setValue מהקוד</button>
+        <button type="button" (click)="resetForm()">reset</button>
+    </div>
+
+    <dl class="checkbox-demo__readout">
+        <dt>תנאי שימוש</dt>
+        <dd>{{ termsControl.value }} · {{ termsControl.status }}</dd>
+        <dt>מנוי</dt>
+        <dd>{{ statusControl.value }}</dd>
+        <dt>VIP</dt>
+        <dd>{{ vipControl.value }}</dd>
+        <dt>checkedChange</dt>
+        <dd>
+            @for (entry of checkedLog(); track $index) {
+                <span class="checkbox-demo__log-entry">{{ entry }}</span>
+            } @empty {
+                —
+            }
+        </dd>
+    </dl>
+</section>
+
+<section class="checkbox-demo" aria-labelledby="checkbox-demo-states-title">
+    <div class="checkbox-demo__description">
+        <h2 id="checkbox-demo-states-title">מצבים והתאמות</h2>
+    </div>
+
+    <div class="checkbox-demo__grid">
+        <article class="checkbox-demo__card">
+            <h3>מושבת</h3>
+            <div class="checkbox-demo__row">
+                <ims-checkbox disabled>לא מסומנת</ims-checkbox>
+                <ims-checkbox disabled checked>מסומנת</ims-checkbox>
+                <ims-checkbox disabled [intermediate]="true">חלקית</ims-checkbox>
+            </div>
+            <div class="checkbox-demo__row">
+                <ims-checkbox appearance="check" disabled>לא מסומנת</ims-checkbox>
+                <ims-checkbox appearance="check" disabled checked>מסומנת</ims-checkbox>
+                <ims-checkbox appearance="check" disabled [intermediate]="true">חלקית</ims-checkbox>
+            </div>
+        </article>
+
+        <article class="checkbox-demo__card" [ims-readonly]="true">
+            <h3>קריאה בלבד</h3>
+            <div class="checkbox-demo__row">
+                <ims-checkbox>לא מסומנת</ims-checkbox>
+                <ims-checkbox checked>מסומנת</ims-checkbox>
+                <ims-checkbox [intermediate]="true">חלקית</ims-checkbox>
+            </div>
+            <div class="checkbox-demo__row">
+                <ims-checkbox appearance="check">לא מסומנת</ims-checkbox>
+                <ims-checkbox appearance="check" checked>מסומנת</ims-checkbox>
+                <ims-checkbox appearance="check" [intermediate]="true">חלקית</ims-checkbox>
+            </div>
+        </article>
+
+        <article class="checkbox-demo__card">
+            <h3 id="checkbox-demo-with-radio">לצד ims-radio</h3>
+            <!--
+                A check radio group with a check checkbox under it: the same
+                circle, slot and label start, so the box reads as one more row.
+            -->
+            <div class="checkbox-demo__stack">
+                <ims-radio-group appearance="check" aria-labelledby="checkbox-demo-with-radio" [(value)]="deliveryChannel">
+                    @for (channel of channels; track channel.value) {
+                        <ims-radio [value]="channel.value">{{ channel.label }}</ims-radio>
+                    }
+                </ims-radio-group>
+                <ims-checkbox appearance="check" [(checked)]="sendCopy">שליחת עותק גם בדואר</ims-checkbox>
+            </div>
+            <code>value: {{ describe(deliveryChannel()) }} · checked: {{ sendCopy() }}</code>
+        </article>
+
+        <article class="checkbox-demo__card checkbox-demo__card--custom-accent">
+            <h3>צבע מותאם</h3>
+            <div class="checkbox-demo__row">
+                <ims-checkbox checked>מסומנת</ims-checkbox>
+                <ims-checkbox [intermediate]="true">חלקית</ims-checkbox>
+            </div>
+            <div class="checkbox-demo__row">
+                <ims-checkbox appearance="check" checked>מסומנת</ims-checkbox>
+                <ims-checkbox appearance="check" [intermediate]="true">חלקית</ims-checkbox>
+            </div>
+            <code>--ims-checkbox-accent · --ims-checkbox-check-accent</code>
+        </article>
+    </div>
+</section>

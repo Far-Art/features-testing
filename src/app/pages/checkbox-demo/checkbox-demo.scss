@@ -1,0 +1,136 @@
+.page-heading {
+    margin-block-end: 1.5rem;
+}
+
+.page-heading h1,
+.page-heading p,
+.checkbox-demo h2,
+.checkbox-demo h3,
+.checkbox-demo p {
+    margin: 0;
+}
+
+.page-heading p {
+    margin-block-start: 0.5rem;
+    color: var(--ims-color-on-surface-muted);
+}
+
+.checkbox-demo {
+    display: grid;
+    gap: 1.25rem;
+    margin-block-end: 1.5rem;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    border: 1px solid var(--ims-color-border-subtle);
+    border-radius: 1.25rem;
+    background: var(--ims-background-panel);
+    box-shadow: 0 1rem 2.5rem rgb(32 51 84 / 8%);
+}
+
+.checkbox-demo__description {
+    display: grid;
+    gap: 0.45rem;
+}
+
+.checkbox-demo__description p {
+    max-inline-size: 58rem;
+    color: var(--ims-color-on-surface-muted);
+}
+
+.checkbox-demo__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+    gap: 1rem;
+}
+
+.checkbox-demo__card {
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 1px solid var(--ims-color-border-subtle);
+    border-radius: 0.875rem;
+    background: var(--ims-color-surface-subtle);
+}
+
+.checkbox-demo__card h3 {
+    color: var(--ims-color-on-surface-muted);
+    font-size: 0.8rem;
+    font-weight: var(--ims-font-weight-bold);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+// Indented by the box slot plus the checkbox's own gap, so each channel's box
+// sits under the "select all" label rather than under its box.
+.checkbox-demo__children {
+    display: grid;
+    justify-items: start;
+    margin-block-start: -0.75rem;
+    padding-inline-start: calc(var(--ims-checkbox-size) + 0.625rem);
+}
+
+// Options in one row, spaced like an inline ims-radio-group.
+.checkbox-demo__row {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 1.25rem;
+}
+
+// No gap, so the checkbox follows the radio options at their own row rhythm.
+.checkbox-demo__stack {
+    display: grid;
+    justify-items: start;
+}
+
+// Demonstrates the public color hooks, set on an ancestor of the checkboxes.
+// The same colors as the radio demo's custom accent.
+.checkbox-demo__card--custom-accent {
+    --ims-checkbox-accent: #7c3aed;
+    --ims-checkbox-check-accent: #c2410c;
+}
+
+.checkbox-demo code {
+    color: var(--ims-color-interactive-alt-strong);
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 0.8rem;
+}
+
+.checkbox-demo__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.checkbox-demo__actions button {
+    min-block-size: 2rem;
+    padding-inline: 0.75rem;
+    border: 1px solid var(--ims-color-border);
+    border-radius: 0.5rem;
+    background: var(--ims-color-surface-panel);
+    color: var(--ims-color-on-surface);
+    font: inherit;
+    cursor: pointer;
+}
+
+.checkbox-demo__actions button:hover {
+    border-color: var(--ims-color-interactive);
+}
+
+.checkbox-demo__readout {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.35rem 1rem;
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.checkbox-demo__readout dt {
+    color: var(--ims-color-on-surface-muted);
+}
+
+.checkbox-demo__readout dd {
+    display: grid;
+    gap: 0.15rem;
+    margin: 0;
+}

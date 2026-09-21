@@ -1,9 +1,11 @@
 <label
     class="ims-checkbox"
+    [class.ims-checkbox--check]="appearance() === 'check'"
     [class.ims-checkbox--animations-ready]="animationsReady()"
 >
     <!-- Every visual state is styled from this input's pseudo-classes. -->
     <input
+        #native
         class="ims-checkbox__native"
         type="checkbox"
         data-ims-main-control
@@ -19,9 +21,9 @@
     <span class="ims-checkbox__track" aria-hidden="true">
         <svg class="ims-checkbox__icon" viewBox="0 0 18 18" fill="none" focusable="false">
             <!--
-                Single path shared by both the checkmark and the dash.
-                CSS `d` transition morphs the shape between states.
-                stroke-dashoffset drives the pen-draw / erase effect.
+                Single path shared by both the checkmark and the dash, and by
+                both appearances. CSS `d` transition morphs the shape between
+                states. stroke-dashoffset drives the pen-draw / erase effect.
             -->
             <path
                 class="ims-checkbox__mark"
