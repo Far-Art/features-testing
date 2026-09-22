@@ -1,0 +1,115 @@
+// The popover surface, painted by ImsPopoverPanel.
+//
+// Global for the same reason ims-tooltip.scss is: this renders in the CDK
+// overlay container, outside every component's host.
+//
+// Where a tooltip is a filled bubble, a popover is a panel — it holds content a
+// user reads and reaches into, so it takes a light surface with a toned border
+// rather than a solid fill that whatever is projected into it would have to
+// fight. ims-error-popover.scss is the same treatment for the same reason.
+//
+// The three slots below are the whole colour API; a severity repoints them and
+// declares nothing.
+.ims-popover {
+    --ims-popover-fill: var(--ims-color-status-info-subtle);
+    --ims-popover-border: var(--ims-color-status-info-border);
+    --ims-popover-color: var(--ims-color-on-status-info);
+
+    display: block;
+    box-sizing: border-box;
+    max-inline-size: min(24rem, calc(100vw - 1.5rem));
+    // A popover can hold a list; it scrolls rather than leaving the viewport.
+    max-block-size: min(24rem, calc(100vh - 1.5rem));
+    overflow-y: auto;
+    padding-block: 0.5rem;
+    padding-inline: 0.75rem;
+    border: 1px solid var(--ims-popover-border);
+    border-radius: 0.5rem;
+    background: var(--ims-popover-fill);
+    color: var(--ims-popover-color);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    box-shadow: 0 0.5rem 1.25rem color-mix(in oklch, var(--ims-color-primary-950) 16%, transparent);
+    // Same curve as the tooltip, and for the reason given there: it ends with
+    // velocity instead of crawling into its final frame, which is what keeps the
+    // re-rasterisation at the end from reading as the surface settling.
+    animation: ims-popover-enter 180ms cubic-bezier(0.1, 0.5, 0.5, 0.9);
+}
+
+// Duration must match LEAVE_DURATION_MS in ims-popover.directive.ts.
+// `pointer-events` goes back off for the fade: a surface on its way out must not
+// swallow the click that is already heading for whatever is behind it.
+.ims-popover--leaving {
+    pointer-events: none;
+    animation: ims-popover-leave 120ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+// Only an interactive popover may be selected or clicked. The directive already
+// sets pointer-events on the pane; this keeps the text from looking selectable
+// when it is not.
+.ims-popover--interactive {
+    user-select: text;
+}
+
+.ims-popover--info {
+    --ims-popover-fill: var(--ims-color-status-info-subtle);
+    --ims-popover-border: var(--ims-color-status-info-border);
+    --ims-popover-color: var(--ims-color-on-status-info);
+}
+
+.ims-popover--success {
+    --ims-popover-fill: var(--ims-color-status-success-subtle);
+    --ims-popover-border: var(--ims-color-status-success-border);
+    --ims-popover-color: var(--ims-color-on-status-success);
+}
+
+.ims-popover--warning {
+    --ims-popover-fill: var(--ims-color-status-warning-subtle);
+    --ims-popover-border: var(--ims-color-status-warning-border);
+    --ims-popover-color: var(--ims-color-on-status-warning);
+}
+
+.ims-popover--danger {
+    --ims-popover-fill: var(--ims-color-status-danger-subtle);
+    --ims-popover-border: var(--ims-color-status-danger-border);
+    --ims-popover-color: var(--ims-color-on-status-danger);
+}
+
+// Shallower than the tooltip's 0.94, because the drift is a fraction of the
+// box: the same factor on a 384px surface moves its edges four times as far as
+// on a 96px bubble. 0.97 keeps the absolute travel in the same range.
+@keyframes ims-popover-enter {
+    from {
+        opacity: 0;
+        transform: scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes ims-popover-leave {
+    from {
+        opacity: 1;
+        transform: none;
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.985);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ims-popover {
+        animation: none;
+    }
+
+    // Shortened rather than removed, for the reason given in ims-tooltip.scss.
+    .ims-popover--leaving {
+        animation-duration: 1ms;
+    }
+}

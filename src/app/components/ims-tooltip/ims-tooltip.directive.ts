@@ -1,63 +1,15 @@
-import {Directive, Signal, booleanAttribute, effect, inject, input} from '@angular/core';
-import {MatTooltip} from '@angular/material/tooltip';
+import {Directive, booleanAttribute, computed, effect, inject, input} from '@angular/core';
+import {ImsOverlayTrigger, addIdReference, removeIdReference} from './ims-overlay-trigger';
+import {ImsTooltipService} from './ims-tooltip.service';
 import {ImsTooltipPosition, ImsTooltipSeverity} from './ims-tooltip.types';
-
-/** The four signals a tooltip host supplies, whatever it names its own inputs. */
-export interface ImsTooltipSource {
-    /** Text to show. Empty or whitespace-only means no tooltip. */
-    readonly message: Signal<string | null>;
-    /** Tone the tooltip is painted in. */
-    readonly severity: Signal<ImsTooltipSeverity>;
-    /** Preferred side, or `null` to defer to the configured default. */
-    readonly position: Signal<ImsTooltipPosition | null>;
-    /** Suppresses the tooltip while leaving the message bound. */
-    readonly disabled: Signal<boolean>;
-}
-
-/**
- * Mirrors a host's tooltip signals onto the `MatTooltip` applied to the same
- * element. Call it from a constructor, alongside `hostDirectives: [MatTooltip]`.
- *
- * This exists so a host can own the inputs itself — under its own spellings,
- * with its own types — instead of re-exposing Material's through
- * `hostDirectives`. {@link ImsTooltip} is the only caller today; the button
- * family applies no tooltip at all and leaves the choice to the template.
- */
-export function connectImsTooltip(source: ImsTooltipSource): void {
-    const matTooltip = inject(MatTooltip);
-
-    effect(() => {
-        matTooltip.message = source.message()?.trim() ?? '';
-    });
-
-    effect(() => {
-        matTooltip.disabled = source.disabled();
-    });
-
-    // The class lands on the tooltip's own element, one level above the painted
-    // surface. Custom properties inherit down to it, which is why
-    // ims-tooltip.scss can set a severity with variables alone.
-    effect(() => {
-        matTooltip.tooltipClass = ['ims-tooltip', `ims-tooltip--${source.severity()}`];
-    });
-
-    // Written only when asked for. Assigning it unconditionally would overwrite
-    // the configured default with this input's own, and no call site could then
-    // leave the choice to the application.
-    effect(() => {
-        const position = source.position();
-        if (position !== null) matTooltip.position = position;
-    });
-}
 
 /**
  * Hover and focus tooltip, painted in one of the four house severities.
  *
- * `MatTooltip` does the work — overlay, positioning, touch long-press, and the
- * `aria-describedby` wiring — and stays an implementation detail: it is applied
- * as a host directive with none of its own inputs exposed, so every spelling a
- * call site sees is an `ims` one and Material can be swapped out without
- * touching a template.
+ * Text only, and deliberately so: it never takes the pointer, it is announced as
+ * the host's description, and it leaves when the pointer does. Anything the user
+ * has to reach into is a different widget — see `ImsPopover`, which shares this
+ * one's core but almost none of its behavior.
  *
  * ```html
  * <span imsTooltip="Rounded to the nearest agora">…</span>
@@ -68,29 +20,29 @@ export function connectImsTooltip(source: ImsTooltipSource): void {
  * own — see `ImsButtonBase` — so either this directive or `MatTooltip` can be
  * applied to one, whichever the template imports.
  *
- * An empty or whitespace-only message is inert — `MatTooltip` refuses to open
- * without text — so a bound message that has not arrived yet costs nothing.
+ * An empty or whitespace-only message is inert, so a bound message that has not
+ * arrived yet costs nothing.
  */
 @Directive({
     selector: '[imsTooltip]',
-    standalone: true,
-    hostDirectives: [MatTooltip]
+    standalone: true
 })
-export class ImsTooltip {
+export class ImsTooltip extends ImsOverlayTrigger {
+    private readonly tooltips = inject(ImsTooltipService);
+
     /** Text shown in the tooltip. Empty or whitespace-only means no tooltip. */
     readonly message = input<string | null>(null, {alias: 'imsTooltip'});
 
-    /** Tone the tooltip is painted in. */
-    readonly severity = input<ImsTooltipSeverity>('info', {alias: 'imsTooltipSeverity'});
-
     /**
-     * Preferred side of the host.
+     * Tone the tooltip is painted in.
      *
-     * Unset defers to `MAT_TOOLTIP_DEFAULT_OPTIONS.position` — see
-     * `provideImsTooltipConfig` — which is where the house default lives. This
-     * is the override for the odd call site, not the place to move every
-     * tooltip.
+     * Unset defers to the host's own default — a delete button's `danger`, say —
+     * and then to `IMS_TOOLTIP_CONFIG`. Setting it here is the override for the
+     * call site whose tone does not follow from what it sits on.
      */
+    readonly severity = input<ImsTooltipSeverity | null>(null, {alias: 'imsTooltipSeverity'});
+
+    /** Preferred side of the host. Unset defers to the host default, then the configuration. */
     readonly position = input<ImsTooltipPosition | null>(null, {alias: 'imsTooltipPosition'});
 
     /** Suppresses the tooltip while keeping its message bound. */
@@ -99,7 +51,62 @@ export class ImsTooltip {
         transform: booleanAttribute
     });
 
+    private readonly text = computed(() => this.message()?.trim() ?? '');
+
     constructor() {
-        connectImsTooltip(this);
+        super();
+
+        // Keeps an open tooltip honest. A message that changes, a severity that
+        // follows a button's own, or a `disabled` that flips while the pointer
+        // is still resting on the host all have to reach the panel — it is
+        // shared, so nothing else would push them there.
+        //
+        // `allowSignalWrites` because showing the panel sets its signals.
+        // Angular 18, which this ships to, requires the flag; later versions
+        // allow the write and ignore it.
+        effect(
+            () => {
+                const open = this.canOpen();
+                // Read unconditionally so the effect re-runs on either change
+                // even while the tooltip is closed.
+                const severity = this.resolveSeverity(this.severity());
+                const position = this.resolvePosition(this.position());
+
+                if (!this.tooltips.isShowing(this)) return;
+
+                if (!open) {
+                    this.closeNow();
+                    return;
+                }
+
+                this.showPanel(severity, position);
+            },
+            {allowSignalWrites: true}
+        );
+    }
+
+    protected canOpen(): boolean {
+        return !this.disabled() && this.text().length > 0;
+    }
+
+    protected openSurface(): void {
+        this.showPanel(this.resolveSeverity(this.severity()), this.resolvePosition(this.position()));
+        addIdReference(this.hostElement, 'aria-describedby', this.surfaceId);
+    }
+
+    protected closeSurface(): void {
+        removeIdReference(this.hostElement, 'aria-describedby', this.surfaceId);
+        this.tooltips.hide(this);
+    }
+
+    private showPanel(severity: ImsTooltipSeverity, position: ImsTooltipPosition): void {
+        this.tooltips.show(this, this.hostElement, {
+            id: this.surfaceId,
+            message: this.text(),
+            severity,
+            positions: this.connectedPositions(position),
+            direction: this.directionality.value,
+            viewportMargin: this.viewportMargin
+        });
     }
 }

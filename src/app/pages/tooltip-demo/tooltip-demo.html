@@ -1,0 +1,179 @@
+<header class="page-heading">
+    <h1>הסברים וחלוניות</h1>
+    <p>
+        <code>imsTooltip</code> הוא הסבר טקסט שנפתח בריחוף ובמיקוד מקלדת ואינו
+        נלקח בעכבר. <code>imsPopover</code> הוא חלונית עם תוכן — תבנית או
+        רכיב — שאפשר להיכנס אליה. שתיהן חולקות ליבה אחת, ונבדלות בכל השאר.
+    </p>
+</header>
+
+<section class="tooltip-demo">
+    <div class="tooltip-demo__description">
+        <h2>חומרות</h2>
+        <p>
+            <code>imsTooltipSeverity</code> צובע את הבועה באחת מארבע הרמות. אותן
+            ארבע מילים בדיוק כמו אצל הכפתורים, הסנאקבר והדיאלוג.
+        </p>
+    </div>
+
+    <div class="tooltip-demo__row">
+        @for (severity of severities; track severity) {
+            <span
+                class="tooltip-demo__chip"
+                tabindex="0"
+                [imsTooltip]="'הסבר בגוון ' + severityCaptions[severity]"
+                [imsTooltipSeverity]="severity"
+            >
+                {{ severityCaptions[severity] }}
+            </span>
+        }
+    </div>
+</section>
+
+<section class="tooltip-demo">
+    <div class="tooltip-demo__description">
+        <h2>מיקום</h2>
+        <p>
+            <code>imsTooltipPosition</code> בוחר את הצד המועדף.
+            <code>before</code> ו-<code>after</code> הולכים לפי כיוון הקריאה,
+            ולכן ביישום הזה הם מתהפכים לעומת <code>left</code> ו-<code>right</code>.
+            כשאין מספיק מקום, הבועה מחליקה לאורך אותו צד עד שהיא נכנסת — היא
+            עוברת לצד הנגדי רק כשאין מקום כלל על אותו ציר, ולעולם לא לצד ניצב.
+        </p>
+    </div>
+
+    <div class="tooltip-demo__row">
+        @for (position of positions; track position) {
+            <span class="tooltip-demo__chip" tabindex="0" [imsTooltip]="position" [imsTooltipPosition]="position">
+                {{ position }}
+            </span>
+        }
+    </div>
+</section>
+
+<section class="tooltip-demo">
+    <div class="tooltip-demo__description">
+        <h2>ברירות מחדל מהמארח</h2>
+        <p>
+            הכפתור אינו נושא הסבר משלו — הוא תורם <code>IMS_TOOLTIP_DEFAULTS</code>.
+            אף אחת מהשורות כאן לא כותבת <code>imsTooltipSeverity</code>: הגוון מגיע
+            מ-<code>ims-button-severity</code>, ואצל <code>preset="delete"</code>
+            הוא קבוע על סכנה כמו הסמל.
+        </p>
+    </div>
+
+    <div class="tooltip-demo__row">
+        <button ims-button ims-button-severity="success" imsTooltip="הפוליסה תישלח למבוטח">
+            הצלחה
+        </button>
+        <button
+            ims-button
+            ims-button-variation="outline"
+            ims-button-severity="warning"
+            imsTooltip="חלק מהשדות עדיין ריקים"
+        >
+            אזהרה
+        </button>
+        <button ims-button-icon preset="delete" imsTooltip="לא ניתן למחוק פוליסה נעולה"></button>
+        <button ims-button-icon preset="edit" imsTooltip="עריכה במסך מלא"></button>
+        <button ims-button-icon aria-label="חיפוש" imsTooltip="חיפוש בכל התיקים">
+            <ims-icon>search</ims-icon>
+        </button>
+    </div>
+</section>
+
+<section class="tooltip-demo">
+    <div class="tooltip-demo__description">
+        <h2>הסבר שנשתק</h2>
+        <p>
+            הודעה ריקה או רווחים בלבד אינה נפתחת כלל, ולכן הסבר שקשור לערך שעדיין
+            לא הגיע אינו עולה כלום. <code>imsTooltipDisabled</code> משתיק הסבר
+            בלי לנתק את ההודעה.
+        </p>
+    </div>
+
+    <div class="tooltip-demo__row">
+        <span class="tooltip-demo__chip" tabindex="0" [imsTooltip]="noteMessage()">
+            {{ noteMessage() ? 'יש הסבר' : 'אין הסבר' }}
+        </span>
+        <button ims-button ims-button-variation="outline" (click)="clearNote()">רוקן</button>
+        <button ims-button ims-button-variation="outline" (click)="restoreNote()">החזר</button>
+        <span class="tooltip-demo__chip" tabindex="0" imsTooltip="לא ייפתח" imsTooltipDisabled>
+            מושתק
+        </span>
+    </div>
+</section>
+
+<section class="tooltip-demo">
+    <div class="tooltip-demo__description">
+        <h2>חלונית עם תבנית</h2>
+        <p>
+            <code>imsPopover</code> מקבל <code>ng-template</code> ומרנדר אותו
+            בהקשר של התבנית שהגדירה אותו. אפשר להעביר את העכבר מהמארח לחלונית
+            באלכסון — המסדרון שביניהם נחשב בפנים — וללחוץ על מה שבתוכה.
+            <kbd>Esc</kbd> או לחיצה בחוץ סוגרות.
+        </p>
+    </div>
+
+    <div class="tooltip-demo__row">
+        <span class="tooltip-demo__chip" tabindex="0" [imsPopover]="policyPreview" imsPopoverSeverity="info">
+            תצוגה מקדימה
+        </span>
+        <span
+            class="tooltip-demo__chip"
+            tabindex="0"
+            [imsPopover]="policyPreview"
+            imsPopoverSeverity="danger"
+            imsPopoverPosition="after"
+        >
+            בגוון סכנה
+        </span>
+        <span
+            class="tooltip-demo__chip"
+            tabindex="0"
+            [imsPopover]="policyPreview"
+            imsPopoverInteractive="false"
+        >
+            ללא אינטראקציה
+        </span>
+    </div>
+
+    <ng-template #policyPreview>
+        <p class="tooltip-demo__popover-text">
+            הפוליסה מכסה נזקי מים ורעידת אדמה. ההשתתפות העצמית מתעדכנת מדי שנה.
+        </p>
+        <a class="tooltip-demo__card-link" href="#" (click)="$event.preventDefault()">
+            פתיחת הפוליסה
+        </a>
+    </ng-template>
+</section>
+
+<section class="tooltip-demo">
+    <div class="tooltip-demo__description">
+        <h2>חלונית עם רכיב</h2>
+        <p>
+            אותה הנחיה מקבלת גם טיפוס של רכיב, עם <code>imsPopoverInputs</code>
+            לקלטים שלו. שימושי לתוכן שחוזר בהרבה מקומות, או לרכיב שנטען בעצלתיים.
+        </p>
+    </div>
+
+    <div class="tooltip-demo__row">
+        <span
+            class="tooltip-demo__chip"
+            tabindex="0"
+            [imsPopover]="policyCard"
+            [imsPopoverInputs]="policyCardInputs"
+            imsPopoverPosition="after"
+        >
+            כרטיס פוליסה
+        </span>
+        <button
+            ims-button
+            ims-button-variation="outline"
+            [imsPopover]="policyCard"
+            [imsPopoverInputs]="policyCardInputs"
+        >
+            גם על כפתור
+        </button>
+    </div>
+</section>

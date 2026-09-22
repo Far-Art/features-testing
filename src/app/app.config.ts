@@ -76,15 +76,14 @@ export const appConfig: ApplicationConfig = {
             stackSize: 100
         }),
         provideImsTooltipConfig({
-            showDelay: 300,
-            hideDelay: 100,
-            // The house look for every tooltip that does not name its own
-            // classes — in practice a plain `matTooltip`, which is what a
-            // button now takes. A call site that wants another tone spells the
-            // pair out (`matTooltipClass="ims-tooltip ims-tooltip--danger"`),
-            // and `imsTooltip` writes its own pair from `imsTooltipSeverity`,
-            // so neither is affected by what is set here.
-            tooltipClass: 'ims-tooltip ims-tooltip--info'
+            // Instant. A tooltip that waits is a tooltip the user has already
+            // given up on, and this application's are mostly short labels on
+            // icon buttons where the wait was the whole cost.
+            showDelay: 0,
+            // The close keeps its grace period, which is doing different work:
+            // it stops the bubble flickering as the pointer crosses a gap
+            // between two adjacent controls.
+            hideDelay: 100
         }),
         {
             provide: LOCALE_ID,

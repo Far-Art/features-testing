@@ -1,43 +1,130 @@
-// Severity treatments for the tooltip that ImsTooltip attaches through
-// MatTooltip. Global rather than component-scoped because the tooltip renders
-// in the CDK overlay container, outside every component's host; the :root
-// tokens it consumes still reach there.
+// The tooltip bubble, painted by ImsTooltipPanel.
 //
-// `ims-tooltip-severity` writes both classes onto the tooltip element, so a
-// modifier only ever needs to move a variable — the base rule below owns every
-// actual declaration.
+// Global rather than component-scoped because the tooltip renders in the CDK
+// overlay container, outside every component's host; the :root tokens it
+// consumes still reach there.
+//
+// A tooltip is a filled bubble and its severity is two colours. The slots below
+// are the whole colour API: every paint rule names a slot and never a palette
+// token, so a severity is one block that repoints the pair.
+//
+// This file owns the surface outright. It used to repoint Material's
+// --mat-tooltip-* variables and reach into .mat-mdc-tooltip-surface for the one
+// declaration no variable could touch; ImsTooltip no longer goes through
+// MatTooltip, so none of that is here.
 .ims-tooltip {
-    // Overrides the Roboto the theme hands every other surface. Temporary —
-    // this is the only place in the application that does not use the house
-    // typeface, so it should either become a decision the theme makes or go
-    // back to matching everything else.
-    --mat-tooltip-supporting-text-font: Arial, "Helvetica Neue", sans-serif;
-    --mat-tooltip-container-shape: 0.375rem;
-    --mat-tooltip-container-color: var(--ims-color-status-info);
-    --mat-tooltip-supporting-text-color: var(--ims-color-on-interactive);
+    --ims-tooltip-fill: var(--ims-color-status-info);
+    --ims-tooltip-color: var(--ims-color-on-interactive);
+
+    display: block;
+    box-sizing: border-box;
+    // Declared here and not only on the overlay pane. The service sets the pane
+    // to `none`, but this element is a child of it, and `auto` is the initial
+    // value — a child re-enables what its parent switched off, so without this
+    // the bubble takes the pointer and can swallow a press on the host beneath.
+    pointer-events: none;
+    user-select: none;
+    // Wider than Material's 200px cap, which was tight for a sentence of
+    // Hebrew — most of this application's tooltip copy.
+    max-inline-size: min(20rem, calc(100vw - 1.5rem));
+    padding-block: 0.375rem;
+    padding-inline: 0.5rem;
+    border-radius: 0.375rem;
+    background: var(--ims-tooltip-fill);
+    color: var(--ims-tooltip-color);
+    font-size: 0.75rem;
+    font-weight: var(--ims-font-weight-regular);
+    line-height: 1.4;
+    // No font-family. The overlay container is a child of <body>, so the
+    // bubble inherits whatever the application uses; declaring one here is what
+    // previously made this the only surface in the application with a typeface
+    // of its own.
+    overflow-wrap: anywhere;
+    box-shadow: 0 0.5rem 1.25rem color-mix(in oklch, var(--ims-color-primary-950) 16%, transparent);
+    // `transform-origin` is written inline by the CDK, from the side the bubble
+    // landed on — see `withTransformOriginOn` in ims-tooltip.service.ts — so the
+    // scale grows out of the host instead of swelling in place.
+    //
+    // The curve is the load-bearing part, and it is not the house overlay curve
+    // on purpose. A scaled box has its text rasterised at one size and resampled
+    // while the transform is live, then re-rasterised crisply the moment the
+    // transform is dropped. That last frame is a step change no easing removes,
+    // so the only lever is how long the animation lingers next to it: the house
+    // `cubic-bezier(0.22, 1, 0.36, 1)` ends on a horizontal tangent, crawling
+    // the final few percent over most of its duration and leaving the eye
+    // parked on the almost-finished state until it snaps.
+    //
+    // This curve ends with real velocity — its second control point sits below
+    // 1, so the tail is close to a straight line — and arrives instead of
+    // creeping. Lowering the end point further shortens the tail again at the
+    // cost of stopping more abruptly.
+    animation: ims-tooltip-enter 150ms cubic-bezier(0.1, 0.5, 0.5, 0.9);
+}
+
+// Duration must match LEAVE_DURATION_MS in ims-tooltip.service.ts; the panel is
+// detached on that timer, and a longer animation would simply be cut off.
+// `forwards` holds the last frame so the bubble does not flash back to full
+// opacity in the gap between the animation ending and the detach landing.
+.ims-tooltip--leaving {
+    animation: ims-tooltip-leave 90ms cubic-bezier(0.4, 0, 1, 1) forwards;
 }
 
 .ims-tooltip--info {
-    --mat-tooltip-container-color: var(--ims-color-status-info);
+    --ims-tooltip-fill: var(--ims-color-status-info);
 }
 
 .ims-tooltip--success {
-    --mat-tooltip-container-color: var(--ims-color-status-success);
+    --ims-tooltip-fill: var(--ims-color-status-success);
 }
 
 .ims-tooltip--warning {
-    --mat-tooltip-container-color: var(--ims-color-status-warning);
+    --ims-tooltip-fill: var(--ims-color-status-warning);
 }
 
 .ims-tooltip--danger {
-    --mat-tooltip-container-color: var(--ims-color-status-danger);
+    --ims-tooltip-fill: var(--ims-color-status-danger);
 }
 
-// The one place a Material-internal class has to be named: the painted surface
-// is a child of the element carrying our class, and its 200px cap is Material's
-// own declaration rather than a token, so no variable can reach it. That cap is
-// tight for a sentence of Hebrew, which is what most of this application's
-// tooltip copy is.
-.ims-tooltip .mat-mdc-tooltip-surface {
-    max-width: min(20rem, calc(100vw - 1.5rem));
+// 0.94 rather than the 0.88 this started at. The drift that makes the settle
+// visible is proportional to the scale delta — at 0.88 a 96px bubble moved each
+// edge about 6px, at 0.94 it is under 3px — and the smaller the delta, the less
+// the text is resampled on the way.
+@keyframes ims-tooltip-enter {
+    from {
+        opacity: 0;
+        transform: scale(0.94);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+// The leave can scale freely: it ends at zero opacity and is detached straight
+// after, so there is no final crisp frame for the eye to catch.
+@keyframes ims-tooltip-leave {
+    from {
+        opacity: 1;
+        transform: none;
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.97);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ims-tooltip {
+        animation: none;
+    }
+
+    // Shortened rather than removed. The detach is on a timer either way, so
+    // dropping the animation would leave the bubble at full opacity for its
+    // last 90ms — a flicker, which is the opposite of what reduced motion is
+    // asking for.
+    .ims-tooltip--leaving {
+        animation-duration: 1ms;
+    }
 }
