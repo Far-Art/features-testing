@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ImsInputDirective } from '../../ims-input.directive';
 import {
@@ -94,6 +94,22 @@ export class ComponentStatesDemo {
     validators: Validators.requiredTrue,
   });
   readonly checkboxInvalidReadonly = new FormControl(false, {
+    nonNullable: true,
+    validators: Validators.requiredTrue,
+  });
+
+  readonly checkboxCheckNormal = new FormControl(true, { nonNullable: true });
+  readonly checkboxCheckIntermediate = signal(true);
+  readonly checkboxCheckDisabled = new FormControl(
+    { value: true, disabled: true },
+    { nonNullable: true },
+  );
+  readonly checkboxCheckReadonly = new FormControl(true, { nonNullable: true });
+  readonly checkboxCheckInvalid = new FormControl(false, {
+    nonNullable: true,
+    validators: Validators.requiredTrue,
+  });
+  readonly checkboxCheckInvalidReadonly = new FormControl(false, {
     nonNullable: true,
     validators: Validators.requiredTrue,
   });
@@ -224,6 +240,8 @@ export class ComponentStatesDemo {
       this.textareaInvalidReadonly,
       this.checkboxInvalid,
       this.checkboxInvalidReadonly,
+      this.checkboxCheckInvalid,
+      this.checkboxCheckInvalidReadonly,
       this.radioInvalid,
       this.radioInvalidReadonly,
       this.checkGroupInvalid,

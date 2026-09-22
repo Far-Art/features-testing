@@ -133,6 +133,48 @@
 
   <div class="component-states-demo__matrix">
     <article class="component-states-demo__card">
+      <h3>Checkbox check · רגיל</h3>
+      <ims-checkbox appearance="check" [formControl]="checkboxCheckNormal">מאושר</ims-checkbox>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Checkbox check · ביניים</h3>
+      <ims-checkbox appearance="check" [(intermediate)]="checkboxCheckIntermediate">
+        מאושר חלקית
+      </ims-checkbox>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Checkbox check · מושבת</h3>
+      <ims-checkbox appearance="check" [formControl]="checkboxCheckDisabled">מאושר</ims-checkbox>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Checkbox check · קריאה בלבד</h3>
+      <ims-checkbox appearance="check" [formControl]="checkboxCheckReadonly" [ims-readonly]="true">
+        מאושר
+      </ims-checkbox>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Checkbox check · לא תקין</h3>
+      <ims-checkbox appearance="check" [formControl]="checkboxCheckInvalid">חובה לסמן</ims-checkbox>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3>Checkbox check · לא תקין + קריאה בלבד</h3>
+      <ims-checkbox
+        appearance="check"
+        [formControl]="checkboxCheckInvalidReadonly"
+        [ims-readonly]="true"
+      >
+        חובה לסמן
+      </ims-checkbox>
+    </article>
+  </div>
+
+  <div class="component-states-demo__matrix">
+    <article class="component-states-demo__card">
       <h3 id="radio-state-normal">Radio · רגיל</h3>
       <ims-radio-group aria-labelledby="radio-state-normal" [formControl]="radioNormal">
         @for (option of options; track option.id) {
