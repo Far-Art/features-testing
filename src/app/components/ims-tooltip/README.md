@@ -105,7 +105,7 @@ says the tone once.
 
 ```html
 <!-- danger, without the template repeating what the button already says -->
-<button ims-button-icon preset="delete" imsTooltip="Locked policies cannot be deleted"></button>
+<button ims-button-icon ims-button-icon-preset="delete" imsTooltip="Locked policies cannot be deleted"></button>
 
 <!-- warning, taken from ims-button-severity -->
 <button ims-button ims-button-severity="warning" imsTooltip="Some fields are empty">…</button>
@@ -151,7 +151,7 @@ A popover uses `aria-haspopup="dialog"` on the host, plus `aria-expanded` and
 own focus.
 
 On `ims-button-icon`, which already carries an `aria-label` — its own, or the
-default a `preset` brings — tooltip text that merely repeats the label is
+default a preset brings — tooltip text that merely repeats the label is
 announced twice. The tooltip should add information, not restate the name.
 
 A natively disabled button is not in the tab order, so its tooltip is reachable

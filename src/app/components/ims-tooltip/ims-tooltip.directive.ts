@@ -21,7 +21,7 @@ import {ImsTooltipPosition, ImsTooltipSeverity} from './ims-tooltip.types';
  * contributes `danger` outright, so the common case says it once:
  *
  * ```html
- * <button ims-button-icon preset="delete" imsTooltip="Locked policies cannot be deleted"></button>
+ * <button ims-button-icon ims-button-icon-preset="delete" imsTooltip="Locked policies cannot be deleted"></button>
  * ```
  *
  * The button owns no overlay of its own — it only provides
