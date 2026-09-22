@@ -3,9 +3,8 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    ElementRef,
+    contentChildren,
     forwardRef,
-    inject,
     input,
     output,
     signal
@@ -13,6 +12,7 @@ import {
 import {BasicValueAccessor, provideValueAccessor} from '../../shared/basic-value-accessor';
 import {ImsSelectionCompareWith} from '../../shared/ims-selection/ims-selection.types';
 import {toggleSelectedValue} from '../../shared/ims-selection/ims-selection.utils';
+import {ImsRadio} from './ims-radio';
 import {
     IMS_RADIO_GROUP,
     ImsRadioAppearance,
@@ -68,8 +68,8 @@ let nextRadioGroupId = 0;
  */
 export class ImsRadioGroup<T = unknown> extends BasicValueAccessor<ImsRadioGroupValue<T>>
     implements ImsRadioGroupParent<T> {
-    private readonly hostElement: HTMLElement = inject(ElementRef).nativeElement;
     private readonly generatedName = `ims-radio-group-${nextRadioGroupId++}`;
+    private readonly optionComponents = contentChildren<ImsRadio<T>>(ImsRadio, {descendants: true});
     /**
      * The option the user last selected in single mode. While its value stays
      * selected, it alone holds the native check among options sharing that value.
@@ -162,5 +162,19 @@ export class ImsRadioGroup<T = unknown> extends BasicValueAccessor<ImsRadioGroup
         const nextFocus = event.relatedTarget;
         if (nextFocus instanceof Node && this.hostElement.contains(nextFocus)) return;
         this.markAsTouched();
+    }
+
+    /**
+     * The option a user tabbing into the group would land on: the one the
+     * browser holds checked, else the first that is not disabled. The host
+     * carries the group's ARIA but takes no focus of its own, and the first
+     * option is only one of several the group may offer.
+     */
+    protected override focusTarget(): HTMLElement | null {
+        const inputs = this.optionComponents()
+            .map((option) => option.nativeInput()?.nativeElement)
+            .filter((input): input is HTMLInputElement => input !== undefined && !input.disabled);
+
+        return inputs.find((input) => input.checked) ?? inputs[0] ?? null;
     }
 }

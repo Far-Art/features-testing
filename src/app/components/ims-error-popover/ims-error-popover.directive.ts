@@ -25,6 +25,7 @@ import {
     ValidationErrors
 } from '@angular/forms';
 import {Subscription} from 'rxjs';
+import {findFocusable} from '../../shared/ims-focus-target';
 import {ReadonlyDirective} from '../../shared/readonly.directive';
 import {ImsConnectedPopoverBase} from './ims-connected-popover-base';
 import {ImsErrorPopoverPanel} from './ims-error-popover-panel';
@@ -841,12 +842,6 @@ function pointInsideRect(
         && point.x <= rect.right
         && point.y >= rect.top
         && point.y <= rect.bottom;
-}
-
-/** Resolves the primary native focus target within a simple or composite host. */
-function findFocusable(root: HTMLElement): HTMLElement | null {
-    if (root.matches('input, select, textarea, button, [tabindex]')) return root;
-    return root.querySelector<HTMLElement>('input, select, textarea, button, [tabindex]');
 }
 
 /** Adds an ID to a space-delimited ARIA reference attribute without duplicates. */

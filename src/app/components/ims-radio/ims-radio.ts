@@ -5,9 +5,11 @@ import {
     Component,
     computed,
     DestroyRef,
+    ElementRef,
     inject,
     input,
-    signal
+    signal,
+    viewChild
 } from '@angular/core';
 import {IMS_RADIO_GROUP, ImsRadioAppearance, ImsRadioGroupParent} from './ims-radio.types';
 
@@ -31,6 +33,12 @@ import {IMS_RADIO_GROUP, ImsRadioAppearance, ImsRadioGroupParent} from './ims-ra
  */
 export class ImsRadio<T = unknown> {
     private readonly group = injectRadioGroup<T>();
+
+    /**
+     * The native control this option renders, which is the element that takes
+     * focus. The group reads it to focus the option a user would land on.
+     */
+    readonly nativeInput = viewChild<ElementRef<HTMLInputElement>>('native');
 
     readonly value = input.required<T>();
     /** Disables this option only; the group's disabled and readonly state still apply. */
