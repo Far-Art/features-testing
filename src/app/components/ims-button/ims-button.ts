@@ -13,6 +13,11 @@ import {
     input
 } from '@angular/core';
 import {ReadonlyDirective} from '../../shared/readonly.directive';
+// Imported from the types module rather than the barrel: this is a token and
+// two interfaces, and reaching through the barrel would name the tooltip and
+// popover directives in a file that uses neither.
+import {IMS_TOOLTIP_DEFAULTS, ImsTooltipDefaults} from '../ims-tooltip/ims-tooltip.types';
+import {IMS_BUTTON_ICON_PRESETS, ImsButtonIconPreset} from './ims-button-presets';
 
 // How long the press ring stays on. The class carries a CSS animation that
 // holds the ring solid for its first quarter and fades it out over the rest,
@@ -40,13 +45,19 @@ export type ImsButtonSeverity = 'info' | 'success' | 'warning' | 'danger';
 // A button carries no tooltip of its own. A call site that wants one applies
 // `imsTooltip` to the same element and imports it like any other directive.
 //
-// Deliberately not a host directive. Exposing MatTooltip's inputs that way
-// reads better at the call site, but the moment a template also has MatTooltip
-// in scope — which any template using `matTooltip` on something that is not a
-// button already does — `[matTooltip]` matches the host directive and the
-// template's own directive at once, and Angular refuses the element with
-// NG0309. Leaving the element bare means there is only ever one tooltip
-// directive on it: the one the template asked for.
+// What the button does supply is defaults: each concrete directive below
+// provides `IMS_TOOLTIP_DEFAULTS`, so a tooltip placed on a button picks up the
+// button's tone without the template saying it twice, and a `delete` preset
+// reads as danger on its own.
+//
+// Deliberately not a host directive, and this is the second attempt at it. A
+// tooltip applied that way reads better at the call site, but then a template
+// that also puts one on the element has two of them: two trigger instances, two
+// overlays opening on one hover, and — back when the host directive was
+// Material's, whose selector a template can also match — the element refused
+// outright with NG0309. Contributing defaults instead leaves exactly one tooltip
+// engine on the element, the one the template asked for, and costs a button
+// with no tooltip a provider record and nothing else.
 @Directive({
     host: {
         class: 'ims-button',
@@ -75,6 +86,8 @@ export abstract class ImsButtonBase {
     private readonly host = inject<ElementRef<HTMLButtonElement>>(ElementRef);
     private readonly renderer = inject(Renderer2);
     private symbolElement: HTMLElement | null = null;
+    /** The `aria-label` this button wrote for itself and still holds, or null. */
+    private ownLabel: string | null = null;
     private pressedActivationKey: ImsButtonActivationKey | null = null;
     private actionBlinkResetHandle: ReturnType<typeof setTimeout> | null = null;
 
@@ -90,7 +103,13 @@ export abstract class ImsButtonBase {
     protected readonly actionBlink = signal(false);
 
     constructor() {
-        effect(() => this.syncIcon(this.normalizedIcon()));
+        // What the button supplies for itself: a glyph, and the name that
+        // stands in for it. One effect for both, since they come from the same
+        // preset and change together.
+        effect(() => {
+            this.syncIcon(this.normalizedIcon());
+            this.syncLabel(this.resolveLabel());
+        });
 
         afterNextRender(() => {
             requestAnimationFrame(() => this.justMounted.set(false));
@@ -111,14 +130,14 @@ export abstract class ImsButtonBase {
      * CSS length works (`icon-size="1.25rem"`, `"1em"`, `"clamp(…)"`).
      *
      * Only reaches a glyph this class drew itself, which since the `icon`
-     * input went away means an action preset and nothing else. A projected
+     * input went away means a preset's and nothing else. A projected
      * `<ims-icon>` carries its own `size`, and that is the input to use there —
      * it writes `--ims-icon-size` inline and would win over this anyway.
      *
      * Unset defers to `--ims-button-symbol-size` in ims-buttons.scss, which is
-     * where the house default lives and where each action preset sets its own
-     * — so this is an override for the odd call site, not the place to restyle
-     * a preset.
+     * where the house default lives and where a preset that needs another
+     * sets its own — so this is an override for the odd call site, not the
+     * place to restyle a preset.
      *
      * A malformed length can't be caught here or by the compiler: CSS drops
      * the invalid value and the button falls back to that same preset size.
@@ -153,10 +172,11 @@ export abstract class ImsButtonBase {
      * the ripple, the press ring, the focus halo and the call-to-action pulse
      * all follow it without a call site arranging anything.
      *
-     * Of the row-action presets, `ims-button-edit` takes it exactly the way
-     * `ims-button-icon` does. `ims-button-delete` ignores it: that preset pins
-     * its tone for the same reason it pins its glyph — a delete looks like a
-     * delete on every screen — so the input is accepted there and does nothing.
+     * On an icon button with a `preset`, it depends on the preset. `edit` takes
+     * it exactly the way a plain icon button does. `delete` ignores it: that
+     * preset pins its tone for the same reason it pins its glyph — a delete
+     * looks like a delete on every screen — so the input is accepted there and
+     * does nothing.
      */
     readonly severity = input<ImsButtonSeverity>('info', {alias: 'ims-button-severity'});
 
@@ -189,14 +209,16 @@ export abstract class ImsButtonBase {
     protected readonly normalizedIcon = computed(() => this.resolveIcon().trim());
 
     /**
-     * The symbol this button draws for itself. Empty for every button a call
-     * site can spell directly; a specialized subclass overrides it to pin one.
+     * The symbol this button draws for itself. Empty unless a preset pins one:
+     * `ImsButtonIcon` overrides this with its preset's glyph.
      *
-     * This is the whole of the internal icon mechanism, and it is deliberately
-     * not reachable from a template. A button that wants a glyph projects an
+     * This is the whole of the internal icon mechanism, and no template can
+     * name a glyph through it. A button that wants a glyph projects an
      * `<ims-icon>`; a preset pins one here so a call site cannot drift from it.
-     * Two ways to say the same thing meant a call site could say both, and the
-     * projected one would then sit beside a glyph nobody asked for.
+     * A free glyph here as well meant two ways to say the same thing, so a call
+     * site could say both, and the projected one would then sit beside a glyph
+     * nobody asked for. A preset names an affordance rather than a glyph, and
+     * projecting an icon into one is the same mistake.
      *
      * A method rather than a field: the base's `normalizedIcon` computed is
      * built during base field initialization, before any subclass field
@@ -204,6 +226,18 @@ export abstract class ImsButtonBase {
      * point the override is in place.
      */
     protected resolveIcon(): string {
+        return '';
+    }
+
+    /**
+     * The accessible name this button gives itself, and {@link resolveIcon}'s
+     * other half: the glyph drawn there is `aria-hidden`, so whatever pins one
+     * has to name the button too. Empty unless a preset pins one.
+     *
+     * A default and nothing more. A name the call site writes, in either
+     * spelling, always wins — see {@link syncLabel}.
+     */
+    protected resolveLabel(): string {
         return '';
     }
 
@@ -261,6 +295,43 @@ export abstract class ImsButtonBase {
         }
 
         this.renderer.setProperty(this.symbolElement, 'textContent', symbol);
+    }
+
+    // Imperative rather than a host binding, for the call site's sake. A host
+    // `[attr.aria-label]` writes on its first pass even when it has nothing to
+    // say, and writing null removes the attribute — taking a static
+    // `aria-label="…"` from the template with it. It also runs after the
+    // template's own bindings, so it would overwrite a bound
+    // `[attr.aria-label]="…"`, which is how focus mode names its trigger.
+    //
+    // So this only ever touches a name it wrote itself: an attribute that is
+    // missing, or still holds the value last written here. Anything else came
+    // from the call site and is left alone. That test holds whichever order
+    // this runs in against the template's bindings — before them, the
+    // template's write lands on top; after them, the name already here is not
+    // ours.
+    private syncLabel(label: string): void {
+        // Nothing to add and nothing of ours to take back: a labelled button,
+        // and every icon button without a preset, stops here without touching
+        // the DOM.
+        if (!label && this.ownLabel === null) return;
+
+        const host = this.host.nativeElement;
+        const current = host.getAttribute('aria-label');
+
+        if (current !== null && current !== this.ownLabel) {
+            // The call site's. Forget ours, so a later name that happens to
+            // match it is never taken for one written here.
+            this.ownLabel = null;
+            return;
+        }
+
+        if (label) {
+            this.renderer.setAttribute(host, 'aria-label', label);
+        } else if (current !== null) {
+            this.renderer.removeAttribute(host, 'aria-label');
+        }
+        this.ownLabel = label || null;
     }
 
     private triggerActionBlink(): void {

@@ -154,7 +154,8 @@
 // `.ims-button-icon` class rather than the attribute of the same name: the
 // attribute is only ever typed at a call site using `ims-button-icon`, while
 // the class is what every icon-only button actually carries, including the
-// action presets further down, which are never spelled that way.
+// deprecated `ims-button-edit` and `ims-button-delete` spellings of the action
+// presets further down, which never carry the attribute.
 .ims-button:not(.ims-button-icon):has(> ims-duo-icon, .ims-icon.ims-button__symbol) {
   padding-block-start: 2px;
 }
@@ -386,15 +387,20 @@
   --ims-button-ramp-icon-active: var(--ims-color-danger-700);
 }
 
-// Row actions. Presets rather than variations: the glyph is pinned by the
-// directive that applies these (see ims-button-actions.ts), so the pair reads
-// identically everywhere it lands, which is the whole reason they exist.
+// Row actions. Presets rather than variations: `preset` on an icon button
+// applies these and pins the glyph that goes with each (see
+// ims-button-presets.ts), so the pair reads identically everywhere it lands,
+// which is the whole reason they exist.
 //
-// Only delete has rules here. Edit is an icon button with a pinned glyph — its
-// directive applies .ims-button--default and .ims-button-icon, the same classes
-// an icon button carries — so it rests, hovers, presses and takes a severity
-// exactly the way one does, and cannot drift from one. The --edit class it
-// also carries is a hook and styles nothing.
+// Only delete has rules here. Edit is an icon button with a pinned glyph — a
+// preset that pins no tone keeps .ims-button--default and .ims-button-icon, the
+// same classes a plain icon button carries — so it rests, hovers, presses and
+// takes a severity exactly the way one does, and cannot drift from one. The
+// --edit class it also carries is a hook and styles nothing.
+//
+// A preset added later needs a block here only if it departs from a plain icon
+// button, and one that pins a tone always does: it loses --default, so it has
+// to name its tones itself, the way delete does below.
 //
 // Delete rests quiet on a transparent surface and only takes its tone under a
 // pointer. A column of rows carries one per line, and colouring them at rest

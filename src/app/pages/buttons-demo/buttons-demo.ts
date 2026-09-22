@@ -16,6 +16,8 @@ import {ReadonlyDirective} from '../../shared/readonly.directive';
     imports: [
         ImsButton,
         ImsButtonIcon,
+        // Deprecated, and here only for the group that shows each one beside
+        // the preset it now is.
         ImsButtonDelete,
         ImsButtonEdit,
         ImsIcon,
