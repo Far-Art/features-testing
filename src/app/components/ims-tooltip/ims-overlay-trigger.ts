@@ -1,3 +1,4 @@
+import {InputModalityDetector} from '@angular/cdk/a11y';
 import {Directionality} from '@angular/cdk/bidi';
 import {ConnectedPosition} from '@angular/cdk/overlay';
 import {DestroyRef, Directive, ElementRef, inject} from '@angular/core';
@@ -38,14 +39,14 @@ let nextSurfaceId = 0;
  * and its host listeners and nothing else.
  *
  * There are no touch listeners anywhere in this family. The application is
- * desktop-only, so hover and focus are the whole trigger surface; Material's
- * long-press path has no counterpart here on purpose.
+ * desktop-only, so hover and keyboard focus are the whole trigger surface;
+ * Material's long-press path has no counterpart here on purpose.
  */
 @Directive({
     host: {
         '(mouseenter)': 'requestOpen()',
         '(mouseleave)': 'handlePointerLeave($event)',
-        '(focusin)': 'requestOpen()',
+        '(focusin)': 'handleFocusIn()',
         '(focusout)': 'handleFocusOut($event)',
         '(keydown.escape)': 'closeNow()'
     }
@@ -70,6 +71,12 @@ export abstract class ImsOverlayTrigger {
     private readonly hostDefaults = inject(IMS_TOOLTIP_DEFAULTS, {optional: true});
 
     private readonly destroyRef = inject(DestroyRef);
+
+    /**
+     * The input the user last drove the page with. It is what tells keyboard
+     * focus apart from focus that a click or a script put on the host.
+     */
+    private readonly inputModality = inject(InputModalityDetector);
 
     /** ID the surface carries, so the host can reference it. */
     protected readonly surfaceId = `ims-overlay-${nextSurfaceId++}`;
@@ -137,6 +144,24 @@ export abstract class ImsOverlayTrigger {
     protected closeNow(): void {
         this.clearTimers();
         this.closeSurface();
+    }
+
+    /**
+     * Focus arrived on the host. Opens only while the user is on the keyboard.
+     *
+     * Focus also arrives from a click, which the hover has already answered,
+     * and from script — most often a dialog handing focus back to the control
+     * that opened it. Opened on that, the surface appears over a host the
+     * pointer is nowhere near, and stays: a pointer that never entered the host
+     * never leaves it either.
+     *
+     * The test is the last input the user made, not what caused this one focus,
+     * so focus a script moves in answer to a key still counts. A dialog closed
+     * with Escape hands focus back as keyboard focus, and its surface opens as
+     * it would have for Tab.
+     */
+    protected handleFocusIn(): void {
+        if (this.inputModality.mostRecentModality === 'keyboard') this.requestOpen();
     }
 
     /**

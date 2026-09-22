@@ -158,11 +158,25 @@ A natively disabled button is not in the tab order, so its tooltip is reachable
 by pointer at best, and whether even that works is left to the browser.
 `ims-readonly` on an ancestor disables a button the same way.
 
+### Only keyboard focus opens a surface
+
+Focus opens a tooltip or popover only when the keyboard is what the user last
+drove the page with, as the CDK's `InputModalityDetector` reports it. Focus from
+a click is already covered by the hover. Focus from a script is usually a dialog
+handing focus back to the button that opened it, and a surface opened on that
+appears over a host the pointer is nowhere near. Nothing closes it until focus
+moves on, because the pointer never entered the host and so never leaves it.
+
+The rule reads the last input rather than the cause of each focus, so focus
+that a script moves in answer to a key still counts. A dialog closed with
+<kbd>Esc</kbd> hands focus back as keyboard focus, and the tooltip opens as it
+would for <kbd>Tab</kbd>.
+
 ## Touch
 
-There is none. The application is desktop-only, so hover and focus are the whole
-trigger surface and no touch listener exists anywhere in this family. Material's
-long-press path has no counterpart here on purpose.
+There is none. The application is desktop-only, so hover and keyboard focus are
+the whole trigger surface and no touch listener exists anywhere in this family.
+Material's long-press path has no counterpart here on purpose.
 
 ## Configuration
 
@@ -337,6 +351,10 @@ else. `@angular/material` remains a dependency — `ims-grid-sort` uses `MatSort
 
 - Keep `ImsTooltipService.hide` guarded on the owner, or a tooltip whose hide
   delay elapses late will close whichever one took the panel after it.
+- Keep `focusin` gated on keyboard input in `ImsOverlayTrigger`. Opened on any
+  focus, a tooltip comes back on the button behind every dialog that restores
+  focus on close, under a pointer that is somewhere else — see
+  [Only keyboard focus opens a surface](#only-keyboard-focus-opens-a-surface).
 - Keep the panel detached on hide and re-attached on show. Reusing an attached
   panel would not replay the enter animation; disposing the overlay would give
   up the shared-overlay property entirely.

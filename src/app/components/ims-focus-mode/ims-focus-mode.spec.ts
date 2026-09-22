@@ -117,6 +117,21 @@ function clickAction(label: string): void {
 }
 
 /**
+ * Presses the mouse on an element, which is what tells the CDK a pointer is
+ * driving the page. `buttons` and `detail` are set because a press without
+ * them is how a screen reader's synthetic click looks, and the CDK counts that
+ * one as keyboard input.
+ */
+function pressMouse(element: HTMLElement): void {
+  element.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, buttons: 1, detail: 1 }));
+}
+
+/** The tooltip bubble on screen, if any. One fading out is not counted. */
+function shownTooltip(): HTMLElement | null {
+  return document.querySelector<HTMLElement>('.ims-tooltip:not(.ims-tooltip--leaving)');
+}
+
+/**
  * Leaves an open dialog by whichever way out it offers.
  *
  * The first action is always the one that closes without committing — Cancel
@@ -326,6 +341,23 @@ describe('ImsFocusMode', () => {
     await settle(fixture);
 
     expect(document.activeElement).toBe(triggers(fixture)[0]);
+  });
+
+  it('hands focus back without opening the trigger tooltip after a click', async () => {
+    // The hand-back is a script's focus, not the user's. A tooltip opened on
+    // it appears over a trigger the pointer left for the dialog's actions, and
+    // stays there: a pointer that never re-enters the trigger never leaves it.
+    const trigger = triggers(fixture)[0];
+    pressMouse(trigger);
+    trigger.focus();
+
+    await openNotes();
+    pressMouse(actionButton('Cancel'));
+    clickAction('Cancel');
+    await settle(fixture);
+
+    expect(document.activeElement).toBe(trigger);
+    expect(shownTooltip()).toBeNull();
   });
 
   it('leaves focus where the user put it during a close', async () => {
