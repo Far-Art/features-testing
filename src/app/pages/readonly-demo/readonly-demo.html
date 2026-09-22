@@ -44,8 +44,9 @@
     </div>
 
     <p class="readonly-demo__description">
-      Native text controls use <code>imsInput</code>, while the custom select and autocomplete
-      consume the same inherited signal through <code>ReadonlyDirective.injectSignal()</code>.
+      Native text controls use <code>imsInput</code> and native selects use <code>ims-select</code>,
+      while the custom select and autocomplete consume the same inherited signal through
+      <code>ReadonlyDirective.injectSignal()</code>.
     </p>
 
     <div class="readonly-demo__editor">
@@ -73,6 +74,14 @@
             <ims-option [value]="method">{{ method }}</ims-option>
           }
         </ims-select>
+      </label>
+      <label class="readonly-demo__select">
+        <span>Preferred contact method, native select</span>
+        <select ims-select [(ngModel)]="preferredContactMethod">
+          @for (method of contactMethods; track method) {
+            <option [ngValue]="method">{{ method }}</option>
+          }
+        </select>
       </label>
       <label class="readonly-demo__select">
         <span>Preferred contact method autocomplete</span>

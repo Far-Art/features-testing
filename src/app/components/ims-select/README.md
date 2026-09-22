@@ -13,11 +13,14 @@ of the component contract unless a requested change explicitly replaces it.
   input, and the projected listbox.
 - `ims-option.ts`: projected `ims-option` items; reads selection/active/visible
   state from the parent via `IMS_SELECT_PARENT`.
+- `ims-select.directive.ts`: `select[ims-select]`, the lightweight native
+  select described under [Native Select](#native-select). Styled by
+  `src/styles/ims-native-select.scss`.
 - `ims-select.types.ts`: `ImsSelectOptionLike`, `ImsSelectParent`, and the
   public mode/filter/toolbar/view-mode types.
 - `index.ts`: public exports (`ims-select.ts`, `ims-option.ts`,
-  `ims-select.types.ts`, and the selection labels re-exported from
-  `src/app/shared/ims-selection`).
+  `ims-select.directive.ts`, `ims-select.types.ts`, and the selection labels
+  re-exported from `src/app/shared/ims-selection`).
 - `src/app/shared/ims-selection`: pieces shared with `ims-autocomplete` —
   types, the `IMS_SELECTION_LABELS` token, helpers in `ims-selection.utils.ts`,
   and the toolbar and readonly-panel components.
@@ -184,3 +187,70 @@ custom trigger.
 - The dialog itself (`ImsTransferDialog`) is generic and value-comparison-free.
   It tracks checked state by row ID and returns opaque values; value equality
   (`compareWith`) remains `ims-select`'s responsibility.
+
+## Native Select
+
+`select[ims-select]` (`ImsSelectDirective`) dresses a native `<select>` as
+`ims-select`, for a field that only needs one value picked from a list — a
+grid column, a short form — where a component per field costs more than it
+gives. The browser supplies the options panel, keyboard navigation and
+typeahead, and Angular's built-in select value accessor connects it to forms.
+The directive adds the field styles and `ims-readonly` support, nothing else.
+
+```html
+<select ims-select class="field-m" [formControl]="status" [compareWith]="compareById">
+    <option [ngValue]="null" disabled hidden>Choose a status</option>
+    @for (status of statuses; track status.id) {
+        <option [ngValue]="status" [disabled]="status.retired">{{ status.label }}</option>
+    }
+</select>
+```
+
+Import `ImsSelectDirective` next to `ReactiveFormsModule` or `FormsModule`;
+`ngValue` and `compareWith` are Angular's own `<select>` API.
+
+- **Look.** The field is `.ims-input` with ims-select's padding and chevron.
+  The options panel uses ims-select's menu, option rows, active tone and
+  checkmark, opens below the field with the end edges aligned, and moves
+  above it when less than 144px is left below. Hover, focus, invalid
+  (`ng-invalid` lands on the select itself), disabled and readonly states come
+  from the shared input styles. Size the field with the `field-*` classes.
+- **Placeholder.** A native select has no placeholder. Add an option the user
+  cannot pick — `disabled`, `hidden`, or both — for the value that means
+  "none"; while it is selected, the field shows it in the placeholder tone.
+- **Readonly and disabled.** The directive joins the nearest `ims-readonly`
+  provider, as `imsInput` does: a readonly select is disabled and takes the
+  readable readonly appearance. It also combines the form control's disabled
+  state and a `disabled` attribute or binding, so enabling the control does not
+  unlock a readonly select.
+- **Single value only.** The selector skips `select[multiple]`, which the
+  browser renders as a list box. Use `<ims-select multiple>`.
+- **The browser's behaviour.** On a closed field the arrow keys open the panel
+  rather than stepping the value. Filtering, the multi-select toolbar,
+  `clearable`, the readonly values panel and label compaction are ims-select
+  features; pick the component when a field needs them.
+
+The styles rely on Chromium's customizable select (`appearance: base-select`,
+Chrome 135 and later). A browser without it keeps its native dropdown inside
+the shared field styles.
+
+The directive renders the select's own `<button>` with a `<selectedcontent>`
+in it, so a long value truncates beside the chevron: Chrome's built-in value
+label keeps its full width. Chrome copies the selected option into
+`<selectedcontent>` only when the selection changes, while Angular fills in an
+option's text after the option can already be selected, so a
+`MutationObserver` on the select refreshes the copy whenever an option
+changes. Don't add a `<button>` of your own to the select.
+
+The same observer watches the select's `disabled` attribute and re-applies the
+directive's state when something else rewrites it — `ims-readonly` placed on
+the select binds that attribute too, and depending on the Angular version that
+binding lands after the directive's effect. The directive owns the attribute,
+so disable the select through the form control or `[disabled]`, not
+`[attr.disabled]`.
+
+The directive only uses Angular 18 APIs (signal inputs, `effect()`,
+`untracked()`), so it can be copied into an Angular 18 application together
+with `ReadonlyDirective` and the stylesheet. Comments marked
+`TODO: Angular 22` hold the `afterRenderEffect` version to switch to after the
+upgrade; the Angular 18 code keeps working on Angular 22 until then.

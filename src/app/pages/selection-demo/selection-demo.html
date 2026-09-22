@@ -52,6 +52,84 @@
 
 <section class="select-demo">
     <div>
+        <h2>select טבעי במראה של רכיב הבחירה</h2>
+        <p>
+            <code>select[ims-select]</code> מלביש על select טבעי את המראה של <code>ims-select</code> ומצטרף
+            למצב <code>ims-readonly</code> — בלי רכיב, שכבת-על או מדידות. מתאים לשדה פשוט עם ערך יחיד, למשל
+            בכל שורה של טבלה. הרשימה, הניווט במקלדת וההשלמה בהקלדה הם של הדפדפן; אין סינון, סרגל או כפתור ניקוי.
+        </p>
+    </div>
+
+    <div class="select-demo__grid" [ims-readonly]="nativeSelectReadonly()">
+        <label class="select-demo__field">
+            <span>רכיב הבחירה, להשוואה</span>
+            <ims-select
+                placeholder="בחר תיק"
+                ariaLabel="רכיב הבחירה, להשוואה"
+                [formControl]="nativeCompareControl"
+                [compareWith]="compareBagById"
+            >
+                @for (bag of bagOptions(); track bag.id) {
+                    <ims-option [value]="bag" [selectionText]="bag.label" [disabled]="!!bag.disabled">
+                        {{ bag.label }} (+{{ bag.count }})
+                    </ims-option>
+                }
+            </ims-select>
+        </label>
+
+        <label class="select-demo__field">
+            <span>select טבעי</span>
+            <select ims-select [formControl]="nativeSelectControl" [compareWith]="compareBagById">
+                <option [ngValue]="null" disabled hidden>בחר תיק</option>
+                @for (bag of bagOptions(); track bag.id) {
+                    <option [ngValue]="bag" [disabled]="!!bag.disabled">{{ bag.label }} (+{{ bag.count }})</option>
+                }
+            </select>
+        </label>
+
+        <label class="select-demo__field">
+            <span>חובה, עדיין ללא ערך</span>
+            <select ims-select [formControl]="nativeRequiredControl" [compareWith]="compareBagById">
+                <option [ngValue]="null" disabled hidden>בחר תיק</option>
+                @for (bag of bagOptions(); track bag.id) {
+                    <option [ngValue]="bag" [disabled]="!!bag.disabled">{{ bag.label }} (+{{ bag.count }})</option>
+                }
+            </select>
+        </label>
+
+        <label class="select-demo__field">
+            <span>מושבת מהטופס</span>
+            <select ims-select [formControl]="nativeDisabledControl" [compareWith]="compareBagById">
+                @for (bag of bagOptions(); track bag.id) {
+                    <option [ngValue]="bag">{{ bag.label }} (+{{ bag.count }})</option>
+                }
+            </select>
+        </label>
+
+        <label class="select-demo__field">
+            <span>שדה צר, תווית ארוכה</span>
+            <select ims-select class="field-xs" [formControl]="nativeNarrowControl" [compareWith]="compareBagById">
+                @for (bag of bagOptions(); track bag.id) {
+                    <option [ngValue]="bag">{{ bag.label }} (+{{ bag.count }})</option>
+                }
+            </select>
+        </label>
+    </div>
+
+    <div>
+        <button ims-button ims-button-variation="outline" (click)="nativeSelectReadonly.set(!nativeSelectReadonly())">
+            {{ nativeSelectReadonly() ? 'חזרה לעריכה' : 'מעבר לצפייה בלבד' }}
+        </button>
+    </div>
+
+    <dl class="select-demo__readout">
+        <dt>select טבעי</dt>
+        <dd>{{ nativeSelectControl.value?.label ?? '—' }}</dd>
+    </dl>
+</section>
+
+<section class="select-demo">
+    <div>
         <h2>שתי בחירות מחוברות עם דיאלוג משותף</h2>
         <p>
             שתי הבחירות מקבלות את אותו קטלוג סוגי הפוליסות. בחירה בצד אחד משביתה את

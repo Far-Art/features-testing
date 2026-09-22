@@ -1,0 +1,182 @@
+// `select[ims-select]`: a native select dressed as ims-select (see
+// ImsSelectDirective).
+//
+// Built on Chromium's customizable select (`appearance: base-select`), which
+// lets a stylesheet reach the parts the browser draws: the chevron
+// (`::picker-icon`), the options panel (`::picker(select)`), the option rows
+// and their checkmark (`::checkmark`). The values are ims-select's own, from
+// ims-select.scss and ims-selection.scss. They are restated here rather than
+// added to those rules as extra selectors: a selector list that names a
+// pseudo-element the browser does not know is dropped whole, and would take
+// the component's declarations down with it.
+//
+// `.ims-input` supplies the field itself: border, background, hover fill, focus
+// ring, and the disabled, readonly and invalid states. Angular puts
+// `ng-invalid` on the select element, so its invalid rules apply unchanged.
+
+// Both parts opt in, or the panel keeps the platform's look. A browser without
+// customizable select drops this rule whole and keeps its native dropdown
+// inside the shared field styles.
+.ims-native-select,
+.ims-native-select::picker(select) {
+    appearance: base-select;
+}
+
+// Laid out as ims-select's trigger is: the value, then the chevron.
+.ims-native-select {
+    --ims-input-padding: 0 0.65rem;
+
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+// The select's own button, which ImsSelectDirective renders around the value.
+// Chrome already unsets it; restated here, in the author origin, so that a
+// page's `button` rules — a colour, a display, a weight — cannot reach it.
+.ims-native-select > button:first-child {
+    all: unset;
+    display: contents;
+}
+
+// The value takes the room the chevron leaves, and truncates in it.
+.ims-native-select selectedcontent {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+// A selected option the user cannot pick reads as ims-select's placeholder:
+// the field's "no value" entry, `<option [ngValue]="null" disabled hidden>`.
+// Matched by attribute, because Chrome matches `:disabled` on every option of a
+// disabled select.
+.ims-native-select:has(option:checked:is([disabled], [hidden])) selectedcontent {
+    color: var(--ims-color-on-surface-muted);
+}
+
+// ims-select's chevron, turned over while the panel is open.
+.ims-native-select::picker-icon {
+    content: '';
+    flex: 0 0 auto;
+    width: 0.5rem;
+    height: 0.5rem;
+    color: var(--ims-color-interactive-alt-strong);
+    border: solid currentColor;
+    border-width: 0 1.5px 1.5px 0;
+    opacity: 0.72;
+    rotate: 45deg;
+    translate: 0 -0.125rem;
+    transition: rotate 140ms ease, translate 140ms ease;
+}
+
+.ims-native-select:open::picker-icon {
+    rotate: -135deg;
+    translate: 0 0.125rem;
+}
+
+.ims-native-select:disabled::picker-icon {
+    color: var(--ims-color-on-surface-disabled);
+}
+
+.ims-native-select.ng-invalid:not(:disabled)::picker-icon {
+    color: var(--ims-input-invalid-border, var(--ims-color-invalid));
+}
+
+// The options panel: ims-select's overlay, menu and listbox in one box.
+.ims-native-select::picker(select) {
+    // Grows past the field to fit its options, as the menu does, but stops at
+    // the viewport less 8px on each side.
+    max-inline-size: calc(100vw - 16px);
+    // The listbox's bounds: never taller than 350px or than the room beside the
+    // field, and opened above the field once less than 144px — or less than a
+    // shorter list — is left below it. The floor is measured from the content:
+    // an `auto` minimum is zero, and would let any sliver of room below fit.
+    min-block-size: calc-size(max-content, min(size, 144px));
+    max-block-size: calc-size(stretch, min(size, 350px));
+    // 4px off the field and 8px off the viewport edge. `flip-block` swaps them.
+    margin-block: 4px 8px;
+    padding-block: 0.25rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    // Gutters on both edges, as the listbox has, so the rounded option rows
+    // keep clear of the panel's sides.
+    scrollbar-gutter: stable both-edges;
+    border: 1px solid var(--ims-color-border-subtle);
+    border-radius: 0.5rem;
+    background: var(--ims-background-dialog);
+    color: var(--ims-color-on-surface);
+    filter: drop-shadow(
+        0 18px 42px color-mix(in oklch, var(--ims-color-neutral-950) 16%, transparent)
+    );
+    // ims-select's first overlay position: below the field, end edges aligned.
+    // Tried in order, so the panel only moves when it does not fit.
+    position-area: self-block-end span-self-inline-start;
+    position-try-order: normal;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+}
+
+// ims-select's option rows. No `display` here: Chrome lays the row out, and a
+// `display` would also show an option marked `hidden`.
+.ims-native-select option {
+    // The checkmark's box and the gap before it. Every option reserves them, so
+    // selecting one never changes the row's width.
+    --ims-option-check-space: calc(0.35rem + 1.5px + 0.5rem);
+
+    position: relative;
+    box-sizing: border-box;
+    min-block-size: calc(var(--field-height) + 0.425rem);
+    padding: 0.2rem 0.5rem;
+    padding-inline-end: calc(0.5rem + var(--ims-option-check-space));
+    border-block: 0.0625rem solid transparent;
+    border-radius: 0.375rem;
+    background-clip: padding-box;
+    color: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 100ms ease, color 100ms ease;
+}
+
+// The active row: the one under the pointer, the one the keyboard moved focus
+// to, and, until the pointer reaches the list, the focused row the panel
+// opened on — the selected one, as ims-select starts from it.
+.ims-native-select option:enabled:hover,
+.ims-native-select option:focus-visible,
+.ims-native-select:not(:has(option:enabled:hover)) option:focus {
+    outline: none;
+    background: var(--ims-color-interactive-alt-subtle);
+}
+
+// Colour and the checkmark, never weight, which would widen the row.
+.ims-native-select option:checked {
+    color: var(--ims-color-interactive-strong);
+}
+
+// Pinned to the row's end edge, in the space the option reserves for it.
+// Chrome hides it on the rows that are not selected.
+.ims-native-select option::checkmark {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 0.5rem;
+    width: 0.35rem;
+    height: 0.6rem;
+    margin-block: auto;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    rotate: 45deg;
+}
+
+// After the selected rule, so a selected option that is disabled turns neutral
+// too, checkmark included.
+.ims-native-select option:disabled {
+    color: var(--ims-color-on-surface-disabled);
+    cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ims-native-select option {
+        transition: none;
+    }
+}

@@ -1,5 +1,6 @@
 export {ImsOption} from './ims-option';
 export {ImsSelect} from './ims-select';
+export {ImsSelectDirective} from './ims-select.directive';
 export {IMS_SELECT_PARENT} from './ims-select.types';
 export type {
     ImsSelectActivationSource,

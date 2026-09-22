@@ -1,13 +1,15 @@
 import {Component, ChangeDetectionStrategy, inject, signal} from '@angular/core';
-import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {delay, of} from 'rxjs';
 import {
     ImsAutocomplete,
     ImsAutocompleteAsync,
     ImsAutocompleteOption
 } from '../../components/ims-autocomplete';
-import {ImsOption, ImsSelect} from '../../components/ims-select';
+import {ImsButton} from '../../components/ims-button';
+import {ImsOption, ImsSelect, ImsSelectDirective} from '../../components/ims-select';
 import {ImsTransferDialogService, ImsTransferRow} from '../../components/ims-transfer-dialog';
+import {ReadonlyDirective} from '../../shared/readonly.directive';
 
 interface SelectDemoBag {
     readonly id: number;
@@ -40,8 +42,11 @@ interface DemoPolicyType {
         ReactiveFormsModule,
         ImsSelect,
         ImsOption,
+        ImsSelectDirective,
         ImsAutocomplete,
-        ImsAutocompleteAsync
+        ImsAutocompleteAsync,
+        ImsButton,
+        ReadonlyDirective
     ],
     templateUrl: './selection-demo.html',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -122,6 +127,15 @@ export class SelectionDemo {
         value: this.initialBagOptions[1],
         disabled: true
     });
+    readonly nativeSelectReadonly = signal(false);
+    readonly nativeCompareControl = new FormControl<SelectDemoBag | null>(null);
+    readonly nativeSelectControl = new FormControl<SelectDemoBag | null>(null);
+    readonly nativeRequiredControl = new FormControl<SelectDemoBag | null>(null, Validators.required);
+    readonly nativeDisabledControl = new FormControl<SelectDemoBag | null>({
+        value: this.initialBagOptions[1],
+        disabled: true
+    });
+    readonly nativeNarrowControl = new FormControl<SelectDemoBag | null>(this.initialBagOptions[8]);
     readonly bagAutocompleteOptions: readonly ImsAutocompleteOption<SelectDemoBag>[] = this.initialBagOptions.map((bag) => ({
         value: bag,
         label: bag.label,

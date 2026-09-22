@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, Signal, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ImsInputDirective } from '../../ims-input.directive';
 import { ImsAutocomplete, type ImsAutocompleteOption } from '../../components/ims-autocomplete';
 import {
@@ -10,7 +11,7 @@ import {
   ImsDialogTitle,
   ImsDialogToolbar,
 } from '../../components/ims-dialog';
-import { ImsOption, ImsSelect } from '../../components/ims-select';
+import { ImsOption, ImsSelect, ImsSelectDirective } from '../../components/ims-select';
 import { ReadonlyDirective } from '../../shared/readonly.directive';
 import {ImsGrid, ImsGridCell, ImsGridRow} from '../../components/ims-grid';
 
@@ -199,11 +200,13 @@ class ReadonlyDialogContent {
 @Component({
   selector: 'app-readonly-demo',
   imports: [
+    FormsModule,
     ReadonlyDirective,
     ReadonlyState,
     ImsInputDirective,
     ImsSelect,
     ImsOption,
+    ImsSelectDirective,
     ImsAutocomplete,
     ImsGrid,
     ImsGridCell,
