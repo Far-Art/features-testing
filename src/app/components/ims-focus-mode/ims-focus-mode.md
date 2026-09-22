@@ -75,7 +75,7 @@ stays the single source of truth for its state.
 
 | Field state | Trigger | Dialog |
 | --- | --- | --- |
-| Editable | the shared `ims-button-edit` affordance | Apply and Cancel |
+| Editable | the shared edit affordance, `ims-button-icon ims-button-icon-preset="edit"` | Apply and Cancel |
 | Disabled, readonly, or in a readonly scope | an icon button showing `zoom_in` | one primary Close, no editing |
 
 The editable trigger is the house edit affordance rather than an icon chosen here, so it

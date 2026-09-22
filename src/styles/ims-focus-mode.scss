@@ -87,10 +87,11 @@
 /**
  * Give both trigger states a quiet rest tone.
  *
- * The editable trigger is `ims-button-edit` and the zoom-in trigger is a plain
- * icon button. They occupy the same slot and are two states of one control, so
- * a user switching between them should see the glyph change and nothing else —
- * which they already do, since the edit preset is painted as an icon button.
+ * The editable trigger is an icon button with the `edit` preset and the zoom-in
+ * trigger is a plain one. They occupy the same slot and are two states of one
+ * control, so a user switching between them should see the glyph change and
+ * nothing else — which they already do, since the edit preset is painted as an
+ * icon button.
  * What this rule adds is the tone: both rest on the muted colour here rather
  * than on the default ramp's stronger one.
  *

@@ -5,11 +5,12 @@
     #trigger
     class="ims-focus-mode__trigger"
     [class.ims-input-action__button]="!external()"
-    ims-button-edit
+    ims-button-icon
+    ims-button-icon-preset="edit"
     ims-focus-mode-trigger
     [disabled]="open()"
     [attr.aria-label]="triggerLabel()"
-    [matTooltip]="triggerTooltip()"
+    [imsTooltip]="triggerTooltip()"
     (click)="openFocusMode()"
   ></button>
 } @else {
@@ -21,7 +22,7 @@
     ims-focus-mode-trigger
     [disabled]="open()"
     [attr.aria-label]="triggerLabel()"
-    [matTooltip]="triggerTooltip()"
+    [imsTooltip]="triggerTooltip()"
     (click)="openFocusMode()"
   >
     <ims-icon>zoom_in</ims-icon>

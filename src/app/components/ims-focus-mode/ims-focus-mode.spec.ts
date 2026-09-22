@@ -343,7 +343,7 @@ describe('ImsFocusMode', () => {
   });
 
   it('flips the trigger between the edit affordance and zoom-in with control state', async () => {
-    // The editable trigger is the shared `ims-button-edit` preset, so its glyph
+    // The editable trigger is the shared `edit` preset, so its glyph
     // comes from there rather than being chosen by this component.
     expect(triggerIcon(triggers(fixture)[0])).toBe(IMS_BUTTON_EDIT_ICON);
     expect(triggers(fixture)[0].classList.contains('ims-button--edit')).toBe(true);

@@ -22,10 +22,10 @@ import {
   ValidationErrors,
   ValueChangeEvent,
 } from '@angular/forms';
-import { MatTooltip } from '@angular/material/tooltip';
 import { Subscription } from 'rxjs';
-import { IMS_BUTTON_EDIT_ICON, ImsButtonEdit, ImsButtonIcon } from '../ims-button';
+import { IMS_BUTTON_EDIT_ICON, ImsButtonIcon } from '../ims-button';
 import { ImsIcon } from '../ims-icon';
+import { ImsTooltip } from '../ims-tooltip';
 import { ImsDialogRef, ImsDialogService } from '../ims-dialog';
 import {
   ImsTextFieldElement,
@@ -63,7 +63,7 @@ import {
 @Component({
   selector: 'ims-focus-mode',
   standalone: true,
-  imports: [ImsButtonEdit, ImsButtonIcon, ImsFocusModeTrigger, ImsIcon, MatTooltip],
+  imports: [ImsButtonIcon, ImsFocusModeTrigger, ImsIcon, ImsTooltip],
   templateUrl: './ims-focus-mode.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -240,7 +240,7 @@ export class ImsFocusMode {
   /**
    * Glyph for the dialog title, matching whichever trigger is rendered.
    *
-   * The editable trigger is `ims-button-edit`, which pins its own glyph, so the
+   * The editable trigger is the `edit` preset, which pins its own glyph, so the
    * value is taken from that preset rather than restated here.
    */
   readonly triggerIcon = computed(() => (this.editable() ? IMS_BUTTON_EDIT_ICON : 'zoom_in'));
