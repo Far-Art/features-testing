@@ -24,8 +24,17 @@
 
 // Laid out as ims-select's trigger is: the value, then the chevron.
 .ims-native-select {
+    // How far the chevron's corners reach past its own box once it is turned
+    // 45deg: half of what the box's diagonal adds to its side.
+    --ims-native-select-chevron-overhang: calc((0.5rem + 1.5px) * (sqrt(2) - 1) / 2);
     --ims-input-padding: 0 0.65rem;
 
+    // Chromium up to at least 143 clips a select to its content box whatever
+    // its appearance, and no author `overflow` lifts that clip, so the corner
+    // of the chevron that reaches into the end padding was cut off. The
+    // chevron keeps its overhang inside the content box as a margin, and the
+    // end padding gives up the same amount, so it sits where ims-select's does.
+    padding-inline-end: calc(0.65rem - var(--ims-native-select-chevron-overhang));
     align-items: center;
     gap: 0.5rem;
     cursor: pointer;
@@ -62,6 +71,7 @@
     flex: 0 0 auto;
     width: 0.5rem;
     height: 0.5rem;
+    margin-inline-end: var(--ims-native-select-chevron-overhang);
     color: var(--ims-color-interactive-alt-strong);
     border: solid currentColor;
     border-width: 0 1.5px 1.5px 0;
