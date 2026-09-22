@@ -1,5 +1,5 @@
 import {Component, ChangeDetectionStrategy} from '@angular/core';
-import {MatTooltip} from '@angular/material/tooltip';
+import {RouterLink} from '@angular/router';
 import {
     ImsButton,
     ImsButtonDelete,
@@ -20,11 +20,12 @@ import {ReadonlyDirective} from '../../shared/readonly.directive';
         ImsButtonEdit,
         ImsIcon,
         ImsLongPressDirective,
-        // The buttons carry no tooltip of their own, so `matTooltip` on one is
-        // this directive, imported here like any other.
-        MatTooltip,
+        // The buttons carry no tooltip of their own — they only contribute
+        // defaults — so `imsTooltip` on one is this directive, imported here
+        // like any other.
         ImsTooltip,
-        ReadonlyDirective
+        ReadonlyDirective,
+        RouterLink
     ],
     templateUrl: './buttons-demo.html',
     changeDetection: ChangeDetectionStrategy.Eager,

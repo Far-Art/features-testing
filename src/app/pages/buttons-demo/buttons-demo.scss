@@ -104,6 +104,16 @@
     font-size: 0.75rem;
 }
 
+// A sentence under a group label, for the rare group whose point is not
+// obvious from the buttons alone.
+.button-demo__group-note {
+    margin: 0;
+    max-inline-size: 42rem;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--ims-color-on-surface-muted);
+}
+
 // The severity matrix is six columns wide, which leaves nothing usable beside
 // it — so this section stacks its heading above the grid instead of sitting it
 // alongside, the way the narrow rows above can afford to.

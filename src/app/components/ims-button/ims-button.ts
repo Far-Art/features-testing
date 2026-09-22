@@ -7,6 +7,7 @@ import {
     booleanAttribute,
     computed,
     effect,
+    forwardRef,
     inject,
     signal,
     input
@@ -36,9 +37,8 @@ export type ImsButtonVariation = 'default' | 'primary' | 'secondary' | 'outline'
  */
 export type ImsButtonSeverity = 'info' | 'success' | 'warning' | 'danger';
 
-// A button carries no tooltip of its own. A call site that wants one applies a
-// tooltip directive to the same element and imports it the way it imports any
-// other — `matTooltip`, or `imsTooltip` for the house severities.
+// A button carries no tooltip of its own. A call site that wants one applies
+// `imsTooltip` to the same element and imports it like any other directive.
 //
 // Deliberately not a host directive. Exposing MatTooltip's inputs that way
 // reads better at the call site, but the moment a template also has MatTooltip
@@ -161,6 +161,21 @@ export abstract class ImsButtonBase {
     readonly severity = input<ImsButtonSeverity>('info', {alias: 'ims-button-severity'});
 
     /**
+     * What a tooltip placed on this button inherits when its own inputs are
+     * unset.
+     *
+     * A button already states what kind of action it carries, so a tooltip on
+     * one should not have to state it again — `imsTooltipSeverity` becomes the
+     * override for the odd call site rather than the thing every call site
+     * writes.
+     *
+     * A signal, not a value, because `ims-button-severity` is bindable and an
+     * open tooltip follows it. Placement is left out: where a tooltip goes is a
+     * property of the layout around the button, not of the button.
+     */
+    readonly tooltipDefaults = computed<ImsTooltipDefaults>(() => ({severity: this.severity()}));
+
+    /**
      * Marks this button as the way forward, adding a slow halo that pulses
      * outward until the button is engaged. Orthogonal to `variation`, which
      * says what kind of action this is — any variation can be the one being
@@ -271,6 +286,10 @@ export abstract class ImsButtonBase {
 @Directive({
     selector: 'button[ims-button]',
     standalone: true,
+    // On each concrete directive rather than on the base: `providers` is the
+    // one piece of directive metadata Angular does not carry down to a subclass
+    // that declares a decorator of its own, unlike the host bindings above.
+    providers: [{provide: IMS_TOOLTIP_DEFAULTS, useExisting: forwardRef(() => ImsButton)}],
     host: {
         '[class.ims-button--default]': 'variation() === "default"',
         '[class.ims-button--primary]': 'variation() === "primary"',
@@ -284,7 +303,8 @@ export class ImsButton extends ImsButtonBase {
 }
 
 /**
- * Icon-only button. Give it an accessible name with `aria-label`, since there's no visible text.
+ * Icon-only button. There's no visible text, so give it an accessible name with `aria-label` —
+ * or a {@link ImsButtonIcon.preset}, which brings a glyph and a name of its own.
  *
  * With a severity other than `info`, the glyph takes that severity's vivid status colour
  * rather than the darker tone a label would, since the glyph is all the colour it has.
@@ -292,9 +312,71 @@ export class ImsButton extends ImsButtonBase {
 @Directive({
     selector: 'button[ims-button-icon]',
     standalone: true,
+    providers: [{provide: IMS_TOOLTIP_DEFAULTS, useExisting: forwardRef(() => ImsButtonIcon)}],
     host: {
-        class: 'ims-button--default ims-button-icon',
+        class: 'ims-button-icon',
+        // Bound rather than static for the presets' sake: one that pins a tone
+        // paints itself, and --default is the class that would let
+        // `ims-button-severity` back in. See ImsButtonIconPresetSpec.severity.
+        '[class.ims-button--default]': 'pinnedSeverity() === null',
+        '[class.ims-button--edit]': 'activePreset() === "edit"',
+        '[class.ims-button--delete]': 'activePreset() === "delete"',
         '[disabled]': 'interactionDisabled()'
     }
 })
-export class ImsButtonIcon extends ImsButtonBase {}
+export class ImsButtonIcon extends ImsButtonBase {
+    /**
+     * A named affordance this button stands for, so it looks and reads the
+     * same on every screen: `<button ims-button-icon preset="delete">`.
+     *
+     * A preset pins the glyph, which the button then draws itself — so project
+     * nothing into a preset button, or the projected icon sits beside the
+     * pinned one. It brings a default accessible name too, which the call
+     * site's own `aria-label`, in either spelling, always replaces. And it may
+     * pin a tone: `delete` is danger on every screen, so `ims-button-severity`
+     * does nothing there and a tooltip on it inherits danger. `edit` pins none
+     * and takes a severity like any icon button.
+     *
+     * Bindable: `[preset]="row.locked ? null : 'delete'"` swaps the glyph, the
+     * name and the tone together.
+     *
+     * The presets, and how to add one, are in ims-button-presets.ts.
+     */
+    readonly preset = input<ImsButtonIconPreset | null>(null);
+
+    /** The preset in force — see {@link resolvePreset}. */
+    protected readonly activePreset = computed(() => this.resolvePreset());
+
+    private readonly presetSpec = computed(() => {
+        const preset = this.activePreset();
+        return preset === null ? null : IMS_BUTTON_ICON_PRESETS[preset];
+    });
+
+    /** Tone the preset pins, or null to follow `ims-button-severity`. */
+    protected readonly pinnedSeverity = computed(() => this.presetSpec()?.severity ?? null);
+
+    /**
+     * A pinned tone outranks `ims-button-severity` here as well: a tooltip on a
+     * delete is danger for the same reason the button is.
+     */
+    override readonly tooltipDefaults = computed<ImsTooltipDefaults>(() => ({
+        severity: this.pinnedSeverity() ?? this.severity()
+    }));
+
+    /**
+     * The preset this button stands for: the input. A method so the deprecated
+     * `ims-button-edit` and `ims-button-delete` can pin theirs — see
+     * ims-button-actions.ts.
+     */
+    protected resolvePreset(): ImsButtonIconPreset | null {
+        return this.preset();
+    }
+
+    protected override resolveIcon(): string {
+        return this.presetSpec()?.icon ?? '';
+    }
+
+    protected override resolveLabel(): string {
+        return this.presetSpec()?.label ?? '';
+    }
+}

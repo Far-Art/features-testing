@@ -154,8 +154,8 @@
             <!-- Same severity on both presets. Delete pins its tone the way it
                  pins its glyph, so it takes the input and ignores it; edit
                  follows it exactly as an icon button does. -->
-            <button ims-button-delete ims-button-severity="warning"></button>
-            <button ims-button-edit ims-button-severity="warning"></button>
+            <button ims-button-icon preset="delete" ims-button-severity="warning"></button>
+            <button ims-button-icon preset="edit" ims-button-severity="warning"></button>
         </div>
     </div>
 </section>
@@ -164,29 +164,44 @@
     <div>
         <h2>כפתורי פעולה</h2>
         <p>
-            מחיקה ועריכה עם אייקון וגודל קבועים, כך שהם נראים זהים בכל מסך. גם צבע
-            המחיקה קבוע, אבל העריכה מקבלת את <code>ims-button-severity</code> כמו כל
-            כפתור אייקון.
+            מחיקה ועריכה דרך <code>preset</code>, עם אייקון וגודל קבועים, כך שהם
+            נראים זהים בכל מסך. גם צבע המחיקה קבוע, אבל העריכה מקבלת את
+            <code>ims-button-severity</code> כמו כל כפתור אייקון.
         </p>
     </div>
 
-    <div class="button-demo__ims-buttons" aria-label="IMS action buttons">
-        <button ims-button-delete ></button>
-        <button ims-button-edit></button>
-        <button ims-button-delete aria-label="מחיקת פוליסה 4821"></button>
-        <button ims-button-delete disabled></button>
-        <button ims-button-edit disabled></button>
-        <button ims-button-delete [ims-readonly]="true"></button>
-        <button ims-button-edit call-to-action></button>
-        <button ims-button-delete icon-size="1.5rem"></button>
-        <button ims-button-icon aria-label="חיפוש קטן">
-            <ims-icon size="12">search</ims-icon>
-        </button>
+    <div class="button-demo__group">
+        <span class="button-demo__group-label">preset</span>
+        <div class="button-demo__ims-buttons" aria-label="IMS action buttons">
+            <button ims-button-icon preset="delete"></button>
+            <button ims-button-icon preset="edit"></button>
+            <button ims-button-icon preset="delete" aria-label="מחיקת פוליסה 4821"></button>
+            <button ims-button-icon preset="delete" disabled></button>
+            <button ims-button-icon preset="edit" disabled></button>
+            <button ims-button-icon preset="delete" [ims-readonly]="true"></button>
+            <button ims-button-icon preset="edit" call-to-action></button>
+            <button ims-button-icon preset="delete" icon-size="1.5rem"></button>
+            <button ims-button-icon aria-label="חיפוש קטן">
+                <ims-icon size="12">search</ims-icon>
+            </button>
 
-      <button>
-        some text
-        <ims-icon>cancel</ims-icon>
-      </button>
+            <button>
+                some text
+                <ims-icon>cancel</ims-icon>
+            </button>
+        </div>
+    </div>
+
+    <div class="button-demo__group">
+        <span class="button-demo__group-label">ims-button-delete, ims-button-edit (deprecated)</span>
+        <!-- Each old spelling beside the preset it now is. The two in a pair
+             must look the same; this group goes when the directives do. -->
+        <div class="button-demo__ims-buttons" aria-label="IMS deprecated action spellings">
+            <button ims-button-delete></button>
+            <button ims-button-icon preset="delete"></button>
+            <button ims-button-edit></button>
+            <button ims-button-icon preset="edit"></button>
+        </div>
     </div>
 </section>
 
@@ -195,59 +210,17 @@
         <h2>הסברים בריחוף</h2>
         <p>
             הסבר קצר שנפתח בריחוף ובמיקוד מקלדת, בארבע רמות חומרה. הכפתור עצמו
-            אינו נושא הסבר, ולכן אפשר להצמיד אליו כל אחת משתי ההנחיות:
-            matTooltip של Material, שאצלו הגוון הוא זוג מחלקות ב-matTooltipClass,
-            או imsTooltip, שאצלו הגוון הוא קלט בשם imsTooltipSeverity. שתי
-            השורות הראשונות מציגות את אותן ארבע הרמות בשתי ההנחיות.
+            אינו נושא הסבר — הוא רק תורם ברירות מחדל, ולכן
+            <code>imsTooltip</code> על כפתור הוא ההנחיה היחידה על האלמנט.
+            להדגמה המלאה של ההנחיה ושל <code>imsPopover</code> ראו
+            <a routerLink="/tooltip">הסברים וחלוניות</a>.
         </p>
-    </div>
-
-    <div class="button-demo__group">
-        <span class="button-demo__group-label">matTooltipClass</span>
-        <div class="button-demo__ims-buttons">
-            <button
-                ims-button
-                matTooltip="נשמר כטיוטה בלבד"
-                matTooltipClass="ims-tooltip ims-tooltip--info"
-            >
-                מידע
-            </button>
-            <button
-                ims-button
-                ims-button-variation="primary"
-                matTooltip="הפוליסה תישלח למבוטח"
-                matTooltipClass="ims-tooltip ims-tooltip--success"
-            >
-                הצלחה
-            </button>
-            <button
-                ims-button
-                ims-button-variation="outline"
-                matTooltip="חלק מהשדות עדיין ריקים"
-                matTooltipClass="ims-tooltip ims-tooltip--warning"
-            >
-                אזהרה
-            </button>
-            <button
-                ims-button
-                ims-button-variation="primary"
-                ims-button-severity="danger"
-                matTooltip="הפעולה אינה הפיכה"
-                matTooltipClass="ims-tooltip ims-tooltip--danger"
-            >
-                סכנה
-            </button>
-        </div>
     </div>
 
     <div class="button-demo__group">
         <span class="button-demo__group-label">imsTooltipSeverity</span>
         <div class="button-demo__ims-buttons">
-            <button
-                ims-button
-                imsTooltip="נשמר כטיוטה בלבד"
-                imsTooltipSeverity="info"
-            >
+            <button ims-button imsTooltip="נשמר כטיוטה בלבד" imsTooltipSeverity="info">
                 מידע
             </button>
             <button
@@ -279,30 +252,43 @@
     </div>
 
     <div class="button-demo__group">
+        <span class="button-demo__group-label">ברירת מחדל מהכפתור</span>
+        <p class="button-demo__group-note">
+            אף אחד מאלה לא כותב <code>imsTooltipSeverity</code>. הגוון מגיע
+            מהכפתור: <code>ims-button-severity</code> אצל הראשון, וגוון קבוע אצל
+            <code>preset="delete"</code>, שמצמיד סכנה כמו שהוא מצמיד את הסמל.
+        </p>
+        <div class="button-demo__ims-buttons">
+            <button
+                ims-button
+                ims-button-variation="primary"
+                ims-button-severity="warning"
+                imsTooltip="חלק מהשדות עדיין ריקים"
+            >
+                אזהרה
+            </button>
+            <button ims-button-icon preset="delete" imsTooltip="לא ניתן למחוק פוליסה נעולה"></button>
+            <button ims-button-icon preset="edit" imsTooltip="עריכה במסך מלא"></button>
+        </div>
+    </div>
+
+    <div class="button-demo__group">
         <span class="button-demo__group-label">התנהגות</span>
         <div class="button-demo__ims-buttons">
-            <!-- Names no class, so this one takes the house pair from provideImsTooltipConfig. -->
-            <button ims-button matTooltip="ברירת המחדל מגיעה מהגדרות היישום">
+            <button ims-button imsTooltip="ברירת המחדל מגיעה מהגדרות היישום">
                 ברירת מחדל
             </button>
-            <button ims-button matTooltip="שולח את הפוליסה למבוטח" disabled>
+            <button ims-button imsTooltip="שולח את הפוליסה למבוטח" disabled>
                 מושבת
             </button>
             <button
                 ims-button-icon
                 aria-label="חיפוש"
-                matTooltip="חיפוש בכל התיקים"
-                matTooltipPosition="above"
+                imsTooltip="חיפוש בכל התיקים"
+                imsTooltipPosition="above"
             >
                 <ims-icon>search</ims-icon>
             </button>
-            <button
-                ims-button-delete
-                matTooltip="לא ניתן למחוק פוליסה נעולה"
-                matTooltipClass="ims-tooltip ims-tooltip--danger"
-                disabled
-            ></button>
-            <button ims-button-edit imsTooltip="עריכה במסך מלא" imsTooltipSeverity="info"></button>
             <span class="tooltip-demo__note" imsTooltip="גם אלמנט רגיל יכול לקבל הסבר">
                 טקסט עם הסבר
             </span>
