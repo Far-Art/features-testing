@@ -77,7 +77,22 @@ export function provideImsTooltipConfig(config: Partial<ImsTooltipConfig> = {}):
         }
     }
 
-    return {provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: options};
+    return {provide: IMS_TOOLTIP_CONFIG, useValue: options};
+}
+
+/**
+ * What a host element contributes to a tooltip placed on it.
+ *
+ * Every field is optional and every one is a fallback: an input written at the
+ * call site always wins. This is how the `delete` button preset makes its
+ * tooltip danger-toned without the template repeating the tone that the
+ * button's own appearance already states.
+ */
+export interface ImsTooltipDefaults {
+    /** Tone used when the call site names none. */
+    readonly severity?: ImsTooltipSeverity;
+    /** Placement used when the call site names none. */
+    readonly position?: ImsTooltipPosition;
 }
 
 /**

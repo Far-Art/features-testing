@@ -16,9 +16,18 @@ import {ImsTooltipPosition, ImsTooltipSeverity} from './ims-tooltip.types';
  * <span imsTooltip="Past its renewal date" imsTooltipSeverity="danger">…</span>
  * ```
  *
- * Works on an `ims-button` too. The button family carries no tooltip of its
- * own — see `ImsButtonBase` — so either this directive or `MatTooltip` can be
- * applied to one, whichever the template imports.
+ * On a button, the tone can come from the button itself. Every `ims-button`
+ * flavor contributes its severity as a default, and the `delete` preset
+ * contributes `danger` outright, so the common case says it once:
+ *
+ * ```html
+ * <button ims-button-icon preset="delete" imsTooltip="Locked policies cannot be deleted"></button>
+ * ```
+ *
+ * The button owns no overlay of its own — it only provides
+ * `IMS_TOOLTIP_DEFAULTS`. That is what lets a template put this directive on a
+ * button freely: there is exactly one tooltip engine on the element, the one the
+ * template asked for.
  *
  * An empty or whitespace-only message is inert, so a bound message that has not
  * arrived yet costs nothing.
