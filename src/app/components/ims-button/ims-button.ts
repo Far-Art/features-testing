@@ -17,7 +17,7 @@ import {ReadonlyDirective} from '../../shared/readonly.directive';
 // two interfaces, and reaching through the barrel would name the tooltip and
 // popover directives in a file that uses neither.
 import {IMS_TOOLTIP_DEFAULTS, ImsTooltipDefaults} from '../ims-tooltip/ims-tooltip.types';
-import {IMS_BUTTON_ICON_PRESETS, ImsButtonIconPreset} from './ims-button-presets';
+import {IMS_BUTTON_ICON_PRESETS, ImsButtonIconPreset, ImsButtonIconPresetSeverity} from './ims-button-presets';
 
 // How long the press ring stays on. The class carries a CSS animation that
 // holds the ring solid for its first quarter and fades it out over the rest,
@@ -64,9 +64,10 @@ export type ImsButtonSeverity = 'info' | 'success' | 'warning' | 'danger';
         '[class.ims-button--mounting]': 'justMounted()',
         '[class.ims-button--action-blink]': 'actionBlink()',
         '[class.ims-button--with-symbol]': 'normalizedIcon().length > 0',
-        '[class.ims-button--success]': 'severity() === "success"',
-        '[class.ims-button--warning]': 'severity() === "warning"',
-        '[class.ims-button--danger]': 'severity() === "danger"',
+        '[class.ims-button--success]': 'activeSeverity() === "success"',
+        '[class.ims-button--warning]': 'activeSeverity() === "warning"',
+        '[class.ims-button--danger]': 'activeSeverity() === "danger"',
+        '[class.ims-button--neutral]': 'activeSeverity() === "neutral"',
         '[style.--ims-button-symbol-size]': 'iconSize()',
         '[class.ims-button--cta]': 'callToAction()',
         '[class.ims-readonly]': 'readonlyMode()',
@@ -136,11 +137,12 @@ export abstract class ImsButtonBase {
      *
      * Unset defers to `--ims-button-symbol-size` in ims-buttons.scss, which is
      * where the house default lives and where a preset that needs another
-     * sets its own — so this is an override for the odd call site, not the
-     * place to restyle a preset.
+     * sets its own, in the block its class keys — so this is an override for
+     * the odd call site, not the place to restyle a preset.
      *
      * A malformed length can't be caught here or by the compiler: CSS drops
-     * the invalid value and the button falls back to that same preset size.
+     * it where the glyph reads it, and the glyph falls back to the button's
+     * own font size.
      */
     readonly iconSize = input<string | null, unknown>(null, {
         alias: 'icon-size',
@@ -172,13 +174,21 @@ export abstract class ImsButtonBase {
      * the ripple, the press ring, the focus halo and the call-to-action pulse
      * all follow it without a call site arranging anything.
      *
-     * On an icon button with a `preset`, it depends on the preset. `edit` takes
+     * On an icon button with a preset, it depends on the preset. `edit` takes
      * it exactly the way a plain icon button does. `delete` ignores it: that
-     * preset pins its tone for the same reason it pins its glyph — a delete
-     * looks like a delete on every screen — so the input is accepted there and
-     * does nothing.
+     * preset pins its severity for the same reason it pins its glyph — a
+     * delete looks like a delete on every screen — so the input is accepted
+     * there and does nothing. A preset can also pin `neutral`, which this input
+     * does not offer.
      */
     readonly severity = input<ImsButtonSeverity>('info', {alias: 'ims-button-severity'});
+
+    /**
+     * The severity the button is painted in and a tooltip on it inherits:
+     * `ims-button-severity`, unless a preset pins one — see
+     * {@link resolveSeverity}.
+     */
+    protected readonly activeSeverity = computed(() => this.resolveSeverity());
 
     /**
      * What a tooltip placed on this button inherits when its own inputs are
@@ -192,8 +202,15 @@ export abstract class ImsButtonBase {
      * A signal, not a value, because `ims-button-severity` is bindable and an
      * open tooltip follows it. Placement is left out: where a tooltip goes is a
      * property of the layout around the button, not of the button.
+     *
+     * `neutral` hands on no severity. A tooltip has no neutral of its own, and
+     * guessing one would put a tone on it that the button never had, so the
+     * application default applies instead.
      */
-    readonly tooltipDefaults = computed<ImsTooltipDefaults>(() => ({severity: this.severity()}));
+    readonly tooltipDefaults = computed<ImsTooltipDefaults>(() => {
+        const severity = this.activeSeverity();
+        return severity === 'neutral' ? {} : {severity};
+    });
 
     /**
      * Marks this button as the way forward, adding a slow halo that pulses
@@ -239,6 +256,15 @@ export abstract class ImsButtonBase {
      */
     protected resolveLabel(): string {
         return '';
+    }
+
+    /**
+     * The severity in force. `ims-button-severity` here; `ImsButtonIcon`
+     * returns its preset's pinned one instead, when the preset has one, which
+     * is the only way `neutral` ever arrives.
+     */
+    protected resolveSeverity(): ImsButtonIconPresetSeverity {
+        return this.severity();
     }
 
     /** Readonly state inherited from the nearest `ims-readonly` provider. */
@@ -385,54 +411,55 @@ export class ImsButton extends ImsButtonBase {
     standalone: true,
     providers: [{provide: IMS_TOOLTIP_DEFAULTS, useExisting: forwardRef(() => ImsButtonIcon)}],
     host: {
-        class: 'ims-button-icon',
-        // Bound rather than static for the presets' sake: one that pins a tone
-        // paints itself, and --default is the class that would let
-        // `ims-button-severity` back in. See ImsButtonIconPresetSpec.severity.
-        '[class.ims-button--default]': 'pinnedSeverity() === null',
-        '[class.ims-button--edit]': 'activePreset() === "edit"',
-        '[class.ims-button--delete]': 'activePreset() === "delete"',
+        // --default on every icon button, a preset's included: a preset that
+        // pins a severity is painted from that severity's ramp like any icon
+        // button, and its own block in ims-buttons.scss restyles only what
+        // departs from one.
+        class: 'ims-button--default ims-button-icon',
+        // The preset's own class, straight from its spec, so adding a preset
+        // never means adding a binding here. A map binding only adds and
+        // removes the classes it names itself, so the static ones above and a
+        // call site's own `class` are left alone.
+        '[class]': 'presetClass()',
         '[disabled]': 'interactionDisabled()'
     }
 })
 export class ImsButtonIcon extends ImsButtonBase {
     /**
      * A named affordance this button stands for, so it looks and reads the
-     * same on every screen: `<button ims-button-icon preset="delete">`.
+     * same on every screen:
+     * `<button ims-button-icon ims-button-icon-preset="delete">`.
+     *
+     * Bound as `ims-button-icon-preset`, named the way `ims-button-variation`
+     * and `ims-button-severity` are. A bare `preset="…"` is no binding at all,
+     * just an attribute the button ignores.
      *
      * A preset pins the glyph, which the button then draws itself — so project
      * nothing into a preset button, or the projected icon sits beside the
      * pinned one. It brings a default accessible name too, which the call
-     * site's own `aria-label`, in either spelling, always replaces. And it may
-     * pin a tone: `delete` is danger on every screen, so `ims-button-severity`
+     * site's own `aria-label`, in either spelling, always replaces. It may pin
+     * a severity: `delete` is danger on every screen, so `ims-button-severity`
      * does nothing there and a tooltip on it inherits danger. `edit` pins none
-     * and takes a severity like any icon button.
+     * and takes a severity like any icon button. And it may put a class on the
+     * button, the hook its block in ims-buttons.scss keys to — where anything
+     * else it departs in is said, a glyph size of its own included.
      *
-     * Bindable: `[preset]="row.locked ? null : 'delete'"` swaps the glyph, the
-     * name and the tone together.
+     * Bindable: `[ims-button-icon-preset]="row.locked ? null : 'delete'"` swaps
+     * the glyph, the name, the severity and the class together, and with the
+     * class, whatever its block sets.
      *
      * The presets, and how to add one, are in ims-button-presets.ts.
      */
-    readonly preset = input<ImsButtonIconPreset | null>(null);
+    readonly preset = input<ImsButtonIconPreset | null>(null, {alias: 'ims-button-icon-preset'});
 
-    /** The preset in force — see {@link resolvePreset}. */
-    protected readonly activePreset = computed(() => this.resolvePreset());
-
+    /** The spec of the preset in force — see {@link resolvePreset} — or null. */
     private readonly presetSpec = computed(() => {
-        const preset = this.activePreset();
+        const preset = this.resolvePreset();
         return preset === null ? null : IMS_BUTTON_ICON_PRESETS[preset];
     });
 
-    /** Tone the preset pins, or null to follow `ims-button-severity`. */
-    protected readonly pinnedSeverity = computed(() => this.presetSpec()?.severity ?? null);
-
-    /**
-     * A pinned tone outranks `ims-button-severity` here as well: a tooltip on a
-     * delete is danger for the same reason the button is.
-     */
-    override readonly tooltipDefaults = computed<ImsTooltipDefaults>(() => ({
-        severity: this.pinnedSeverity() ?? this.severity()
-    }));
+    /** The preset's own class, or null for none. */
+    protected readonly presetClass = computed(() => this.presetSpec()?.class ?? null);
 
     /**
      * The preset this button stands for: the input. A method so the deprecated
@@ -449,5 +476,9 @@ export class ImsButtonIcon extends ImsButtonBase {
 
     protected override resolveLabel(): string {
         return this.presetSpec()?.label ?? '';
+    }
+
+    protected override resolveSeverity(): ImsButtonIconPresetSeverity {
+        return this.presetSpec()?.severity ?? this.severity();
     }
 }

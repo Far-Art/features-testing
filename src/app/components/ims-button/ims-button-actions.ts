@@ -4,11 +4,11 @@ import {ImsButtonIcon} from './ims-button';
 import {ImsButtonIconPreset} from './ims-button-presets';
 
 // The row actions' old spellings, kept only while call sites move to
-// `<button ims-button-icon preset="…">`. Each is that preset under another
-// name: it pins the preset and inherits everything else from ImsButtonIcon —
-// glyph, name, tone, classes — so the two spellings cannot drift apart while
-// both exist. Deleting this file, and its line in the barrel, finishes the
-// migration.
+// `<button ims-button-icon ims-button-icon-preset="…">`. Each is that preset
+// under another name: it pins the preset and inherits everything else from
+// ImsButtonIcon — glyph, name, tone, classes — so the two spellings cannot
+// drift apart while both exist. Deleting this file, and its line in the
+// barrel, finishes the migration.
 //
 // Each still provides IMS_TOOLTIP_DEFAULTS itself: `providers` is the one
 // piece of directive metadata a subclass with a decorator of its own does not
@@ -17,8 +17,9 @@ import {ImsButtonIconPreset} from './ims-button-presets';
 /**
  * Delete affordance.
  *
- * @deprecated Use `<button ims-button-icon preset="delete">`, which this now
- * is. The `preset` input it inherits is accepted and ignored.
+ * @deprecated Use `<button ims-button-icon ims-button-icon-preset="delete">`,
+ * which this now is. The `ims-button-icon-preset` input it inherits is accepted
+ * and ignored.
  */
 @Directive({
     selector: 'button[ims-button-delete]',
@@ -34,8 +35,9 @@ export class ImsButtonDelete extends ImsButtonIcon {
 /**
  * Edit affordance.
  *
- * @deprecated Use `<button ims-button-icon preset="edit">`, which this now
- * is. The `preset` input it inherits is accepted and ignored.
+ * @deprecated Use `<button ims-button-icon ims-button-icon-preset="edit">`,
+ * which this now is. The `ims-button-icon-preset` input it inherits is accepted
+ * and ignored.
  */
 @Directive({
     selector: 'button[ims-button-edit]',

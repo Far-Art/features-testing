@@ -32,7 +32,7 @@
 .ims-button {
   // Severity ramp. The four variation blocks below name these slots and never
   // a palette token, so a severity is one block that swaps the ramp — see
-  // .ims-button--success and its two neighbours. Unset severity is `info`,
+  // .ims-button--success and its three neighbours. Unset severity is `info`,
   // whose ramp is the primary one, so a button that names no severity is
   // painted from exactly the tokens it always was.
   //
@@ -303,18 +303,18 @@
 // and none has to be.
 //
 // `info` has no block. It is the ramp the base already declares, so the
-// severity a call site does not write costs nothing and cannot drift from the
-// neutral button.
+// severity a call site does not write costs nothing and cannot drift from a
+// button that writes none.
 //
 // The ripple, the press ring, the focus halo and the CTA pulse all follow a
 // severity for free, none of them named above: the ripple takes the hover and
 // active fills, the ring and the pulse take --ims-button-ring-color, the halo
 // takes slot 200 — all of which the variations now draw from the ramp.
 //
-// Of the row-action presets, --edit follows a severity the same way, because it
-// is painted through --default like any icon button. --delete does not — it
-// sets its final tokens directly, so a severity written on one is ignored. See
-// the presets below.
+// A preset that pins a severity gets that severity's class whatever
+// `ims-button-severity` says, so it is painted from the pinned ramp in exactly
+// the same way; one that pins none, like edit, follows the input. See the
+// presets below.
 .ims-button--success {
   --ims-button-ramp-50: var(--ims-color-success-50);
   --ims-button-ramp-100: var(--ims-color-success-100);
@@ -387,45 +387,68 @@
   --ims-button-ramp-icon-active: var(--ims-color-danger-700);
 }
 
-// Row actions. Presets rather than variations: `preset` on an icon button
-// applies these and pins the glyph that goes with each (see
+// Neutral: the grey ims-panel defaults to, for an action that should not draw
+// the eye. Only a preset can pin it — `ims-button-severity` keeps to the four
+// status words — but it is a ramp like the others, so it holds at every
+// variation.
+//
+// Read straight across. Unlike amber, grey clears the contrast every other hue
+// clears at the same step — 3.6:1 for the press ring at 450, 4.4:1 for an
+// outline border at 500, 6.8:1 for a solid fill and an outline label at 600 —
+// so nothing here is shifted. The glyph sits on 600, the neutral status colour,
+// as success and danger sit on theirs: 6.8:1 on white and 5.7:1 on its own
+// hover fill. The focus halo at 200 comes out a touch fainter than the other
+// hues' (1.6:1 on white; info's is 1.9:1).
+.ims-button--neutral {
+  --ims-button-ramp-50: var(--ims-color-neutral-50);
+  --ims-button-ramp-100: var(--ims-color-neutral-100);
+  --ims-button-ramp-150: var(--ims-color-neutral-150);
+  --ims-button-ramp-200: var(--ims-color-neutral-200);
+  --ims-button-ramp-450: var(--ims-color-neutral-450);
+  --ims-button-ramp-500: var(--ims-color-neutral-500);
+  --ims-button-ramp-600: var(--ims-color-neutral-600);
+  --ims-button-ramp-700: var(--ims-color-neutral-700);
+  --ims-button-ramp-800: var(--ims-color-neutral-800);
+  --ims-button-ramp-900: var(--ims-color-neutral-900);
+  --ims-button-ramp-solid: var(--ims-color-neutral-600);
+  --ims-button-ramp-solid-hover: var(--ims-color-neutral-700);
+  --ims-button-ramp-solid-active: var(--ims-color-neutral-850);
+  --ims-button-ramp-solid-ring: var(--ims-color-neutral-500);
+  --ims-button-ramp-icon: var(--ims-color-neutral-600);
+  --ims-button-ramp-icon-active: var(--ims-color-neutral-700);
+}
+
+// Row actions. Presets rather than variations: each block keys to the class
+// its preset's spec names, and the spec pins the glyph that goes with it (see
 // ims-button-presets.ts), so the pair reads identically everywhere it lands,
 // which is the whole reason they exist.
 //
-// Only delete has rules here. Edit is an icon button with a pinned glyph — a
-// preset that pins no tone keeps .ims-button--default and .ims-button-icon, the
-// same classes a plain icon button carries — so it rests, hovers, presses and
-// takes a severity exactly the way one does, and cannot drift from one. The
-// --edit class it also carries is a hook and styles nothing.
+// Every preset carries .ims-button--default and .ims-button-icon, the classes a
+// plain icon button carries, and a pinned severity only picks the ramp those
+// paint from. So a preset rests, hovers, presses and takes focus exactly the
+// way an icon button in its severity does, and cannot drift from one. A preset
+// needs a block here only for a departure from all that, and its block is
+// where anything the spec does not name is said — a glyph size of its own
+// included, through --ims-button-symbol-size. Edit has none, and its --edit
+// class is a hook that styles nothing.
 //
-// A preset added later needs a block here only if it departs from a plain icon
-// button, and one that pins a tone always does: it loses --default, so it has
-// to name its tones itself, the way delete does below.
-//
-// Delete rests quiet on a transparent surface and only takes its tone under a
-// pointer. A column of rows carries one per line, and colouring them at rest
-// turns the list into a wall of red; the glyph already says which action this
-// is, so the colour's job is to confirm it once you are on it. That red is also
-// what makes it a delete, so it names its tones outright and a severity cannot
-// reach them.
-//
-// Custom properties only — the ripple, the border press ring and the focus
-// halo all read these, so the hover tone below is the one real rule the preset
-// needs.
+// Delete departs in two ways. It rests quiet, in the surrounding text colour
+// rather than its ramp's glyph colour, and only takes its tone under a pointer:
+// a column of rows carries one per line, and colouring them at rest turns the
+// list into a wall of red; the glyph already says which action this is, so the
+// colour's job is to confirm it once you are on it. And its glyph is filled and
+// drawn smaller (both below). Everything else — the hover plate, the pressed
+// tone, the press ring — is the danger ramp it pins.
 .ims-button--delete {
   // Under the 1.125rem default: the filled glyph lays down noticeably more ink
   // than the outlined pencil beside it, so matching the two by font size makes
   // delete read as the larger of the pair. A call site can still override this
-  // for one button with `icon-size`.
+  // for one button with `icon-size`, which is written inline.
   --ims-button-symbol-size: 0.9rem;
-  --ims-button-background: transparent;
-  --ims-button-background-hover: var(--ims-color-danger-100);
-  --ims-button-background-active: var(--ims-color-danger-150);
-  --ims-button-color-active: var(--ims-color-danger-700);
-  --ims-button-ring-color: var(--ims-color-danger-450);
-  // The base halo reads ramp slot 200, which is the one slot left for a
-  // severity to reach this preset through. This is the colour that slot
-  // resolves to when no severity is set, so nothing changes at rest.
+  --ims-button-color: inherit;
+  // Keyboard focus keeps the house halo rather than the danger ramp's pink 200.
+  // The glyph already turns red under focus (below), so the halo is left to
+  // say only where focus is.
   --ims-button-focus-ring: var(--ims-color-focus-ring);
 }
 
@@ -439,12 +462,13 @@
   --ims-icon-fill: 1;
 }
 
-// `color` is already in the base transition, so the tone fades in over 160ms
-// instead of snapping. :focus-visible is in the same rule so a keyboard user
-// gets the tone too, not only the focus halo.
+// The tone is the ramp's glyph colour, the one any danger icon button rests in.
+// `color` is already in the base transition, so it fades in over 160ms instead
+// of snapping. :focus-visible is in the same rule so a keyboard user gets the
+// tone too, not only the focus halo.
 .ims-button--delete:hover,
 .ims-button--delete:focus-visible {
-  color: var(--ims-color-status-danger);
+  color: var(--ims-button-ramp-icon);
 }
 
 // Call to action: the halo that marks the one button on a view that has to be
@@ -625,8 +649,8 @@
 .ims-icon.ims-button__symbol {
   // The span sets --ims-icon-size on itself, so a size inherited from the
   // button could never reach it. This indirection is what lets a preset pick
-  // its own glyph size — and the `icon-size` input write one per instance —
-  // while the default stays here, in the stylesheet.
+  // its own glyph size in its block — and the `icon-size` input write one per
+  // instance — while the default stays here, in the stylesheet.
   --ims-icon-size: var(--ims-button-symbol-size, 1.125rem);
 
   pointer-events: none;

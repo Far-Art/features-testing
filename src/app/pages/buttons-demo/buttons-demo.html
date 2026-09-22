@@ -154,8 +154,8 @@
             <!-- Same severity on both presets. Delete pins its tone the way it
                  pins its glyph, so it takes the input and ignores it; edit
                  follows it exactly as an icon button does. -->
-            <button ims-button-icon preset="delete" ims-button-severity="warning"></button>
-            <button ims-button-icon preset="edit" ims-button-severity="warning"></button>
+            <button ims-button-icon ims-button-icon-preset="delete" ims-button-severity="warning"></button>
+            <button ims-button-icon ims-button-icon-preset="edit" ims-button-severity="warning"></button>
         </div>
     </div>
 </section>
@@ -164,23 +164,23 @@
     <div>
         <h2>כפתורי פעולה</h2>
         <p>
-            מחיקה ועריכה דרך <code>preset</code>, עם אייקון וגודל קבועים, כך שהם
+            מחיקה ועריכה דרך <code>ims-button-icon-preset</code>, עם אייקון וגודל קבועים, כך שהם
             נראים זהים בכל מסך. גם צבע המחיקה קבוע, אבל העריכה מקבלת את
             <code>ims-button-severity</code> כמו כל כפתור אייקון.
         </p>
     </div>
 
     <div class="button-demo__group">
-        <span class="button-demo__group-label">preset</span>
+        <span class="button-demo__group-label">ims-button-icon-preset</span>
         <div class="button-demo__ims-buttons" aria-label="IMS action buttons">
-            <button ims-button-icon preset="delete"></button>
-            <button ims-button-icon preset="edit"></button>
-            <button ims-button-icon preset="delete" aria-label="מחיקת פוליסה 4821"></button>
-            <button ims-button-icon preset="delete" disabled></button>
-            <button ims-button-icon preset="edit" disabled></button>
-            <button ims-button-icon preset="delete" [ims-readonly]="true"></button>
-            <button ims-button-icon preset="edit" call-to-action></button>
-            <button ims-button-icon preset="delete" icon-size="1.5rem"></button>
+            <button ims-button-icon ims-button-icon-preset="delete"></button>
+            <button ims-button-icon ims-button-icon-preset="edit"></button>
+            <button ims-button-icon ims-button-icon-preset="delete" aria-label="מחיקת פוליסה 4821"></button>
+            <button ims-button-icon ims-button-icon-preset="delete" disabled></button>
+            <button ims-button-icon ims-button-icon-preset="edit" disabled></button>
+            <button ims-button-icon ims-button-icon-preset="delete" [ims-readonly]="true"></button>
+            <button ims-button-icon ims-button-icon-preset="edit" call-to-action></button>
+            <button ims-button-icon ims-button-icon-preset="delete" icon-size="1.5rem"></button>
             <button ims-button-icon aria-label="חיפוש קטן">
                 <ims-icon size="12">search</ims-icon>
             </button>
@@ -198,9 +198,9 @@
              must look the same; this group goes when the directives do. -->
         <div class="button-demo__ims-buttons" aria-label="IMS deprecated action spellings">
             <button ims-button-delete></button>
-            <button ims-button-icon preset="delete"></button>
+            <button ims-button-icon ims-button-icon-preset="delete"></button>
             <button ims-button-edit></button>
-            <button ims-button-icon preset="edit"></button>
+            <button ims-button-icon ims-button-icon-preset="edit"></button>
         </div>
     </div>
 </section>
@@ -256,7 +256,7 @@
         <p class="button-demo__group-note">
             אף אחד מאלה לא כותב <code>imsTooltipSeverity</code>. הגוון מגיע
             מהכפתור: <code>ims-button-severity</code> אצל הראשון, וגוון קבוע אצל
-            <code>preset="delete"</code>, שמצמיד סכנה כמו שהוא מצמיד את הסמל.
+            <code>ims-button-icon-preset="delete"</code>, שמצמיד סכנה כמו שהוא מצמיד את הסמל.
         </p>
         <div class="button-demo__ims-buttons">
             <button
@@ -267,8 +267,8 @@
             >
                 אזהרה
             </button>
-            <button ims-button-icon preset="delete" imsTooltip="לא ניתן למחוק פוליסה נעולה"></button>
-            <button ims-button-icon preset="edit" imsTooltip="עריכה במסך מלא"></button>
+            <button ims-button-icon ims-button-icon-preset="delete" imsTooltip="לא ניתן למחוק פוליסה נעולה"></button>
+            <button ims-button-icon ims-button-icon-preset="edit" imsTooltip="עריכה במסך מלא"></button>
         </div>
     </div>
 
