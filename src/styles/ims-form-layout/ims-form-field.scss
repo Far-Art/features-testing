@@ -24,6 +24,20 @@ ims-form-field {
 
     > :not(label):not([imsFormFieldLabel]) {
         grid-column: var(--ims-form-value-grid-column, 2);
+    }
+
+    // Size defaults stay at the specificity of the element name, so a class on
+    // the label or value, including a component's own, sets its size instead.
+    //
+    // A label is only as wide as its text, and wraps when there is less room
+    // than that. Stretched, the empty rest of its track, or of the whole field
+    // once stacked, would still be the label, and a click there would reach
+    // the control.
+    > :where(label, [imsFormFieldLabel]) {
+        justify-self: start;
+    }
+
+    > :where(:not(label):not([imsFormFieldLabel])) {
         min-width: 0;
         box-sizing: border-box;
     }
@@ -45,8 +59,13 @@ ims-form-field {
             grid-row: 1;
         }
 
-        > :is(label, [imsFormFieldLabel]) {
+        // Low, like the value's size defaults, so a class on the label can let
+        // it wrap.
+        > :where(label, [imsFormFieldLabel]) {
             width: max-content;
+        }
+
+        > :is(label, [imsFormFieldLabel]) {
             align-self: center;
             margin-block-start: 0;
             grid-column: 2;

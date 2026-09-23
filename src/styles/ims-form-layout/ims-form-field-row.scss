@@ -9,11 +9,15 @@ ims-form-field-row {
 
     // Labels stay beside their values only while every field fits at natural
     // width, so no field has to shrink in this layout.
+    //
+    // Growing and shrinking stay at the specificity of the element names, here
+    // and below, so a class on one field can keep it out of `fill` or give it a
+    // flex size of its own.
     > ims-form-field {
         flex-shrink: 0;
     }
 
-    &[data-fill] > ims-form-field {
+    &:where([data-fill]) > ims-form-field {
         flex-grow: 1;
     }
 
@@ -22,10 +26,10 @@ ims-form-field-row {
     // shrinks, to the row's width.
     &[data-ims-stacked] {
         flex-wrap: wrap;
+    }
 
-        > ims-form-field {
-            flex-shrink: 1;
-        }
+    &:where([data-ims-stacked]) > ims-form-field {
+        flex-shrink: 1;
     }
 
     // In a grid, the row adopts the grid's tracks, so its fields line up with

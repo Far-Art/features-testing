@@ -24,7 +24,9 @@ export type ImsFormControlGroupLayout = 'stacked' | 'inline';
  * text and control. The surrounding `ims-form-field` still supplies the main
  * label for the complete value.
  *
- * The component only owns the inner layout and interaction styles. Accessible
+ * The component only owns the inner layout and interaction styles. Its sizes
+ * are held at the specificity of the element name, so a class on the group,
+ * such as `field-xl`, replaces the inline layout's full width. Accessible
  * group semantics remain the consumer's responsibility, usually through
  * `role="group"` and `aria-labelledby` referencing the main field label.
  */

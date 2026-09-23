@@ -162,9 +162,11 @@ textarea.ims-input {
     );
 }
 
-// Wrapped Angular form controls can inherit a stronger border-box rule from
-// form-layout containers. The shared action contract intentionally owns this
-// box model so a declared host size continues to describe the field itself.
+// A layout that sets border-box on its children with a stronger selector would
+// undo the action contract's box model. ims-form-field keeps its own default at
+// element-name specificity, but the contract should not depend on every layout
+// doing so. Claimed here as well, a declared host size keeps describing the
+// field itself.
 .ims-input-host.ims-input-action {
     box-sizing: content-box;
 }

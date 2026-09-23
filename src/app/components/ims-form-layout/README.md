@@ -106,7 +106,7 @@ semantics.
 | Input | Type | Default | Purpose |
 | --- | --- | --- | --- |
 | `columns` | `number \| string \| null` | `null` | Positive integer for fixed mode. Omit it for responsive mode. |
-| `columnDistribution` | `'max-content' \| 'even'` | `'max-content'` | Uses intrinsic logical-column widths or distributes available width evenly. |
+| `columnDistribution` | `'even' \| 'max-content'` | `'even'` | Shares spare width evenly between value tracks, never below their natural width, or keeps intrinsic widths and puts the spare width between fields. |
 | `minColumnWidth` | `number \| string` | `320` | Column-width estimate used to resolve open-ended `row` capacity. |
 | `columnGap` | `string` | `'1rem'` | Minimum space between complete field pairs. Remaining width is also distributed through these spacer tracks. |
 | `rowGap` | `string` | `'0.4rem'` | Vertical space between generated rows and explicit row wrappers. |
@@ -152,25 +152,29 @@ rendering may therefore require recreating the affected projected node.
 
 ## Grid Layout
 
-Each logical form column consists of:
-
-1. A `max-content` label track.
-2. A `max-content` value track.
-3. A flexible spacer track, except after the final logical column.
-
-Fields use CSS `subgrid` to consume the label/value pair. This produces two
-important behaviors:
+Each logical form column consists of a label track, a value track, and, except
+after the final column, a track that separates it from the next column. Fields
+use CSS `subgrid` to consume the label/value pair. This produces two important
+behaviors:
 
 - Labels in the same logical column use the width of that column's longest
   label.
-- Values in the same logical column use the width of that column's widest value
-  content or control.
+- Values in the same logical column share one value track, never narrower than
+  that column's widest value content or control.
 
-Flexible spacer tracks distribute remaining width between complete field pairs.
-They do not increase the internal gap between a field's label and value.
+`columnDistribution` decides where the width left over goes:
+
+- `even`, the default: value tracks share it equally, and columns are
+  `--ims-form-column-gap` apart. A column whose widest value needs more than an
+  equal share keeps its natural width while the others share the rest, so no
+  control is squeezed, and a control with a width of its own never runs into
+  the next column.
+- `max-content`: value tracks keep their natural width, and flexible spacer
+  tracks distribute the rest between complete field pairs. The spacers do not
+  increase the internal gap between a field's label and value.
 
 ```html
-<ims-form-field-grid columns="3">
+<ims-form-field-grid columns="3" columnDistribution="max-content">
     <ims-form-field>
         <label>Code</label>
         <input style="inline-size: 8rem">
@@ -405,13 +409,19 @@ Use `ims-form-field-group` for a value made of multiple related controls:
 
 In `stacked` mode, each direct label spans the group and uses shared local label
 and control tracks. In `inline` mode, two equal pair areas are placed side by
-side.
+side, and the group fills the value track. A class on the group, such as
+`field-xl`, gives it another width. See Overriding Sizes.
 
 The group does not create accessible group semantics. Consumers should provide
 `role="group"` and `aria-labelledby` or an equivalent accessible name.
 
 The group only arranges its projected pairs. Native controls and custom
 components retain their own presentation styles.
+
+A pair spans its whole row, which is wider than its text and control whenever
+another pair's are wider or the control has a width of its own. Only the text
+and the control answer the pointer, and the text is only as wide as itself, so
+a click on the rest of the row does not reach the control.
 
 ## Accessibility Responsibilities
 
@@ -450,9 +460,9 @@ For this structure:
 - The label is offset from the checkbox by the checkbox size plus the normal
   field gap.
 - The label keeps its `max-content` width, like a label in the label track, so
-  it never wraps. A `max-content` grid widens the value track to fit it; a
-  value track that cannot grow, in an `even` grid or in a field outside a grid,
-  lets a longer label overflow instead.
+  it never wraps. A grid widens the value track to fit it; a field outside a
+  grid, or a single grid column narrower than the label, lets a longer label
+  overflow instead. A class on the label that sets another width lets it wrap.
 - The field associates the native main label with the checkbox's internal
   native input when that input is available.
 - Checkbox rendering, form integration, disabled state, and animation remain
@@ -499,12 +509,43 @@ read the field label as that option's name. For this structure:
 
 ## Native And Custom Value Content
 
-The form-layout styles do not set control width, height, padding, typography,
+The form-layout styles do not set control height, padding, typography,
 background, border, outline, or other presentation. Native controls, read-only
 values, custom components, and compound groups retain their own styles.
 
-Set control sizing directly on the control or through the control component's
-own API.
+Set control sizing directly on the control, with a class such as `field-m`, or
+through the control component's own API.
+
+## Overriding Sizes
+
+The few sizes the layout sets on elements you place in it are defaults. They are
+written with `:where()`, or with element names only, so they carry no more
+specificity than an element name, and a single class on the element overrides
+them: a sizing class such as `field-l`, a class of your own, or a component's
+own styles.
+
+| Element | Default | A class can |
+| --- | --- | --- |
+| Main label | `justify-self: start`, so it is as wide as its text | stretch it across its track |
+| Field value | `min-width: 0`, `box-sizing: border-box` | set a minimum width or another box model |
+| Inline `ims-form-field-group` | `inline-size: 100%` | give the group its own width |
+| Pair in an inline group | `min-inline-size: 0` | set a minimum width for one pair |
+| Text of a group pair | `justify-self: start`, so it is as wide as its text | stretch it across its track |
+| Control in a group pair | `inline-size: 100%`, `min-inline-size: 0`, `max-inline-size: 100%` | size one control |
+| Label of a direct `ims-checkbox` | `width: max-content` | let a long label wrap |
+| Field in a `fill` standalone row | `flex-grow: 1` | keep one field at its natural width |
+| Field in a stacked standalone row | `flex-shrink: 1` | stop one field from shrinking |
+
+Components win the same way, so a control's own minimum holds inside a field:
+an `.ims-input`, `ims-select`, or `ims-autocomplete` stays at least
+`--field-width-xxs` wide, and an `ims-datepicker` at least 10 characters.
+
+Placement is not a default and keeps its specificity: the columns, rows, and
+spans that put labels and values in their tracks, and the stacked-label layout.
+
+Inside an `ims-grid` cell, `ims-grid-adapters.scss` stretches the value to the
+cell with a stronger selector, so a class on a control there does not set its
+width.
 
 ## Vertical Alignment
 
@@ -533,6 +574,11 @@ The main label reacts to the owned control:
 Control state is detected from owned native `button`, non-hidden `input`,
 `select`, and `textarea` descendants. Validation styling remains entirely
 consumer-owned.
+
+The label's box is only as wide as its text, and wraps when it has less room.
+It does not stretch across its label track, or across the whole field once
+stacked, so a click on the empty space beside a short label does not reach the
+control, and hovering there does not color the label.
 
 ## Styling Hooks
 

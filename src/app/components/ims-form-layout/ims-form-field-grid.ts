@@ -41,9 +41,10 @@ function positiveNumber(value: number | string): number {
 /**
  * Responsive container that aligns multiple `ims-form-field` instances.
  *
- * Each logical form column contains one complete `ims-form-field`. Columns use
- * intrinsic widths by default. Use `columnDistribution="even"` to give logical
- * columns an equal share of the available width.
+ * Each logical form column contains one complete `ims-form-field`. By default
+ * value tracks share the available width evenly, never narrower than their
+ * widest value. Use `columnDistribution="max-content"` to keep intrinsic widths
+ * and put the spare width between fields instead.
  *
  * The number of logical columns can be fixed through `columns`. Without an
  * explicit count, projected field occupancy defines the maximum candidate
@@ -60,16 +61,20 @@ export class ImsFormFieldGrid {
     /**
      * Controls how logical form columns consume the available inline space.
      *
-     * `even` gives value tracks an equal share of the available space while
-     * preserving shared label alignment. `max-content` uses intrinsic widths.
+     * `even`, the default, shares the available space evenly between value
+     * tracks while preserving shared label alignment. A value track is never
+     * narrower than its widest value, so a column whose value needs more than
+     * an even share keeps its natural width and the others share the rest.
+     * `max-content` keeps intrinsic widths and distributes the spare space
+     * between complete fields.
      *
      * @example
      * ```html
-     * <ims-form-field-grid columnDistribution="max-content">...</ims-form-field-grid>
      * <ims-form-field-grid columnDistribution="even">...</ims-form-field-grid>
+     * <ims-form-field-grid columnDistribution="max-content">...</ims-form-field-grid>
      * ```
      */
-    readonly columnDistribution = input<'even' | 'max-content'>('max-content');
+    readonly columnDistribution = input<'even' | 'max-content'>('even');
     /**
      * Optional fixed number of logical form columns.
      *
@@ -404,18 +409,25 @@ export class ImsFormFieldGrid {
 }
 
 /**
- * Builds either equal logical columns or intrinsic label/value track pairs.
+ * Builds either evenly shared value tracks or intrinsic label/value pairs.
+ *
+ * Even value tracks never shrink below their widest value while there are
+ * several columns: the count was chosen so that every value fits at natural
+ * width, and an even share smaller than that would squeeze it, or let a value
+ * with a width of its own run into the next column. A single column may still
+ * shrink, as the last resort for a host narrower than its content.
  */
 function buildColumnTemplate(
     columnCount: number,
     columnDistribution: 'even' | 'max-content'
 ): string {
     if (columnDistribution === 'even') {
+        const valueTrack = columnCount > 1 ? 'minmax(max-content, 1fr)' : 'minmax(0, 1fr)';
         return Array.from(
             {length: columnCount},
             (_, index) => index < columnCount - 1
-                ? 'max-content minmax(0, 1fr) var(--ims-form-column-gap, 0)'
-                : 'max-content minmax(0, 1fr)'
+                ? `max-content ${valueTrack} var(--ims-form-column-gap, 0)`
+                : `max-content ${valueTrack}`
         ).join(' ');
     }
 
