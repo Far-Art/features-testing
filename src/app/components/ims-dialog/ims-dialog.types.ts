@@ -100,7 +100,7 @@ export function resolveConfirmationLabels(
 }
 
 /** Narrows a value to the structured result content rendered by the shell. */
-export function isImsDialogBaseOutput(content: unknown): content is IBaseOutput {
+export function isBaseOutput(content: unknown): content is IBaseOutput {
   if (typeof content !== 'object' || content === null || Array.isArray(content)) return false;
 
   const candidate = content as Partial<IBaseOutput>;
@@ -110,7 +110,7 @@ export function isImsDialogBaseOutput(content: unknown): content is IBaseOutput 
 }
 
 /** Narrows a value to the message-row content rendered by the shell. */
-export function isImsDialogMessageArray(content: unknown): content is IMessage[] {
+export function isMessageArray(content: unknown): content is IMessage[] {
   return Array.isArray(content) && content.every(isImsDialogMessage);
 }
 

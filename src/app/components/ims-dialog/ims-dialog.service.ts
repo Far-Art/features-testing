@@ -20,8 +20,8 @@ import {
   ImsDialogOpenOptions,
   ImsDialogRuntimeConfig,
   ImsDialogSeverity,
-  isImsDialogBaseOutput,
-  isImsDialogMessageArray,
+  isBaseOutput,
+  isMessageArray,
   isImsDialogStringArray,
   resolveConfirmationLabels,
 } from './ims-dialog.types';
@@ -342,10 +342,10 @@ function isRenderableContent(
   }
 
   if (Array.isArray(value)) {
-    return value.length > 0 && (isImsDialogStringArray(value) || isImsDialogMessageArray(value));
+    return value.length > 0 && (isImsDialogStringArray(value) || isMessageArray(value));
   }
 
-  return isImsDialogBaseOutput(value);
+  return isBaseOutput(value);
 }
 
 function isHttpErrorLike(value: unknown): value is { status: number; error: unknown } {

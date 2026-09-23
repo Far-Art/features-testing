@@ -11,8 +11,8 @@ import {
   IMS_DIALOG_CONFIG,
   IMS_DIALOG_READONLY,
   ImsDialogRuntimeConfig,
-  isImsDialogBaseOutput,
-  isImsDialogMessageArray,
+  isBaseOutput,
+  isMessageArray,
   isImsDialogStringArray,
 } from './ims-dialog.types';
 
@@ -74,7 +74,7 @@ export class ImsDialogShell {
   })();
   readonly baseOutput = (() => {
     const content = this.config.content;
-    return isImsDialogBaseOutput(content) ? content : null;
+    return isBaseOutput(content) ? content : null;
   })();
   readonly effectiveSeverity =
     (this.baseOutput?.resultCode ?? 0) < 0 ? 'danger' : this.config.severity;
@@ -83,9 +83,9 @@ export class ImsDialogShell {
   // view, and this view is checked whenever anything inside the dialog emits.
   readonly messageRows: readonly ImsDialogMessageRow[] = (() => {
     const content = this.config.content;
-    const messages = isImsDialogBaseOutput(content)
+    const messages = isBaseOutput(content)
       ? content.messages
-      : isImsDialogMessageArray(content)
+      : isMessageArray(content)
         ? content
         : [];
 
