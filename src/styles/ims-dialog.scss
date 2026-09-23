@@ -223,8 +223,12 @@ ims-dialog-shell.ims-dialog {
   gap: 0.75rem;
 }
 
+// A long unbroken token — a URL, a path, an exception name — would otherwise
+// overhang the content and scroll it sideways; the message rows below wrap for
+// the same reason.
 .ims-dialog__text-content p {
   margin: 0;
+  overflow-wrap: anywhere;
   line-height: 1.6;
 }
 
@@ -315,6 +319,10 @@ ims-dialog-shell.ims-dialog {
     'wght' 450,
     'GRAD' 0,
     'opsz' 20;
+}
+
+.ims-dialog__message-text {
+  overflow-wrap: anywhere;
 }
 
 .ims-dialog__details {

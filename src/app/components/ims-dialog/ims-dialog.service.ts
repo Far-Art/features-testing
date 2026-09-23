@@ -1,5 +1,6 @@
 import { Dialog, DialogConfig, DialogRef } from '@angular/cdk/dialog';
 import { Directionality } from '@angular/cdk/bidi';
+import { coerceCssPixelValue } from '@angular/cdk/coercion';
 import { Overlay } from '@angular/cdk/overlay';
 import { DOCUMENT } from '@angular/common';
 import { Injectable, inject, signal } from '@angular/core';
@@ -35,6 +36,18 @@ const DEFAULT_CLOSE_BUTTON_LABEL = 'סגור';
 
 /** One reposition per frame is enough to keep an inside dialog on its boundary. */
 const SCROLL_THROTTLE_MS = 16;
+
+/** Narrowest a content-sized dialog opens, so a short message does not shrink to its text. */
+const DEFAULT_MIN_WIDTH = '30rem';
+
+/** Widest a dialog opens: the viewport less a 1rem gutter on each side. */
+const DEFAULT_MAX_WIDTH = 'calc(100vw - 2rem)';
+
+/**
+ * Widest a content-sized text dialog opens. Text measures as a single line, so
+ * without this a long message would stretch the dialog across the viewport.
+ */
+const TEXT_MAX_WIDTH = '42rem';
 
 const DEFAULT_TITLES: Record<ImsDialogSeverity, string> = {
   info: 'מידע',
@@ -135,13 +148,26 @@ export class ImsDialogService implements ImsDialogBuilderHost {
     >;
     const callerProviders = callerConfig.providers;
     let imsDialogRef: ImsDialogRef<unknown> | null = null;
+    // Without a caller width the dialog takes the width of its content, so
+    // content wider than the minimum widens the dialog instead of scrolling
+    // sideways inside it.
+    const fitsContent = callerConfig.width === undefined;
+    const maxWidth = insideSize
+      ? `${insideSize.width}px`
+      : coerceCssPixelValue(callerConfig.maxWidth ?? DEFAULT_MAX_WIDTH);
 
     const config: DialogConfig<unknown, DialogRef<unknown, ImsDialogShell>> = {
       ...callerConfig,
-      width: callerConfig.width ?? 'min(30rem, calc(100vw - 2rem))',
-      maxWidth: insideSize
-        ? `${insideSize.width}px`
-        : (callerConfig.maxWidth ?? 'calc(100vw - 2rem)'),
+      width: callerConfig.width ?? 'fit-content',
+      // `min-width` wins over `max-width`, so the default minimum is capped by
+      // the maximum to keep a narrow boundary or caller `maxWidth` in force.
+      minWidth:
+        callerConfig.minWidth ??
+        (fitsContent ? `min(${DEFAULT_MIN_WIDTH}, ${maxWidth})` : undefined),
+      maxWidth:
+        fitsContent && callerConfig.maxWidth === undefined && typeof options.content !== 'function'
+          ? `min(${TEXT_MAX_WIDTH}, ${maxWidth})`
+          : maxWidth,
       maxHeight: insideSize
         ? `${insideSize.height}px`
         : (callerConfig.maxHeight ?? 'calc(100vh - 2rem)'),
@@ -199,6 +225,10 @@ export class ImsDialogService implements ImsDialogBuilderHost {
 
     const cdkDialogRef = this.dialog.open<unknown, unknown, ImsDialogShell>(ImsDialogShell, config);
 
+    if (insideBoundary) {
+      keepCenteredOnBoundary(cdkDialogRef);
+    }
+
     return imsDialogRef ?? new ImsDialogRef(cdkDialogRef, confirmationMode, readonlyState);
   }
 
@@ -249,6 +279,35 @@ export class ImsDialogService implements ImsDialogBuilderHost {
   ): ImsDialogBuilder<C> {
     return new ImsDialogBuilder(this, content, severity, icon).title(DEFAULT_TITLES[severity]);
   }
+}
+
+/**
+ * Re-centers an inside dialog on its boundary whenever its size changes.
+ *
+ * An inside dialog is placed from the size it has when it first renders, which
+ * is before the shell drops the generated sections a component replaces and
+ * before any content that arrives later. A content-sized dialog would then
+ * grow or shrink from one edge instead of about its center. A dialog the user
+ * has dragged stays where it was dropped.
+ */
+function keepCenteredOnBoundary(dialogRef: DialogRef<unknown, ImsDialogShell>): void {
+  const { overlayRef } = dialogRef;
+  const pane = overlayRef.overlayElement;
+  const view = pane.ownerDocument.defaultView;
+
+  if (!view?.ResizeObserver) {
+    return;
+  }
+
+  const observer = new view.ResizeObserver(() => {
+    // Dragging moves the pane with a transform, which repositioning clears.
+    if (!pane.style.transform) {
+      overlayRef.updatePosition();
+    }
+  });
+
+  observer.observe(pane);
+  dialogRef.closed.subscribe(() => observer.disconnect());
 }
 
 function resolveDefaultIcon(

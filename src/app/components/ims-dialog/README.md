@@ -292,6 +292,8 @@ An inside-boundary dialog:
 - Is capped to the boundary dimensions with a 1rem inset.
 - Opens without a backdrop.
 - Repositions with the boundary when the page scrolls.
+- Re-centers on the boundary when its own size changes, such as when content
+  loads after it opens, until it has been dragged.
 
 The inside placement and no-backdrop behavior take precedence over
 `config.positionStrategy` and `config.hasBackdrop`. If the class name is
@@ -650,8 +652,9 @@ Unless overridden through `config()`:
 
 ```ts
 {
-  width: 'min(42rem, calc(100vw - 2rem))',
-  maxWidth: 'calc(100vw - 2rem)',
+  width: 'fit-content',
+  minWidth: 'min(30rem, <maxWidth>)',
+  maxWidth: 'calc(100vw - 2rem)', // min(42rem, calc(100vw - 2rem)) for text content
   maxHeight: 'calc(100vh - 2rem)',
   scrollStrategy: overlay.scrollStrategies.noop(),
   hasBackdrop: true,
@@ -659,6 +662,24 @@ Unless overridden through `config()`:
   role: confirmation ? 'alertdialog' : 'dialog'
 }
 ```
+
+A dialog opened without a `width` takes the width of its content. It opens no
+narrower than 30rem, and content that needs more room, such as a grid, widens
+it up to the viewport less a 1rem gutter on each side. Wide content therefore
+widens the dialog instead of scrolling sideways inside it.
+
+Text measures as a single line, so a dialog whose content is text — a string, a
+string array, `IMessage[]`, `IBaseOutput`, or no content at all — stops at 42rem
+and wraps there. Long unbroken tokens, such as URLs, wrap as well.
+
+Running text inside a component measures the same way: a long paragraph widens
+its dialog toward the viewport. Limit the paragraph in the component, for
+example with `max-inline-size`, or pass `maxWidth` through `config()`.
+
+A `width` from `config()` fixes the width and drops the 30rem minimum. A
+`maxWidth` replaces the maximum, including the 42rem text limit, and a
+`minWidth` replaces the minimum. The default minimum never exceeds the maximum,
+so a smaller `maxWidth` or `inside()` boundary still holds.
 
 The no-op scroll strategy is intentional: CDK's default blocking strategy
 fixes the document root and can visibly shift page geometry, particularly in
