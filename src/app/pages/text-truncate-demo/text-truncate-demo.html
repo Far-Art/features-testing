@@ -3,8 +3,9 @@
     <h1>imsTextTruncate · גם בשדות קלט</h1>
     <p>
       הדירקטיבה מציגה את הטקסט המלא בחלונית רק כשהוא באמת נחתך. על <code>input</code> ועל
-      <code>textarea</code> היא קוראת את ה־<code>value</code> הנוכחי של השדה, משאירה לשדה את
-      העיצוב שלו ופותחת את החלונית מתחת לשדה, לא מעליו.
+      <code>textarea</code> היא קוראת את ה־<code>value</code> הנוכחי של השדה, ועל
+      <code>select</code> את האפשרות שנבחרה. היא משאירה לשדה את העיצוב שלו ופותחת את החלונית
+      מתחת לשדה, לא מעליו.
     </p>
   </header>
 
@@ -136,6 +137,74 @@
     </div>
   </section>
 
+  <section class="text-truncate-demo__section" aria-labelledby="text-truncate-select-title">
+    <div class="text-truncate-demo__section-heading">
+      <p class="text-truncate-demo__eyebrow">select</p>
+      <h2 id="text-truncate-select-title">רשימה נפתחת</h2>
+      <p>
+        ב־<code>select[ims-select]</code> הערך נחתך ליד החץ, והחלונית מציגה רק את האפשרות שנבחרה —
+        לא את הטקסט של כל האפשרויות ברשימה. הדירקטיבה לא משנה את הפריסה של השדה, ופתיחת הרשימה
+        סוגרת את החלונית.
+      </p>
+    </div>
+
+    <label class="text-truncate-demo__width">
+      <span>רוחב הרשימות</span>
+      <input
+        type="range"
+        min="6"
+        max="36"
+        step="1"
+        [ngModel]="selectWidth()"
+        (ngModelChange)="selectWidth.set($event)"
+      />
+      <code dir="ltr">{{ selectWidth() }}rem</code>
+    </label>
+
+    <div class="text-truncate-demo__stack">
+      <article class="text-truncate-demo__card">
+        <h3>מסלול ביטוח</h3>
+        <code class="text-truncate-demo__source" dir="ltr">select ims-select imsTextTruncate</code>
+        <select
+          ims-select
+          imsTextTruncate
+          aria-label="מסלול ביטוח"
+          [style.inline-size.rem]="selectWidth()"
+          [ngModel]="plan()"
+          (ngModelChange)="plan.set($event)"
+        >
+          @for (option of plans; track option) {
+            <option [ngValue]="option">{{ option }}</option>
+          }
+        </select>
+        <p>
+          בחרו מסלול קצר, והחלונית כבר לא נפתחת: הדירקטיבה מודדת את האלמנט שמציג את הערך, לא את
+          ה־<code>select</code> כולו.
+        </p>
+      </article>
+
+      <article class="text-truncate-demo__card" [ims-readonly]="true">
+        <h3>קריאה בלבד</h3>
+        <code class="text-truncate-demo__source" dir="ltr">[ims-readonly]="true"</code>
+        <select
+          ims-select
+          imsTextTruncate
+          aria-label="מסלול בפוליסה"
+          [style.inline-size.rem]="selectWidth()"
+          [ngModel]="policyPlan"
+        >
+          @for (option of plans; track option) {
+            <option [ngValue]="option">{{ option }}</option>
+          }
+        </select>
+        <p>
+          select בקריאה בלבד מושבת, ואי אפשר לפתוח את הרשימה כדי לקרוא בה את הערך המלא. מעבר עכבר
+          מציג אותו בחלונית.
+        </p>
+      </article>
+    </div>
+  </section>
+
   <section class="text-truncate-demo__section" aria-labelledby="text-truncate-rules-title">
     <div class="text-truncate-demo__section-heading">
       <p class="text-truncate-demo__eyebrow">Behaviour</p>
@@ -152,11 +221,9 @@
       <li>
         <strong>השדה שומר על העיצוב שלו.</strong> שדה כבר חותך את התוכן שלו, ולכן לא נקבעים עליו
         <code>display</code>, רוחב, <code>overflow</code> או <code>white-space</code>.
-        <code>input</code> מקבל רק <code dir="ltr">text-overflow: ellipsis</code>, ו־<code
-          >textarea</code
-        >
-        לא מקבל דבר. <code>imsTruncateDisplay</code> ו־<code>imsTruncateMaxWidth</code> לא חלים על
-        שדה.
+        <code>input</code> ו־<code>select</code> מקבלים רק
+        <code dir="ltr">text-overflow: ellipsis</code>, ו־<code>textarea</code> לא מקבל דבר.
+        <code>imsTruncateDisplay</code> ו־<code>imsTruncateMaxWidth</code> לא חלים על שדה.
       </li>
       <li>
         <strong>החלונית נפתחת מתחת.</strong> כשלא נקבע <code>imsTextTruncatePosition</code>,
@@ -166,6 +233,18 @@
       <li>
         <strong>הקלדה סוגרת.</strong> אירוע <code>input</code> סוגר את החלונית, ומעבר העכבר או
         המיקוד הבאים מודדים את הערך החדש.
+      </li>
+      <li>
+        <strong>ב־select נקראת האפשרות שנבחרה.</strong> ה־<code>textContent</code> של
+        <code>select</code> מחבר את הטקסט של כל האפשרויות, ולכן הדירקטיבה קוראת רק את האפשרות
+        שנבחרה ומודדת את <code>selectedcontent</code> — האלמנט שמציג את הערך ליד החץ. select
+        שהדפדפן מצייר בעצמו לא חושף מה למדוד, ושם רק <code>imsTextTruncateOverflow</code> פותח את
+        החלונית.
+      </li>
+      <li>
+        <strong>הרשימה קודמת לחלונית.</strong> הרשימה של <code>select</code> נפתחת במקום שבו נפתחת
+        החלונית, ולכן לחיצה על השדה סוגרת את החלונית, והיא לא נפתחת כל עוד הרשימה פתוחה. מיקוד
+        פותח אותה רק כשהוא מגיע מהמקלדת: אחרי בחירה בעכבר השדה מקבל את המיקוד בחזרה מהרשימה.
       </li>
       <li>
         <strong>סיסמה לא נחשפת.</strong> נקראים רק סוגי <code>input</code> שמציגים טקסט רגיל:

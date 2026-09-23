@@ -116,7 +116,8 @@
   white-space: pre;
 }
 
-.text-truncate-demo__card input.ims-input {
+.text-truncate-demo__card input.ims-input,
+.text-truncate-demo__card select.ims-input {
   max-inline-size: 100%;
 }
 

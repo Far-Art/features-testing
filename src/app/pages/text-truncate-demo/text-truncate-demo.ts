@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ImsSelectDirective } from '../../components/ims-select';
 import { ImsInputDirective } from '../../ims-input.directive';
 import { ImsTextTruncateDirective } from '../../shared/ims-text-truncate.directive';
 import { ReadonlyDirective } from '../../shared/readonly.directive';
@@ -7,7 +8,13 @@ import { ReadonlyDirective } from '../../shared/readonly.directive';
 @Component({
   selector: 'app-text-truncate-demo',
   standalone: true,
-  imports: [FormsModule, ImsInputDirective, ImsTextTruncateDirective, ReadonlyDirective],
+  imports: [
+    FormsModule,
+    ImsInputDirective,
+    ImsSelectDirective,
+    ImsTextTruncateDirective,
+    ReadonlyDirective,
+  ],
   templateUrl: './text-truncate-demo.html',
   styleUrl: './text-truncate-demo.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,6 +39,22 @@ export class TextTruncateDemo {
       'לשיחה הבאה: לבדוק זכאות להנחת נאמנות.',
     ].join('\n'),
   );
+
+  /** Inline size of the selects, in rem. */
+  readonly selectWidth = signal(12);
+
+  /** Plans of very different lengths, so the option picked decides whether the value truncates. */
+  readonly plans = [
+    'בסיסי',
+    'ביטוח דירה מורחב: מבנה ותכולה, נזקי מים, רעידת אדמה וצד שלישי',
+    'מבנה בלבד',
+    'תכולה ותכשיטים, כולל כיסוי לכל הסיכונים גם מחוץ לבית',
+  ];
+
+  readonly plan = signal(this.plans[1]);
+
+  /** Loaded into a readonly select, whose list cannot be opened to read the rest. */
+  readonly policyPlan = this.plans[3];
 
   readonly claimSummary = [
     'סיכום תביעה 2026-04817',

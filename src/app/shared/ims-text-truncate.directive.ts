@@ -17,8 +17,8 @@ import {
 /** Supported positions for the full-text tooltip relative to the host element. */
 export type ImsTextTruncatePosition = 'center' | 'top' | 'bottom';
 
-/** A native text control: its text is its `value`, and its box already clips. */
-type TextControlKind = 'input' | 'textarea';
+/** A native control: it shows a value of its own, and its box already clips. */
+type NativeControlKind = 'input' | 'textarea' | 'select';
 
 /**
  * Applies single-line CSS truncation and displays the full value in a lazy CDK
@@ -35,6 +35,17 @@ type TextControlKind = 'input' | 'textarea';
  * rows. The tooltip opens below a field rather than over it, and editing closes
  * it. Only input types that display plain text are read, so a password never
  * reaches a tooltip.
+ *
+ * A `<select>` can be the host or the target as well. Its text is the selected
+ * option, not the text of every option, and a host select keeps its own box too,
+ * gaining only `text-overflow: ellipsis`. A customizable select such as
+ * `select[ims-select]` is measured at the `<selectedcontent>` that shows its
+ * value beside the chevron. A select the browser draws itself offers nothing to
+ * measure, so there only `imsTextTruncateOverflow` reveals the tooltip. The
+ * tooltip opens below the select and stays closed while its picker is open: a
+ * press or a picked value closes it, and focus reveals it only when the focus
+ * comes from the keyboard, because the select also takes focus back from its
+ * picker after a pick by pointer.
  *
  * The tooltip is non-interactive by default and closes when the pointer leaves
  * the host. Enable `imsTextTruncateInteractive` when users must select or copy
@@ -53,6 +64,7 @@ type TextControlKind = 'input' | 'textarea';
         '[attr.tabindex]': 'focusable() ? "0" : null',
         '(mouseenter)': 'showPopover()',
         '(focusin)': 'showPopoverOnFocus()',
+        '(mousedown)': 'hidePopoverOnPress()',
         '(mouseleave)': 'hidePopover($event)',
         '(focusout)': 'hidePopoverImmediately()',
         '(keydown.escape)': 'hidePopoverImmediately()',
@@ -64,14 +76,16 @@ export class ImsTextTruncateDirective implements OnDestroy {
      * Full text rendered in the tooltip.
      *
      * When omitted or empty, text is read from the measured target element: the
-     * `value` of an `<input>` or `<textarea>`, the text content of anything else.
+     * `value` of an `<input>` or `<textarea>`, the selected option of a
+     * `<select>`, the text content of anything else.
      */
     readonly text = input<string | null | undefined>(undefined, {alias: 'imsTextTruncate'});
 
     /**
      * CSS display value applied to the host when truncation styles are enabled.
      *
-     * Ignored on an `<input>` or `<textarea>` host, which is already a clipping box.
+     * Ignored on an `<input>`, `<textarea>` or `<select>` host, which is already a
+     * clipping box.
      */
     readonly display = input<string | null>('block', {alias: 'imsTruncateDisplay'});
 
@@ -90,7 +104,8 @@ export class ImsTextTruncateDirective implements OnDestroy {
     /**
      * Maximum width applied to the truncated host. Numeric values are treated as pixels.
      *
-     * Ignored on an `<input>` or `<textarea>` host, which its own stylesheet sizes.
+     * Ignored on an `<input>`, `<textarea>` or `<select>` host, which its own
+     * stylesheet sizes.
      */
     readonly maxWidth = input<string | number | null>('100%', {alias: 'imsTruncateMaxWidth'});
 
@@ -103,8 +118,9 @@ export class ImsTextTruncateDirective implements OnDestroy {
      * Tooltip placement.
      *
      * `center` overlays the host, `top` places it above, and `bottom` places it below.
-     * Unset uses `center`, or `bottom` when the measured element is an `<input>` or
-     * `<textarea>`, where a tooltip over the host would cover the text being edited.
+     * Unset uses `center`, or `bottom` when the target is an `<input>`, `<textarea>`
+     * or `<select>`, where a tooltip over the host would cover the value being
+     * edited or picked.
      */
     readonly position = input<ImsTextTruncatePosition | null>(null, {
         alias: 'imsTextTruncatePosition'
@@ -164,9 +180,10 @@ export class ImsTextTruncateDirective implements OnDestroy {
     /**
      * Whether the host takes the box styles text needs before it can clip.
      *
-     * A text control never does: it clips on its own, `min-width: 0` would undo
-     * the floor `.ims-input` sets, and `nowrap` or `overflow: hidden` would take a
-     * textarea's wrapping and scrollbar away.
+     * A native control never does: it clips on its own, `min-width: 0` would undo
+     * the floor `.ims-input` sets, `display: block` would break a customizable
+     * select's row of value and chevron apart, and `nowrap` or `overflow: hidden`
+     * would take a textarea's wrapping and scrollbar away.
      */
     protected readonly boxStyles = computed(() => this.applyStyles() && !this.hostControl);
 
@@ -174,7 +191,7 @@ export class ImsTextTruncateDirective implements OnDestroy {
     private popoverVisible = false;
 
     private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
-    protected readonly hostControl = getTextControlKind(this.elementRef.nativeElement);
+    protected readonly hostControl = getNativeControlKind(this.elementRef.nativeElement);
     private readonly overlay = inject(Overlay);
     private readonly viewContainerRef = inject(ViewContainerRef);
     private overlayRef: OverlayRef | null = null;
@@ -189,18 +206,25 @@ export class ImsTextTruncateDirective implements OnDestroy {
 
         const hostElement = this.elementRef.nativeElement;
         const targetElement = this.resolveTargetElement(hostElement);
-        if (!targetElement || (!this.overflow() && !isOverflowing(targetElement))) {
+        // A select's picker opens where the tooltip does, and draws over it.
+        if (!targetElement || isPickerOpen(targetElement)) {
             this.hidePopoverImmediately();
             return;
         }
 
-        const text = this.resolveText(targetElement);
+        const textElement = getTextElement(targetElement);
+        if (!this.overflow() && !isOverflowing(textElement)) {
+            this.hidePopoverImmediately();
+            return;
+        }
+
+        const text = this.resolveText(textElement);
         if (!text) {
             this.hidePopoverImmediately();
             return;
         }
 
-        const targetControl = getTextControlKind(targetElement);
+        const targetControl = getNativeControlKind(targetElement);
         const overlayRef = this.ensureOverlayRef(
             hostElement,
             this.position() ?? (targetControl ? 'bottom' : 'center')
@@ -221,8 +245,8 @@ export class ImsTextTruncateDirective implements OnDestroy {
             popover.font = hostStyles?.font ?? 'inherit';
             popover.lineHeight = hostStyles?.lineHeight ?? 'normal';
             popover.direction = hostStyles?.direction ?? 'inherit';
-            // A value is text as typed: its runs of spaces and a textarea's line breaks are content.
-            popover.whiteSpace = targetControl ? 'pre-wrap' : 'normal';
+            // A typed value is text as typed: its runs of spaces and a textarea's line breaks are content.
+            popover.whiteSpace = targetControl === 'input' || targetControl === 'textarea' ? 'pre-wrap' : 'normal';
             popover.interactive = this.interactive();
             this.popoverRef?.changeDetectorRef.detectChanges();
         }
@@ -239,8 +263,26 @@ export class ImsTextTruncateDirective implements OnDestroy {
     }
 
     showPopoverOnFocus(): void {
-        if (this.showOnFocus()) {
-            this.showPopover();
+        if (!this.showOnFocus()) {
+            return;
+        }
+
+        // A select takes focus back from its picker after a pick by pointer, and
+        // its options hold focus while the picker is open. Only focus from the
+        // keyboard, which the select then shows as visible, reveals the tooltip.
+        const targetElement = this.resolveTargetElement(this.elementRef.nativeElement);
+        if (targetElement instanceof HTMLSelectElement && !matchesSelector(targetElement, ':focus-visible')) {
+            return;
+        }
+
+        this.showPopover();
+    }
+
+    /** A press on a select opens its picker where the tooltip is. */
+    hidePopoverOnPress(): void {
+        if (this.popoverVisible
+            && this.resolveTargetElement(this.elementRef.nativeElement) instanceof HTMLSelectElement) {
+            this.hidePopoverImmediately();
         }
     }
 
@@ -269,10 +311,10 @@ export class ImsTextTruncateDirective implements OnDestroy {
         this.popoverRef = null;
     }
 
-    private resolveText(targetElement: HTMLElement): string {
+    private resolveText(textElement: HTMLElement): string {
         const inputText = this.text();
         return (inputText === undefined || inputText === null || inputText === ''
-            ? readDisplayedText(targetElement)
+            ? readDisplayedText(textElement)
             : inputText
         ).trim();
     }
@@ -332,9 +374,9 @@ export class ImsTextTruncateDirective implements OnDestroy {
      *
      * The ID is added and removed on its own rather than bound, because a binding
      * owns the whole attribute and would erase references the host already
-     * carries, such as a hint or an error popover. A text control is not described
-     * at all: its value is already announced, and a tooltip repeating it would be
-     * read twice.
+     * carries, such as a hint or an error popover. A native control is not
+     * described at all: its value is already announced, a select's as its
+     * selected option, and a tooltip repeating it would be read twice.
      */
     private connectDescription(): void {
         if (!this.hostControl) {
@@ -432,12 +474,16 @@ let nextPopoverId = 0;
 /** Input types that display their value as plain text. */
 const TEXT_INPUT_TYPES: ReadonlySet<string> = new Set(['text', 'search', 'email', 'url', 'tel']);
 
-function getTextControlKind(element: HTMLElement): TextControlKind | null {
+function getNativeControlKind(element: HTMLElement): NativeControlKind | null {
     if (element instanceof HTMLInputElement) {
         return 'input';
     }
 
-    return element instanceof HTMLTextAreaElement ? 'textarea' : null;
+    if (element instanceof HTMLTextAreaElement) {
+        return 'textarea';
+    }
+
+    return element instanceof HTMLSelectElement ? 'select' : null;
 }
 
 /**
@@ -445,7 +491,8 @@ function getTextControlKind(element: HTMLElement): TextControlKind | null {
  *
  * A control shows its `value`: `textContent` is empty on an input and only the
  * initial value on a textarea. An input whose type does not display plain text,
- * a password above all, yields nothing.
+ * a password above all, yields nothing. A select shows its selected option,
+ * while its `textContent` runs every option together.
  */
 function readDisplayedText(element: HTMLElement): string {
     if (element instanceof HTMLTextAreaElement) {
@@ -456,7 +503,45 @@ function readDisplayedText(element: HTMLElement): string {
         return TEXT_INPUT_TYPES.has(element.type) ? element.value : '';
     }
 
+    if (element instanceof HTMLSelectElement) {
+        return element.selectedOptions[0]?.label ?? '';
+    }
+
     return element.textContent ?? '';
+}
+
+/**
+ * The element whose box holds the text a target shows.
+ *
+ * A customizable select (`appearance: base-select`) renders its value in the
+ * `<selectedcontent>` inside its button, which ImsSelectDirective adds, and that
+ * element is the one that clips: the select's own box never overflows. Any
+ * other select draws its value where the page cannot measure it, and its
+ * `<selectedcontent>`, if it has one, gets no box.
+ */
+function getTextElement(target: HTMLElement): HTMLElement {
+    if (target instanceof HTMLSelectElement) {
+        const selectedContent = target.querySelector<HTMLElement>('selectedcontent');
+        if (selectedContent && selectedContent.getClientRects().length > 0) {
+            return selectedContent;
+        }
+    }
+
+    return target;
+}
+
+/** Whether the element is a select with its picker open. */
+function isPickerOpen(element: HTMLElement): boolean {
+    return element instanceof HTMLSelectElement && matchesSelector(element, ':open');
+}
+
+/** `element.matches()` for a selector the browser may not support, which then matches nothing. */
+function matchesSelector(element: Element, selector: string): boolean {
+    try {
+        return element.matches(selector);
+    } catch {
+        return false;
+    }
 }
 
 function isOverflowing(element: HTMLElement): boolean {
