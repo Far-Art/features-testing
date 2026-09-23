@@ -13,11 +13,7 @@ import {
     signal
 } from '@angular/core';
 import {ImsFormField} from './ims-form-field';
-
-/** Delay used to collapse rapid resize callbacks into one responsive layout update. */
-const RESIZE_DEBOUNCE_MS = 200;
-/** Minimum inline-size change treated as meaningful, filtering subpixel observer noise. */
-const RESIZE_INLINE_SIZE_TOLERANCE = 10;
+import {STACKED_ATTRIBUTE, observeInlineSize, overflowsInline} from './ims-form-field-fit';
 
 /** Converts a column-count input to a positive integer or automatic mode. */
 function positiveIntegerOrNull(value: number | string | null): number | null {
@@ -51,7 +47,11 @@ function positiveNumber(value: number | string): number {
  *
  * The number of logical columns can be fixed through `columns`. Without an
  * explicit count, projected field occupancy defines the maximum candidate
- * count, which is reduced until the intrinsic field tracks fit.
+ * count, which is reduced until every label and value fits at natural width.
+ *
+ * Stacking is the last resort. When one responsive column, or the fixed
+ * count, cannot hold every label beside its value at natural width, every
+ * field the grid lays out moves its label above its value.
  *
  * Direct fields may flow naturally. Wrap fields in `ims-form-field-row` when
  * they must remain on the same visual row as fields are added or removed.
@@ -147,9 +147,7 @@ export class ImsFormFieldGrid {
 
         return this.automaticColumns();
     });
-    private resizeObserver: ResizeObserver | null = null;
-    private resizeDebounceTimer: ReturnType<typeof setTimeout> | null = null;
-    private lastObservedInlineSize: number | null = null;
+    private stopObservingInlineSize: (() => void) | null = null;
     private layoutFrame: number | null = null;
     private layoutReady = false;
     private resetColumnsBeforeLayout = false;
@@ -171,28 +169,10 @@ export class ImsFormFieldGrid {
         afterNextRender(() => {
             this.layoutReady = true;
             this.availableWidth.set(this.hostElement.clientWidth);
-            this.resizeObserver = new ResizeObserver(([entry]) => {
-                const inlineSize = entry.contentRect.width;
-                if (
-                    this.lastObservedInlineSize !== null &&
-                    Math.abs(inlineSize - this.lastObservedInlineSize) <
-                    RESIZE_INLINE_SIZE_TOLERANCE
-                ) {
-                    return;
-                }
-                this.lastObservedInlineSize = inlineSize;
-
-                if (this.resizeDebounceTimer !== null) {
-                    clearTimeout(this.resizeDebounceTimer);
-                }
-
-                this.resizeDebounceTimer = setTimeout(() => {
-                    this.resizeDebounceTimer = null;
-                    this.availableWidth.set(inlineSize);
-                    this.scheduleLayout(true);
-                }, RESIZE_DEBOUNCE_MS);
+            this.stopObservingInlineSize = observeInlineSize(this.hostElement, (inlineSize) => {
+                this.availableWidth.set(inlineSize);
+                this.scheduleLayout(true);
             });
-            this.resizeObserver.observe(this.hostElement);
 
             void this.hostElement.ownerDocument.fonts?.ready.then(() => {
                 this.scheduleLayout(true);
@@ -214,10 +194,7 @@ export class ImsFormFieldGrid {
         });
 
         this.destroyRef.onDestroy(() => {
-            this.resizeObserver?.disconnect();
-            if (this.resizeDebounceTimer !== null) {
-                clearTimeout(this.resizeDebounceTimer);
-            }
+            this.stopObservingInlineSize?.();
 
             const view = this.hostElement.ownerDocument.defaultView;
             if (view && this.layoutFrame !== null) {
@@ -246,58 +223,65 @@ export class ImsFormFieldGrid {
     }
 
     /**
-     * Resolves and applies field placement.
+     * Resolves and applies field placement and label stacking.
      *
-     * Automatic fitting tests every candidate synchronously in one animation
-     * frame. Only the final count is committed to the signal, preventing
-     * intermediate templates from being painted during resize.
+     * A column count is accepted only when every label and value fits beside
+     * each other at natural width, so fitting never squeezes one control to
+     * make room for another column. Candidates are measured synchronously in
+     * one animation frame, and only the final count is committed to the
+     * signal, so intermediate templates are never painted during resize.
+     * When the final count still does not fit, which is one column in
+     * responsive mode or the fixed count, labels stack above their values.
      */
     private syncLayout(): void {
+        this.hostElement.removeAttribute(STACKED_ATTRIBUTE);
+
         const explicitColumns = this.columns();
         if (explicitColumns !== null) {
             this.resetColumnsBeforeLayout = false;
-            this.syncAutomaticFieldColumns(explicitColumns);
+            this.commitLayout(explicitColumns, !this.fitsAtNaturalWidth(explicitColumns));
             return;
         }
 
-        const startingColumns = this.resetColumnsBeforeLayout
+        let columnCount = this.resetColumnsBeforeLayout
             ? this.maximumAutomaticColumns()
             : this.automaticColumns();
         this.resetColumnsBeforeLayout = false;
-        const fittedColumns = this.fitAutomaticColumns(startingColumns);
-        this.automaticColumns.set(fittedColumns);
+        while (columnCount > 1 && !this.fitsAtNaturalWidth(columnCount)) {
+            columnCount--;
+        }
+
+        // Dropping a column comes before stacking, so only a single column
+        // that still does not fit stacks its labels.
+        const stacked = columnCount === 1 && !this.fitsAtNaturalWidth(1);
+        this.automaticColumns.set(columnCount);
+        this.commitLayout(columnCount, stacked);
     }
 
     /**
-     * Tests candidate templates without yielding to the browser between them.
+     * Places fields for a candidate count and reports whether every label and
+     * value fits beside each other at natural width.
      *
-     * The final candidate is already applied to the host when this returns.
+     * The measured template holds every label and value track at
+     * `max-content`, including the final pair that the real template lets
+     * shrink.
      */
-    private fitAutomaticColumns(startingColumns: number): number {
-        for (let columnCount = startingColumns; columnCount > 1; columnCount--) {
-            this.applyCandidateLayout(columnCount);
-            if (!this.gridOverflows()) {
-                return columnCount;
-            }
-        }
-
-        this.applyCandidateLayout(1);
-        return 1;
+    private fitsAtNaturalWidth(columnCount: number): boolean {
+        this.syncAutomaticFieldColumns(columnCount);
+        this.hostElement.style.gridTemplateColumns = buildNaturalColumnTemplate(columnCount);
+        return !overflowsInline(this.hostElement);
     }
 
-    /** Applies one temporary candidate template and forces its measurement. */
-    private applyCandidateLayout(columnCount: number): void {
+    /**
+     * Applies the real template for the final count, which the last
+     * measurement left placed, together with the stacking decision.
+     */
+    private commitLayout(columnCount: number, stacked: boolean): void {
         this.hostElement.style.gridTemplateColumns = buildColumnTemplate(
             columnCount,
             this.columnDistribution()
         );
-        this.syncAutomaticFieldColumns(columnCount);
-        this.hostElement.getBoundingClientRect();
-    }
-
-    /** Reports whether intrinsic field tracks extend past the grid's inline box. */
-    private gridOverflows(): boolean {
-        return this.hostElement.scrollWidth > this.hostElement.clientWidth + 1;
+        this.hostElement.toggleAttribute(STACKED_ATTRIBUTE, stacked);
     }
 
     /**
@@ -440,5 +424,18 @@ function buildColumnTemplate(
         (_, index) => index < columnCount - 1
             ? 'max-content max-content minmax(var(--ims-form-column-gap, 0), 1fr)'
             : 'auto auto'
+    ).join(' ');
+}
+
+/**
+ * Builds a measurement-only template that holds every label and value at its
+ * natural width, spacers at their minimum.
+ */
+function buildNaturalColumnTemplate(columnCount: number): string {
+    return Array.from(
+        {length: columnCount},
+        (_, index) => index < columnCount - 1
+            ? 'max-content max-content minmax(var(--ims-form-column-gap, 0), 1fr)'
+            : 'max-content max-content'
     ).join(' ');
 }

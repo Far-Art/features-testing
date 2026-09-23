@@ -1,5 +1,6 @@
 ims-form-field {
     --ims-form-field-gap: 0.5rem;
+    --ims-form-field-stacked-gap: 0.25rem;
 
     display: grid;
     grid-template-columns: max-content minmax(0, 1fr);
@@ -7,8 +8,10 @@ ims-form-field {
     align-items: start;
     min-width: 0;
 
+    // Only a grid, and a row inside one, share their tracks with the field. A
+    // standalone row gives each field an automatic column of its own.
     ims-form-field-grid > &,
-    ims-form-field-row > & {
+    ims-form-field-grid > ims-form-field-row > & {
         grid-template-columns: subgrid;
         grid-column: var(--ims-form-grid-column-start, auto)
             / span var(--ims-form-grid-column-track-span, 2);
@@ -59,6 +62,29 @@ ims-form-field {
 
     &:has(> ims-checkbox .ims-checkbox__native:not(:disabled)) > label {
         cursor: pointer;
+    }
+
+    // Label above the value, for a field too narrow to hold both side by side.
+    // A field on its own sets the attribute on itself. A grid or a standalone
+    // row sets it on its own host, so all of its fields stack together. Both
+    // parts span every track of the field, which keeps a checkbox and its
+    // label together on the first row, now at the field's start.
+    &[data-ims-stacked],
+    :is(ims-form-field-grid, ims-form-field-row)[data-ims-stacked] > &,
+    ims-form-field-grid[data-ims-stacked] > ims-form-field-row > & {
+        row-gap: var(--ims-form-field-stacked-gap);
+
+        > :is(label, [imsFormFieldLabel]),
+        > :not(label):not([imsFormFieldLabel]) {
+            grid-column: 1 / -1;
+        }
+
+        // No control sits beside the label any more, so there is no field
+        // height to centre on.
+        > :is(label, [imsFormFieldLabel]),
+        > :not(label, [imsFormFieldLabel], input, textarea, button):not(:has(*)) {
+            margin-block-start: 0;
+        }
     }
 
     // A grouped control has no `for` to hover it from the label, so the label

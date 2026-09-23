@@ -40,6 +40,19 @@
         linear-gradient(#e3eef9, #e3eef9) top / 100% var(--field-height) no-repeat;
 }
 
+.form-layout-demo__playground-item {
+    display: grid;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.form-layout-demo__playground-caption {
+    margin: 0;
+    color: var(--demo-muted);
+    font-size: 0.8125rem;
+    font-weight: var(--ims-font-weight-semibold);
+}
+
 .form-layout-demo__checkbox-group {
     display: flex;
     flex-wrap: wrap;

@@ -22,6 +22,7 @@ import {
 import {ImsOption, ImsSelect} from '../../components/ims-select';
 import {ImsInputDirective} from '../../ims-input.directive';
 import {ReadonlyDirective} from '../../shared/readonly.directive';
+import {DemoResizeFrame} from './demo-resize-frame';
 
 interface FormGridDemoRow {
     readonly id: number;
@@ -39,6 +40,7 @@ function utcDate(value: string): Date {
     selector: 'app-form-layout-demo',
     imports: [
         DatePipe,
+        DemoResizeFrame,
         FormsModule,
         ImsCheckbox,
         ImsDatepicker,
@@ -65,6 +67,8 @@ function utcDate(value: string): Date {
 export class FormLayoutDemo {
     status = 'active';
     branch = 'jerusalem';
+    playgroundBranch = 'haifa';
+    birthDate = utcDate('1990-05-12');
     billingAccount = 'ABC';
     lockedReference = 'REF-2026-1042';
     policyStart = utcDate('2026-01-01');

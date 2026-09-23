@@ -11,6 +11,126 @@
     </div>
 
     <div class="form-layout-demo__example">
+        <h2>שינוי רוחב בגרירה</h2>
+        <p class="form-layout-demo__hint">
+            גררו את הידית שבקצה המסגרת כדי לשנות את רוחבה, או העבירו אליה פוקוס והשתמשו בחיצים.
+            כשהתוויות והשדות כבר לא נכנסים זה לצד זה ברוחבם הטבעי, התוויות עוברות אל מעל השדות.
+            קבוצה רספונסיבית מורידה קודם עמודות, ומעבירה תוויות רק כשגם עמודה אחת לא נכנסת. קבוצה עם
+            עמודות קבועות מעבירה תוויות כשהעמודות לא נכנסות, ושורה או שדה עצמאיים מחליטים לבד. שורה
+            עצמאית שגם כך לא נכנסת מעבירה שדות לשורה נוספת במקום לכווץ אותם. השינוי מופיע כ־200 אלפיות
+            שנייה אחרי שהגרירה נעצרת.
+        </p>
+
+        <app-demo-resize-frame>
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">קבוצה רספונסיבית</h3>
+                <ims-form-field-grid>
+                    <ims-form-field>
+                        <label>שם פרטי</label>
+                        <input imsInput value="נועה">
+                    </ims-form-field>
+
+                    <ims-form-field>
+                        <label>מספר לקוח במערכת</label>
+                        <input imsInput value="45872196" dir="ltr">
+                    </ims-form-field>
+
+                    <ims-form-field>
+                        <label>סניף</label>
+                        <ims-select class="field-s" ariaLabel="סניף" [(ngModel)]="playgroundBranch">
+                            <ims-option value="jerusalem" selectionText="ירושלים">ירושלים</ims-option>
+                            <ims-option value="tel-aviv" selectionText="תל אביב">תל אביב</ims-option>
+                            <ims-option value="haifa" selectionText="חיפה">חיפה</ims-option>
+                        </ims-select>
+                    </ims-form-field>
+
+                    <ims-form-field>
+                        <label>הערות</label>
+                        <textarea imsInput rows="2">לקוחה ותיקה, מעדיפה קשר בדואר אלקטרוני.</textarea>
+                    </ims-form-field>
+
+                    <ims-form-field>
+                        <label>שליחת עדכונים</label>
+                        <ims-checkbox checked/>
+                    </ims-form-field>
+                </ims-form-field-grid>
+            </div>
+
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">קבוצה עם שתי עמודות קבועות</h3>
+                <ims-form-field-grid columns="2">
+                    <ims-form-field>
+                        <label>טלפון נייד</label>
+                        <input imsInput value="050-5555555" dir="ltr">
+                    </ims-form-field>
+
+                    <ims-form-field>
+                        <label>דואר אלקטרוני</label>
+                        <input imsInput type="email" value="noa@example.co.il" dir="ltr">
+                    </ims-form-field>
+
+                    <ims-form-field>
+                        <span imsFormFieldLabel>סטטוס</span>
+                        <span>פעיל</span>
+                    </ims-form-field>
+
+                    <ims-form-field>
+                        <label>תאריך לידה</label>
+                        <ims-datepicker
+                            ariaLabel="תאריך לידה"
+                            valueType="date"
+                            [(ngModel)]="birthDate"
+                        />
+                    </ims-form-field>
+                </ims-form-field-grid>
+            </div>
+
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">שורה עצמאית</h3>
+                <ims-form-field-row>
+                    <ims-form-field>
+                        <label>עיר</label>
+                        <input imsInput value="חיפה">
+                    </ims-form-field>
+
+                    <ims-form-field>
+                        <label>מיקוד</label>
+                        <input imsInput value="3303105" dir="ltr">
+                    </ims-form-field>
+
+                    <ims-form-field>
+                        <label>טלפון נוסף</label>
+                        <input imsInput value="04-8123456" dir="ltr">
+                    </ims-form-field>
+                </ims-form-field-row>
+            </div>
+
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">שורה עצמאית עם fill</h3>
+                <ims-form-field-row fill>
+                    <ims-form-field>
+                        <label>שם פרטי</label>
+                        <input imsInput value="נועה">
+                    </ims-form-field>
+
+                    <ims-form-field>
+                        <label>שם משפחה</label>
+                        <input imsInput value="ישראלי">
+                    </ims-form-field>
+                </ims-form-field-row>
+            </div>
+
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">שדה עצמאי</h3>
+                <ims-form-field>
+                    <label>כתובת למשלוח</label>
+                    <input imsInput value="רחוב הנביאים 12, חיפה">
+                </ims-form-field>
+            </div>
+        </app-demo-resize-frame>
+    </div>
+
+    <div class="form-layout-demo__example">
         <h2>קבוצה רספונסיבית ללא מספר עמודות</h2>
         <p class="form-layout-demo__hint">
             הקבוצה מחשבת את מספר העמודות לפי הרוחב הזמין.

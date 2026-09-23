@@ -1,0 +1,67 @@
+:host {
+    --demo-resize-handle-size: 13px;
+    --demo-resize-radius: 0.75rem;
+
+    display: grid;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.demo-resize-frame__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    color: #5f6b7a;
+    font-size: 0.875rem;
+}
+
+.demo-resize-frame__stage {
+    position: relative;
+    box-sizing: border-box;
+    max-inline-size: 100%;
+    padding-inline-end: var(--demo-resize-handle-size);
+    background: #fff;
+    border: 1px dashed #b8c4d4;
+    border-radius: var(--demo-resize-radius);
+}
+
+// A layout that still does not fit scrolls here, rather than spilling over the
+// handle and widening the page.
+.demo-resize-frame__content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+    padding: 1rem;
+    overflow-x: auto;
+}
+
+// Two 1px grip lines on a 12px padding box, at whole-pixel offsets so they stay
+// crisp on low-DPI screens. Hover and drag answer with colour only.
+.demo-resize-frame__handle {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 0;
+    box-sizing: border-box;
+    inline-size: var(--demo-resize-handle-size);
+    background:
+        linear-gradient(#8aa2bf, #8aa2bf) 4px 50% / 1px 2rem no-repeat,
+        linear-gradient(#8aa2bf, #8aa2bf) 7px 50% / 1px 2rem no-repeat,
+        #eef3f9;
+    border-inline-start: 1px solid #d7dce4;
+    border-start-end-radius: calc(var(--demo-resize-radius) - 1px);
+    border-end-end-radius: calc(var(--demo-resize-radius) - 1px);
+    cursor: ew-resize;
+    touch-action: none;
+    user-select: none;
+}
+
+.demo-resize-frame__handle:hover,
+.demo-resize-frame__handle[data-dragging] {
+    background-color: #d9e9f7;
+}
+
+.demo-resize-frame__handle:focus-visible {
+    outline: 2px solid #1769aa;
+    outline-offset: -2px;
+}

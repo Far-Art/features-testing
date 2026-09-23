@@ -10,6 +10,7 @@ import {
     numberAttribute,
     signal
 } from '@angular/core';
+import {STACKED_ATTRIBUTE, observeInlineSize, overflowsInline} from './ims-form-field-fit';
 
 /** Monotonic id source for controls that need automatic label association. */
 let nextFormControlId = 0;
@@ -66,6 +67,11 @@ function formFieldSpanAttribute(value: number | string): ImsFormFieldSpan {
  * `ims-form-field-grid` or `ims-form-field-row`, the complete field is placed
  * as one unit so parent distribution never changes the label/value gap.
  *
+ * When the label and value cannot sit side by side at their natural widths,
+ * the label moves above the value. A field on its own measures this itself.
+ * A grid or row measures for every field it lays out, so they stack together,
+ * and a field inside an `ims-grid` cell never stacks.
+ *
  * With a direct `ims-checkbox`, the checkbox component and main field label
  * share value column 2 and row 1. The form layout only handles placement;
  * checkbox visuals remain owned by the checkbox component.
@@ -75,6 +81,8 @@ export class ImsFormField {
     private readonly hostElement: HTMLElement = inject(ElementRef).nativeElement;
     /** Watches dynamically added or removed projected labels and controls. */
     private contentObserver: MutationObserver | null = null;
+    /** Stops label-stacking measurement; set only for a field on its own. */
+    private stopObservingInlineSize: (() => void) | null = null;
     /** Current direct child selected for the main label slot. */
     private mainLabel: HTMLElement | null = null;
     /** `for` value created by this component, used to distinguish it from consumer input. */
@@ -218,8 +226,9 @@ export class ImsFormField {
     });
 
     /**
-     * Initializes projected-content synchronization after rendering and
-     * removes observers and generated state when the component is destroyed.
+     * Initializes projected-content synchronization and, for a field on its
+     * own, label-stacking measurement after rendering. Removes observers and
+     * generated state when the component is destroyed.
      */
     constructor() {
         afterNextRender(() => {
@@ -229,10 +238,12 @@ export class ImsFormField {
                 childList: true,
                 subtree: true
             });
+            this.observeStacking();
         });
 
         this.destroyRef.onDestroy(() => {
             this.contentObserver?.disconnect();
+            this.stopObservingInlineSize?.();
         });
     }
 
@@ -264,6 +275,48 @@ export class ImsFormField {
         }
 
         this.hostElement.style.setProperty(property, value);
+    }
+
+    /**
+     * Keeps a field on its own stacked while it is too narrow for its label and
+     * value side by side.
+     *
+     * A grid or row measures for the fields it lays out, so they flip
+     * together. An `ims-grid` cell sizes its own content, so a field there
+     * never stacks.
+     */
+    private observeStacking(): void {
+        if (
+            this.hostElement.parentElement?.matches('ims-form-field-grid, ims-form-field-row') ||
+            this.hostElement.closest('ims-grid-cell')
+        ) {
+            return;
+        }
+
+        this.stopObservingInlineSize = observeInlineSize(
+            this.hostElement,
+            () => this.syncStacking()
+        );
+        void this.hostElement.ownerDocument.fonts?.ready.then(() => {
+            this.syncStacking();
+        });
+        this.syncStacking();
+    }
+
+    /**
+     * Stacks the label above the value when the two cannot sit side by side
+     * at their natural widths.
+     *
+     * The field is measured with both tracks at `max-content`. The measurement
+     * template is removed again before the field is painted.
+     */
+    private syncStacking(): void {
+        const host = this.hostElement;
+        host.removeAttribute(STACKED_ATTRIBUTE);
+        host.style.gridTemplateColumns = 'max-content max-content';
+        const stacked = overflowsInline(host);
+        host.style.removeProperty('grid-template-columns');
+        host.toggleAttribute(STACKED_ATTRIBUTE, stacked);
     }
 
     /**

@@ -10,20 +10,24 @@ to be rewritten.
 
 ## File Map
 
-- `ims-form-field.ts`: label/value projection, label association, and
-  logical-column placement.
+- `ims-form-field.ts`: label/value projection, label association,
+  logical-column placement, and label stacking for a field on its own.
 - `ims-form-field-grid.ts`: fixed and responsive column counts, intrinsic-width
-  fitting, and automatic field placement.
-- `ims-form-field-row.ts`: full-width stable row wrapper.
+  fitting, automatic field placement, and label stacking as a last resort.
+- `ims-form-field-row.ts`: stable row inside a grid, or a row of fields side by
+  side on its own, with label stacking.
+- `ims-form-field-fit.ts`: internal inline-size observation, overflow check, and
+  the stacked-label attribute shared by the field, row, and grid.
 - `ims-form-field-group.ts`: stacked or inline compound-control layout.
 - `ims-form-field.directives.ts`: the behavior-free `imsFormFieldLabel` marker.
 - `ims-form-field.spec.ts`: focused field projection and label-association tests.
 - `index.ts`: public exports.
-- `src/styles/ims-form-field.scss`: field layout, label interaction color, and
-  checkbox-placement styles.
-- `src/styles/ims-form-field-grid.scss`: grid host styles.
-- `src/styles/ims-form-field-row.scss`: stable row and subgrid styles.
-- `src/styles/ims-form-field-group.scss`: compound-control styles.
+- `src/styles/ims-form-layout/ims-form-field.scss`: field layout, stacked labels,
+  label interaction color, and checkbox-placement styles.
+- `src/styles/ims-form-layout/ims-form-field-grid.scss`: grid host styles.
+- `src/styles/ims-form-layout/ims-form-field-row.scss`: standalone row and
+  in-grid subgrid row styles.
+- `src/styles/ims-form-layout/ims-form-field-group.scss`: compound-control styles.
 - `src/app/pages/form-layout-demo`: working examples.
 
 All components are standalone and use `ChangeDetectionStrategy.OnPush`.
@@ -45,10 +49,10 @@ import {
 The global stylesheet must load all form-layout style modules:
 
 ```scss
-@use './styles/ims-form-field';
-@use './styles/ims-form-field-grid';
-@use './styles/ims-form-field-group';
-@use './styles/ims-form-field-row';
+@use './styles/ims-form-layout/ims-form-field';
+@use './styles/ims-form-layout/ims-form-field-grid';
+@use './styles/ims-form-layout/ims-form-field-group';
+@use './styles/ims-form-layout/ims-form-field-row';
 ```
 
 The styles are intentionally global because the components and their projected
@@ -64,7 +68,8 @@ children participate in shared CSS Grid and `subgrid` tracks.
 ```
 
 The direct label is placed in the label track. Other direct content is placed in
-the value track.
+the value track. When the field is too narrow to hold both side by side, the
+label moves above the value. See Stacked Labels.
 
 The field deliberately sets no `inline-size: 100%`. In block flow, and as a
 stretched grid or column flex item, it still fills the available width. As an
@@ -112,7 +117,14 @@ semantics.
 | --- | --- | --- | --- |
 | `layout` | `'stacked' \| 'inline'` | `'stacked'` | Arranges the group's direct label/control pairs vertically or side by side. |
 
-`ims-form-field-row` and `imsFormFieldLabel` have no inputs.
+### `ims-form-field-row`
+
+| Input | Type | Default | Purpose |
+| --- | --- | --- | --- |
+| `visible` | `boolean` | `true` | Hides the row while keeping the space it takes. |
+| `fill` | `boolean` | `false` | Stretches the fields of a standalone row across its full width. No effect inside a grid. |
+
+`imsFormFieldLabel` has no inputs.
 
 ## Label Projection And Association
 
@@ -224,13 +236,17 @@ Omit `columns` to enable responsive mode:
 </ims-form-field-grid>
 ```
 
-Responsive fitting works in two stages:
+Responsive fitting works in three stages:
 
 1. Projected field occupancy determines the maximum candidate column count.
    The grid tries every useful content column instead of treating
    `minColumnWidth` as a hard width cap.
-2. The count is reduced until the intrinsic label/value tracks no longer
-   overflow the grid.
+2. The count is reduced until every label and value fits at its natural width,
+   the last column included. The last column can still grow into spare room,
+   but no control is squeezed to make room for another column. This holds for
+   `even` distribution too, which shares out only the room left over.
+3. If one column still cannot hold every label beside its value at natural
+   width, the labels stack. See Stacked Labels.
 
 Explicit `column` positions are included in the occupancy limit.
 For open-ended `span="row"`, the available width and `minColumnWidth`
@@ -246,7 +262,8 @@ current flat consumer markup and shared label tracks.
 
 Resize callbacks are debounced by `RESIZE_DEBOUNCE_MS`.
 `RESIZE_INLINE_SIZE_TOLERANCE` filters insignificant or self-induced size
-changes. Only meaningful inline-size changes should restart responsive fitting;
+changes. Both live in `ims-form-field-fit.ts`, which standalone fields and rows
+share. Only meaningful inline-size changes should restart responsive fitting;
 height changes caused by wrapping must not do so.
 
 ### Responsive Caveats
@@ -255,17 +272,21 @@ height changes caused by wrapping must not do so.
   columns are fitted from their actual intrinsic widths.
 - Responsive changes are intentionally delayed by the resize debounce.
 - Fixed `columns` mode does not reduce the requested count when content is too
-  wide. The consumer must choose a count that fits.
+  wide. It stacks labels above values instead. Content still too wide after
+  that overflows, so the consumer should choose a count that fits.
 - Intrinsic width changes caused only by changing text or a control's internal
   content may not restart fitting unless the grid width, projected field list,
   or loaded fonts also trigger a layout update.
 - Before the first post-render measurement completes, responsive mode may
   briefly use its initial one-column state.
 
-## Stable Rows
+## Rows
 
-Use `ims-form-field-row` when a set of fields must remain on one visual row or
-when missing fields must leave stable logical-column positions:
+### Stable Rows In A Grid
+
+Inside an `ims-form-field-grid`, use `ims-form-field-row` when a set of fields
+must remain on one visual row or when missing fields must leave stable
+logical-column positions:
 
 ```html
 <ims-form-field-grid columns="3">
@@ -289,6 +310,73 @@ additional internal spacer tracks.
 
 Fields should be direct children of the row. Rows should be direct children of
 the grid.
+
+### Standalone Rows
+
+Outside a grid, a row puts its fields side by side on one line, one automatic
+column per field:
+
+```html
+<ims-form-field-row>
+    <ims-form-field>
+        <label>City</label>
+        <input>
+    </ims-form-field>
+
+    <ims-form-field>
+        <label>Postal code</label>
+        <input>
+    </ims-form-field>
+</ims-form-field-row>
+```
+
+- Each field is as wide as its label and value. The fields are packed at the
+  inline start and separated by `--ims-form-column-gap`, `1rem` by default.
+- `fill` stretches the fields across the row instead. Their value tracks, and
+  any control without a width of its own, grow with them.
+- When the fields cannot sit side by side at their natural widths, all of their
+  labels stack. See Stacked Labels. Stacked fields that still do not fit move
+  onto further lines, `--ims-form-row-gap` apart, rather than being squeezed.
+  Only a field wider than the whole row by itself shrinks, to the row's width.
+- `column`, `span`, `labelSpan`, and `valueSpan` have no effect.
+- Separate standalone rows do not share column widths. Put the rows in an
+  `ims-form-field-grid` when their fields must line up.
+
+## Stacked Labels
+
+When a label and its value cannot sit side by side at their natural widths, the
+label moves above the value. Both then start at the field's inline start: the
+label on the first row, and the value below it, `--ims-form-field-stacked-gap`
+away.
+
+Natural width is what the content asks for when nothing squeezes it: a width set
+on the control, such as `inline-size` or a `.field-*` class, the width a
+component gives itself, such as the datepicker's, or the browser's default width
+for an input or textarea. A read-only text value's natural width is its text on
+one line.
+
+| Context | Measured by | Stacks when |
+| --- | --- | --- |
+| Field on its own | the field | its label, gap, and value overflow the field |
+| Standalone row | the row, for all of its fields | its fields and gaps overflow the row; then fields that still do not fit wrap |
+| Grid, including its rows | the grid, for all of its fields | responsive: one column still overflows; fixed: the fixed count overflows |
+| Inside an `ims-grid` cell | nobody | never. The table sizes its own columns |
+
+A grid or row stacks all of its fields at once, so labels and controls stay
+aligned with each other. A grid only stacks as a last resort: a responsive grid
+first drops columns, and stacks only when one column still does not fit.
+
+- Measurement uses the same resize observation as responsive grids. It runs
+  after render, when fonts finish loading, and once a meaningful inline-size
+  change settles (`RESIZE_DEBOUNCE_MS`). A standalone row also measures again
+  when fields are added or removed.
+- Height changes never restart measurement, so stacking cannot set it off again.
+- As in responsive grids, a change in natural width alone, such as a select
+  showing a longer value, does not restart measurement.
+- A direct `ims-checkbox` keeps its label beside it. In a stacked field the
+  checkbox moves to the field's start, level with the other labels.
+- Stacking is marked by the internal `data-ims-stacked` attribute on the host
+  that decided it. Consumers should not set or style it.
 
 ## Compound Values
 
@@ -431,6 +519,9 @@ read-only value stays on the label's line. Native `input`, `textarea`, and
 `button` values are excluded. The direct `ims-checkbox` exception keeps its own
 vertical centering.
 
+A stacked field has no control beside its label, so neither the label nor a
+text-only value gets the offset.
+
 ## Label Interaction Styling
 
 The main label reacts to the owned control:
@@ -449,11 +540,12 @@ The main field custom properties are:
 
 | Property | Default | Purpose |
 | --- | --- | --- |
-| `--ims-form-field-gap` | `0.5rem` | Gap between a field's label and value. |
+| `--ims-form-field-gap` | `0.5rem` | Gap between a field's label and value when they sit side by side. |
+| `--ims-form-field-stacked-gap` | `0.25rem` | Gap between a stacked label and the value below it. |
 | `--ims-form-accent` | `#1769aa` | Focus and hover accent. |
 | `--ims-form-checkbox-size` | `--ims-checkbox-size` fallback | Direct-checkbox placement offset. |
-| `--ims-form-column-gap` | set by `columnGap` | Minimum flexible space between field pairs. |
-| `--ims-form-row-gap` | set by `rowGap` | Grid row gap. |
+| `--ims-form-column-gap` | set by `columnGap`; `1rem` in a standalone row | Minimum flexible space between field pairs, or the gap between fields in a standalone row. |
+| `--ims-form-row-gap` | set by `rowGap`; `0.4rem` in a standalone row | Grid row gap, or the gap between the lines of a wrapped standalone row. |
 
 `--ims-form-grid-column-start`, `--ims-form-grid-column-track-span`,
 `--ims-form-label-grid-column`, and `--ims-form-value-grid-column` are internal
