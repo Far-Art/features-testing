@@ -191,7 +191,7 @@ export class ImsFormFieldGrid {
                 field.valueSpan();
             }
             this.scheduleLayout(true);
-        });
+        }, {allowSignalWrites: true});
 
         this.destroyRef.onDestroy(() => {
             this.stopObservingInlineSize?.();
