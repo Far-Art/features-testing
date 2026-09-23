@@ -515,6 +515,15 @@ host uses `.ims-input-host`, and the visual field is marked with
 `data-ims-main-control`. Component and overlay colors consume the shared
 semantic `--ims-color-*` and `--ims-background-*` tokens directly.
 
+The painted field is a wrapper around the native input rather than the input
+itself, which is the second of the two shapes the shared contract supports. The
+component's stylesheet therefore carries no state rules at all: hover — from
+the field and from its label alike — the focus ring, invalid, disabled and
+readonly are the contract's, reaching the wrapper as inherited tones from the
+host. The component only declares its state in the shared vocabulary:
+`ims-input--disabled` and `ims-input--readonly` on the field, and
+`ims-input--invalid` on the host when typed text will not parse.
+
 The host also uses the shared `.ims-input-action` layout. A declared host width
 is the preferred width of the bordered date field; the separate calendar
 button adds `--ims-input-action-size` plus `--ims-input-action-gap` when room is
@@ -523,8 +532,10 @@ stays within the available inline size. The calendar overlay and validation
 popover remain anchored to the bordered field rather than the adjacent action.
 
 The bordered field defaults to `--field-width-xs`, while the field and calendar
-button use `--field-height`. Apply one of the shared sizing utility classes to
-override the preferred field width from consumer markup:
+button use `--field-height`. A `10ch` floor on the host keeps a squeezed field
+wide enough for a full date, so a narrow container overflows rather than clipping
+the value. Apply one of the shared sizing utility classes to override the
+preferred field width from consumer markup:
 
 ```html
 <ims-datepicker class="field-m" [formControl]="date" />
@@ -541,6 +552,7 @@ The height token can also be overridden locally without changing the component:
 
 Readonly mode adds `.ims-readonly` to the input host and keeps the native input
 and toggle disabled while using the shared readable-disabled token overrides.
+The field carries `.ims-input--readonly` because a `div` cannot be `:disabled`.
 
 Cell state classes:
 
@@ -554,7 +566,11 @@ than a pseudo-element. Combined today, selected, and focused states retain both
 their inset indicator and the external focus ring.
 
 An invalid field retunes `--ims-input-fill` together with its border, so its
-hover fill uses the danger tone. The header step buttons are `ims-button-icon`
+hover fill uses the danger tone; the calendar button follows it by reading
+`--ims-input-tone`, since it sits beside the painted field rather than inside
+it. An open panel accents its field in the same way, and yields to an invalid
+control so a rejected value keeps its danger tone while the calendar is up. The
+header step buttons are `ims-button-icon`
 buttons with `<ims-icon>` glyphs, kept quiet at rest through the
 `--ims-button-*` variables.
 

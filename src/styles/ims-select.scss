@@ -106,7 +106,9 @@ ims-option[hidden] {
     border: 0;
     border-radius: 0.25rem;
     background: transparent;
-    color: var(--ims-color-interactive-alt-strong);
+    // Unset until a state re-points it, so this is the resting colour and an
+    // invalid host tints the button by inheritance.
+    color: var(--ims-input-tone, var(--ims-color-interactive-alt-strong));
     font: inherit;
     cursor: pointer;
 }
@@ -124,6 +126,3 @@ ims-option[hidden] {
     --ims-icon-size: 1rem;
 }
 
-.ims-select-host.ng-invalid .ims-select__clear {
-    color: var(--ims-input-invalid-border, var(--ims-color-invalid));
-}

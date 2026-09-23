@@ -22,14 +22,52 @@
     initial-value: 0%;
 }
 
+/**
+ * A field surface comes in two shapes:
+ *
+ *     the control IS the surface    <input class="ims-input">
+ *     the surface WRAPS controls    <div class="ims-input"><input>…</div>
+ *
+ * Everything below is written so both answer the same rules, and two facts do
+ * the work.
+ *
+ * Every state is painted from a *tone* rather than from a literal, so entering
+ * a state means re-pointing tones — never restating the border, the ring and
+ * the fill. A tone has no value at rest: its default sits at the use site as a
+ * `var()` fallback. That is what lets a state be cancelled with `initial`, and
+ * it is what keeps every documented override slot — `--ims-input-border`,
+ * `--ims-input-invalid-border`, `--ims-input-disabled-*` and the rest — in the
+ * chain where a consumer set it.
+ *
+ * | Tone | Painted onto |
+ * | --- | --- |
+ * | `--ims-input-tone` | the resting border |
+ * | `--ims-input-tone-hover` | the border under the pointer |
+ * | `--ims-input-tone-focus` | the border while focused |
+ * | `--ims-input-tone-ring` | the focus halo |
+ * | `--ims-input-fill` | the hover and focus fill |
+ *
+ * Custom properties inherit, so a component host that re-points them paints
+ * every surface inside it. The `ng-invalid` Angular puts on a wrapped
+ * control's host reaches a field two levels down, and reaches two fields as
+ * easily as one, with no descendant selector and no specificity to win — which
+ * is what a composite field such as a phone number, two inputs behind one
+ * border, is made of. A surface that declares a tone itself outranks an
+ * inherited one whatever the specificities say, and that is what keeps a
+ * disabled field out of its control's invalid colours without a guard.
+ *
+ * A component declares its shape and nothing else:
+ *
+ * | On | Class | Means |
+ * | --- | --- | --- |
+ * | host | `ims-input-host` | this component paints `.ims-input` surfaces inside itself |
+ * | host | `ims-input--invalid` | invalid in a way the Angular control does not know about |
+ * | surface | `ims-input--disabled` | paint as disabled, for a surface that cannot carry `:disabled` |
+ * | surface | `ims-input--readonly` | paint as not editable while staying interactive |
+ * | surface | `ims-input--valid` | this surface's validity is not its control's |
+ */
 .ims-input {
     --ims-input-field-shadow: 0 1px 3px rgb(0 0 0 / 8%);
-
-    // The tone the hover fill paints in. One step off the resting white, the
-    // same distance --default puts between a button's rest and hover fills,
-    // which is as far as this can go and still leave field text readable
-    // through it.
-    --ims-input-fill: var(--ims-input-hover-fill, var(--ims-color-interactive-subtle));
     --ims-input-fill-radius: 0%;
     --ims-input-fill-alpha: 0%;
 
@@ -38,7 +76,7 @@
     height: var(--field-height);
     min-height: var(--field-height);
     padding: var(--ims-input-padding, 0.1rem 0.5rem);
-    border: 1px solid var(--ims-input-border, var(--ims-color-border));
+    border: 1px solid var(--ims-input-tone, var(--ims-input-border, var(--ims-color-border)));
     border-radius: var(--ims-input-border-radius, 0.5rem);
     background: var(--ims-input-background, var(--ims-background-input));
     // Must stay after the `background` shorthand, which resets
@@ -48,15 +86,23 @@
     // from looking stepped without a GPU to smooth it. Circular and centred,
     // so it has no direction and needs no RTL variant.
     //
-    // That same shorthand reset is what keeps the fill off every surface that
-    // paints its own disabled or readonly background — `:disabled` below, and
-    // the readonly triggers in ims-select.scss and ims-autocomplete.scss.
-    // Those have to be the shorthand to repaint the surface at all; written as
-    // `background-color` they would leave this gradient in place underneath.
+    // The fill tone defaults here rather than in a declaration of its own: one
+    // step off the resting white, the same distance --default puts between a
+    // button's rest and hover fills, which is as far as this can go and still
+    // leave field text readable through it. Holding it at the use site is what
+    // lets a state re-point it and `.ims-input--valid` cancel it.
+    //
+    // Nothing has to suppress this gradient on a field that is not editable:
+    // alpha only leaves 0% in the hover and focus rule below, and that rule
+    // does not match a disabled, `--disabled` or `--readonly` surface.
     background-image: radial-gradient(
         circle farthest-corner at 50% 50%,
-        color-mix(in oklab, var(--ims-input-fill) var(--ims-input-fill-alpha), transparent)
-          var(--ims-input-fill-radius),
+        color-mix(
+            in oklab,
+            var(--ims-input-fill, var(--ims-input-hover-fill, var(--ims-color-interactive-subtle)))
+              var(--ims-input-fill-alpha),
+            transparent
+        ) var(--ims-input-fill-radius),
         transparent calc(var(--ims-input-fill-radius) + 1.5%)
     );
     color: var(--ims-input-color, var(--ims-color-on-surface));
@@ -138,8 +184,12 @@ textarea.ims-input {
     margin-block: auto;
 }
 
-.ims-input:hover:not(:disabled) {
-    border-color: var(--ims-input-hover-border, var(--ims-color-interactive-alt));
+// `:has(:hover)` is the label. A `<label for>`, and a label that wraps its
+// control, both put the *control* into `:hover` natively — never a wrapper
+// painted around it. Pointing at the field itself is the plain `:hover` and
+// needs nothing added.
+.ims-input:is(:hover, :has(:hover)):not(:disabled, .ims-input--disabled, .ims-input--readonly) {
+    border-color: var(--ims-input-tone-hover, var(--ims-input-hover-border, var(--ims-color-interactive-alt)));
 }
 
 // The way *in*: the fill expands from the centre on a decelerating curve —
@@ -151,52 +201,90 @@ textarea.ims-input {
 // entered stays filled once the pointer moves off, and only empties when it
 // loses focus as well. Hover and focus are two ways into one state rather than
 // two states, which is why they share the rule — and why the fill is kept out
-// of the hover rule above, whose border tone is genuinely hover's alone and
-// must not outrank :focus-visible's.
+// of the hover rule above, whose border tone is genuinely hover's alone.
 //
 // `:focus-within` rather than `:focus`, because an element matches it when the
 // focus is its own — so this one selector covers every shape a field takes
-// here: input, textarea, the select and autocomplete trigger buttons, and the
-// datepicker, whose `.ims-input` is a wrapper div around the real input and
-// would never have matched `:focus`. ims-datepicker.scss already draws that
-// field's focus ring the same way.
-.ims-input:hover:not(:disabled),
-.ims-input:focus-within:not(:disabled) {
+// here: input, textarea, the select and autocomplete trigger buttons, and a
+// wrapper such as the datepicker's, which would never have matched `:focus`.
+.ims-input:is(:hover, :has(:hover), :focus-within):not(:disabled, .ims-input--disabled, .ims-input--readonly) {
     --ims-input-fill-radius: 100%;
     --ims-input-fill-alpha: 100%;
     transition: border-color 140ms ease, box-shadow 140ms ease,
     --ims-input-fill-alpha 0s, --ims-input-fill-radius 320ms cubic-bezier(0.05, 0.7, 0.1, 1);
 }
 
-.ims-input:focus-visible {
+// `:has(:focus-visible)` for the wrapper shape, whose ring belongs to the
+// control it holds. A text field matches `:focus-visible` however it was
+// focused, so a wrapped input rings on a click as it always has.
+.ims-input:is(:focus-visible, :has(:focus-visible)) {
     outline: none;
-    border-color: var(--ims-input-focus-border, var(--ims-color-interactive));
-    box-shadow: 0 0 0 3px var(--ims-input-focus-ring, var(--ims-color-focus-ring)),
+    border-color: var(--ims-input-tone-focus, var(--ims-input-focus-border, var(--ims-color-interactive)));
+    box-shadow: 0 0 0 3px var(--ims-input-tone-ring, var(--ims-input-focus-ring, var(--ims-color-focus-ring))),
     var(--ims-input-field-shadow);
 }
 
-.ims-input:disabled {
-    border-color: var(--ims-input-disabled-border, var(--ims-color-border-subtle));
-    background: var(--ims-input-disabled-background, var(--ims-color-surface-input-disabled));
-    color: var(--ims-input-disabled-color, var(--ims-color-on-surface-disabled));
-    cursor: not-allowed;
-}
-
-.ims-readonly {
-    --ims-input-disabled-border: var(--ims-color-border-subtle);
-    --ims-input-disabled-background: var(--ims-color-surface-input-readonly);
-    --ims-input-disabled-color: var(--ims-color-on-surface-readonly);
-}
-
-.ims-input.ng-invalid:not(:disabled) {
-    border-color: var(--ims-input-invalid-border, var(--ims-color-invalid));
-    // Retunes the fill rather than suppressing it, so hovering an invalid
-    // field still answers — in the tone of the border it is sitting inside,
-    // instead of contradicting it with the house blue.
+// Invalid, from either direction: the class on the surface itself, as Angular
+// leaves it on a native control, or on the host of a component that paints the
+// surface inside itself. The host form needs no `:not()` — a surface that is
+// not editable declares these tones itself, and an own declaration outranks an
+// inherited one.
+//
+// The fill is retuned rather than suppressed, so hovering an invalid field
+// still answers — in the tone of the border it is sitting inside, instead of
+// contradicting it with the house blue.
+.ims-input:is(.ng-invalid, .ims-input--invalid):not(:disabled, .ims-input--disabled, .ims-input--readonly),
+.ims-input-host:is(.ng-invalid, .ims-input--invalid) {
+    --ims-input-tone: var(--ims-input-invalid-border, var(--ims-color-invalid));
+    --ims-input-tone-hover: var(--ims-input-invalid-border, var(--ims-color-invalid));
+    --ims-input-tone-focus: var(--ims-input-invalid-border, var(--ims-color-invalid));
+    --ims-input-tone-ring: var(--ims-input-invalid-focus-ring, var(--ims-color-invalid-focus-ring));
     --ims-input-fill: var(--ims-input-invalid-fill, var(--ims-color-status-danger-subtle));
 }
 
-.ims-input.ng-invalid:focus-visible {
-    box-shadow: 0 0 0 3px var(--ims-input-invalid-focus-ring, var(--ims-color-invalid-focus-ring)),
-    var(--ims-input-field-shadow);
+// A surface whose validity is not its control's says so, and every tone falls
+// back to the resting default at its use site. `ims-focus-mode` is why this
+// exists: it holds the control at the value the user started from while the
+// dialog edits a draft, so `.ng-invalid` there describes a value that is no
+// longer on screen.
+//
+// After the invalid rule, which it ties on specificity.
+.ims-input.ims-input--valid:not(:disabled, .ims-input--disabled, .ims-input--readonly) {
+    --ims-input-tone: initial;
+    --ims-input-tone-hover: initial;
+    --ims-input-tone-focus: initial;
+    --ims-input-tone-ring: initial;
+    --ims-input-fill: initial;
+}
+
+// Not editable. `--disabled` stands for a surface that cannot carry the
+// attribute, such as a wrapper around a disabled control; `--readonly` for one
+// that must read as inert while staying interactive, such as the select
+// trigger that still opens a readonly panel.
+.ims-input:is(:disabled, .ims-input--disabled, .ims-input--readonly) {
+    --ims-input-tone: var(--ims-input-disabled-border, var(--ims-color-border-subtle));
+    --ims-input-tone-hover: var(--ims-input-disabled-border, var(--ims-color-border-subtle));
+    --ims-input-background: var(--ims-input-disabled-background, var(--ims-color-surface-input-disabled));
+    --ims-input-color: var(--ims-input-disabled-color, var(--ims-color-on-surface-disabled));
+
+    // Painted here as well as re-pointed. `.ims-input` paints the text from one
+    // class, and a component that hands its trigger `color: inherit` — as
+    // ims-select and ims-autocomplete do, to keep a button off the UA's button
+    // text colour — ties that and wins on file order. Declaring it in the state
+    // rule gives the colour the reach the state deserves.
+    color: var(--ims-input-color);
+    cursor: not-allowed;
+}
+
+// Which inert tones the rule above paints in: `.ims-readonly` chooses the
+// readable set, and `.ims-input--readonly` says the surface is in that state.
+// The two are separate because a control can be genuinely disabled and still
+// want its value easy to read.
+.ims-readonly {
+    --ims-input-disabled-border: var(--ims-color-border-subtle);
+    --ims-input-disabled-background: var(--ims-color-surface-input-readonly);
+    // A readonly field's value is content to be read, so it keeps the colour an
+    // editable field's text has. Only the border and the missing hover fill say
+    // the field cannot be typed in.
+    --ims-input-disabled-color: var(--ims-color-on-surface);
 }

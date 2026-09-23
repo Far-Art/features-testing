@@ -39,6 +39,7 @@
     position: absolute;
     inset-block-start: 50%;
     right: 0.65rem;
+    color: var(--ims-input-tone, var(--ims-color-interactive-alt-strong));
     pointer-events: none;
     translate: 0 -50%;
 }

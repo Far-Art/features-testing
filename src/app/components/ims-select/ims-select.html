@@ -12,7 +12,7 @@
     [imsTextTruncateOverflow]="multiple() && (multiDisplay().firstTruncated || multiDisplay().overflowCount > 0)"
     [class.ims-select__trigger--open]="open()"
     [class.ims-select__trigger--empty]="!hasSelection()"
-    [class.ims-select__trigger--readonly]="interactionDisabled()"
+    [class.ims-input--readonly]="interactionDisabled()"
     [disabled]="interactionDisabled() && !readonlyMultipleMode()"
     [attr.id]="id()"
     [attr.aria-label]="ariaLabel()"

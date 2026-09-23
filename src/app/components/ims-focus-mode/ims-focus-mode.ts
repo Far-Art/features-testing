@@ -347,8 +347,9 @@ export class ImsFocusMode {
     // the control still holds the value the user started from — so left alone
     // the field's border keeps reporting on a value that is no longer on
     // screen, and never moves as the user types their way in or out of an
-    // error. Focus mode states the draft's validity instead, on the same terms
-    // the field uses in its form row.
+    // error. Focus mode states the draft's validity instead, in the shared
+    // field vocabulary, so the draft is painted on the same terms the control
+    // is painted on in its form row.
     //
     // Scoped to the dialog and removed on close: outside it the control's own
     // status is the accurate one again.
@@ -359,9 +360,7 @@ export class ImsFocusMode {
         return;
       }
 
-      const state = this.draftValid()
-        ? 'ims-focus-mode__field--valid'
-        : 'ims-focus-mode__field--invalid';
+      const state = this.draftValid() ? 'ims-input--valid' : 'ims-input--invalid';
 
       element.classList.add(state);
       onCleanup(() => element.classList.remove(state));

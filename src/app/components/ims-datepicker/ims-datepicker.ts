@@ -166,7 +166,11 @@ function provideDatepickerValidator(type: Type<unknown>) {
         }
     ],
     host: {
-        class: 'ims-datepicker-host ims-input-host ims-input-action'
+        class: 'ims-datepicker-host ims-input-host ims-input-action',
+        // Text that does not parse is an invalidity the Angular control knows
+        // nothing about. Declared on the host rather than on the field so the
+        // shared tones reach the toggle button beside it as well.
+        '[class.ims-input--invalid]': 'parseInvalid()'
     }
 })
 export class ImsDatepicker

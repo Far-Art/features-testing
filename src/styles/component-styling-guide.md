@@ -103,47 +103,104 @@ For a native Angular form control:
 ```
 
 Angular places `ng-invalid` directly on the input, and `.ims-input` supplies the
-invalid border and focus ring.
+invalid border and focus ring. A component that paints the field *inside*
+itself is the other shape, and "A field's states" below is how it declares it.
 
 A `textarea` carrying the class is as tall as its own `rows` attribute says, and
 never shorter than one field height — `rows="4"` renders four rows, and
 `rows="1"` lines up with the single-line fields beside it. Write a `min-height`
 only to raise that floor, not to win the attribute back.
 
-For a form-compatible component with an internal visual control, Angular places
-`ng-invalid` on the component host rather than on the `.ims-input` inside it,
-so the invalid rules of `.ims-input` never reach that control. Style the invalid
-state in the component stylesheet, scoped from the host to the primary control,
-and retune the hover fill together with the border, so hovering an invalid field
-answers in the danger tone rather than the house blue:
+### A field's states
+
+`.ims-input` paints every state from a *tone*, never from a literal. Entering a
+state means re-pointing tones; it never means restating the border, the ring and
+the fill.
+
+| Tone | Painted onto |
+| --- | --- |
+| `--ims-input-tone` | the resting border |
+| `--ims-input-tone-hover` | the border under the pointer |
+| `--ims-input-tone-focus` | the border while focused |
+| `--ims-input-tone-ring` | the focus halo |
+| `--ims-input-fill` | the hover and focus fill |
+
+A tone has no value at rest — its default sits at the use site as a `var()`
+fallback — so an unset tone means "resting" and a state can be cancelled with
+`initial`. `ims-checkbox` and `ims-radio` do the same with their own
+`--ims-checkbox-tone*` and `--ims-radio-tone*`.
+
+Custom properties inherit, and that is how a wrapped control's state reaches the
+field inside it. Angular puts `ng-invalid` on the component host, not on the
+`.ims-input` the component paints; mark the host with `.ims-input-host` and the
+shared contract re-points the tones there, so every surface inside the host is
+painted by inheritance. Nothing is scoped by a descendant selector, nothing has
+a specificity to win, and one field costs the same as five:
+
+```html
+<!-- host: class="ims-example-host ims-input-host" -->
+<input class="ims-input ims-example__input" data-ims-main-control type="text">
+```
+
+When the component uses `ims-error-popover`, mark its primary control with
+`data-ims-main-control`: the directive puts `aria-invalid` and
+`aria-describedby` on the marked element, or on the first focusable element
+inside it, and otherwise falls back to the host's first focusable descendant. A
+marked element with `role="radiogroup"` or `role="group"`, such as the
+`ims-radio-group` host, receives them itself.
+
+A surface that declares a tone itself outranks an inherited one whatever the
+specificities say, which is what keeps a disabled or readonly field out of its
+control's invalid colours without a `:not()` anywhere. A CDK overlay is detached
+from the host, so a panel's own inputs — a filter, for instance — keep their
+resting colours with nothing said about them.
+
+Four classes say what a component's own markup cannot:
+
+| On | Class | Means |
+| --- | --- | --- |
+| host | `ims-input--invalid` | invalid in a way the Angular control does not know about, such as text that will not parse |
+| surface | `ims-input--disabled` | paint as disabled; for a surface that cannot carry `:disabled`, such as a wrapper `div` |
+| surface | `ims-input--readonly` | paint as not editable while staying interactive |
+| surface | `ims-input--valid` | this surface's validity is not its control's, as in `ims-focus-mode`'s draft |
+
+`.ims-input--readonly` and `.ims-readonly` are different things:
+`.ims-input--readonly` says the surface is in that state, `.ims-readonly` says
+which inert tones to paint it in.
+
+An accent that sits *beside* the field rather than inside it — a chevron, a
+clear button, a toggle — reads the tone with its own resting colour as the
+fallback, and follows the field without a rule of its own:
 
 ```scss
-.ims-example-host.ng-invalid .ims-example__input:not(:disabled) {
-    --ims-input-fill: var(--ims-input-invalid-fill, var(--ims-color-status-danger-subtle));
-
-    border-color: var(--ims-input-invalid-border, var(--ims-color-invalid));
+.ims-example__chevron {
+    color: var(--ims-input-tone, var(--ims-color-interactive-alt-strong));
 }
 ```
 
-Scoping the rule to the primary control keeps auxiliary inputs, such as filters,
-unaffected. When the component uses `ims-error-popover`, also mark that control
-with `data-ims-main-control`: the directive puts `aria-invalid` and
-`aria-describedby` on the marked element, or on the first focusable element
-inside it, and otherwise falls back to the host's first focusable descendant. A marked element
-with `role="radiogroup"` or `role="group"`, such as the `ims-radio-group` host,
-receives them itself.
+### Composite fields
+
+A field with more than one control behind one border needs nothing beyond the
+shape. Put `.ims-input-host` on the host, `.ims-input` on the element that
+paints, and leave the inner controls bare:
 
 ```html
-<div class="ims-example">
-    <input
-        class="ims-input ims-example__input"
-        data-ims-main-control
-        type="text"
-    >
-
-    <input class="ims-input ims-example__filter" type="search">
+<!-- host: class="ims-phone-host ims-input-host" -->
+<div class="ims-input ims-phone__field" [class.ims-input--disabled]="interactionDisabled()">
+    <input class="ims-phone__prefix">
+    <span class="ims-phone__separator" aria-hidden="true">-</span>
+    <input class="ims-phone__number">
 </div>
 ```
+
+Hover, the focus ring, invalid, disabled and readonly all arrive from the
+contract. The component stylesheet strips the inner controls' own border,
+background and outline and lays them out, and says nothing about state.
+
+The hover includes the one a label starts: a `<label for>`, and a label that
+wraps its control, put the *control* into `:hover` natively and never a wrapper
+painted around it, so the contract matches `:has(:hover)` as well as `:hover`.
+The focus ring works the same way, through `:has(:focus-visible)`.
 
 The input class supports local overrides:
 
@@ -187,7 +244,7 @@ The layout exposes two customization variables:
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `--ims-input-action-size` | `2.5rem` | Fixed inline and block size of the action. |
-| `--ims-input-action-gap` | `0.375rem` | Logical space between the field and action. |
+| `--ims-input-action-gap` | `0.175rem` | Logical space between the field and action. |
 
 The first version intentionally supports one fixed-size action. Keep the field
 in normal flow and use `.ims-input-action__button` for the adjacent button so
@@ -235,6 +292,11 @@ Use these semantic tokens:
 `--ims-color-border-readonly` is for controls drawn only by their border, such
 as a checkbox. Shared inputs keep `--ims-color-border-subtle`, which would leave
 an unchecked box barely visible against the readonly surface.
+
+`--ims-color-on-surface-readonly` is for a control's own text, such as a
+checkbox or radio label. A shared input's *value* is content rather than a
+label, so `.ims-readonly` gives it `--ims-color-on-surface`, the colour an
+editable field's text has.
 
 Add `.ims-readonly` to a disabled shared input:
 
@@ -301,12 +363,15 @@ Do not construct class names with the parent selector:
 - Use `.ims-readonly` only as a readable visual treatment for disabled
   controls.
 - Remember that detached overlays do not inherit component-local variables.
-- Apply `.ims-input` to input-like controls.
-- Style a wrapped control's invalid state from its host, retuning
-  `--ims-input-fill` with the border, and mark its primary control with
-  `data-ims-main-control` when it uses `ims-error-popover`.
+- Apply `.ims-input` to input-like controls, and `.ims-input-host` to a
+  component that paints them inside itself.
+- Enter a state by re-pointing tones, never by restating the border, the ring
+  and the fill — and let an accent beside the field read `--ims-input-tone`.
+- Mark a wrapped control's primary control with `data-ims-main-control` when it
+  uses `ims-error-popover`.
 - Use the shared input-action classes for one fixed-size adjacent button.
 - Keep layout and structural styles inside the component stylesheet.
 - Write full class names for elements and modifiers.
-- Check hover, keyboard focus, disabled, invalid, LTR, and RTL states.
+- Check hover, hover from the field's label, keyboard focus, disabled,
+  readonly, invalid, invalid while disabled, LTR, and RTL states.
 - Compile the global `src/styles.scss` entry point after changing shared styles.
