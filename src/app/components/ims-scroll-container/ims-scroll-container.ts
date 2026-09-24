@@ -59,13 +59,13 @@ export class ImsScrollContainer {
     readonly bottomHazeOffset = input(0, {transform: numberAttribute});
 
     /** Hides the visual edge haze and arrows while keeping scroll behavior unchanged. */
-    readonly hideHaze = input(false, {transform: booleanAttribute});
+    readonly hideHaze = input<boolean, boolean | string | null | undefined>(false, {transform: booleanAttribute});
 
     /** Accessible label for the scrollable region. */
     readonly ariaLabel = input<string | null>(null);
 
     /** Makes the host keyboard-focusable while overflow exists, so arrow/page scrolling works. */
-    readonly keyboardScroll = input(true, {transform: booleanAttribute});
+    readonly keyboardScroll = input<boolean, boolean | string | null | undefined>(true, {transform: booleanAttribute});
 
     private readonly inlineStartSentinel =
         viewChild.required<ElementRef<HTMLElement>>('inlineStartSentinel');

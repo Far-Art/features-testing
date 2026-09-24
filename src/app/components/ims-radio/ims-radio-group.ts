@@ -77,7 +77,7 @@ export class ImsRadioGroup<T = unknown> extends BasicValueAccessor<ImsRadioGroup
     private readonly userPickedOption = signal<ImsRadioOption | null>(null);
 
     /** Lets the user select any number of options; the value becomes an array. */
-    readonly multiple = input(false, {transform: booleanAttribute});
+    readonly multiple = input<boolean, boolean | string | null | undefined>(false, {transform: booleanAttribute});
     /** Style of every option that does not set its own `appearance`. */
     readonly appearance = input<ImsRadioAppearance>('radio');
     readonly layout = input<ImsRadioGroupLayout>('stacked');
@@ -89,7 +89,7 @@ export class ImsRadioGroup<T = unknown> extends BasicValueAccessor<ImsRadioGroup
      * Announces the group as required. Validation itself comes from Angular's
      * `required` validator, which already treats `null` and `[]` as empty.
      */
-    readonly required = input(false, {transform: booleanAttribute});
+    readonly required = input<boolean, boolean | string | null | undefined>(false, {transform: booleanAttribute});
 
     /**
      * Emitted only when the user changes the selection, with the new group

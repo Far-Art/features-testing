@@ -90,13 +90,13 @@ export class ImsTextTruncateDirective implements OnDestroy {
     readonly display = input<string | null>('block', {alias: 'imsTruncateDisplay'});
 
     /** Adds `tabindex="0"` so a normally non-focusable host can reveal the tooltip by keyboard. */
-    readonly focusable = input(false, {
+    readonly focusable = input<boolean, boolean | string | null | undefined>(false, {
         alias: 'imsTruncateFocusable',
         transform: booleanAttribute
     });
 
     /** Disables tooltip creation while preserving any configured truncation styles. */
-    readonly popoverDisabled = input(false, {
+    readonly popoverDisabled = input<boolean, boolean | string | null | undefined>(false, {
         alias: 'imsTruncatePopoverDisabled',
         transform: booleanAttribute
     });
@@ -141,13 +141,13 @@ export class ImsTextTruncateDirective implements OnDestroy {
      *
      * Disable this when the component already owns its truncation styles.
      */
-    readonly applyStyles = input(true, {
+    readonly applyStyles = input<boolean, boolean | string | null | undefined>(true, {
         alias: 'imsTextTruncateApplyStyles',
         transform: booleanAttribute
     });
 
     /** Whether focus entering the host may display the tooltip. */
-    readonly showOnFocus = input(true, {
+    readonly showOnFocus = input<boolean, boolean | string | null | undefined>(true, {
         alias: 'imsTextTruncateShowOnFocus',
         transform: booleanAttribute
     });
@@ -158,7 +158,7 @@ export class ImsTextTruncateDirective implements OnDestroy {
      * Use this when content is semantically abbreviated, such as a `+N` selected
      * values badge, even if the measured DOM node does not currently overflow.
      */
-    readonly overflow = input(false, {
+    readonly overflow = input<boolean, boolean | string | null | undefined>(false, {
         alias: 'imsTextTruncateOverflow',
         transform: booleanAttribute
     });
@@ -170,7 +170,7 @@ export class ImsTextTruncateDirective implements OnDestroy {
      * tooltip, or the gap between them. The default non-interactive mode closes
      * on host leave.
      */
-    readonly interactive = input(false, {
+    readonly interactive = input<boolean, boolean | string | null | undefined>(false, {
         alias: 'imsTextTruncateInteractive',
         transform: booleanAttribute
     });

@@ -58,7 +58,7 @@ export class ImsSelectDirective {
     private formDisabled = false;
 
     /** Disabled state set via the `disabled` attribute or property binding. */
-    readonly disabledInput = input(false, {alias: 'disabled', transform: booleanAttribute});
+    readonly disabledInput = input<boolean, boolean | string | null | undefined>(false, {alias: 'disabled', transform: booleanAttribute});
 
     /** True when inherited from the nearest `ims-readonly` provider. */
     protected readonly readonlyMode = ReadonlyDirective.injectSignal();

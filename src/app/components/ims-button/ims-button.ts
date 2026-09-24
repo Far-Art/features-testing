@@ -120,7 +120,7 @@ export abstract class ImsButtonBase {
     }
 
     /** Native disabled state. Readonly also disables interaction through `interactionDisabled`. */
-    readonly disabledInput = input(false, {alias: 'disabled', transform: booleanAttribute});
+    readonly disabledInput = input<boolean, boolean | string | null | undefined>(false, {alias: 'disabled', transform: booleanAttribute});
 
     /** Defaults buttons to non-submit behavior; bind `type="submit"` when needed. */
     readonly type = input<ImsButtonType>('button');
@@ -221,7 +221,7 @@ export abstract class ImsButtonBase {
      * At most one per view. The halo works by being the only thing moving;
      * a second one turns both into noise.
      */
-    readonly callToAction = input(false, {alias: 'call-to-action', transform: booleanAttribute});
+    readonly callToAction = input<boolean, boolean | string | null | undefined>(false, {alias: 'call-to-action', transform: booleanAttribute});
 
     protected readonly normalizedIcon = computed(() => this.resolveIcon().trim());
 

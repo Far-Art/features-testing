@@ -76,7 +76,7 @@ export class ImsErrorPopoverDirective
         alias: 'ims-error-popover'
     });
     /** Disables every automatic, pointer, and focus opening trigger. */
-    readonly disabled = input(false, {
+    readonly disabled = input<boolean, boolean | string | null | undefined>(false, {
         alias: 'ims-error-popover-disabled',
         transform: booleanAttribute
     });

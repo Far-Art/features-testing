@@ -202,7 +202,7 @@ export class ImsFormatCurrencyDirective extends ImsFormatBase {
   readonly symbol = input<string>('', { alias: 'imsFormatCurrency' });
 
   /** Whether the symbol is shown at all. Absent means the bare number. */
-  readonly showSymbol = input(false, { transform: booleanAttribute });
+  readonly showSymbol = input<boolean, boolean | string | null | undefined>(false, { transform: booleanAttribute });
 
   protected readonly token = signal(IMS_CURRENCY_FORMAT).asReadonly();
 

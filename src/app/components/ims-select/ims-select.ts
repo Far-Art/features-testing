@@ -165,7 +165,7 @@ export class ImsSelect<T = unknown>
   readonly options = contentChildren<ImsOption<T>>(ImsOption, {descendants: true});
 
   /** Enables multi-selection. Multi-select writes a readonly array of selected values. */
-  readonly multiple = input(false, {transform: booleanAttribute});
+  readonly multiple = input<boolean, boolean | string | null | undefined>(false, {transform: booleanAttribute});
 
   /** Text displayed in the trigger when no value is selected. Defaults to `labels.selectPlaceholder`. */
   readonly placeholder = input<string | null>(null);
@@ -174,7 +174,7 @@ export class ImsSelect<T = unknown>
    * Offers a clear button in a single select while it holds a value, and lets
    * Delete or Backspace on the closed trigger clear it. Clearing writes `null`.
    */
-  readonly clearable = input(false, {transform: booleanAttribute});
+  readonly clearable = input<boolean, boolean | string | null | undefined>(false, {transform: booleanAttribute});
 
   /** Controls whether the filter input is shown: always, never, or above the auto threshold. */
   readonly filter = input<ImsSelectFilterMode>('auto');
@@ -186,7 +186,7 @@ export class ImsSelect<T = unknown>
   readonly editDialogMode = input<ImsSelectEditDialogMode>('default');
 
   /** Lets a custom edit-dialog owner disable the toolbar action independently. */
-  readonly editDialogDisabled = input(false, {transform: booleanAttribute});
+  readonly editDialogDisabled = input<boolean, boolean | string | null | undefined>(false, {transform: booleanAttribute});
 
   /** Accessible label for the toolbar edit action. Defaults to `labels.editSelection`. */
   readonly editDialogAriaLabel = input<string | null>(null);

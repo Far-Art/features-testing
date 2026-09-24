@@ -54,7 +54,7 @@ export class ImsOption<T = unknown> implements AfterViewInit, OnDestroy, ImsSele
     readonly selectionText = input<string | null>(null);
 
     /** Prevents this option from being selected or focused by option navigation. */
-    readonly disabled = input(false, {transform: booleanAttribute});
+    readonly disabled = input<boolean, boolean | string | null | undefined>(false, {transform: booleanAttribute});
     readonly contentText = signal('');
     readonly id = `ims-option-${nextOptionId++}`;
 

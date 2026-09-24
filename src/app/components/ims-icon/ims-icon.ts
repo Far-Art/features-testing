@@ -50,7 +50,7 @@ import {
 })
 export class ImsIcon {
     /** Solid rather than outlined — the font's `FILL` axis. */
-    readonly filled = input(false, {transform: booleanAttribute});
+    readonly filled = input<boolean, boolean | string | null | undefined>(false, {transform: booleanAttribute});
 
     /**
      * Rendered font size in px. Unset defers to `--ims-icon-size`, which is

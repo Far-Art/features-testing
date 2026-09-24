@@ -21,7 +21,7 @@ import {
 })
 export class ImsExpandCollapseButtonDirective {
     readonly expanded = model(false);
-    readonly disabled = input(false, {transform: booleanAttribute});
+    readonly disabled = input<boolean, boolean | string | null | undefined>(false, {transform: booleanAttribute});
     readonly expandAriaLabel = input('Expand');
     readonly collapseAriaLabel = input('Collapse');
 

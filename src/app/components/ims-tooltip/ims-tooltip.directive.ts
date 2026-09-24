@@ -55,7 +55,7 @@ export class ImsTooltip extends ImsOverlayTrigger {
     readonly position = input<ImsTooltipPosition | null>(null, {alias: 'imsTooltipPosition'});
 
     /** Suppresses the tooltip while keeping its message bound. */
-    readonly disabled = input(false, {
+    readonly disabled = input<boolean, boolean | string | null | undefined>(false, {
         alias: 'imsTooltipDisabled',
         transform: booleanAttribute
     });

@@ -56,7 +56,7 @@ export class ImsLongPressDirective {
     readonly holdMs = input(DEFAULT_HOLD_MS, {alias: 'imsLongPress', transform: coerceHoldMs});
 
     /** Allows consumers to temporarily bypass long-press handling without removing the directive. */
-    readonly disabled = input(false, {alias: 'imsLongPressDisabled', transform: booleanAttribute});
+    readonly disabled = input<boolean, boolean | string | null | undefined>(false, {alias: 'imsLongPressDisabled', transform: booleanAttribute});
 
     /** Controls whether activation happens when the hold completes or when the user releases afterward. */
     readonly activation = input<ImsLongPressActivation>('release', {

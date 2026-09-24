@@ -85,7 +85,7 @@ export class ImsSelectionToolbar {
     readonly editMode = input<ImsSelectionEditDialogMode>('default');
 
     /** Disables the edit action. */
-    readonly editDisabled = input(false, {transform: booleanAttribute});
+    readonly editDisabled = input<boolean, boolean | string | null | undefined>(false, {transform: booleanAttribute});
 
     /** Accessible name of the edit action. Falls back to `labels().editSelection`. */
     readonly editAriaLabel = input<string | null>(null);

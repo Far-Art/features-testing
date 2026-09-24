@@ -31,7 +31,7 @@ export class ImsViewportFillHeightDirective {
     private lastProcessedOffset = 0;
     private unlistenWindowResize: (() => void) | null = null;
 
-    readonly listenWindowResize = input(false, {
+    readonly listenWindowResize = input<boolean, boolean | string | null | undefined>(false, {
         alias: 'imsViewportFillHeightListenWindowResize',
         transform: booleanAttribute
     });

@@ -35,9 +35,9 @@ export class ImsGridSortHeader {
     /** First direction used when this header becomes active. */
     readonly start = input<SortDirection>('asc');
     /** Disables sorting interaction for this header. */
-    readonly disabled = input(false, {transform: booleanAttribute});
+    readonly disabled = input<boolean, boolean | string | null | undefined>(false, {transform: booleanAttribute});
     /** Prevents the third click from clearing the sort direction. */
-    readonly disableClear = input(false, {transform: booleanAttribute});
+    readonly disableClear = input<boolean, boolean | string | null | undefined>(false, {transform: booleanAttribute});
     /** Accessible description of the sort action delegated to Material. */
     readonly sortActionDescription = input('');
 }

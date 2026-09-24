@@ -80,15 +80,15 @@ export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T 
     readonly falseValue = input<F>(false as F);
     // When bound, takes precedence over value/trueValue comparison.
     // undefined means "not provided — defer to value-based logic".
-    readonly checked = input<boolean | undefined, unknown>(undefined, {
-        transform: (v): boolean | undefined => v == null ? undefined : booleanAttribute(v as boolean | string)
+    readonly checked = input<boolean | undefined, boolean | string | null | undefined>(undefined, {
+        transform: (v): boolean | undefined => v == null ? undefined : booleanAttribute(v)
     });
     /**
      * Requires the box to be checked: a bound form control gets a `required`
      * error while its value is anything other than `trueValue`. Angular's own
      * `required` validator counts an unchecked `false` as filled in.
      */
-    readonly required = input(false, {transform: booleanAttribute});
+    readonly required = input<boolean, boolean | string | null | undefined>(false, {transform: booleanAttribute});
     /**
      * `'checkbox'` (default) draws the rounded box; `'check'` draws the green
      * circle `ims-radio`'s check appearance uses, so a checkbox can sit in a

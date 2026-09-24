@@ -113,7 +113,7 @@ export class ImsDuoIcon {
      * `.ims-duo-icon-hover-group` is hovered, which is what you want for an icon
      * inside a button.
      */
-    readonly hover = input(false, {transform: booleanAttribute});
+    readonly hover = input<boolean, boolean | string | null | undefined>(false, {transform: booleanAttribute});
 
     /** Per-instance contour weight. Unset defers to `--ims-duo-icon-stroke-width`. */
     readonly strokeWidth = input<number | null, unknown>(null, {

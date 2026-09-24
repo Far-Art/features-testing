@@ -222,7 +222,7 @@ export class ImsDatepicker
     readonly zone = input<string | null>(null);
     readonly firstDayOfWeek = input<ImsDatepickerFirstDayOfWeek | null>(null);
     readonly labels = input<PartialImsDatepickerLabels | null>(null);
-    readonly showWeekNumbers = input(false, {transform: booleanAttribute});
+    readonly showWeekNumbers = input<boolean, boolean | string | null | undefined>(false, {transform: booleanAttribute});
     readonly placeholder = input<string | null>(null);
     readonly ariaLabel = input<string | null>(null, {alias: 'ariaLabel'});
     readonly ariaLabelledby = input<string | null>(null, {alias: 'ariaLabelledby'});

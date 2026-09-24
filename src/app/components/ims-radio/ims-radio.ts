@@ -42,7 +42,7 @@ export class ImsRadio<T = unknown> {
 
     readonly value = input.required<T>();
     /** Disables this option only; the group's disabled and readonly state still apply. */
-    readonly disabledInput = input(false, {alias: 'disabled', transform: booleanAttribute});
+    readonly disabledInput = input<boolean, boolean | string | null | undefined>(false, {alias: 'disabled', transform: booleanAttribute});
     /** Overrides the group's appearance for this option. `null` inherits it. */
     readonly appearanceInput = input<ImsRadioAppearance | null>(null, {alias: 'appearance'});
     /** Forwarded to the native input, not the host. */

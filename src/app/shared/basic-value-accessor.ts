@@ -57,7 +57,7 @@ export abstract class BasicValueAccessor<T = unknown> implements ControlValueAcc
     readonly id = input<string | null>(null);
 
     /** Disabled state set via the `disabled` attribute or property binding. */
-    readonly disabledInput = input(false, {alias: 'disabled', transform: booleanAttribute});
+    readonly disabledInput = input<boolean, boolean | string | null | undefined>(false, {alias: 'disabled', transform: booleanAttribute});
 
     /** True when disabled via an attribute binding or by a parent form. */
     readonly disabled = computed(() => this.disabledInput() || this.formDisabled());

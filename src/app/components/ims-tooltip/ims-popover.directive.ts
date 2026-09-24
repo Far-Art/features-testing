@@ -98,13 +98,13 @@ export class ImsPopover extends ImsOverlayTrigger {
      * worth reaching. Turned off, this behaves like a tooltip that happens to
      * render rich content: no hover bridge, no dismiss handling, no clicking.
      */
-    readonly interactive = input(true, {
+    readonly interactive = input<boolean, boolean | string | null | undefined>(true, {
         alias: 'imsPopoverInteractive',
         transform: booleanAttribute
     });
 
     /** Suppresses the popover while keeping its content bound. */
-    readonly disabled = input(false, {
+    readonly disabled = input<boolean, boolean | string | null | undefined>(false, {
         alias: 'imsPopoverDisabled',
         transform: booleanAttribute
     });
