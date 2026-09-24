@@ -1181,6 +1181,112 @@
             </div>
         </app-demo-resize-frame>
     </div>
+
+    <div class="form-layout-demo__example">
+        <h2>תיבות סימון בקבוצה</h2>
+        <p class="form-layout-demo__hint">
+            שתי תיבות סימון בתוך ims-form-field-group. כשהתווית בתוך תיבת הסימון, התיבות הן ילדים ישירים של
+            הקבוצה: בקבוצה אנכית כל אחת בשורה משלה, ובקבוצה אופקית כל אחת בעמודה משלה. כשהתווית מחוצה לה,
+            כל תיבה נמצאת בזוג עם טקסט, כמו כל פקד אחר בקבוצה, והיא ברוחב הריבוע שלה בלבד, כך שרק הטקסט
+            והריבוע מסמנים אותה. התווית של הזוג עוטפת את התווית של תיבת הסימון, ו־HTML לא מתיר תווית בתוך
+            תווית, ולכן עדיף לשים את התווית בתוך תיבת הסימון.
+        </p>
+
+        <app-demo-resize-frame>
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">תווית בתוך תיבת הסימון, קבוצה אופקית</h3>
+                <ims-form-field>
+                    <span imsFormFieldLabel id="demo-checkbox-inside-inline-label">ערוצי עדכון</span>
+                    <ims-form-field-group role="group" aria-labelledby="demo-checkbox-inside-inline-label">
+                        <ims-checkbox [(ngModel)]="channelSms">SMS</ims-checkbox>
+                        <ims-checkbox [(ngModel)]="channelEmail">דואר אלקטרוני</ims-checkbox>
+                    </ims-form-field-group>
+                </ims-form-field>
+            </div>
+
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">תווית בתוך תיבת הסימון, קבוצה אנכית</h3>
+                <ims-form-field>
+                    <span imsFormFieldLabel id="demo-checkbox-inside-stacked-label">ערוצי עדכון</span>
+                    <ims-form-field-group layout="stacked" role="group" aria-labelledby="demo-checkbox-inside-stacked-label">
+                        <ims-checkbox [(ngModel)]="channelSms">SMS</ims-checkbox>
+                        <ims-checkbox [(ngModel)]="channelEmail">דואר אלקטרוני</ims-checkbox>
+                    </ims-form-field-group>
+                </ims-form-field>
+            </div>
+
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">תווית מחוץ לתיבת הסימון, קבוצה אופקית</h3>
+                <ims-form-field>
+                    <span imsFormFieldLabel id="demo-checkbox-outside-inline-label">ערוצי עדכון</span>
+                    <ims-form-field-group role="group" aria-labelledby="demo-checkbox-outside-inline-label">
+                        <label>
+                            <span>SMS</span>
+                            <ims-checkbox [(ngModel)]="channelSms"/>
+                        </label>
+
+                        <label>
+                            <span>דואר אלקטרוני</span>
+                            <ims-checkbox [(ngModel)]="channelEmail"/>
+                        </label>
+                    </ims-form-field-group>
+                </ims-form-field>
+            </div>
+
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">תווית מחוץ לתיבת הסימון, קבוצה אנכית</h3>
+                <ims-form-field>
+                    <span imsFormFieldLabel id="demo-checkbox-outside-stacked-label">ערוצי עדכון</span>
+                    <ims-form-field-group layout="stacked" role="group" aria-labelledby="demo-checkbox-outside-stacked-label">
+                        <label>
+                            <span>SMS</span>
+                            <ims-checkbox [(ngModel)]="channelSms"/>
+                        </label>
+
+                        <label>
+                            <span>דואר אלקטרוני</span>
+                            <ims-checkbox [(ngModel)]="channelEmail"/>
+                        </label>
+                    </ims-form-field-group>
+                </ims-form-field>
+            </div>
+
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">תווית בתוך תיבת הסימון, עם wide בקבוצת שדות</h3>
+                <ims-form-field-grid columns="2">
+                    <ims-form-field-row>
+                        <ims-form-field column="1">
+                            <label for="demo-checkbox-wide-customer">שם לקוח</label>
+                            <input imsInput id="demo-checkbox-wide-customer" value="נועה ישראלי">
+                        </ims-form-field>
+
+                        <ims-form-field column="2">
+                            <label for="demo-checkbox-wide-policy">מספר פוליסה</label>
+                            <input imsInput id="demo-checkbox-wide-policy" value="PL-1274" dir="ltr">
+                        </ims-form-field>
+                    </ims-form-field-row>
+
+                    <ims-form-field-row>
+                        <ims-form-field column="1">
+                            <span imsFormFieldLabel id="demo-checkbox-wide-stacked-label">ערוצי עדכון</span>
+                            <ims-form-field-group wide layout="stacked" role="group" aria-labelledby="demo-checkbox-wide-stacked-label">
+                                <ims-checkbox [(ngModel)]="channelSms">SMS</ims-checkbox>
+                                <ims-checkbox [(ngModel)]="channelEmail">דואר אלקטרוני</ims-checkbox>
+                            </ims-form-field-group>
+                        </ims-form-field>
+
+                        <ims-form-field column="2">
+                            <span imsFormFieldLabel id="demo-checkbox-wide-inline-label">ערוצי תזכורת</span>
+                            <ims-form-field-group wide role="group" aria-labelledby="demo-checkbox-wide-inline-label">
+                                <ims-checkbox [(ngModel)]="reminderSms">SMS</ims-checkbox>
+                                <ims-checkbox [(ngModel)]="reminderEmail">דואר אלקטרוני</ims-checkbox>
+                            </ims-form-field-group>
+                        </ims-form-field>
+                    </ims-form-field-row>
+                </ims-form-field-grid>
+            </div>
+        </app-demo-resize-frame>
+    </div>
 </section>
 
 <section

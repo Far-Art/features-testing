@@ -84,10 +84,33 @@ ims-form-field-group {
             max-inline-size: 100%;
         }
 
+        // A checkbox is only as wide as its box. Stretched across the control
+        // track, the rest of the track would toggle it too, through the pair's
+        // label. At the specificity of the rule above and after it, so a class
+        // still sizes it.
+        > :is(ims-checkbox, input:where([type="checkbox"], [type="radio"])) {
+            justify-self: start;
+            inline-size: auto;
+        }
+
         &:has(> :is(input, select, textarea, button):not(:disabled):hover) > span,
         &:has(> :is(input, select, textarea, button):not(:disabled):focus) > span {
             color: var(--ims-form-accent);
         }
+    }
+
+    // A child that is not a pair, such as a checkbox that holds its own label,
+    // is a control without text. A stacked group puts each one on a line of
+    // its own in the control track, lined up with the pairs' controls, unless
+    // the group is wide (see below). An inline group gives it a column, as it
+    // does a pair.
+    &[data-layout="stacked"] > :not(label) {
+        grid-column: 2 / -1;
+    }
+
+    // As wide as it is, not the whole track. Low, so a class can stretch it.
+    > :where(:not(label)) {
+        justify-self: start;
     }
 
     // A wide stacked group adopts the tracks of its field, which spans the
@@ -100,6 +123,12 @@ ims-form-field-group {
 
         > label > :not(span) {
             grid-column: 2 / -1;
+        }
+
+        // A control that holds its own label has no text for the label
+        // track, so it takes the whole field, from where the labels start.
+        > :not(label) {
+            grid-column: 1 / -1;
         }
     }
 

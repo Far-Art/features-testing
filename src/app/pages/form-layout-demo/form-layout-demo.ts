@@ -90,6 +90,10 @@ export class FormLayoutDemo {
     coverageEnd = utcDate('2027-01-31');
     wideRangeStart = utcDate('2026-06-01');
     wideRangeEnd = utcDate('2027-05-31');
+    channelSms = true;
+    channelEmail = false;
+    reminderSms = false;
+    reminderEmail = true;
     vipCustomer = true;
     smsUpdates = false;
     accountSuspended = true;

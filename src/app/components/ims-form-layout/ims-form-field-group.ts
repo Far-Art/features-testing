@@ -23,8 +23,10 @@ export type ImsFormControlGroupLayout = 'stacked' | 'inline';
  *
  * This is intended for compound values such as a from/to date range. Each
  * direct child should normally be a native `label` containing its local label
- * text and control. The surrounding `ims-form-field` still supplies the main
- * label for the complete value.
+ * text and control. A control that carries its own label, such as an
+ * `ims-checkbox` with projected text, can be a direct child instead, and is
+ * placed like a pair's control. The surrounding `ims-form-field` still
+ * supplies the main label for the complete value.
  *
  * The component only owns the inner layout and interaction styles. The inline
  * layout's columns and width, packed or with `fill`, are held at the
@@ -79,7 +81,9 @@ export class ImsFormFieldGroup {
      * group puts each pair's text in the label column and its control in the
      * value column, so its pairs line up with the fields around them as if
      * they were fields of their own, and like theirs, the texts move above the
-     * controls when the field stacks its label. A main label moves to its own
+     * controls when the field stacks its label. A control with its own label,
+     * such as an `ims-checkbox` with projected text, spans the whole field
+     * instead, from where the labels start. A main label moves to its own
      * line above the group. Applies to a group placed directly in an
      * `ims-form-field`; the field's `labelSpan` and `valueSpan` do not divide
      * it.

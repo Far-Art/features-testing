@@ -522,6 +522,28 @@ another pair's are wider or the control has a width of its own. Only the text
 and the control answer the pointer, and the text is only as wide as itself, so
 a click on the rest of the row does not reach the control.
 
+A checkbox with its own label goes in the group directly, with no pair:
+
+```html
+<ims-form-field-group layout="stacked" role="group" aria-labelledby="channels-label">
+    <ims-checkbox formControlName="sms">SMS</ims-checkbox>
+    <ims-checkbox formControlName="email">Email</ims-checkbox>
+</ims-form-field-group>
+```
+
+- A child of the group that is not a pair is a control without text. A stacked
+  group puts each one on a line of its own in the control track, lined up with
+  the pairs' controls, or across the whole field in a wide group. An inline
+  group gives it a column, as it does a pair.
+- It keeps its own width rather than stretching across its track.
+
+A checkbox can also sit in a pair, after the pair's text. It is then only as
+wide as its box, like a native checkbox or radio in a pair, so the rest of the
+control track does not toggle it through the pair's label. `ims-checkbox`
+renders a `label` of its own, though, and the pair's `label` wraps it. HTML
+does not allow a label inside a label. Browsers handle it, and the text and the
+box each toggle the checkbox once, but prefer the checkbox's own label.
+
 ### Wide Groups
 
 `wide` places the group across the whole field, its label column as well as its
@@ -556,8 +578,12 @@ value column:
   grid, their texts share the label column with the other labels, and their
   controls start where the other values start. When the field's label stacks,
   the texts move above their controls too.
+- A control with its own label, such as an `ims-checkbox` with projected text,
+  has no text for the label track. In a stacked group it spans the whole field
+  instead, from where the labels start, one per line.
 - An inline group starts where the field's labels start and runs to the end
-  of the field. `fill` spreads its pairs across that whole width.
+  of the field, pairs and controls with their own labels alike. `fill` spreads
+  them across that whole width.
 - A main label moves to a line of its own above the group.
 - The field's `labelSpan` and `valueSpan` do not divide a wide group.
 - It applies to a group that is a direct child of `ims-form-field`.
@@ -726,6 +752,8 @@ own styles.
 | Pair in an inline group | `min-inline-size: 0` | set a minimum width for one pair |
 | Text of a group pair | `justify-self: start`, so it is as wide as its text | stretch it across its track |
 | Control in a group pair | `inline-size: 100%`, `min-inline-size: 0`, `max-inline-size: 100%` | size one control |
+| Checkbox or radio in a group pair | `inline-size: auto`, `justify-self: start`, so it is as wide as its box | size it |
+| Group child that is not a pair | `justify-self: start`, so it is as wide as itself | stretch it across its track |
 | Label of a direct `ims-checkbox` | `width: max-content` | let a long label wrap |
 | `ims-form-field-row` in a flex container | `flex: 1`, so it takes the space its siblings leave | keep it at the size of its content, such as `flex: none` |
 | Field in a `fill` standalone row | `flex-grow: 1` | keep one field at its natural width |
