@@ -10,11 +10,12 @@ module.exports = defineConfig([
         extends: [eslint.configs.recommended, tseslint.configs.recommended, tseslint.configs.stylistic, angular.configs.tsRecommended],
         processor: angular.processInlineTemplates,
         rules: {
+            // `ims` is the design system's prefix, `app` the demo pages'.
             '@angular-eslint/directive-selector': [
                 'error',
                 {
                     type: 'attribute',
-                    prefix: 'app',
+                    prefix: ['app', 'ims'],
                     style: 'camelCase',
                 },
             ],
@@ -22,7 +23,7 @@ module.exports = defineConfig([
                 'error',
                 {
                     type: 'element',
-                    prefix: 'app',
+                    prefix: ['app', 'ims'],
                     style: 'kebab-case',
                 },
             ],
@@ -31,6 +32,15 @@ module.exports = defineConfig([
     {
         files: ['**/*.html'],
         extends: [angular.configs.templateRecommended, angular.configs.templateAccessibility],
-        rules: {},
+        rules: {
+            // The design system's form controls, so a label wrapping one of them is
+            // labelling a control.
+            '@angular-eslint/template/label-has-associated-control': [
+                'error',
+                {
+                    controlComponents: ['ims-autocomplete', 'ims-autocomplete-async', 'ims-checkbox', 'ims-datepicker', 'ims-radio', 'ims-select'],
+                },
+            ],
+        },
     },
 ]);
