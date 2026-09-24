@@ -86,6 +86,9 @@ function formFieldSpanAttribute(value: number | string): ImsFormFieldSpan {
  * share value column 2 and row 1. The form layout only handles placement;
  * checkbox visuals remain owned by the checkbox component.
  *
+ * A direct `ims-form-field-group` with `wide` spans the whole field, and the
+ * main label moves to a line of its own above it.
+ *
  * Every `[imsFormFieldHint]` owned by this field describes the control the
  * main label names: its id is added to that control's `aria-describedby`.
  */

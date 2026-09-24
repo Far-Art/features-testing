@@ -12,13 +12,14 @@ export type ImsFormControlGroupLayout = 'stacked' | 'inline';
     template: '<ng-content/>',
     host: {
         '[attr.data-layout]': 'layout()',
-        '[attr.data-fill]': 'fill() ? "" : null'
+        '[attr.data-fill]': 'fill() ? "" : null',
+        '[attr.data-wide]': 'wide() ? "" : null'
     },
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 /**
  * Groups multiple related controls inside the value column of one
- * `ims-form-field`.
+ * `ims-form-field`, or across the whole field with `wide`.
  *
  * This is intended for compound values such as a from/to date range. Each
  * direct child should normally be a native `label` containing its local label
@@ -68,6 +69,28 @@ export class ImsFormFieldGroup {
      * ```
      */
     readonly fill = input<boolean, boolean | string | null | undefined>(false, {
+        transform: booleanAttribute
+    });
+    /**
+     * Places the group across the whole field: the label column as well as
+     * the value column.
+     *
+     * An inline group then starts where the field's labels start. A stacked
+     * group puts each pair's text in the label column and its control in the
+     * value column, so its pairs line up with the fields around them as if
+     * they were fields of their own, and like theirs, the texts move above the
+     * controls when the field stacks its label. A main label moves to its own
+     * line above the group. Applies to a group placed directly in an
+     * `ims-form-field`; the field's `labelSpan` and `valueSpan` do not divide
+     * it.
+     *
+     * @example
+     * ```html
+     * <ims-form-field-group wide>...</ims-form-field-group>
+     * <ims-form-field-group [wide]="useWholeField">...</ims-form-field-group>
+     * ```
+     */
+    readonly wide = input<boolean, boolean | string | null | undefined>(false, {
         transform: booleanAttribute
     });
 }

@@ -20,7 +20,8 @@ to be rewritten.
 - `ims-form-field-fit.ts`: internal inline-size observation, overflow check,
   layout-parent lookup, and the stacked-label and subgrid attributes shared by
   the field, row, and grid.
-- `ims-form-field-group.ts`: stacked or inline compound-control layout.
+- `ims-form-field-group.ts`: stacked or inline compound-control layout, in the
+  value column or across the whole field.
 - `ims-form-field.directives.ts`: the behavior-free `imsFormFieldLabel`,
   `imsFormFieldHint`, and `imsFormFieldInline` markers.
 - `ims-form-field.spec.ts`: focused field projection and label-association tests.
@@ -123,6 +124,7 @@ semantics.
 | --- | --- | --- | --- |
 | `layout` | `'stacked' \| 'inline'` | `'inline'` | Arranges the group's direct label/control pairs vertically or side by side. |
 | `fill` | `boolean` | `false` | Spreads the pairs of an inline group across the value, an even share each. No effect on a stacked group. |
+| `wide` | `boolean` | `false` | Places the group across the whole field, its label column as well as its value column. See Wide Groups. |
 
 ### `ims-form-field-row`
 
@@ -146,9 +148,11 @@ Use one main label-like element and one main value element per field.
 A field may also have no label. Its label track is then empty, so the field
 drops the gap after it and the value starts at the field's start. A direct
 `ims-checkbox` leaves the label track empty too, since its label sits beside it
-in the value track. Inside an `ims-form-field-grid` the gap stays: there the
-label track is shared with the other fields in the column, and the gap lines
-the value up with theirs.
+in the value track, and so does a wide group, which moves the main label onto a
+line of its own, unless it is stacked and its pairs' texts fill the track. See
+Wide Groups. Inside an `ims-form-field-grid` the gap stays: there the label
+track is shared with the other fields in the column, and the gap lines the value
+up with theirs.
 
 When more than one direct label-like element exists, an element marked with
 `imsFormFieldLabel` is selected as the main label before an unmarked native
@@ -517,6 +521,46 @@ A pair spans its whole row, which is wider than its text and control whenever
 another pair's are wider or the control has a width of its own. Only the text
 and the control answer the pointer, and the text is only as wide as itself, so
 a click on the rest of the row does not reach the control.
+
+### Wide Groups
+
+`wide` places the group across the whole field, its label column as well as its
+value column:
+
+```html
+<ims-form-field-grid columns="2">
+    <ims-form-field>
+        <label>Customer</label>
+        <input>
+    </ims-form-field>
+
+    <ims-form-field>
+        <ims-form-field-group wide layout="stacked" role="group" aria-label="Coverage">
+            <label>
+                <span>From</span>
+                <input type="date">
+            </label>
+
+            <label>
+                <span>To</span>
+                <input type="date">
+            </label>
+        </ims-form-field-group>
+    </ims-form-field>
+</ims-form-field-grid>
+```
+
+- A stacked group puts each pair's text in the field's label track and its
+  control in the value track, through to the end of the field. The pairs line
+  up with the fields around them as if they were fields of their own: in a
+  grid, their texts share the label column with the other labels, and their
+  controls start where the other values start. When the field's label stacks,
+  the texts move above their controls too.
+- An inline group starts where the field's labels start and runs to the end
+  of the field. `fill` spreads its pairs across that whole width.
+- A main label moves to a line of its own above the group.
+- The field's `labelSpan` and `valueSpan` do not divide a wide group.
+- It applies to a group that is a direct child of `ims-form-field`.
 
 ## Hints
 

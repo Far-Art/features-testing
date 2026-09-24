@@ -769,6 +769,31 @@
             </div>
 
             <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">קבוצה אנכית עם טקסט</h3>
+                <ims-form-field>
+                    <ims-form-field-group layout="stacked" role="group" aria-label="תקופת זכאות">
+                        <label>
+                            <span>מתאריך</span>
+                            <ims-datepicker
+                                ariaLabel="תקופת זכאות מתאריך"
+                                valueType="date"
+                                [(ngModel)]="unlabelledRangeStart"
+                            />
+                        </label>
+
+                        <label>
+                            <span>עד תאריך</span>
+                            <ims-datepicker
+                                ariaLabel="תקופת זכאות עד תאריך"
+                                valueType="date"
+                                [(ngModel)]="unlabelledRangeEnd"
+                            />
+                        </label>
+                    </ims-form-field-group>
+                </ims-form-field>
+            </div>
+
+            <div class="form-layout-demo__playground-item">
                 <h3 class="form-layout-demo__playground-caption">שדה בלי תווית</h3>
                 <ims-form-field>
                     <input
@@ -1018,6 +1043,137 @@
                                 ariaLabel="תקופת ביטוח עד תאריך"
                                 valueType="date"
                                 [(ngModel)]="coverageEnd"
+                            />
+                        </label>
+                    </ims-form-field-group>
+                </ims-form-field>
+            </div>
+        </app-demo-resize-frame>
+    </div>
+
+    <div class="form-layout-demo__example">
+        <h2>קבוצה על כל השדה</h2>
+        <p class="form-layout-demo__hint">
+            עם wide הקבוצה תופסת את כל השדה, את עמודת התווית ואת עמודת הערך. בקבוצה אנכית הטקסט של כל זוג
+            יושב בעמודת התוויות והפקד בעמודת הערכים, כך שהזוגות מתיישרים עם השדות שסביבם כאילו היו שדות
+            בפני עצמם, וכשהתוויות עוברות אל מעל השדות, גם הטקסטים עוברים אל מעל הפקדים. קבוצה אופקית
+            מתחילה איפה שהתוויות מתחילות. תווית ראשית עוברת לשורה משלה, מעל הקבוצה.
+        </p>
+
+        <app-demo-resize-frame>
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">קבוצה אנכית בקבוצת שדות</h3>
+                <ims-form-field-grid columns="2">
+                    <ims-form-field-row>
+                        <ims-form-field column="1">
+                            <label for="demo-wide-stacked-customer">שם לקוח</label>
+                            <input imsInput id="demo-wide-stacked-customer" value="נועה ישראלי">
+                        </ims-form-field>
+
+                        <ims-form-field column="2">
+                            <label for="demo-wide-stacked-policy">מספר פוליסה</label>
+                            <input imsInput id="demo-wide-stacked-policy" value="PL-1274" dir="ltr">
+                        </ims-form-field>
+                    </ims-form-field-row>
+
+                    <ims-form-field-row>
+                        <ims-form-field column="1">
+                            <ims-form-field-group wide layout="stacked" role="group" aria-label="תקופת ביטוח">
+                                <label>
+                                    <span>מתאריך</span>
+                                    <ims-datepicker
+                                        ariaLabel="תקופת ביטוח מתאריך"
+                                        valueType="date"
+                                        [(ngModel)]="wideRangeStart"
+                                    />
+                                </label>
+
+                                <label>
+                                    <span>עד תאריך</span>
+                                    <ims-datepicker
+                                        ariaLabel="תקופת ביטוח עד תאריך"
+                                        valueType="date"
+                                        [(ngModel)]="wideRangeEnd"
+                                    />
+                                </label>
+                            </ims-form-field-group>
+                        </ims-form-field>
+
+                        <ims-form-field column="2">
+                            <label for="demo-wide-stacked-agent">סוכן</label>
+                            <input imsInput id="demo-wide-stacked-agent" value="מיכל כהן">
+                        </ims-form-field>
+                    </ims-form-field-row>
+                </ims-form-field-grid>
+            </div>
+
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">קבוצה אופקית עם תווית ראשית</h3>
+                <ims-form-field-grid columns="2">
+                    <ims-form-field-row>
+                        <ims-form-field column="1">
+                            <label for="demo-wide-inline-customer">שם לקוח</label>
+                            <input imsInput id="demo-wide-inline-customer" value="נועה ישראלי">
+                        </ims-form-field>
+
+                        <ims-form-field column="2">
+                            <label for="demo-wide-inline-policy">מספר פוליסה</label>
+                            <input imsInput id="demo-wide-inline-policy" value="PL-1274" dir="ltr">
+                        </ims-form-field>
+                    </ims-form-field-row>
+
+                    <ims-form-field-row>
+                        <ims-form-field column="1">
+                            <span imsFormFieldLabel id="demo-wide-inline-label">תקופת ביטוח</span>
+                            <ims-form-field-group wide role="group" aria-labelledby="demo-wide-inline-label">
+                                <label>
+                                    <span>מתאריך</span>
+                                    <ims-datepicker
+                                        ariaLabel="תקופת ביטוח מתאריך"
+                                        valueType="date"
+                                        [(ngModel)]="wideRangeStart"
+                                    />
+                                </label>
+
+                                <label>
+                                    <span>עד תאריך</span>
+                                    <ims-datepicker
+                                        ariaLabel="תקופת ביטוח עד תאריך"
+                                        valueType="date"
+                                        [(ngModel)]="wideRangeEnd"
+                                    />
+                                </label>
+                            </ims-form-field-group>
+                        </ims-form-field>
+
+                        <ims-form-field column="2">
+                            <label for="demo-wide-inline-agent">סוכן</label>
+                            <input imsInput id="demo-wide-inline-agent" value="מיכל כהן">
+                        </ims-form-field>
+                    </ims-form-field-row>
+                </ims-form-field-grid>
+            </div>
+
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">קבוצה אנכית עם תווית ראשית, בשדה עצמאי</h3>
+                <ims-form-field>
+                    <span imsFormFieldLabel id="demo-wide-standalone-label">תקופת ביטוח</span>
+                    <ims-form-field-group wide layout="stacked" role="group" aria-labelledby="demo-wide-standalone-label">
+                        <label>
+                            <span>מתאריך</span>
+                            <ims-datepicker
+                                ariaLabel="תקופת ביטוח מתאריך"
+                                valueType="date"
+                                [(ngModel)]="wideRangeStart"
+                            />
+                        </label>
+
+                        <label>
+                            <span>עד תאריך</span>
+                            <ims-datepicker
+                                ariaLabel="תקופת ביטוח עד תאריך"
+                                valueType="date"
+                                [(ngModel)]="wideRangeEnd"
                             />
                         </label>
                     </ims-form-field-group>

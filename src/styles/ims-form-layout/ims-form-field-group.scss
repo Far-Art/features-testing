@@ -89,4 +89,27 @@ ims-form-field-group {
             color: var(--ims-form-accent);
         }
     }
+
+    // A wide stacked group adopts the tracks of its field, which spans the
+    // whole field: each pair's text sits in the label track, next to the
+    // labels of the fields around it, and its control in the value track,
+    // through to the end of the field. The gap is the field's own.
+    ims-form-field > &[data-wide][data-layout="stacked"] {
+        grid-template-columns: subgrid;
+        column-gap: normal;
+
+        > label > :not(span) {
+            grid-column: 2 / -1;
+        }
+    }
+
+    // When the field stacks its label, the pairs stack their texts above their
+    // controls, as the fields around them do.
+    :is(ims-form-field[data-ims-stacked], ims-form-field-row[data-ims-stacked] > ims-form-field) > &[data-wide][data-layout="stacked"] > label {
+        row-gap: var(--ims-form-field-stacked-gap);
+
+        > * {
+            grid-column: 1 / -1;
+        }
+    }
 }

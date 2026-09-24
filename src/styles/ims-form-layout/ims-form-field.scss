@@ -20,13 +20,15 @@ ims-form-field {
             / span var(--ims-form-grid-column-track-span, 2);
     }
 
-    // The label track is empty when the field has no label, or when a direct
-    // ims-checkbox keeps its label beside it in the value track. The gap after
-    // the track would then only push the value in from the field's start. A
-    // grid keeps it: there the track is shared with the other fields in the
-    // column, and the gap lines the value up with theirs.
+    // The label track is empty when the field has no label, when a direct
+    // ims-checkbox keeps its label beside it in the value track, or when a
+    // wide group spans it with the main label on a line of its own. The gap
+    // after the track would then only push the value in from the field's
+    // start. A grid keeps it: there the track is shared with the other fields
+    // in the column, and the gap lines the value up with theirs.
     &:not(:has(> :is(label, [imsFormFieldLabel]))),
-    &:has(> ims-checkbox) {
+    &:has(> ims-checkbox),
+    &:has(> ims-form-field-group[data-wide]) {
         column-gap: 0;
 
         ims-form-field-grid > &,
@@ -36,6 +38,12 @@ ims-form-field {
         }
     }
 
+    // A wide stacked group puts its pairs' texts in the label track, so the
+    // gap is back between them and their controls.
+    &:has(> ims-form-field-group[data-wide][data-layout="stacked"] > label > span) {
+        column-gap: var(--ims-form-field-gap);
+    }
+
     > :is(label, [imsFormFieldLabel]) {
         grid-column: var(--ims-form-label-grid-column, 1);
         align-self: start;
@@ -43,6 +51,22 @@ ims-form-field {
 
     > :not(label):not([imsFormFieldLabel]) {
         grid-column: var(--ims-form-value-grid-column, 2);
+    }
+
+    // A wide group takes the whole field. This follows the rule above, at the
+    // same specificity, so it wins. The main label moves to a line of its own
+    // above the group, spanning the field too, so it leaves the label track to
+    // the pairs' texts.
+    > ims-form-field-group[data-wide] {
+        grid-column: 1 / -1;
+    }
+
+    &:has(> ims-form-field-group[data-wide]) {
+        row-gap: var(--ims-form-field-stacked-gap);
+
+        > :is(label, [imsFormFieldLabel]) {
+            grid-column: 1 / -1;
+        }
     }
 
     // Size defaults stay at the specificity of the element name, so a class on

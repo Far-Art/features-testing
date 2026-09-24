@@ -88,6 +88,8 @@ export class FormLayoutDemo {
     billingDate = utcDate('2026-05-01');
     coverageStart = utcDate('2026-02-01');
     coverageEnd = utcDate('2027-01-31');
+    wideRangeStart = utcDate('2026-06-01');
+    wideRangeEnd = utcDate('2027-05-31');
     vipCustomer = true;
     smsUpdates = false;
     accountSuspended = true;
