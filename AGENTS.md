@@ -17,6 +17,10 @@
 - Follow ESLint best practices: write TypeScript, Angular components, and templates that pass the recommended rules of `@eslint/js`, `typescript-eslint`, and `angular-eslint`.
 - Fix what a rule would report instead of silencing it. When an exception is really needed, disable only that rule on that line, with a comment saying why.
 
+## Angular Inputs
+
+- Give a boolean input coerced with `booleanAttribute` explicit types, with `string` in its write type: `input<boolean, boolean | string | null | undefined>(false, {transform: booleanAttribute})`. A bare attribute with no `=`, such as `<ims-form-field-row fill>`, passes an empty string. When the write type is left to inference, the IDE flags that bare attribute as requiring a value.
+
 ## CDK Virtual Scroll
 
 - `cdk-virtual-scroll-viewport` never watches its own element. It re-measures only when `checkViewportSize()` is called, on scroll, or on a window resize (`ViewportRuler`). When the viewport's height is set by bindings — following the item count, or clamped to the room an overlay has — observe the element with a `ResizeObserver` and call `checkViewportSize()` from the callback. Re-measuring only when the data changes is not enough: the height can land in a later change-detection pass than the data that caused it.
