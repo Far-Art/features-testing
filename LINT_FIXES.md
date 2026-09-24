@@ -1,0 +1,249 @@
+# Lint fixes
+
+Findings from `npm run lint` (angular-eslint 22.5, `eslint.config.js`) on 2026-09-24, grouped by component so they can be fixed one at a time. 131 errors in 37 components. Line numbers are from that run and shift as files change, so run `npx eslint <path>` on a component before fixing it.
+
+Some fixes change more than the file:
+
+- `directive-selector` "should be camelCase": the selector is part of the public API (`button[ims-button]`, `[ims-error-popover]`, `[ims-readonly]`). Renaming it changes every template that uses it, so decide first whether to rename or to relax the rule.
+- `no-input-rename` / `no-output-rename`: rename the class property to its public name. Templates keep working, but code that reads the property changes.
+- `prefer-on-push-component-change-detection`: a component that relies on default change detection can stop updating, so check its bindings after switching.
+
+## Components
+
+- [ ] **ims-autocomplete** (9)
+  - `src/app/components/ims-autocomplete/ims-autocomplete-base.ts`
+    - 210: `no-input-rename`: Input bindings should not be aliased
+    - 212: `no-input-rename`: Input bindings should not be aliased
+    - 940: `no-empty-function`: Unexpected empty method 'destroyOptionsSource'.
+    - 1085: `prefer-for-of`: Expected a `for-of` loop instead of a `for` loop with this simple iteration.
+  - `src/app/components/ims-autocomplete/ims-autocomplete.html`
+    - 183: `template/click-events-have-key-events`: click must be accompanied by either keyup, keydown or keypress event for accessibility.
+  - `src/app/components/ims-autocomplete/ims-autocomplete.spec.ts`
+    - 31: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
+    - 104: `no-empty-function`: Unexpected empty method 'observe'.
+    - 105: `no-empty-function`: Unexpected empty method 'unobserve'.
+    - 106: `no-empty-function`: Unexpected empty method 'disconnect'.
+- [ ] **ims-button** (10)
+  - `src/app/components/ims-button/ims-button-actions.ts`
+    - 25: `directive-selector`: The selector should be camelCase
+    - 43: `directive-selector`: The selector should be camelCase
+  - `src/app/components/ims-button/ims-button.ts`
+    - 123: `no-input-rename`: Input bindings should not be aliased
+    - 148: `no-input-rename`: Input bindings should not be aliased
+    - 184: `no-input-rename`: Input bindings should not be aliased
+    - 224: `no-input-rename`: Input bindings should not be aliased
+    - 384: `directive-selector`: The selector should be camelCase
+    - 399: `no-input-rename`: Input bindings should not be aliased
+    - 410: `directive-selector`: The selector should be camelCase
+    - 453: `no-input-rename`: Input bindings should not be aliased
+- [ ] **ims-datepicker** (8)
+  - `src/app/components/ims-datepicker/ims-datepicker.html`
+    - 78: `template/interactive-supports-focus`: Elements with interaction handlers must be focusable.
+    - 196: `template/interactive-supports-focus`: Elements with interaction handlers must be focusable.
+    - 256: `template/interactive-supports-focus`: Elements with interaction handlers must be focusable.
+    - 295: `template/interactive-supports-focus`: Elements with interaction handlers must be focusable.
+  - `src/app/components/ims-datepicker/ims-datepicker.spec.ts`
+    - 24: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
+  - `src/app/components/ims-datepicker/ims-datepicker.ts`
+    - 227: `no-input-rename`: Input bindings should not be aliased
+    - 228: `no-input-rename`: Input bindings should not be aliased
+    - 745: `no-useless-assignment`: The value assigned to 'target' is not used in subsequent statements.
+- [ ] **ims-dialog** (2)
+  - `src/app/components/ims-dialog/ims-dialog-section.ts`
+    - 148: `no-input-rename`: Input bindings should not be aliased
+    - 152: `no-input-rename`: Input bindings should not be aliased
+- [ ] **ims-error-popover** (6)
+  - `src/app/components/ims-error-popover/ims-error-popover.directive.ts`
+    - 54: `directive-selector`: The selector should be camelCase
+    - 80: `no-input-rename`: Input bindings should not be aliased
+    - 85: `no-input-rename`: Input bindings should not be aliased
+    - 89: `no-input-rename`: Input bindings should not be aliased
+    - 94: `no-input-rename`: Input bindings should not be aliased
+  - `src/app/components/ims-error-popover/ims-error-popover.spec.ts`
+    - 16: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
+- [ ] **ims-focus-mode** (3)
+  - `src/app/components/ims-focus-mode/ims-focus-mode-trigger.ts`
+    - 18: `directive-selector`: The selector should be camelCase
+  - `src/app/components/ims-focus-mode/ims-focus-mode.spec.ts`
+    - 11: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
+    - 156: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
+- [ ] **ims-form-layout** (4)
+  - `src/app/components/ims-form-layout/ims-form-field-fit.ts`
+    - 54: `no-empty-function`: Unexpected empty arrow function.
+  - `src/app/components/ims-form-layout/ims-form-field.spec.ts`
+    - 9: `component-selector`: The selector should start with one of these prefixes: "app" or "ims"
+    - 11: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
+    - 38: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
+- [ ] **ims-grid** (5)
+  - `src/app/components/ims-grid/ims-grid-sort.directive.ts`
+    - 41: `no-input-rename`: Input bindings should not be aliased
+    - 43: `no-input-rename`: Input bindings should not be aliased
+    - 45: `no-output-rename`: Output bindings should not be aliased
+  - `src/app/components/ims-grid/ims-grid.ts`
+    - 35: `no-input-rename`: Input bindings should not be aliased
+    - 37: `no-input-rename`: Input bindings should not be aliased
+- [ ] **ims-radio** (2)
+  - `src/app/components/ims-radio/ims-radio.ts`
+    - 45: `no-input-rename`: Input bindings should not be aliased
+    - 47: `no-input-rename`: Input bindings should not be aliased
+- [ ] **ims-select** (10)
+  - `src/app/components/ims-select/ims-select.directive.ts`
+    - 40: `directive-selector`: The selector should be camelCase
+    - 61: `no-input-rename`: Input bindings should not be aliased
+  - `src/app/components/ims-select/ims-select.spec.ts`
+    - 22: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
+    - 54: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
+    - 77: `no-empty-function`: Unexpected empty method 'observe'.
+    - 78: `no-empty-function`: Unexpected empty method 'unobserve'.
+    - 79: `no-empty-function`: Unexpected empty method 'disconnect'.
+  - `src/app/components/ims-select/ims-select.ts`
+    - 216: `no-input-rename`: Input bindings should not be aliased
+    - 219: `no-input-rename`: Input bindings should not be aliased
+    - 1044: `prefer-for-of`: Expected a `for-of` loop instead of a `for` loop with this simple iteration.
+- [ ] **ims-snackbar** (1)
+  - `src/app/components/ims-snackbar/ims-snackbar-stack-control.ts`
+    - 17: `no-empty-function`: Unexpected empty method 'dismissAll'.
+- [ ] **ims-tooltip** (2)
+  - `src/app/components/ims-tooltip/ims-overlay-trigger.ts`
+    - 175: `no-unused-vars`: 'event' is defined but never used.
+    - 188: `no-unused-vars`: 'event' is defined but never used.
+
+## Shared
+
+- [ ] **basic-value-accessor.ts** (1)
+  - `src/app/shared/basic-value-accessor.ts`
+    - 60: `no-input-rename`: Input bindings should not be aliased
+- [ ] **ims-pattern.directive.ts** (4)
+  - `src/app/shared/ims-pattern.directive.ts`
+    - 375: `no-input-rename`: Input bindings should not be aliased
+    - 384: `no-input-rename`: Input bindings should not be aliased
+    - 396: `no-input-rename`: Input bindings should not be aliased
+    - 405: `no-input-rename`: Input bindings should not be aliased
+- [ ] **ims-text-truncate.directive.spec.ts** (1)
+  - `src/app/shared/ims-text-truncate.directive.spec.ts`
+    - 7: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
+- [ ] **ims-text-truncate.directive.ts** (5)
+  - `src/app/shared/ims-text-truncate.directive.ts`
+    - 90: `no-input-rename`: Input bindings should not be aliased
+    - 94: `no-input-rename`: Input bindings should not be aliased
+    - 100: `no-input-rename`: Input bindings should not be aliased
+    - 110: `no-input-rename`: Input bindings should not be aliased
+    - 114: `no-input-rename`: Input bindings should not be aliased
+- [ ] **ims-virtual-scroll-auto-height.directive.ts** (5)
+  - `src/app/shared/ims-virtual-scroll-auto-height.directive.ts`
+    - 19: `no-input-rename`: Input bindings should not be aliased
+    - 21: `no-input-rename`: Input bindings should not be aliased
+    - 23: `no-input-rename`: Input bindings should not be aliased
+    - 28: `no-input-rename`: Input bindings should not be aliased
+    - 39: `array-type`: Array type using 'Array<T>' is forbidden. Use 'T[]' instead.
+- [ ] **readonly.directive.ts** (1)
+  - `src/app/shared/readonly.directive.ts`
+    - 35: `directive-selector`: The selector should be camelCase
+
+## Demo pages
+
+- [ ] **buttons-demo** (16)
+  - `src/app/pages/buttons-demo/buttons-demo.html`
+    - 157: `template/elements-content`: <button> should have content
+    - 158: `template/elements-content`: <button> should have content
+    - 176: `template/elements-content`: <button> should have content
+    - 177: `template/elements-content`: <button> should have content
+    - 179: `template/elements-content`: <button> should have content
+    - 180: `template/elements-content`: <button> should have content
+    - 181: `template/elements-content`: <button> should have content
+    - 182: `template/elements-content`: <button> should have content
+    - 183: `template/elements-content`: <button> should have content
+    - 200: `template/elements-content`: <button> should have content
+    - 201: `template/elements-content`: <button> should have content
+    - 202: `template/elements-content`: <button> should have content
+    - 203: `template/elements-content`: <button> should have content
+    - 270: `template/elements-content`: <button> should have content
+    - 271: `template/elements-content`: <button> should have content
+  - `src/app/pages/buttons-demo/buttons-demo.ts`
+    - 33: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
+- [ ] **component-states-demo** (1)
+  - `src/app/pages/component-states-demo/component-states-demo.ts`
+    - 38: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
+- [ ] **datepicker-demo** (1)
+  - `src/app/pages/datepicker-demo/datepicker-demo.ts`
+    - 22: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
+- [ ] **form-layout-demo** (1)
+  - `src/app/pages/form-layout-demo/form-layout-demo.ts`
+    - 70: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
+- [ ] **readonly-demo** (1)
+  - `src/app/pages/readonly-demo/readonly-demo.ts`
+    - 216: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
+- [ ] **selection-demo** (1)
+  - `src/app/pages/selection-demo/selection-demo.ts`
+    - 52: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
+- [ ] **tooltip-demo** (2)
+  - `src/app/pages/tooltip-demo/tooltip-demo.html`
+    - 77: `template/elements-content`: <button> should have content
+    - 78: `template/elements-content`: <button> should have content
+
+## Other
+
+- [ ] **src/app/app.ts** (1)
+  - `src/app/app.ts`
+    - 8: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
+- [ ] **src/app/color-shades-generator.ts** (3)
+  - `src/app/color-shades-generator.ts`
+    - 1: `consistent-type-definitions`: Use an `interface` instead of a `type`.
+    - 41: `consistent-type-definitions`: Use an `interface` instead of a `type`.
+    - 42: `consistent-type-definitions`: Use an `interface` instead of a `type`.
+- [ ] **src/app/ims-input.directive.spec.ts** (1)
+  - `src/app/ims-input.directive.spec.ts`
+    - 9: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
+- [ ] **src/app/ims-long-press.directive.spec.ts** (1)
+  - `src/app/ims-long-press.directive.spec.ts`
+    - 7: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
+- [ ] **src/app/ims-long-press.directive.ts** (1)
+  - `src/app/ims-long-press.directive.ts`
+    - 43: `array-type`: Array type using 'Array<T>' is forbidden. Use 'T[]' instead.
+- [ ] **src/app/ims-viewport-fill-height.directive.ts** (2)
+  - `src/app/ims-viewport-fill-height.directive.ts`
+    - 35: `no-input-rename`: Input bindings should not be aliased
+    - 39: `no-input-rename`: Input bindings should not be aliased
+- [ ] **src/app/query-infra/query-dialog.service.ts** (1)
+  - `src/app/query-infra/query-dialog.service.ts`
+    - 18: `no-explicit-any`: Unexpected any. Specify a different type.
+- [ ] **src/app/query-infra/query-dialog/query-dialog-opener.ts** (3)
+  - `src/app/query-infra/query-dialog/query-dialog-opener.ts`
+    - 18: `no-explicit-any`: Unexpected any. Specify a different type.
+    - 27: `no-explicit-any`: Unexpected any. Specify a different type.
+    - 30: `no-explicit-any`: Unexpected any. Specify a different type.
+- [ ] **src/app/query-infra/query-dialog/query-dialog.ts** (12)
+  - `src/app/query-infra/query-dialog/query-dialog.ts`
+    - 33: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
+    - 37: `no-explicit-any`: Unexpected any. Specify a different type.
+    - 44: `no-explicit-any`: Unexpected any. Specify a different type.
+    - 46: `no-explicit-any`: Unexpected any. Specify a different type.
+    - 139: `no-explicit-any`: Unexpected any. Specify a different type.
+    - 143: `no-explicit-any`: Unexpected any. Specify a different type.
+    - 156: `no-explicit-any`: Unexpected any. Specify a different type.
+    - 160: `no-explicit-any`: Unexpected any. Specify a different type.
+    - 169: `no-explicit-any`: Unexpected any. Specify a different type.
+    - 204: `no-explicit-any`: Unexpected any. Specify a different type.
+    - 213: `no-explicit-any`: Unexpected any. Specify a different type.
+    - 249: `no-explicit-any`: Unexpected any. Specify a different type.
+- [ ] **src/app/query-infra/query.models.ts** (2)
+  - `src/app/query-infra/query.models.ts`
+    - 58: `no-explicit-any`: Unexpected any. Specify a different type.
+    - 58: `no-explicit-any`: Unexpected any. Specify a different type.
+- [ ] **src/app/query-infra/simple-query-definition.ts** (1)
+  - `src/app/query-infra/simple-query-definition.ts`
+    - 125: `no-explicit-any`: Unexpected any. Specify a different type.
+- [ ] **src/app/scooped-circle/ims-logo-podium.ts** (1)
+  - `src/app/scooped-circle/ims-logo-podium.ts`
+    - 4: `consistent-type-definitions`: Use an `interface` instead of a `type`.
+
+## Labels inside `ims-form-field`
+
+Not listed above: 108 `template/label-has-associated-control` errors for labels beside their control inside an `ims-form-field`. The field links each label to its control when it renders, which a template rule cannot see, so these need a decision about the rule rather than a fix per component: turn it off, or keep it and live with the errors.
+
+- `src/app/components/ims-form-layout/ims-form-field.spec.ts` (8)
+- `src/app/pages/checkbox-demo/checkbox-demo.html` (3)
+- `src/app/pages/focus-mode-demo/focus-mode-demo.html` (16)
+- `src/app/pages/form-layout-demo/demo-contact-row.ts` (2)
+- `src/app/pages/form-layout-demo/form-layout-demo.html` (77)
+- `src/app/pages/radio-demo/radio-demo.html` (2)
