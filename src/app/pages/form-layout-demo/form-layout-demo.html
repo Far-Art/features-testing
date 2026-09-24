@@ -906,6 +906,98 @@
             </ims-form-field-grid>
         </app-demo-resize-frame>
     </div>
+
+    <div class="form-layout-demo__example">
+        <h2>קבוצת פקדים לרוחב הערך</h2>
+        <p class="form-layout-demo__hint">
+            כברירת מחדל, הזוגות בקבוצה אופקית יושבים זה לצד זה ברוחבם הטבעי, צמודים להתחלה. עם fill הם
+            מתפרסים על כל רוחב הערך, חלק שווה לכל זוג, וזוג שהחלק שלו צר מדי שומר על רוחבו הטבעי. בורר
+            תאריך שומר על הרוחב שלו גם בזוג רחב, ו־field-stretch מותח גם אותו. אז גם הרוחב הטבעי שלו גדל,
+            ולכן התווית עוברת אל מעל הערך כבר ברוחב גדול יותר.
+        </p>
+
+        <app-demo-resize-frame>
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">ברירת מחדל</h3>
+                <ims-form-field>
+                    <span imsFormFieldLabel id="demo-packed-group-label">תקופת ביטוח</span>
+                    <ims-form-field-group role="group" aria-labelledby="demo-packed-group-label">
+                        <label>
+                            <span>מתאריך</span>
+                            <ims-datepicker
+                                ariaLabel="תקופת ביטוח מתאריך"
+                                valueType="date"
+                                [(ngModel)]="coverageStart"
+                            />
+                        </label>
+
+                        <label>
+                            <span>עד תאריך</span>
+                            <ims-datepicker
+                                ariaLabel="תקופת ביטוח עד תאריך"
+                                valueType="date"
+                                [(ngModel)]="coverageEnd"
+                            />
+                        </label>
+                    </ims-form-field-group>
+                </ims-form-field>
+            </div>
+
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">עם fill</h3>
+                <ims-form-field>
+                    <span imsFormFieldLabel id="demo-fill-group-label">תקופת ביטוח</span>
+                    <ims-form-field-group fill role="group" aria-labelledby="demo-fill-group-label">
+                        <label>
+                            <span>מתאריך</span>
+                            <ims-datepicker
+                                ariaLabel="תקופת ביטוח מתאריך"
+                                valueType="date"
+                                [(ngModel)]="coverageStart"
+                            />
+                        </label>
+
+                        <label>
+                            <span>עד תאריך</span>
+                            <ims-datepicker
+                                ariaLabel="תקופת ביטוח עד תאריך"
+                                valueType="date"
+                                [(ngModel)]="coverageEnd"
+                            />
+                        </label>
+                    </ims-form-field-group>
+                </ims-form-field>
+            </div>
+
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">עם fill ו־field-stretch</h3>
+                <ims-form-field>
+                    <span imsFormFieldLabel id="demo-stretch-group-label">תקופת ביטוח</span>
+                    <ims-form-field-group fill role="group" aria-labelledby="demo-stretch-group-label">
+                        <label>
+                            <span>מתאריך</span>
+                            <ims-datepicker
+                                class="field-stretch"
+                                ariaLabel="תקופת ביטוח מתאריך"
+                                valueType="date"
+                                [(ngModel)]="coverageStart"
+                            />
+                        </label>
+
+                        <label>
+                            <span>עד תאריך</span>
+                            <ims-datepicker
+                                class="field-stretch"
+                                ariaLabel="תקופת ביטוח עד תאריך"
+                                valueType="date"
+                                [(ngModel)]="coverageEnd"
+                            />
+                        </label>
+                    </ims-form-field-group>
+                </ims-form-field>
+            </div>
+        </app-demo-resize-frame>
+    </div>
 </section>
 
 <section

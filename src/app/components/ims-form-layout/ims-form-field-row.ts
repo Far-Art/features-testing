@@ -68,7 +68,9 @@ export class ImsFormFieldRow {
      * <ims-form-field-row [fill]="stretchFields">...</ims-form-field-row>
      * ```
      */
-    readonly fill = input(false, {transform: booleanAttribute});
+    readonly fill = input<boolean, boolean | string | null | undefined>(false, {
+        transform: booleanAttribute
+    });
     private readonly destroyRef = inject(DestroyRef);
     private readonly hostElement: HTMLElement = inject(ElementRef).nativeElement;
     private stopObservingInlineSize: (() => void) | null = null;

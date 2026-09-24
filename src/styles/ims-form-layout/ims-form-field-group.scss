@@ -31,8 +31,8 @@ ims-form-field-group {
 
     // Two pairs to a row, each at its natural width and packed at the start,
     // in a group only as wide as they are. Sizes stay at the specificity of the
-    // element name, so a class on the group, or on one of its pairs, sets its
-    // own, for instance to spread the pairs across the value.
+    // element name, here and with `fill` below, so a class on the group, or on
+    // one of its pairs, sets its own.
     &:where([data-layout="inline"]) {
         grid-template-columns: repeat(2, max-content);
         justify-self: start;
@@ -40,6 +40,15 @@ ims-form-field-group {
         > label {
             min-inline-size: 0;
         }
+    }
+
+    // `fill` spreads the pairs across the value, an even share each. A pair
+    // whose share is too small keeps its natural width, so pairs that do not
+    // fit the value side by side overflow it, as they do packed, instead of
+    // running into each other.
+    &:where([data-layout="inline"][data-fill]) {
+        grid-template-columns: repeat(2, minmax(max-content, 1fr));
+        justify-self: stretch;
     }
 
     > label {

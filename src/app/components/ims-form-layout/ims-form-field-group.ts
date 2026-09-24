@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, booleanAttribute, input} from '@angular/core';
 
 /**
  * Supported arrangements for the label/control pairs projected into an
@@ -11,7 +11,8 @@ export type ImsFormControlGroupLayout = 'stacked' | 'inline';
     standalone: true,
     template: '<ng-content/>',
     host: {
-        '[attr.data-layout]': 'layout()'
+        '[attr.data-layout]': 'layout()',
+        '[attr.data-fill]': 'fill() ? "" : null'
     },
     changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -25,11 +26,11 @@ export type ImsFormControlGroupLayout = 'stacked' | 'inline';
  * label for the complete value.
  *
  * The component only owns the inner layout and interaction styles. The inline
- * layout's columns and width are held at the specificity of the element name,
- * so a class on the group can replace them, for instance to spread the pairs
- * across the value. Accessible group semantics remain the consumer's
- * responsibility, usually through `role="group"` and `aria-labelledby`
- * referencing the main field label.
+ * layout's columns and width, packed or with `fill`, are held at the
+ * specificity of the element name, so a class on the group can replace them.
+ * Accessible group semantics remain the consumer's responsibility, usually
+ * through `role="group"` and `aria-labelledby` referencing the main field
+ * label.
  */
 export class ImsFormFieldGroup {
     /**
@@ -38,9 +39,9 @@ export class ImsFormFieldGroup {
      * `stacked` renders one pair per row with shared label and control tracks,
      * aligning every control after the widest local label. `inline` places the
      * pairs side by side, two to a row, each at its natural width and packed
-     * at the start, in a group only as wide as they are. In both modes, each
-     * pair's non-`span` child fills its control track and may be a native
-     * element or component host.
+     * at the start, in a group only as wide as they are, unless `fill` is set.
+     * In both modes, each pair's non-`span` child fills its control track and
+     * may be a native element or component host.
      *
      * @example
      * ```html
@@ -49,4 +50,24 @@ export class ImsFormFieldGroup {
      * ```
      */
     readonly layout = input<ImsFormControlGroupLayout>('inline');
+    /**
+     * Spreads the pairs of an inline group across the value, an even share
+     * each.
+     *
+     * Without it, the pairs keep their natural widths, packed at the start. A
+     * pair never gets less than its natural width: when an even share is too
+     * small for one, it keeps that width and the other pair takes the rest.
+     * A control with a width of its own, such as `ims-datepicker` or one with
+     * a `field-*` class, keeps it inside its wider pair. A stacked group
+     * always spans the value, so `fill` has no effect there.
+     *
+     * @example
+     * ```html
+     * <ims-form-field-group fill>...</ims-form-field-group>
+     * <ims-form-field-group [fill]="spreadPairs">...</ims-form-field-group>
+     * ```
+     */
+    readonly fill = input<boolean, boolean | string | null | undefined>(false, {
+        transform: booleanAttribute
+    });
 }

@@ -122,6 +122,7 @@ semantics.
 | Input | Type | Default | Purpose |
 | --- | --- | --- | --- |
 | `layout` | `'stacked' \| 'inline'` | `'inline'` | Arranges the group's direct label/control pairs vertically or side by side. |
+| `fill` | `boolean` | `false` | Spreads the pairs of an inline group across the value, an even share each. No effect on a stacked group. |
 
 ### `ims-form-field-row`
 
@@ -473,16 +474,34 @@ In `inline` mode, the default, the pairs sit side by side, two to a row, each at
 its natural width and packed at the start, and the group is only as wide as they
 are. In `stacked` mode, each direct label spans the group and uses shared local
 label and control tracks. A class on the group can set other columns and a
-width, for instance to spread the pairs across the value. See Overriding Sizes.
+width. See Overriding Sizes.
+
+`fill` spreads the pairs of an inline group across the value, an even share
+each:
+
+```html
+<ims-form-field-group fill role="group" aria-labelledby="validity-label">
+    ...
+</ims-form-field-group>
+```
+
+A pair whose share is too small keeps its natural width, and the other pair
+takes the rest. A control with a width of its own, such as a datepicker or a
+control with a `field-*` class, keeps it, so it can end before its share does.
+To stretch the control too, give it `field-stretch`. It then has no width of its
+own, and its natural width comes from its content: for a datepicker, the
+default width of its input, about 20 characters. Grids and fields measure
+natural widths to decide how many columns fit and when labels move above their
+values, so a stretched control can make both happen sooner.
 
 A pair may hold only its control, with no text. An inline pair then drops the
 gap after its empty text track and starts with the control. Stacked pairs share
 one text track, so a control without text stays lined up with the others after
 it, and the gap goes only when no pair in the group has text.
 
-An inline group neither shrinks nor wraps its pairs. In a value narrower than
-the pairs side by side, such as a stacked field on a phone, the group overflows
-it instead of squeezing their controls.
+An inline group neither shrinks nor wraps its pairs, with or without `fill`. In
+a value narrower than the pairs side by side, such as a stacked field on a
+phone, the group overflows it instead of squeezing their controls.
 
 The group does not create accessible group semantics. Consumers should provide
 `role="group"` and `aria-labelledby` or an equivalent accessible name.
@@ -654,7 +673,8 @@ own styles.
 | --- | --- | --- |
 | Main label | `justify-self: start`, so it is as wide as its text | stretch it across its track |
 | Field value | `min-width: 0`, `box-sizing: border-box` | set a minimum width or another box model |
-| Inline `ims-form-field-group` | `grid-template-columns: repeat(2, max-content)`, `justify-self: start`, so the pairs sit together and the group is as wide as they are | spread the pairs, such as `inline-size: 100%` with `grid-template-columns: repeat(2, minmax(0, 1fr))` |
+| Inline `ims-form-field-group` | `grid-template-columns: repeat(2, max-content)`, `justify-self: start`, so the pairs sit together and the group is as wide as they are | set other columns or a width |
+| Inline group with `fill` | `grid-template-columns: repeat(2, minmax(max-content, 1fr))`, `justify-self: stretch`, so the pairs share the value evenly | share it differently, such as `minmax(max-content, 2fr) minmax(max-content, 1fr)` |
 | Pair in an inline group | `min-inline-size: 0` | set a minimum width for one pair |
 | Text of a group pair | `justify-self: start`, so it is as wide as its text | stretch it across its track |
 | Control in a group pair | `inline-size: 100%`, `min-inline-size: 0`, `max-inline-size: 100%` | size one control |

@@ -84,6 +84,8 @@ export class FormLayoutDemo {
     unlabelledRangeStart = utcDate('2026-04-01');
     unlabelledRangeEnd = utcDate('2026-10-31');
     billingDate = utcDate('2026-05-01');
+    coverageStart = utcDate('2026-02-01');
+    coverageEnd = utcDate('2027-01-31');
     vipCustomer = true;
     smsUpdates = false;
     accountSuspended = true;
