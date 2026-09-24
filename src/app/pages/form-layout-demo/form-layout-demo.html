@@ -908,6 +908,33 @@
     </div>
 
     <div class="form-layout-demo__example">
+        <h2>שורה בתוך מכל flex</h2>
+        <p class="form-layout-demo__hint">
+            השורה נמצאת בתוך מכל עם display: flex, לצד כפתור. היא תופסת את כל המקום שהכפתור משאיר, כמו
+            שהיא עושה בתוך בלוק, כך ש־fill פורס את השדות על כל הרוחב הזה. כשהשדות כבר לא נכנסים ברוחבם
+            הטבעי, התוויות עוברות אל מעל השדות.
+        </p>
+
+        <app-demo-resize-frame>
+            <div class="form-layout-demo__toolbar">
+                <ims-form-field-row fill>
+                    <ims-form-field>
+                        <label for="demo-flex-row-customer">שם לקוח</label>
+                        <input imsInput id="demo-flex-row-customer" value="נועה ישראלי">
+                    </ims-form-field>
+
+                    <ims-form-field>
+                        <label for="demo-flex-row-policy">מספר פוליסה</label>
+                        <input imsInput id="demo-flex-row-policy" value="PL-1274" dir="ltr">
+                    </ims-form-field>
+                </ims-form-field-row>
+
+                <button ims-button type="button">חיפוש</button>
+            </div>
+        </app-demo-resize-frame>
+    </div>
+
+    <div class="form-layout-demo__example">
         <h2>קבוצת פקדים לרוחב הערך</h2>
         <p class="form-layout-demo__hint">
             כברירת מחדל, הזוגות בקבוצה אופקית יושבים זה לצד זה ברוחבם הטבעי, צמודים להתחלה. עם fill הם

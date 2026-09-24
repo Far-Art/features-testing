@@ -43,7 +43,8 @@ import {
  * fields cannot sit side by side at their natural widths, every field in the
  * row moves its label above its value, and fields that still do not fit move
  * onto further lines rather than being squeezed. `column` and `span` have no
- * effect here.
+ * effect here. In a flex container, the row takes the space its siblings
+ * leave, as it does in a block.
  */
 export class ImsFormFieldRow {
     /**

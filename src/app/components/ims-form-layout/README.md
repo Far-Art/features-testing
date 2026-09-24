@@ -399,6 +399,10 @@ column per field:
   inline start and separated by `--ims-form-column-gap`, `1rem` by default.
 - `fill` stretches the fields across the row instead. Their value tracks, and
   any control without a width of its own, grow with them.
+- In a flex container, the row takes the space its siblings leave, as it does
+  in a block, so `fill` has that room to spread into. In a column flex
+  container with height to spare, it takes a share of that height too. A class
+  with `flex: none` keeps it at the size of its content.
 - When the fields cannot sit side by side at their natural widths, all of their
   labels stack. See Stacked Labels. Stacked fields that still do not fit move
   onto further lines, `--ims-form-row-gap` apart, rather than being squeezed.
@@ -679,6 +683,7 @@ own styles.
 | Text of a group pair | `justify-self: start`, so it is as wide as its text | stretch it across its track |
 | Control in a group pair | `inline-size: 100%`, `min-inline-size: 0`, `max-inline-size: 100%` | size one control |
 | Label of a direct `ims-checkbox` | `width: max-content` | let a long label wrap |
+| `ims-form-field-row` in a flex container | `flex: 1`, so it takes the space its siblings leave | keep it at the size of its content, such as `flex: none` |
 | Field in a `fill` standalone row | `flex-grow: 1` | keep one field at its natural width |
 | Field in a stacked standalone row | `flex-shrink: 1` | stop one field from shrinking |
 

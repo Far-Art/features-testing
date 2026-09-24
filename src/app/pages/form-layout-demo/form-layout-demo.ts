@@ -1,6 +1,7 @@
 import {DatePipe} from '@angular/common';
 import {ChangeDetectionStrategy, Component} from '@angular/core';
 import {FormsModule} from '@angular/forms';
+import {ImsButton} from '../../components/ims-button';
 import {ImsCheckbox} from '../../components/ims-checkbox';
 import {
     ImsDatepicker
@@ -46,6 +47,7 @@ function utcDate(value: string): Date {
         DemoContactRow,
         DemoResizeFrame,
         FormsModule,
+        ImsButton,
         ImsCheckbox,
         ImsDatepicker,
         ImsErrorPopoverDirective,
