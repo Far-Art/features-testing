@@ -4,13 +4,13 @@ Findings from `npm run lint` (angular-eslint 22.5, `eslint.config.js`) on 2026-0
 
 Some fixes change more than the file:
 
-- `directive-selector` "should be camelCase": the selector is part of the public API (`button[ims-button]`, `[ims-error-popover]`, `[ims-readonly]`). Renaming it changes every template that uses it, so decide first whether to rename or to relax the rule.
-- `no-input-rename` / `no-output-rename`: rename the class property to its public name. Templates keep working, but code that reads the property changes.
-- `prefer-on-push-component-change-detection`: a component that relies on default change detection can stop updating, so check its bindings after switching.
+- Kebab-case names are accepted everywhere (decided 2026-09-24). Selectors like `button[ims-button]` and aliases like `ims-button-variation` are public API, so `eslint.config.js` replaces angular-eslint's `directive-selector`, `no-input-rename` and `no-output-rename` with `ims/` versions from `tools/eslint-plugin-ims.js`, which also accept kebab-case. That cleared the kebab-case errors from this list: 4 selectors and 6 input aliases.
+- `no-input-rename` / `no-output-rename` on a camelCase alias: an alias equal to the property name is simply removed. Otherwise rename the class property to its public name: templates keep working, but code that reads the property changes.
+- `prefer-on-push-component-change-detection`: a component that relies on default change detection can stop updating, so check its bindings after switching. In a spec host, the fields that tests assign directly have to become signals (see `ims-datepicker.spec.ts`).
 
 ## Components
 
-- [ ] **ims-autocomplete** (9)
+- [x] **ims-autocomplete** (9)
   - `src/app/components/ims-autocomplete/ims-autocomplete-base.ts`
     - 210: `no-input-rename`: Input bindings should not be aliased
     - 212: `no-input-rename`: Input bindings should not be aliased
@@ -23,7 +23,7 @@ Some fixes change more than the file:
     - 104: `no-empty-function`: Unexpected empty method 'observe'.
     - 105: `no-empty-function`: Unexpected empty method 'unobserve'.
     - 106: `no-empty-function`: Unexpected empty method 'disconnect'.
-- [ ] **ims-button** (10)
+- [x] **ims-button** (10)
   - `src/app/components/ims-button/ims-button-actions.ts`
     - 25: `directive-selector`: The selector should be camelCase
     - 43: `directive-selector`: The selector should be camelCase
@@ -36,7 +36,7 @@ Some fixes change more than the file:
     - 399: `no-input-rename`: Input bindings should not be aliased
     - 410: `directive-selector`: The selector should be camelCase
     - 453: `no-input-rename`: Input bindings should not be aliased
-- [ ] **ims-datepicker** (8)
+- [x] **ims-datepicker** (8)
   - `src/app/components/ims-datepicker/ims-datepicker.html`
     - 78: `template/interactive-supports-focus`: Elements with interaction handlers must be focusable.
     - 196: `template/interactive-supports-focus`: Elements with interaction handlers must be focusable.
@@ -48,22 +48,14 @@ Some fixes change more than the file:
     - 227: `no-input-rename`: Input bindings should not be aliased
     - 228: `no-input-rename`: Input bindings should not be aliased
     - 745: `no-useless-assignment`: The value assigned to 'target' is not used in subsequent statements.
-- [ ] **ims-dialog** (2)
+- [x] **ims-dialog** (2): kebab-case aliases, accepted by the config
   - `src/app/components/ims-dialog/ims-dialog-section.ts`
     - 148: `no-input-rename`: Input bindings should not be aliased
     - 152: `no-input-rename`: Input bindings should not be aliased
-- [ ] **ims-error-popover** (6)
-  - `src/app/components/ims-error-popover/ims-error-popover.directive.ts`
-    - 54: `directive-selector`: The selector should be camelCase
-    - 80: `no-input-rename`: Input bindings should not be aliased
-    - 85: `no-input-rename`: Input bindings should not be aliased
-    - 89: `no-input-rename`: Input bindings should not be aliased
-    - 94: `no-input-rename`: Input bindings should not be aliased
+- [ ] **ims-error-popover** (1)
   - `src/app/components/ims-error-popover/ims-error-popover.spec.ts`
     - 16: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
-- [ ] **ims-focus-mode** (3)
-  - `src/app/components/ims-focus-mode/ims-focus-mode-trigger.ts`
-    - 18: `directive-selector`: The selector should be camelCase
+- [ ] **ims-focus-mode** (2)
   - `src/app/components/ims-focus-mode/ims-focus-mode.spec.ts`
     - 11: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
     - 156: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
@@ -86,9 +78,8 @@ Some fixes change more than the file:
   - `src/app/components/ims-radio/ims-radio.ts`
     - 45: `no-input-rename`: Input bindings should not be aliased
     - 47: `no-input-rename`: Input bindings should not be aliased
-- [ ] **ims-select** (10)
+- [ ] **ims-select** (9)
   - `src/app/components/ims-select/ims-select.directive.ts`
-    - 40: `directive-selector`: The selector should be camelCase
     - 61: `no-input-rename`: Input bindings should not be aliased
   - `src/app/components/ims-select/ims-select.spec.ts`
     - 22: `prefer-on-push-component-change-detection`: Components should not opt out of the default `ChangeDetectionStrategy.OnPush` change detection strategy
@@ -136,7 +127,7 @@ Some fixes change more than the file:
     - 23: `no-input-rename`: Input bindings should not be aliased
     - 28: `no-input-rename`: Input bindings should not be aliased
     - 39: `array-type`: Array type using 'Array<T>' is forbidden. Use 'T[]' instead.
-- [ ] **readonly.directive.ts** (1)
+- [x] **readonly.directive.ts** (1): kebab-case selector, accepted by the config
   - `src/app/shared/readonly.directive.ts`
     - 35: `directive-selector`: The selector should be camelCase
 
