@@ -33,8 +33,11 @@ ims-form-field-row {
     }
 
     // In a grid, the row adopts the grid's tracks, so its fields line up with
-    // the grid's logical columns.
-    ims-form-field-grid > & {
+    // the grid's logical columns. The row marks itself too, since it can reach
+    // the grid through an element with display: contents, such as the host of
+    // a component that holds the row, which a child combinator cannot cross.
+    ims-form-field-grid > &,
+    &[data-ims-subgrid] {
         display: grid;
         grid-template-columns: subgrid;
         grid-column: 1 / -1;

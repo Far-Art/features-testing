@@ -10,20 +10,24 @@ to be rewritten.
 
 ## File Map
 
-- `ims-form-field.ts`: label/value projection, label association,
-  logical-column placement, and label stacking for a field on its own.
+- `ims-form-field.ts`: label/value projection, label association, hint
+  descriptions, logical-column placement, and label stacking for a field on its
+  own.
 - `ims-form-field-grid.ts`: fixed and responsive column counts, intrinsic-width
   fitting, automatic field placement, and label stacking as a last resort.
 - `ims-form-field-row.ts`: stable row inside a grid, or a row of fields side by
   side on its own, with label stacking.
-- `ims-form-field-fit.ts`: internal inline-size observation, overflow check, and
-  the stacked-label attribute shared by the field, row, and grid.
+- `ims-form-field-fit.ts`: internal inline-size observation, overflow check,
+  layout-parent lookup, and the stacked-label and subgrid attributes shared by
+  the field, row, and grid.
 - `ims-form-field-group.ts`: stacked or inline compound-control layout.
-- `ims-form-field.directives.ts`: the behavior-free `imsFormFieldLabel` marker.
+- `ims-form-field.directives.ts`: the behavior-free `imsFormFieldLabel`,
+  `imsFormFieldHint`, and `imsFormFieldInline` markers.
 - `ims-form-field.spec.ts`: focused field projection and label-association tests.
 - `index.ts`: public exports.
 - `src/styles/ims-form-layout/ims-form-field.scss`: field layout, stacked labels,
-  label interaction color, and checkbox-placement styles.
+  hints and inline values, label interaction color, and checkbox-placement
+  styles.
 - `src/styles/ims-form-layout/ims-form-field-grid.scss`: grid host styles.
 - `src/styles/ims-form-layout/ims-form-field-row.scss`: standalone row and
   in-grid subgrid row styles.
@@ -41,6 +45,8 @@ import {
     ImsFormField,
     ImsFormFieldGrid,
     ImsFormFieldGroup,
+    ImsFormFieldHint,
+    ImsFormFieldInline,
     ImsFormFieldLabel,
     ImsFormFieldRow
 } from './components/ims-form-layout';
@@ -115,7 +121,7 @@ semantics.
 
 | Input | Type | Default | Purpose |
 | --- | --- | --- | --- |
-| `layout` | `'stacked' \| 'inline'` | `'stacked'` | Arranges the group's direct label/control pairs vertically or side by side. |
+| `layout` | `'stacked' \| 'inline'` | `'inline'` | Arranges the group's direct label/control pairs vertically or side by side. |
 
 ### `ims-form-field-row`
 
@@ -124,7 +130,8 @@ semantics.
 | `visible` | `boolean` | `true` | Hides the row while keeping the space it takes. |
 | `fill` | `boolean` | `false` | Stretches the fields of a standalone row across its full width. No effect inside a grid. |
 
-`imsFormFieldLabel` has no inputs.
+`imsFormFieldLabel`, `imsFormFieldHint`, and `imsFormFieldInline` have no
+inputs.
 
 ## Label Projection And Association
 
@@ -134,6 +141,13 @@ The field template has two projection slots:
 2. All remaining content.
 
 Use one main label-like element and one main value element per field.
+
+A field may also have no label. Its label track is then empty, so the field
+drops the gap after it and the value starts at the field's start. A direct
+`ims-checkbox` leaves the label track empty too, since its label sits beside it
+in the value track. Inside an `ims-form-field-grid` the gap stays: there the
+label track is shared with the other fields in the column, and the gap lines
+the value up with theirs.
 
 When more than one direct label-like element exists, an element marked with
 `imsFormFieldLabel` is selected as the main label before an unmarked native
@@ -242,7 +256,8 @@ Omit `columns` to enable responsive mode:
 
 Responsive fitting works in three stages:
 
-1. Projected field occupancy determines the maximum candidate column count.
+1. The occupancy of the grid's fields determines the maximum candidate column
+   count.
    The grid tries every useful content column instead of treating
    `minColumnWidth` as a hard width cap.
 2. The count is reduced until every label and value fits at its natural width,
@@ -279,7 +294,7 @@ height changes caused by wrapping must not do so.
   wide. It stacks labels above values instead. Content still too wide after
   that overflows, so the consumer should choose a count that fits.
 - Intrinsic width changes caused only by changing text or a control's internal
-  content may not restart fitting unless the grid width, projected field list,
+  content may not restart fitting unless the grid width, its list of fields,
   or loaded fonts also trigger a layout update.
 - Before the first post-render measurement completes, responsive mode may
   briefly use its initial one-column state.
@@ -312,8 +327,53 @@ The row spans the complete parent grid and adopts its tracks through `subgrid`.
 The `column` input remains one-based even though the implementation uses
 additional internal spacer tracks.
 
-Fields should be direct children of the row. Rows should be direct children of
-the grid.
+Fields should be direct children of the row, and rows direct children of the
+grid, or reach them only through elements with `display: contents`. See Rows And
+Fields Inside Components.
+
+### Rows And Fields Inside Components
+
+A grid lays out the rows and fields the rendered layout gives it, not only the
+ones in its own template. A component can therefore hold a row, or fields
+directly, and still take part in the grid, as long as its host has
+`display: contents`:
+
+```ts
+@Component({
+    selector: 'app-contact-row',
+    imports: [ImsFormField, ImsFormFieldRow],
+    template: `
+        <ims-form-field-row>
+            <ims-form-field column="1">...</ims-form-field>
+            <ims-form-field column="2">...</ims-form-field>
+        </ims-form-field-row>
+    `,
+    styles: `:host { display: contents; }`
+})
+export class ContactRow {
+}
+```
+
+```html
+<ims-form-field-grid columns="2">
+    <ims-form-field-row>...</ims-form-field-row>
+    <app-contact-row/>
+</ims-form-field-grid>
+```
+
+- The component's row adopts the grid's tracks like any other row, so its labels
+  and values line up with the other rows', and its labels stack with the rest.
+- Fields held directly by such a component join the grid's automatic flow, as
+  direct children of the grid would. Any element with `display: contents` is
+  passed over the same way.
+- A host that generates a box of its own, as a component host does by default,
+  is a single item of the grid instead, and a row inside it lays out on its own,
+  as a standalone row.
+- Each field joins its grid when it first renders. Moving a rendered field or
+  row to another parent afterwards is not tracked.
+- Inside a standalone row, fields must still be direct children.
+- A row or field a grid lays out marks itself with the internal
+  `data-ims-subgrid` attribute. Consumers should not set or style it.
 
 ### Standalone Rows
 
@@ -380,7 +440,9 @@ first drops columns, and stacks only when one column still does not fit.
 - A direct `ims-checkbox` keeps its label beside it. In a stacked field the
   checkbox moves to the field's start, level with the other labels.
 - Stacking is marked by the internal `data-ims-stacked` attribute on the host
-  that decided it. Consumers should not set or style it.
+  that decided it. A grid also puts it on each field it lays out, since a field
+  can reach the grid through an element with `display: contents`. Consumers
+  should not set or style it.
 
 ## Compound Values
 
@@ -407,10 +469,20 @@ Use `ims-form-field-group` for a value made of multiple related controls:
 </ims-form-field>
 ```
 
-In `stacked` mode, each direct label spans the group and uses shared local label
-and control tracks. In `inline` mode, two equal pair areas are placed side by
-side, and the group fills the value track. A class on the group, such as
-`field-xl`, gives it another width. See Overriding Sizes.
+In `inline` mode, the default, the pairs sit side by side, two to a row, each at
+its natural width and packed at the start, and the group is only as wide as they
+are. In `stacked` mode, each direct label spans the group and uses shared local
+label and control tracks. A class on the group can set other columns and a
+width, for instance to spread the pairs across the value. See Overriding Sizes.
+
+A pair may hold only its control, with no text. An inline pair then drops the
+gap after its empty text track and starts with the control. Stacked pairs share
+one text track, so a control without text stays lined up with the others after
+it, and the gap goes only when no pair in the group has text.
+
+An inline group neither shrinks nor wraps its pairs. In a value narrower than
+the pairs side by side, such as a stacked field on a phone, the group overflows
+it instead of squeezing their controls.
 
 The group does not create accessible group semantics. Consumers should provide
 `role="group"` and `aria-labelledby` or an equivalent accessible name.
@@ -422,6 +494,56 @@ A pair spans its whole row, which is wider than its text and control whenever
 another pair's are wider or the control has a width of its own. Only the text
 and the control answer the pointer, and the text is only as wide as itself, so
 a click on the rest of the row does not reach the control.
+
+## Hints
+
+Mark a short text that describes the control with `imsFormFieldHint`:
+
+```html
+<ims-form-field>
+    <label>Billing date</label>
+    <ims-datepicker valueType="date" [(ngModel)]="billingDate"/>
+    <span imsFormFieldHint>First day of the month</span>
+</ims-form-field>
+```
+
+As a direct child after the control, the hint sits under the control,
+`--ims-form-field-stacked-gap` below it. It wraps within the value track instead
+of widening it, so a long hint never costs a grid a column or stacks the labels.
+
+To put the hint beside the control, wrap both in `imsFormFieldInline`:
+
+```html
+<ims-form-field>
+    <label>Billing date</label>
+    <span imsFormFieldInline>
+        <ims-datepicker valueType="date" [(ngModel)]="billingDate"/>
+        <span imsFormFieldHint>First day of the month</span>
+    </span>
+</ims-form-field>
+```
+
+- Items in the wrapper sit `--ims-form-field-gap` apart. The hint's first line is
+  level with the control's text, like the label, beside a textarea too.
+- Any text-only item gets the same alignment, so a unit such as `₪` needs no
+  directive.
+- The whole line counts toward the field's natural width, so the label moves
+  above the value before the line breaks. An item that still does not fit then
+  moves under the control rather than squeezing it, and keeps its alignment
+  offset, so it sits a little further below than a hint placed there directly.
+- A direct `ims-checkbox` must stay a direct child of the field for its layout,
+  so it cannot go in the wrapper.
+
+The field gives each hint it owns an id when it has none, and adds the id to the
+`aria-describedby` of the control its main label names, so a screen reader reads
+the hint with the control. The id goes next to any the control already has, such
+as an error popover's message, and only ids the field added are removed again.
+Do not bind `aria-describedby` on the control: a binding owns the whole
+attribute and would drop the hint. In a field with no labelable control, such as
+a read-only value, the hint is shown but describes nothing.
+
+The form layout does not style the hint's text, which keeps the color and size
+around it.
 
 ## Accessibility Responsibilities
 
@@ -435,8 +557,9 @@ form accessibility policy.
   with `aria-labelledby` where appropriate.
 - Give `ims-form-field-group` an accessible group name, normally with
   `role="group"` and `aria-labelledby`.
-- Consumers remain responsible for required-state communication, descriptions,
-  error-message IDs, `aria-describedby`, and `aria-invalid`.
+- Consumers remain responsible for required-state communication, descriptions
+  other than `imsFormFieldHint`, error-message IDs, any other
+  `aria-describedby` reference, and `aria-invalid`.
 
 ## Direct `ims-checkbox` Exception
 
@@ -459,6 +582,9 @@ For this structure:
   or readonly checkbox keeps the default cursor.
 - The label is offset from the checkbox by the checkbox size plus the normal
   field gap.
+- The label track holds nothing, so outside an `ims-form-field-grid` the field
+  drops the gap after it and the checkbox starts at the field's start. In a grid
+  it stays in the shared value track, level with the other values.
 - The label keeps its `max-content` width, like a label in the label track, so
   it never wraps. A grid widens the value track to fit it; a field outside a
   grid, or a single grid column narrower than the label, lets a longer label
@@ -528,7 +654,7 @@ own styles.
 | --- | --- | --- |
 | Main label | `justify-self: start`, so it is as wide as its text | stretch it across its track |
 | Field value | `min-width: 0`, `box-sizing: border-box` | set a minimum width or another box model |
-| Inline `ims-form-field-group` | `inline-size: 100%` | give the group its own width |
+| Inline `ims-form-field-group` | `grid-template-columns: repeat(2, max-content)`, `justify-self: start`, so the pairs sit together and the group is as wide as they are | spread the pairs, such as `inline-size: 100%` with `grid-template-columns: repeat(2, minmax(0, 1fr))` |
 | Pair in an inline group | `min-inline-size: 0` | set a minimum width for one pair |
 | Text of a group pair | `justify-self: start`, so it is as wide as its text | stretch it across its track |
 | Control in a group pair | `inline-size: 100%`, `min-inline-size: 0`, `max-inline-size: 100%` | size one control |
@@ -586,8 +712,8 @@ The main field custom properties are:
 
 | Property | Default | Purpose |
 | --- | --- | --- |
-| `--ims-form-field-gap` | `0.5rem` | Gap between a field's label and value when they sit side by side. |
-| `--ims-form-field-stacked-gap` | `0.25rem` | Gap between a stacked label and the value below it. |
+| `--ims-form-field-gap` | `0.5rem` | Gap between a field's label and value when they sit side by side, and between the items of an `imsFormFieldInline` value. Outside a grid, a field with an empty label track has none. |
+| `--ims-form-field-stacked-gap` | `0.25rem` | Gap between a stacked label and the value below it, between a control and a hint under it, and between the lines of an `imsFormFieldInline` value. |
 | `--ims-form-accent` | `#1769aa` | Focus and hover accent. |
 | `--ims-form-checkbox-size` | `--ims-checkbox-size` fallback | Direct-checkbox placement offset. |
 | `--ims-form-column-gap` | set by `columnGap`; `1rem` in a standalone row | Minimum flexible space between field pairs, or the gap between fields in a standalone row. |

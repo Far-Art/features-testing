@@ -24,21 +24,23 @@ export type ImsFormControlGroupLayout = 'stacked' | 'inline';
  * text and control. The surrounding `ims-form-field` still supplies the main
  * label for the complete value.
  *
- * The component only owns the inner layout and interaction styles. Its sizes
- * are held at the specificity of the element name, so a class on the group,
- * such as `field-xl`, replaces the inline layout's full width. Accessible
- * group semantics remain the consumer's responsibility, usually through
- * `role="group"` and `aria-labelledby` referencing the main field label.
+ * The component only owns the inner layout and interaction styles. The inline
+ * layout's columns and width are held at the specificity of the element name,
+ * so a class on the group can replace them, for instance to spread the pairs
+ * across the value. Accessible group semantics remain the consumer's
+ * responsibility, usually through `role="group"` and `aria-labelledby`
+ * referencing the main field label.
  */
 export class ImsFormFieldGroup {
     /**
      * Arrangement of the projected local label/control pairs.
      *
      * `stacked` renders one pair per row with shared label and control tracks,
-     * aligning every control after the widest local label. `inline` renders two
-     * equal pair tracks side by side. In both modes, each pair's non-`span`
-     * child fills its control track and may be a native element or component
-     * host.
+     * aligning every control after the widest local label. `inline` places the
+     * pairs side by side, two to a row, each at its natural width and packed
+     * at the start, in a group only as wide as they are. In both modes, each
+     * pair's non-`span` child fills its control track and may be a native
+     * element or component host.
      *
      * @example
      * ```html

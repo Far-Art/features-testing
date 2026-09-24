@@ -9,12 +9,31 @@ ims-form-field {
     min-width: 0;
 
     // Only a grid, and a row inside one, share their tracks with the field. A
-    // standalone row gives each field an automatic column of its own.
+    // standalone row gives each field an automatic column of its own. A field
+    // the grid lays out marks itself too, since it can reach the grid through
+    // an element with display: contents that a child combinator cannot cross.
     ims-form-field-grid > &,
-    ims-form-field-grid > ims-form-field-row > & {
+    ims-form-field-grid > ims-form-field-row > &,
+    &[data-ims-subgrid] {
         grid-template-columns: subgrid;
         grid-column: var(--ims-form-grid-column-start, auto)
             / span var(--ims-form-grid-column-track-span, 2);
+    }
+
+    // The label track is empty when the field has no label, or when a direct
+    // ims-checkbox keeps its label beside it in the value track. The gap after
+    // the track would then only push the value in from the field's start. A
+    // grid keeps it: there the track is shared with the other fields in the
+    // column, and the gap lines the value up with theirs.
+    &:not(:has(> :is(label, [imsFormFieldLabel]))),
+    &:has(> ims-checkbox) {
+        column-gap: 0;
+
+        ims-form-field-grid > &,
+        ims-form-field-grid > ims-form-field-row > &,
+        &[data-ims-subgrid] {
+            column-gap: var(--ims-form-field-gap);
+        }
     }
 
     > :is(label, [imsFormFieldLabel]) {
@@ -42,13 +61,43 @@ ims-form-field {
         box-sizing: border-box;
     }
 
+    // A hint after the control wraps within the value track instead of
+    // widening it, so a long one never costs a grid a column or stacks the
+    // labels.
+    > :where([imsFormFieldHint]) {
+        contain: inline-size;
+    }
+
     // Centres the first line of text on a single-line field height. This covers
     // the label and a read-only value that holds only text, so the two stay on
     // one line. Beside a taller value, such as a textarea or a radio group, the
-    // label stays level with the value's first row instead of its middle.
+    // label stays level with the value's first row instead of its middle. A
+    // hint after the control is on the row under it, so it is not centred.
     > :is(label, [imsFormFieldLabel]),
-    > :not(label, [imsFormFieldLabel], input, textarea, button):not(:has(*)) {
+    > :not(label, [imsFormFieldLabel], [imsFormFieldHint], input, textarea, button):not(:has(*)) {
         margin-block-start: max(0px, (var(--field-height) - 1lh) / 2);
+    }
+
+    // The row under the control holds its hint, as close to it as a stacked
+    // label is to its value.
+    &:has(> [imsFormFieldHint]) {
+        row-gap: var(--ims-form-field-stacked-gap);
+    }
+
+    // The control and what goes beside it, such as a hint or a unit, on one
+    // line. An item that no longer fits moves to the next line, under the
+    // control, rather than squeezing it.
+    > [imsFormFieldInline] {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: start;
+        gap: var(--ims-form-field-stacked-gap) var(--ims-form-field-gap);
+
+        // Text beside the control keeps its first line on the control's line,
+        // like the label.
+        > :is([imsFormFieldHint], :not(input, textarea, button):not(:has(*))) {
+            margin-block-start: max(0px, (var(--field-height) - 1lh) / 2);
+        }
     }
 
     &:has(> ims-checkbox) {
@@ -84,13 +133,13 @@ ims-form-field {
     }
 
     // Label above the value, for a field too narrow to hold both side by side.
-    // A field on its own sets the attribute on itself. A grid or a standalone
-    // row sets it on its own host, so all of its fields stack together. Both
+    // A field on its own sets the attribute on itself. A standalone row sets
+    // it on its own host, so all of its fields stack together. A grid sets it
+    // on each field it lays out, wherever the field sits in the DOM. Both
     // parts span every track of the field, which keeps a checkbox and its
     // label together on the first row, now at the field's start.
     &[data-ims-stacked],
-    :is(ims-form-field-grid, ims-form-field-row)[data-ims-stacked] > &,
-    ims-form-field-grid[data-ims-stacked] > ims-form-field-row > & {
+    ims-form-field-row[data-ims-stacked] > & {
         row-gap: var(--ims-form-field-stacked-gap);
 
         > :is(label, [imsFormFieldLabel]),
@@ -101,7 +150,7 @@ ims-form-field {
         // No control sits beside the label any more, so there is no field
         // height to centre on.
         > :is(label, [imsFormFieldLabel]),
-        > :not(label, [imsFormFieldLabel], input, textarea, button):not(:has(*)) {
+        > :not(label, [imsFormFieldLabel], [imsFormFieldHint], input, textarea, button):not(:has(*)) {
             margin-block-start: 0;
         }
     }

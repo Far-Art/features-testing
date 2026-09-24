@@ -9,6 +9,8 @@ import {ImsErrorPopoverDirective} from '../../components/ims-error-popover';
 import {
     ImsFormFieldGroup,
     ImsFormField, ImsFormFieldGrid,
+    ImsFormFieldHint,
+    ImsFormFieldInline,
     ImsFormFieldLabel,
     ImsFormFieldRow
 } from '../../components/ims-form-layout';
@@ -22,6 +24,7 @@ import {
 import {ImsOption, ImsSelect} from '../../components/ims-select';
 import {ImsInputDirective} from '../../ims-input.directive';
 import {ReadonlyDirective} from '../../shared/readonly.directive';
+import {DemoContactRow} from './demo-contact-row';
 import {DemoResizeFrame} from './demo-resize-frame';
 
 interface FormGridDemoRow {
@@ -40,6 +43,7 @@ function utcDate(value: string): Date {
     selector: 'app-form-layout-demo',
     imports: [
         DatePipe,
+        DemoContactRow,
         DemoResizeFrame,
         FormsModule,
         ImsCheckbox,
@@ -48,6 +52,8 @@ function utcDate(value: string): Date {
         ImsFormField,
         ImsFormFieldRow,
         ImsFormFieldGroup,
+        ImsFormFieldHint,
+        ImsFormFieldInline,
         ImsFormFieldLabel,
         ImsGrid,
         ImsGridRow,
@@ -75,6 +81,9 @@ export class FormLayoutDemo {
     policyEnd = utcDate('2026-12-31');
     eligibilityStart = utcDate('2026-03-01');
     eligibilityEnd = utcDate('2026-09-30');
+    unlabelledRangeStart = utcDate('2026-04-01');
+    unlabelledRangeEnd = utcDate('2026-10-31');
+    billingDate = utcDate('2026-05-01');
     vipCustomer = true;
     smsUpdates = false;
     accountSuspended = true;

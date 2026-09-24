@@ -8,7 +8,13 @@ import {
     inject,
     input
 } from '@angular/core';
-import {STACKED_ATTRIBUTE, observeInlineSize, overflowsInline} from './ims-form-field-fit';
+import {
+    STACKED_ATTRIBUTE,
+    SUBGRID_ATTRIBUTE,
+    layoutParent,
+    observeInlineSize,
+    overflowsInline
+} from './ims-form-field-fit';
 
 @Component({
     selector: 'ims-form-field-row',
@@ -28,7 +34,9 @@ import {STACKED_ATTRIBUTE, observeInlineSize, overflowsInline} from './ims-form-
  * a set of fields must remain on one visual row even when sibling fields are
  * conditionally added or removed. Child `ims-form-field` instances can use
  * their `column` input to target a stable one-based logical form column within
- * the row, and the grid decides whether their labels stack.
+ * the row, and the grid decides whether their labels stack. The row may also
+ * reach the grid through an element with `display: contents`, such as the host
+ * of a component that holds the row.
  *
  * On its own, the row places its fields side by side on one line, each at its
  * natural width, packed at the inline start unless `fill` is set. When the
@@ -74,11 +82,15 @@ export class ImsFormFieldRow {
     constructor() {
         afterNextRender(() => {
             // In a grid the row adopts the grid's tracks, and the grid decides
-            // where labels go. An ims-grid cell sizes its own content.
-            if (
-                this.hostElement.parentElement?.matches('ims-form-field-grid') ||
-                this.hostElement.closest('ims-grid-cell')
-            ) {
+            // where labels go. The row marks itself, since an element with
+            // display: contents may sit between the two, which the styles'
+            // child combinator cannot cross. An ims-grid cell sizes its own
+            // content.
+            if (layoutParent(this.hostElement)?.matches('ims-form-field-grid')) {
+                this.hostElement.setAttribute(SUBGRID_ATTRIBUTE, '');
+                return;
+            }
+            if (this.hostElement.closest('ims-grid-cell')) {
                 return;
             }
 

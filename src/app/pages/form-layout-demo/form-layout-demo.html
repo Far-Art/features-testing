@@ -623,6 +623,289 @@
             >
         </ims-form-field>
     </div>
+
+    <div class="form-layout-demo__example">
+        <h2>טבלה כערך של שדה</h2>
+        <p class="form-layout-demo__hint">
+            ims-grid יחיד הוא הערך של השדה, ולכן הוא ממוקם בעמודת הערך כמו כל רכיב שאינו תווית.
+            כשהמסגרת צרה מהתווית והטבלה ברוחבן הטבעי, התווית עוברת אל מעל הטבלה.
+        </p>
+
+        <app-demo-resize-frame>
+            <ims-form-field>
+                <span imsFormFieldLabel id="demo-table-value-label">פוליסות פעילות</span>
+                <ims-grid
+                    columnGap="1rem"
+                    role="group"
+                    aria-labelledby="demo-table-value-label"
+                >
+                    <ims-grid-header>
+                        <ims-grid-cell>שם לקוח</ims-grid-cell>
+                        <ims-grid-cell>מספר פוליסה</ims-grid-cell>
+                        <ims-grid-cell>תוקף</ims-grid-cell>
+                        <ims-grid-cell>פרמיה חודשית</ims-grid-cell>
+                    </ims-grid-header>
+
+                    @for (row of autoWidthGridSource; track row.id) {
+                        <ims-grid-row>
+                            <ims-grid-cell>{{ row.customerName }}</ims-grid-cell>
+                            <ims-grid-cell>
+                                <span dir="ltr">{{ row.policyNumber }}</span>
+                            </ims-grid-cell>
+                            <ims-grid-cell>
+                                <span dir="ltr">{{ row.validUntil | date: 'dd/MM/yyyy' : 'UTC' }}</span>
+                            </ims-grid-cell>
+                            <ims-grid-cell>{{ row.premium }}</ims-grid-cell>
+                        </ims-grid-row>
+                    }
+                </ims-grid>
+            </ims-form-field>
+        </app-demo-resize-frame>
+    </div>
+
+    <div class="form-layout-demo__example">
+        <h2>שדות וקבוצות ללא תוויות</h2>
+        <p class="form-layout-demo__hint">
+            בלי תווית, עמודת התווית ריקה ואין אחריה מרווח, כך שהערך מתחיל בקצה השדה, בדיוק מתחת
+            לכותרת של כל דוגמה. זוג בקבוצה בלי טקסט מתחיל ישר בפקד. בקבוצה אנכית המרווח נעלם רק
+            כשלאף זוג אין טקסט, כי הפקדים חולקים עמודה אחת. בתוך ims-form-field-grid המרווח נשאר,
+            כדי שהערך יתיישר עם שאר הערכים בעמודה.
+        </p>
+
+        <app-demo-resize-frame>
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">בלי תווית ראשית</h3>
+                <ims-form-field>
+                    <ims-form-field-group role="group" aria-label="תקופת זכאות">
+                        <label>
+                            <span>מתאריך</span>
+                            <ims-datepicker
+                                ariaLabel="תקופת זכאות מתאריך"
+                                valueType="date"
+                                [(ngModel)]="unlabelledRangeStart"
+                            />
+                        </label>
+
+                        <label>
+                            <span>עד תאריך</span>
+                            <ims-datepicker
+                                ariaLabel="תקופת זכאות עד תאריך"
+                                valueType="date"
+                                [(ngModel)]="unlabelledRangeEnd"
+                            />
+                        </label>
+                    </ims-form-field-group>
+                </ims-form-field>
+            </div>
+
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">זוגות בלי טקסט</h3>
+                <ims-form-field>
+                    <label imsFormFieldLabel id="demo-unlabelled-pairs-label">תקופת זכאות</label>
+                    <ims-form-field-group role="group" aria-labelledby="demo-unlabelled-pairs-label">
+                        <label>
+                            <ims-datepicker
+                                ariaLabel="תקופת זכאות מתאריך"
+                                valueType="date"
+                                [(ngModel)]="unlabelledRangeStart"
+                            />
+                        </label>
+
+                        <label>
+                            <ims-datepicker
+                                ariaLabel="תקופת זכאות עד תאריך"
+                                valueType="date"
+                                [(ngModel)]="unlabelledRangeEnd"
+                            />
+                        </label>
+                    </ims-form-field-group>
+                </ims-form-field>
+            </div>
+
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">בלי תוויות בכלל</h3>
+                <ims-form-field>
+                    <ims-form-field-group role="group" aria-label="תקופת זכאות">
+                        <label>
+                            <ims-datepicker
+                                ariaLabel="תקופת זכאות מתאריך"
+                                valueType="date"
+                                [(ngModel)]="unlabelledRangeStart"
+                            />
+                        </label>
+
+                        <label>
+                            <ims-datepicker
+                                ariaLabel="תקופת זכאות עד תאריך"
+                                valueType="date"
+                                [(ngModel)]="unlabelledRangeEnd"
+                            />
+                        </label>
+                    </ims-form-field-group>
+                </ims-form-field>
+            </div>
+
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">קבוצה אנכית בלי טקסט</h3>
+                <ims-form-field>
+                    <ims-form-field-group layout="stacked" role="group" aria-label="תקופת זכאות">
+                        <label>
+                            <ims-datepicker
+                                ariaLabel="תקופת זכאות מתאריך"
+                                valueType="date"
+                                [(ngModel)]="unlabelledRangeStart"
+                            />
+                        </label>
+
+                        <label>
+                            <ims-datepicker
+                                ariaLabel="תקופת זכאות עד תאריך"
+                                valueType="date"
+                                [(ngModel)]="unlabelledRangeEnd"
+                            />
+                        </label>
+                    </ims-form-field-group>
+                </ims-form-field>
+            </div>
+
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">שדה בלי תווית</h3>
+                <ims-form-field>
+                    <input
+                        imsInput
+                        type="search"
+                        aria-label="חיפוש חופשי"
+                        placeholder="הקלדת שם או מספר"
+                    >
+                </ims-form-field>
+            </div>
+
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">תיבת סימון מחוץ לקבוצת עמודות</h3>
+                <ims-form-field>
+                    <label>קבלת עדכונים בדואר אלקטרוני</label>
+                    <ims-checkbox checked/>
+                </ims-form-field>
+            </div>
+        </app-demo-resize-frame>
+    </div>
+
+    <div class="form-layout-demo__example">
+        <h2>טקסט ליד הפקד</h2>
+        <p class="form-layout-demo__hint">
+            imsFormFieldHint מסמן טקסט שמתאר את הפקד. אחרי הפקד הוא יושב מתחתיו, ונשבר בתוך רוחב העמודה
+            בלי להרחיב אותה. בתוך imsFormFieldInline הוא יושב לצד הפקד, בגובה הטקסט שלו, ועובר אל מתחתיו
+            כשאין מקום. השדה מוסיף אותו ל־aria-describedby של הפקד, כך שקורא מסך מקריא אותו עם הפקד.
+        </p>
+
+        <app-demo-resize-frame>
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">מתחת לפקד</h3>
+                <ims-form-field>
+                    <label>תאריך חיוב</label>
+                    <ims-datepicker
+                        ariaLabel="תאריך חיוב"
+                        valueType="date"
+                        [(ngModel)]="billingDate"
+                    />
+                    <span imsFormFieldHint>יום ראשון בחודש</span>
+                </ims-form-field>
+            </div>
+
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">לצד הפקד</h3>
+                <ims-form-field>
+                    <label>תאריך חיוב</label>
+                    <span imsFormFieldInline>
+                        <ims-datepicker
+                            ariaLabel="תאריך חיוב"
+                            valueType="date"
+                            [(ngModel)]="billingDate"
+                        />
+                        <span imsFormFieldHint>יום ראשון בחודש</span>
+                    </span>
+                </ims-form-field>
+            </div>
+
+            <div class="form-layout-demo__playground-item">
+                <h3 class="form-layout-demo__playground-caption">בקבוצה רספונסיבית</h3>
+                <ims-form-field-grid>
+                    <ims-form-field>
+                        <label>תאריך חיוב</label>
+                        <span imsFormFieldInline>
+                            <ims-datepicker
+                                ariaLabel="תאריך חיוב"
+                                valueType="date"
+                                [(ngModel)]="billingDate"
+                            />
+                            <span imsFormFieldHint>יום ראשון בחודש</span>
+                        </span>
+                    </ims-form-field>
+
+                    <ims-form-field>
+                        <label>סכום חודשי</label>
+                        <span imsFormFieldInline>
+                            <input imsInput class="field-xs" value="275" dir="ltr">
+                            <span>₪</span>
+                        </span>
+                    </ims-form-field>
+
+                    <ims-form-field>
+                        <label>אסמכתה</label>
+                        <input imsInput class="field-m" value="REF-2026-1042" dir="ltr">
+                        <span imsFormFieldHint>מופיעה בשורה העליונה של החשבונית שנשלחה אליכם בדואר</span>
+                    </ims-form-field>
+
+                    <ims-form-field>
+                        <label>הערות</label>
+                        <span imsFormFieldInline>
+                            <textarea imsInput rows="3" class="field-l"></textarea>
+                            <span imsFormFieldHint>עד 200 תווים</span>
+                        </span>
+                    </ims-form-field>
+                </ims-form-field-grid>
+            </div>
+        </app-demo-resize-frame>
+    </div>
+
+    <div class="form-layout-demo__example">
+        <h2>שורה בתוך רכיב</h2>
+        <p class="form-layout-demo__hint">
+            השורה האמצעית נמצאת בתוך הרכיב app-demo-contact-row, שה־host שלו מוגדר display: contents.
+            הקבוצה פורסת אותה כאילו היא ילד ישיר שלה: התוויות והערכים שלה חולקים את העמודות עם שאר
+            השורות, והתוויות שלה עוברות אל מעל השדות יחד עם כולן.
+        </p>
+
+        <app-demo-resize-frame>
+            <ims-form-field-grid columns="2">
+                <ims-form-field-row>
+                    <ims-form-field column="1">
+                        <label>שם פרטי</label>
+                        <input imsInput value="נועה">
+                    </ims-form-field>
+
+                    <ims-form-field column="2">
+                        <label>שם משפחה</label>
+                        <input imsInput value="ישראלי">
+                    </ims-form-field>
+                </ims-form-field-row>
+
+                <app-demo-contact-row/>
+
+                <ims-form-field-row>
+                    <ims-form-field column="1">
+                        <label>עיר</label>
+                        <input imsInput value="חיפה">
+                    </ims-form-field>
+
+                    <ims-form-field column="2">
+                        <label>מיקוד</label>
+                        <input imsInput value="3303102" dir="ltr">
+                    </ims-form-field>
+                </ims-form-field-row>
+            </ims-form-field-grid>
+        </app-demo-resize-frame>
+    </div>
 </section>
 
 <section

@@ -10,6 +10,12 @@
 
 - Do not generate test files unless explicitly asked.
 - On refactor / update if the component or service has tests, explicitly ask to update them.
+- If specs exist and a change breaks them, update those specs as part of the same change, without asking first. The question above is for adding or extending tests, not for keeping existing specs passing.
+
+## ESLint
+
+- Follow ESLint best practices: write TypeScript, Angular components, and templates that pass the recommended rules of `@eslint/js`, `typescript-eslint`, and `angular-eslint`.
+- Fix what a rule would report instead of silencing it. When an exception is really needed, disable only that rule on that line, with a comment saying why.
 
 ## CDK Virtual Scroll
 

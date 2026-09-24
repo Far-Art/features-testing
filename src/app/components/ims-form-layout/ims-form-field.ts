@@ -10,7 +10,14 @@ import {
     numberAttribute,
     signal
 } from '@angular/core';
-import {STACKED_ATTRIBUTE, observeInlineSize, overflowsInline} from './ims-form-field-fit';
+import {
+    STACKED_ATTRIBUTE,
+    SUBGRID_ATTRIBUTE,
+    layoutParent,
+    observeInlineSize,
+    overflowsInline
+} from './ims-form-field-fit';
+import {type ImsFormFieldGrid, findLayoutGrid} from './ims-form-field-grid';
 
 /** Monotonic id source for controls that need automatic label association. */
 let nextFormControlId = 0;
@@ -65,7 +72,10 @@ function formFieldSpanAttribute(value: number | string): ImsFormFieldSpan {
  *
  * The component always owns its intrinsic label/value tracks. Inside an
  * `ims-form-field-grid` or `ims-form-field-row`, the complete field is placed
- * as one unit so parent distribution never changes the label/value gap.
+ * as one unit so parent distribution never changes the label/value gap. The
+ * field finds its grid through the rendered layout, so an element with
+ * `display: contents` in between, such as the host of a component that groups
+ * fields, still leaves it in the grid.
  *
  * When the label and value cannot sit side by side at their natural widths,
  * the label moves above the value. A field on its own measures this itself.
@@ -75,6 +85,9 @@ function formFieldSpanAttribute(value: number | string): ImsFormFieldSpan {
  * With a direct `ims-checkbox`, the checkbox component and main field label
  * share value column 2 and row 1. The form layout only handles placement;
  * checkbox visuals remain owned by the checkbox component.
+ *
+ * Every `[imsFormFieldHint]` owned by this field describes the control the
+ * main label names: its id is added to that control's `aria-describedby`.
  */
 export class ImsFormField {
     private readonly destroyRef = inject(DestroyRef);
@@ -83,6 +96,8 @@ export class ImsFormField {
     private contentObserver: MutationObserver | null = null;
     /** Stops label-stacking measurement; set only for a field on its own. */
     private stopObservingInlineSize: (() => void) | null = null;
+    /** Grid that lays this field out, directly or through a row. */
+    private layoutGrid: ImsFormFieldGrid | null = null;
     /** Current direct child selected for the main label slot. */
     private mainLabel: HTMLElement | null = null;
     /** `for` value created by this component, used to distinguish it from consumer input. */
@@ -91,6 +106,10 @@ export class ImsFormField {
     private labelledGroup: HTMLElement | null = null;
     /** Label id this component added to `labelledGroup`, removed again on cleanup. */
     private labelledGroupReference: string | null = null;
+    /** Control whose `aria-describedby` holds `describedHintIds`. */
+    private describedControl: HTMLElement | null = null;
+    /** Hint ids this component added to `describedControl`, removed again on cleanup. */
+    private describedHintIds: string[] = [];
     /** Automatic logical column assigned by the nearest form-field grid. */
     private readonly automaticColumn = signal<number | null>(null);
     /** Logical column count supplied by the nearest form-field grid. */
@@ -226,9 +245,10 @@ export class ImsFormField {
     });
 
     /**
-     * Initializes projected-content synchronization and, for a field on its
-     * own, label-stacking measurement after rendering. Removes observers and
-     * generated state when the component is destroyed.
+     * Initializes projected-content synchronization and, after rendering,
+     * joins the grid that lays the field out, or measures label stacking for a
+     * field on its own. Removes observers and leaves the grid when the
+     * component is destroyed.
      */
     constructor() {
         afterNextRender(() => {
@@ -238,16 +258,17 @@ export class ImsFormField {
                 childList: true,
                 subtree: true
             });
-            this.observeStacking();
+            this.joinLayout();
         });
 
         this.destroyRef.onDestroy(() => {
             this.contentObserver?.disconnect();
             this.stopObservingInlineSize?.();
+            this.layoutGrid?.removeField(this);
         });
     }
 
-    /** Host element used by the owning grid to resolve direct field children. */
+    /** Host element used by the owning grid to find the flow the field is in. */
     getHostElement(): HTMLElement {
         return this.hostElement;
     }
@@ -278,16 +299,27 @@ export class ImsFormField {
     }
 
     /**
-     * Keeps a field on its own stacked while it is too narrow for its label and
-     * value side by side.
+     * Joins the grid that lays this field out, directly or through a row, or
+     * keeps a field on its own stacked while it is too narrow for its label
+     * and value side by side.
      *
-     * A grid or row measures for the fields it lays out, so they flip
-     * together. An `ims-grid` cell sizes its own content, so a field there
-     * never stacks.
+     * The grid is found through the rendered layout rather than the template,
+     * so an element with `display: contents` in between, such as the host of
+     * a component that groups fields, still leaves the field in the grid. A
+     * grid or row measures for the fields it lays out, so they flip together.
+     * An `ims-grid` cell sizes its own content, so a field there never stacks.
      */
-    private observeStacking(): void {
+    private joinLayout(): void {
+        const grid = findLayoutGrid(this.hostElement);
+        if (grid !== null) {
+            this.hostElement.setAttribute(SUBGRID_ATTRIBUTE, '');
+            this.layoutGrid = grid;
+            grid.addField(this);
+            return;
+        }
+
         if (
-            this.hostElement.parentElement?.matches('ims-form-field-grid, ims-form-field-row') ||
+            layoutParent(this.hostElement)?.matches('ims-form-field-row') ||
             this.hostElement.closest('ims-grid-cell')
         ) {
             return;
@@ -343,6 +375,7 @@ export class ImsFormField {
 
         this.mainLabel = label;
         this.syncMainLabel();
+        this.syncHints();
     }
 
     /**
@@ -419,9 +452,7 @@ export class ImsFormField {
 
         this.clearGroupLabel();
 
-        const references = idReferences(group);
-        if (!references.includes(label.id)) {
-            group.setAttribute('aria-labelledby', [...references, label.id].join(' '));
+        if (addIdReference(group, 'aria-labelledby', label.id)) {
             this.labelledGroup = group;
             this.labelledGroupReference = label.id;
         }
@@ -435,12 +466,71 @@ export class ImsFormField {
         this.labelledGroupReference = null;
         if (group === null || reference === null) return;
 
-        const references = idReferences(group).filter((id) => id !== reference);
-        if (references.length > 0) {
-            group.setAttribute('aria-labelledby', references.join(' '));
-        } else {
-            group.removeAttribute('aria-labelledby');
+        removeIdReference(group, 'aria-labelledby', reference);
+    }
+
+    /**
+     * Describes the control the main label names with this field's hints.
+     *
+     * Each owned `[imsFormFieldHint]` gets an id when it has none, and the id
+     * is added to the control's `aria-describedby`, next to any the control
+     * already carries, such as an error popover's message. Only ids this
+     * component added are removed again, when a hint goes or the control
+     * changes.
+     */
+    private syncHints(): void {
+        const hints = Array.from(this.hostElement.querySelectorAll<HTMLElement>('[imsFormFieldHint]'))
+            .filter((hint) => this.belongsToThisField(hint));
+        const control = hints.length > 0 ? this.findLabelTarget() : null;
+        if (control !== this.describedControl) {
+            this.clearHintDescription();
         }
+        if (control === null) return;
+
+        const hintIds = hints.map((hint) => {
+            if (!hint.id) {
+                hint.id = `ims-form-hint-${nextFormControlId++}`;
+            }
+            return hint.id;
+        });
+        for (const id of this.describedHintIds) {
+            if (!hintIds.includes(id)) {
+                removeIdReference(control, 'aria-describedby', id);
+            }
+        }
+        this.describedHintIds = this.describedHintIds.filter((id) => hintIds.includes(id));
+        for (const id of hintIds) {
+            if (addIdReference(control, 'aria-describedby', id)) {
+                this.describedHintIds.push(id);
+            }
+        }
+        this.describedControl = control;
+    }
+
+    /** Removes only the `aria-describedby` references added by `syncHints`. */
+    private clearHintDescription(): void {
+        const control = this.describedControl;
+        const ids = this.describedHintIds;
+        this.describedControl = null;
+        this.describedHintIds = [];
+        if (control === null) return;
+
+        for (const id of ids) {
+            removeIdReference(control, 'aria-describedby', id);
+        }
+    }
+
+    /**
+     * Returns the control the main label names: the target of a consumer's
+     * `for`, or otherwise the first labelable control, which the field labels
+     * itself.
+     */
+    private findLabelTarget(): HTMLElement | null {
+        const label = this.mainLabel;
+        const explicitFor = label instanceof HTMLLabelElement ? label.getAttribute('for') : null;
+        return explicitFor !== null && explicitFor !== this.automaticLabelFor
+            ? this.findControlById(explicitFor)
+            : this.findFirstLabelableControl();
     }
 
     /**
@@ -491,9 +581,32 @@ export class ImsFormField {
     }
 }
 
-/** Reads an element's space-delimited `aria-labelledby` ids. */
-function idReferences(element: HTMLElement): string[] {
-    return (element.getAttribute('aria-labelledby') ?? '').split(/\s+/).filter(Boolean);
+/** Reads the ids in one of an element's space-delimited ARIA reference attributes. */
+function idReferences(element: HTMLElement, attribute: string): string[] {
+    return (element.getAttribute(attribute) ?? '').split(/\s+/).filter(Boolean);
+}
+
+/**
+ * Adds one id to an ARIA reference attribute, next to the ids already there.
+ * Returns whether it was added, so only a reference this component added is
+ * ever removed again.
+ */
+function addIdReference(element: HTMLElement, attribute: string, id: string): boolean {
+    const references = idReferences(element, attribute);
+    if (references.includes(id)) return false;
+
+    element.setAttribute(attribute, [...references, id].join(' '));
+    return true;
+}
+
+/** Removes one id from an ARIA reference attribute, keeping every other id. */
+function removeIdReference(element: HTMLElement, attribute: string, id: string): void {
+    const references = idReferences(element, attribute).filter((reference) => reference !== id);
+    if (references.length > 0) {
+        element.setAttribute(attribute, references.join(' '));
+    } else {
+        element.removeAttribute(attribute);
+    }
 }
 
 /** Maps a one-based logical field column to its label-track grid line. */

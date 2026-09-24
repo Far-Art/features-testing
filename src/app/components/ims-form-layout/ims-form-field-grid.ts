@@ -5,15 +5,36 @@ import {
     ElementRef,
     afterNextRender,
     computed,
-    contentChildren,
     effect,
     inject,
     input,
     numberAttribute,
     signal
 } from '@angular/core';
-import {ImsFormField} from './ims-form-field';
-import {STACKED_ATTRIBUTE, observeInlineSize, overflowsInline} from './ims-form-field-fit';
+import type {ImsFormField} from './ims-form-field';
+import {STACKED_ATTRIBUTE, layoutParent, observeInlineSize, overflowsInline} from './ims-form-field-fit';
+
+/**
+ * Grids by host element, so a field finds the grid that lays it out from the
+ * rendered layout, wherever the field is declared.
+ */
+const gridsByHost = new WeakMap<HTMLElement, ImsFormFieldGrid>();
+
+/**
+ * Returns the grid that lays out a field, directly or through a row.
+ *
+ * An element with `display: contents` on the way, such as the host of a
+ * component that only groups fields, is passed over, as the layout itself
+ * passes over it.
+ */
+export function findLayoutGrid(field: HTMLElement): ImsFormFieldGrid | null {
+    let parent = layoutParent(field);
+    if (parent?.matches('ims-form-field-row')) {
+        parent = layoutParent(parent);
+    }
+
+    return parent === null ? null : gridsByHost.get(parent) ?? null;
+}
 
 /** Converts a column-count input to a positive integer or automatic mode. */
 function positiveIntegerOrNull(value: number | string | null): number | null {
@@ -47,8 +68,9 @@ function positiveNumber(value: number | string): number {
  * and put the spare width between fields instead.
  *
  * The number of logical columns can be fixed through `columns`. Without an
- * explicit count, projected field occupancy defines the maximum candidate
- * count, which is reduced until every label and value fits at natural width.
+ * explicit count, the occupancy of the grid's fields defines the maximum
+ * candidate count, which is reduced until every label and value fits at
+ * natural width.
  *
  * Stacking is the last resort. When one responsive column, or the fixed
  * count, cannot hold every label beside its value at natural width, every
@@ -56,6 +78,11 @@ function positiveNumber(value: number | string): number {
  *
  * Direct fields may flow naturally. Wrap fields in `ims-form-field-row` when
  * they must remain on the same visual row as fields are added or removed.
+ *
+ * The grid lays out the fields and rows the rendered layout gives it, not
+ * only the ones in its own template. A row or field inside an element with
+ * `display: contents`, such as the host of a component that groups fields, is
+ * laid out as if it were a direct child. Each field joins the grid itself.
  */
 export class ImsFormFieldGrid {
     /**
@@ -131,7 +158,7 @@ export class ImsFormFieldGrid {
     /**
      * CSS track list applied to the host.
      *
-     * Both modes use shared label/value pairs so projected fields and compound
+     * Both modes use shared label/value pairs so the grid's fields and compound
      * field groups remain aligned through CSS subgrid.
      */
     readonly columnTemplate = computed(() =>
@@ -139,7 +166,8 @@ export class ImsFormFieldGrid {
     );
     private readonly destroyRef = inject(DestroyRef);
     private readonly hostElement: HTMLElement = inject(ElementRef).nativeElement;
-    private readonly projectedFields = contentChildren(ImsFormField, {descendants: true});
+    /** Fields this grid lays out, directly or through a row, as they joined. */
+    private readonly fields = signal<readonly ImsFormField[]>([]);
     /** Last observed inline size of the group host, measured in CSS pixels. */
     private readonly availableWidth = signal(0);
     private readonly automaticColumns = signal(1);
@@ -156,7 +184,7 @@ export class ImsFormFieldGrid {
     private layoutFrame: number | null = null;
     private layoutReady = false;
     private resetColumnsBeforeLayout = false;
-    /** Maximum responsive column count that projected fields can occupy. */
+    /** Maximum responsive column count that the grid's fields can occupy. */
     private readonly maximumAutomaticColumns = computed(() => {
         const rowColumnEstimate = Math.max(
             1,
@@ -171,6 +199,8 @@ export class ImsFormFieldGrid {
      * measurement synchronized when sizing inputs change.
      */
     constructor() {
+        gridsByHost.set(this.hostElement, this);
+
         afterNextRender(() => {
             this.layoutReady = true;
             this.availableWidth.set(this.hostElement.clientWidth);
@@ -189,7 +219,7 @@ export class ImsFormFieldGrid {
             this.maximumAutomaticColumns();
             this.columns();
             this.columnDistribution();
-            for (const field of this.projectedFields()) {
+            for (const field of this.fields()) {
                 field.column();
                 field.span();
                 field.labelSpan();
@@ -199,6 +229,7 @@ export class ImsFormFieldGrid {
         }, {allowSignalWrites: true});
 
         this.destroyRef.onDestroy(() => {
+            gridsByHost.delete(this.hostElement);
             this.stopObservingInlineSize?.();
 
             const view = this.hostElement.ownerDocument.defaultView;
@@ -208,7 +239,17 @@ export class ImsFormFieldGrid {
         });
     }
 
-    /** Coalesces responsive fitting and projected-field placement. */
+    /** Adds a field the rendered layout gives this grid, directly or through a row. */
+    addField(field: ImsFormField): void {
+        this.fields.update((fields) => fields.includes(field) ? fields : [...fields, field]);
+    }
+
+    /** Removes a field that no longer takes part in this grid's layout. */
+    removeField(field: ImsFormField): void {
+        this.fields.update((fields) => fields.filter((current) => current !== field));
+    }
+
+    /** Coalesces responsive fitting and field placement. */
     private scheduleLayout(resetColumns = false): void {
         this.resetColumnsBeforeLayout ||= resetColumns;
 
@@ -239,12 +280,17 @@ export class ImsFormFieldGrid {
      * responsive mode or the fixed count, labels stack above their values.
      */
     private syncLayout(): void {
-        this.hostElement.removeAttribute(STACKED_ATTRIBUTE);
+        const flows = this.fieldFlows();
+        this.markStacked(flows, false);
 
         const explicitColumns = this.columns();
         if (explicitColumns !== null) {
             this.resetColumnsBeforeLayout = false;
-            this.commitLayout(explicitColumns, !this.fitsAtNaturalWidth(explicitColumns));
+            this.commitLayout(
+                explicitColumns,
+                !this.fitsAtNaturalWidth(explicitColumns, flows),
+                flows
+            );
             return;
         }
 
@@ -252,15 +298,15 @@ export class ImsFormFieldGrid {
             ? this.maximumAutomaticColumns()
             : this.automaticColumns();
         this.resetColumnsBeforeLayout = false;
-        while (columnCount > 1 && !this.fitsAtNaturalWidth(columnCount)) {
+        while (columnCount > 1 && !this.fitsAtNaturalWidth(columnCount, flows)) {
             columnCount--;
         }
 
         // Dropping a column comes before stacking, so only a single column
         // that still does not fit stacks its labels.
-        const stacked = columnCount === 1 && !this.fitsAtNaturalWidth(1);
+        const stacked = columnCount === 1 && !this.fitsAtNaturalWidth(1, flows);
         this.automaticColumns.set(columnCount);
-        this.commitLayout(columnCount, stacked);
+        this.commitLayout(columnCount, stacked, flows);
     }
 
     /**
@@ -271,8 +317,10 @@ export class ImsFormFieldGrid {
      * `max-content`, including the final pair that the real template lets
      * shrink.
      */
-    private fitsAtNaturalWidth(columnCount: number): boolean {
-        this.syncAutomaticFieldColumns(columnCount);
+    private fitsAtNaturalWidth(columnCount: number, flows: readonly ImsFormField[][]): boolean {
+        for (const flow of flows) {
+            this.assignAutomaticColumns(flow, columnCount);
+        }
         this.hostElement.style.gridTemplateColumns = buildNaturalColumnTemplate(columnCount);
         return !overflowsInline(this.hostElement);
     }
@@ -281,42 +329,76 @@ export class ImsFormFieldGrid {
      * Applies the real template for the final count, which the last
      * measurement left placed, together with the stacking decision.
      */
-    private commitLayout(columnCount: number, stacked: boolean): void {
+    private commitLayout(
+        columnCount: number,
+        stacked: boolean,
+        flows: readonly ImsFormField[][]
+    ): void {
         this.hostElement.style.gridTemplateColumns = buildColumnTemplate(
             columnCount,
             this.columnDistribution()
         );
-        this.hostElement.toggleAttribute(STACKED_ATTRIBUTE, stacked);
+        this.markStacked(flows, stacked);
     }
 
     /**
-     * Caps automatic columns at the widest projected flow context.
+     * Moves every label this grid lays out above its value, or back beside it.
+     *
+     * The attribute goes on each field as well as on the host, since a field
+     * inside an element with `display: contents` is out of reach of a child
+     * combinator from the host.
+     */
+    private markStacked(flows: readonly ImsFormField[][], stacked: boolean): void {
+        this.hostElement.toggleAttribute(STACKED_ATTRIBUTE, stacked);
+        for (const flow of flows) {
+            for (const field of flow) {
+                field.getHostElement().toggleAttribute(STACKED_ATTRIBUTE, stacked);
+            }
+        }
+    }
+
+    /**
+     * Groups the fields this grid lays out into flows, in document order.
+     *
+     * Direct fields share one flow, and each row is a flow of its own. A field
+     * belongs to the element whose layout it takes part in, so an element with
+     * `display: contents` in between leaves it in the same flow.
+     */
+    private fieldFlows(): ImsFormField[][] {
+        const directFields: ImsFormField[] = [];
+        const rowFields = new Map<HTMLElement, ImsFormField[]>();
+        const fields = [...this.fields()].sort((first, second) =>
+            documentOrder(first.getHostElement(), second.getHostElement())
+        );
+
+        for (const field of fields) {
+            const parent = layoutParent(field.getHostElement());
+            if (parent === this.hostElement) {
+                directFields.push(field);
+            } else if (parent !== null) {
+                const flow = rowFields.get(parent);
+                if (flow) {
+                    flow.push(field);
+                } else {
+                    rowFields.set(parent, [field]);
+                }
+            }
+        }
+
+        return [directFields, ...rowFields.values()];
+    }
+
+    /**
+     * Caps automatic columns at the widest flow.
      *
      * Direct fields share one flow context. Each explicit row is independent,
      * so rows contribute their widest useful count rather than being summed.
      * A `span="row"` field can occupy every estimated width-supported column.
      */
     private maximumUsefulContentColumns(rowColumnEstimate: number): number {
-        const projectedFields = this.projectedFields();
-        const fieldGroups: ImsFormField[][] = [
-            projectedFields.filter(
-                (field) => field.getHostElement().parentElement === this.hostElement
-            )
-        ];
-        const rows = Array.from(this.hostElement.children).filter(
-            (element): element is HTMLElement =>
-                element instanceof HTMLElement && element.matches('ims-form-field-row')
-        );
-
-        for (const row of rows) {
-            fieldGroups.push(projectedFields.filter(
-                (field) => field.getHostElement().parentElement === row
-            ));
-        }
-
         return Math.max(
             1,
-            ...fieldGroups.map((fields) =>
+            ...this.fieldFlows().map((fields) =>
                 this.usefulColumnCount(fields, rowColumnEstimate)
             )
         );
@@ -347,26 +429,6 @@ export class ImsFormFieldGrid {
         }
 
         return Math.max(1, totalSpan, furthestExplicitColumn);
-    }
-
-    /** Assigns auto-flow fields to logical columns while skipping spacer tracks. */
-    private syncAutomaticFieldColumns(columnCount: number): void {
-        const projectedFields = this.projectedFields();
-        const directFields = projectedFields.filter(
-            (field) => field.getHostElement().parentElement === this.hostElement
-        );
-        this.assignAutomaticColumns(directFields, columnCount);
-
-        const rows = Array.from(this.hostElement.children).filter(
-            (element): element is HTMLElement =>
-                element instanceof HTMLElement && element.matches('ims-form-field-row')
-        );
-        for (const row of rows) {
-            const rowFields = projectedFields.filter(
-                (field) => field.getHostElement().parentElement === row
-            );
-            this.assignAutomaticColumns(rowFields, columnCount);
-        }
     }
 
     /** Places automatic fields sequentially while respecting their logical spans. */
@@ -406,6 +468,11 @@ export class ImsFormFieldGrid {
             field.setGridContext(automaticColumn, columnCount);
         }
     }
+}
+
+/** Orders two nodes as they appear in the document. */
+function documentOrder(first: Node, second: Node): number {
+    return first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
 }
 
 /**

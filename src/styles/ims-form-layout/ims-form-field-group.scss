@@ -5,21 +5,37 @@ ims-form-field-group {
     row-gap: 0.65rem;
     min-width: 0;
 
+    // Stacked pairs share one text track, and a control without text still
+    // lines up with the others after it. When no pair has text the track is
+    // empty, and the gap after it would only push every control in from the
+    // group's start.
+    &[data-layout="stacked"]:not(:has(> label > span)) {
+        column-gap: 0;
+    }
+
     &[data-layout="inline"] {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
         column-gap: 1rem;
 
         > label {
             grid-column: auto / span 1;
             grid-template-columns: max-content minmax(0, 1fr);
             column-gap: 0.5rem;
+
+            // An inline pair has tracks of its own, so without text it starts
+            // with its control.
+            &:not(:has(> span)) {
+                column-gap: 0;
+            }
         }
     }
 
-    // Sizes stay at the specificity of the element name, so a class on the
-    // group, or on one of its pairs, sets its own.
+    // Two pairs to a row, each at its natural width and packed at the start,
+    // in a group only as wide as they are. Sizes stay at the specificity of the
+    // element name, so a class on the group, or on one of its pairs, sets its
+    // own, for instance to spread the pairs across the value.
     &:where([data-layout="inline"]) {
-        inline-size: 100%;
+        grid-template-columns: repeat(2, max-content);
+        justify-self: start;
 
         > label {
             min-inline-size: 0;
