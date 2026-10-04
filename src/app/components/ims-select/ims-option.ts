@@ -8,7 +8,8 @@ import {
     computed,
     inject,
     input,
-    signal
+    signal,
+    viewChild
 } from '@angular/core';
 import {IMS_SELECT_PARENT, ImsSelectOptionLike, ImsSelectParent} from './ims-select.types';
 
@@ -17,7 +18,12 @@ let nextOptionId = 0;
 @Component({
     selector: 'ims-option',
     standalone: true,
-    template: '<ng-content />',
+    template: `
+        <span class="ims-option__label">
+            <span #content class="ims-option__content"><ng-content /></span>
+            <span #weightReserve class="ims-option__weight-reserve" aria-hidden="true" inert></span>
+        </span>
+    `,
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
         class: 'ims-option',
@@ -35,6 +41,8 @@ let nextOptionId = 0;
 })
 export class ImsOption<T = unknown> implements AfterViewInit, OnDestroy, ImsSelectOptionLike<T> {
     private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+    private readonly contentElement = viewChild.required<ElementRef<HTMLElement>>('content');
+    private readonly weightReserveElement = viewChild.required<ElementRef<HTMLElement>>('weightReserve');
     private readonly parent = inject<ImsSelectParent<T> | null>(IMS_SELECT_PARENT, {
         optional: true
     });
@@ -74,9 +82,11 @@ export class ImsOption<T = unknown> implements AfterViewInit, OnDestroy, ImsSele
     readonly visible = computed(() => this.parent?.isOptionVisible(this) ?? true);
 
     ngAfterViewInit(): void {
-        this.updateContentText();
-        this.mutationObserver = new MutationObserver(() => this.updateContentText());
-        this.mutationObserver.observe(this.elementRef.nativeElement, {
+        this.syncContent();
+        this.mutationObserver = new MutationObserver(() => this.syncContent());
+        // The content only: the weight reserve changes with it, and observing
+        // that too would answer every sync with another.
+        this.mutationObserver.observe(this.contentElement().nativeElement, {
             characterData: true,
             childList: true,
             subtree: true
@@ -106,8 +116,22 @@ export class ImsOption<T = unknown> implements AfterViewInit, OnDestroy, ImsSele
         this.elementRef.nativeElement.scrollIntoView({block: 'nearest'});
     }
 
-    private updateContentText(): void {
-        this.contentText.set(this.elementRef.nativeElement.textContent ?? '');
+    private syncContent(): void {
+        const content = this.contentElement().nativeElement;
+        this.contentText.set(content.textContent ?? '');
+        this.syncWeightReserve(content);
+    }
+
+    /**
+     * Copies the projected content into the hidden layer laid out at the
+     * selected weight, so the option is as wide unselected as it is once
+     * selected. A copy of the content itself, not of its text, so the gaps and
+     * margins between its parts count too.
+     */
+    private syncWeightReserve(content: HTMLElement): void {
+        const copy = content.cloneNode(true) as HTMLElement;
+        copy.querySelectorAll('[id]').forEach((element) => element.removeAttribute('id'));
+        this.weightReserveElement().nativeElement.replaceChildren(...copy.childNodes);
     }
 
     private readValueIfAvailable(): T | undefined {

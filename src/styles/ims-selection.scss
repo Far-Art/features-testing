@@ -200,6 +200,10 @@
     // The checkmark's box and the gap before it. Every option reserves them, so
     // selecting one never changes the row's width.
     --ims-option-check-space: calc(0.35rem + 1.5px + 0.5rem);
+    // The selected row's weight. Every row, and every row that sizes the menu,
+    // reserves the room its label takes at this weight, so selecting an option
+    // never widens the menu.
+    --ims-option-selected-weight: var(--ims-font-weight-semibold);
 
     position: relative;
     display: flex;
@@ -222,15 +226,40 @@
     background: var(--ims-color-interactive-alt-subtle);
 }
 
-// Color and the checkmark below, never weight. A heavier row is wider than the
-// same row unselected, so its text shifts the moment it becomes selected — and
-// in a free-text single autocomplete that is mid-typing, the keystroke that
-// makes the typed text match an option exactly. The sizer rows that give the
-// menu its width are never selected, so a heavier selected row would also
-// outgrow the width measured for it and truncate.
+// A heavier row is wider than the same row unselected. The room for it is
+// already reserved — by each ims-option's hidden bold copy below, and by the
+// autocomplete's bold sizer rows — so the menu keeps its width either way.
 .ims-option.ims-option--selected,
 .ims-autocomplete__option.ims-autocomplete__option--selected {
     color: var(--ims-color-interactive-strong);
+    font-weight: var(--ims-option-selected-weight);
+}
+
+// The option's content and a hidden copy of it at the selected weight, stacked
+// in one grid cell, so the cell is always as wide as the content once bold. The
+// copy has no height, and is hidden from assistive technology and the pointer.
+.ims-option__label {
+    display: grid;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+// Both lay the projected content out as the option row did before it was
+// wrapped.
+.ims-option__content,
+.ims-option__weight-reserve {
+    display: flex;
+    grid-area: 1 / 1;
+    align-items: center;
+    min-width: 0;
+}
+
+.ims-option__weight-reserve {
+    block-size: 0;
+    overflow: hidden;
+    font-weight: var(--ims-option-selected-weight);
+    white-space: nowrap;
+    visibility: hidden;
 }
 
 .ims-option.ims-option--selected::after,
