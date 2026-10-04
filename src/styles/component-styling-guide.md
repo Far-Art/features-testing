@@ -147,7 +147,7 @@ When the component uses `ims-error-popover`, mark its primary control with
 `aria-describedby` on the marked element, or on the first focusable element
 inside it, and otherwise falls back to the host's first focusable descendant. A
 marked element with `role="radiogroup"` or `role="group"`, such as the
-`ims-radio-group` host, receives them itself.
+`ims-radio-group` or `ims-toggle-switch` host, receives them itself.
 
 A surface that declares a tone itself outranks an inherited one whatever the
 specificities say, which is what keeps a disabled or readonly field out of its

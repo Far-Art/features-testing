@@ -305,6 +305,108 @@
 
   <div class="component-states-demo__matrix">
     <article class="component-states-demo__card">
+      <h3 id="toggle-state-normal">Toggle switch · אישור / דחייה · רגיל</h3>
+      <ims-toggle-switch aria-labelledby="toggle-state-normal" [formControl]="toggleNormal">
+        <ims-toggle-switch-option value="approved">אישור</ims-toggle-switch-option>
+        <ims-toggle-switch-option value="rejected" appearance="reject">דחייה</ims-toggle-switch-option>
+      </ims-toggle-switch>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3 id="toggle-state-disabled">Toggle switch · אישור / דחייה · מושבת</h3>
+      <ims-toggle-switch aria-labelledby="toggle-state-disabled" [formControl]="toggleDisabled">
+        <ims-toggle-switch-option value="approved">אישור</ims-toggle-switch-option>
+        <ims-toggle-switch-option value="rejected" appearance="reject">דחייה</ims-toggle-switch-option>
+      </ims-toggle-switch>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3 id="toggle-state-readonly">Toggle switch · אישור / דחייה · קריאה בלבד</h3>
+      <ims-toggle-switch
+        aria-labelledby="toggle-state-readonly"
+        [formControl]="toggleReadonly"
+        [ims-readonly]="true"
+      >
+        <ims-toggle-switch-option value="approved">אישור</ims-toggle-switch-option>
+        <ims-toggle-switch-option value="rejected" appearance="reject">דחייה</ims-toggle-switch-option>
+      </ims-toggle-switch>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3 id="toggle-state-invalid">Toggle switch · אישור / דחייה · לא תקין</h3>
+      <ims-toggle-switch aria-labelledby="toggle-state-invalid" required [formControl]="toggleInvalid">
+        <ims-toggle-switch-option value="approved">אישור</ims-toggle-switch-option>
+        <ims-toggle-switch-option value="rejected" appearance="reject">דחייה</ims-toggle-switch-option>
+      </ims-toggle-switch>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3 id="toggle-state-invalid-readonly">Toggle switch · אישור / דחייה · לא תקין + קריאה בלבד</h3>
+      <ims-toggle-switch
+        aria-labelledby="toggle-state-invalid-readonly"
+        required
+        [formControl]="toggleInvalidReadonly"
+        [ims-readonly]="true"
+      >
+        <ims-toggle-switch-option value="approved">אישור</ims-toggle-switch-option>
+        <ims-toggle-switch-option value="rejected" appearance="reject">דחייה</ims-toggle-switch-option>
+      </ims-toggle-switch>
+    </article>
+  </div>
+
+  <div class="component-states-demo__matrix">
+    <article class="component-states-demo__card">
+      <h3 id="toggle-check-state-normal">Toggle switch · כן / לא · רגיל</h3>
+      <ims-toggle-switch aria-labelledby="toggle-check-state-normal" [formControl]="toggleCheckNormal">
+        <ims-toggle-switch-option [value]="true">כן</ims-toggle-switch-option>
+        <ims-toggle-switch-option [value]="false">לא</ims-toggle-switch-option>
+      </ims-toggle-switch>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3 id="toggle-check-state-disabled">Toggle switch · כן / לא · מושבת</h3>
+      <ims-toggle-switch aria-labelledby="toggle-check-state-disabled" [formControl]="toggleCheckDisabled">
+        <ims-toggle-switch-option [value]="true">כן</ims-toggle-switch-option>
+        <ims-toggle-switch-option [value]="false">לא</ims-toggle-switch-option>
+      </ims-toggle-switch>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3 id="toggle-check-state-readonly">Toggle switch · כן / לא · קריאה בלבד</h3>
+      <ims-toggle-switch
+        aria-labelledby="toggle-check-state-readonly"
+        [formControl]="toggleCheckReadonly"
+        [ims-readonly]="true"
+      >
+        <ims-toggle-switch-option [value]="true">כן</ims-toggle-switch-option>
+        <ims-toggle-switch-option [value]="false">לא</ims-toggle-switch-option>
+      </ims-toggle-switch>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3 id="toggle-check-state-invalid">Toggle switch · כן / לא · לא תקין</h3>
+      <ims-toggle-switch aria-labelledby="toggle-check-state-invalid" required [formControl]="toggleCheckInvalid">
+        <ims-toggle-switch-option [value]="true">כן</ims-toggle-switch-option>
+        <ims-toggle-switch-option [value]="false">לא</ims-toggle-switch-option>
+      </ims-toggle-switch>
+    </article>
+
+    <article class="component-states-demo__card">
+      <h3 id="toggle-check-state-invalid-readonly">Toggle switch · כן / לא · לא תקין + קריאה בלבד</h3>
+      <ims-toggle-switch
+        aria-labelledby="toggle-check-state-invalid-readonly"
+        required
+        [formControl]="toggleCheckInvalidReadonly"
+        [ims-readonly]="true"
+      >
+        <ims-toggle-switch-option [value]="true">כן</ims-toggle-switch-option>
+        <ims-toggle-switch-option [value]="false">לא</ims-toggle-switch-option>
+      </ims-toggle-switch>
+    </article>
+  </div>
+
+  <div class="component-states-demo__matrix">
+    <article class="component-states-demo__card">
       <h3>Select · רגיל</h3>
       <ims-select
         placeholder="בחר מצב"

@@ -1,0 +1,60 @@
+<label
+    class="ims-toggle-switch-option"
+    [class.ims-toggle-switch-option--reject]="appearance() === 'reject'"
+    [class.ims-toggle-switch-option--animations-ready]="animationsReady()"
+>
+    <!--
+        Every visual state is styled from this input's pseudo-classes, :checked
+        included. The switch keeps :checked equal to its value.
+    -->
+    <input
+        #native
+        class="ims-toggle-switch-option__native"
+        type="radio"
+        [attr.name]="name"
+        [attr.id]="id()"
+        [attr.aria-label]="ariaLabel()"
+        [checked]="selected()"
+        [disabled]="interactionDisabled()"
+        (change)="onNativeChange($event)"
+    />
+
+    <span class="ims-toggle-switch-option__control" aria-hidden="true">
+        <!-- stroke-dashoffset drives the pen-draw / erase effect, as in ims-radio. -->
+        <svg class="ims-toggle-switch-option__icon" viewBox="0 0 18 18" fill="none" focusable="false">
+            @if (appearance() === 'reject') {
+                <!-- Two paths, so the second stroke can start after the first. -->
+                <path
+                    class="ims-toggle-switch-option__mark"
+                    d="M 6.25 6.25 L 11.75 11.75"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                />
+                <path
+                    class="ims-toggle-switch-option__mark ims-toggle-switch-option__mark--second"
+                    d="M 11.75 6.25 L 6.25 11.75"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                />
+            } @else {
+                <path
+                    class="ims-toggle-switch-option__mark"
+                    d="M 5.05 9.3 L 7.6 11.8 L 12.95 6.45"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                />
+            }
+        </svg>
+    </span>
+
+    <span class="ims-toggle-switch-option__label">
+        <ng-content />
+    </span>
+</label>

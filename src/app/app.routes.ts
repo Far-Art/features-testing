@@ -17,6 +17,11 @@ export const routes: Routes = [
             import('./pages/radio-demo/radio-demo').then((module) => module.RadioDemo)
     },
     {
+        path: 'toggle-switch',
+        loadComponent: () =>
+            import('./pages/toggle-switch-demo/toggle-switch-demo').then((module) => module.ToggleSwitchDemo)
+    },
+    {
         path: 'checkbox',
         loadComponent: () =>
             import('./pages/checkbox-demo/checkbox-demo').then((module) => module.CheckboxDemo)

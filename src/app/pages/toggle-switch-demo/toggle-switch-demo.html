@@ -1,0 +1,225 @@
+<header class="page-heading">
+    <h1>מתגי בחירה</h1>
+    <p>
+        <code>ims-toggle-switch</code> עם שתי אפשרויות <code>ims-toggle-switch-option</code>: לכל היותר
+        אחת נבחרת, כמו בכפתורי בחירה. אפשרות נבחרת מסומנת בווי ירוק, ואפשרות עם
+        <code>appearance="reject"</code> ב־X אפור.
+    </p>
+</header>
+
+<section class="toggle-switch-demo" aria-labelledby="toggle-switch-demo-styles-title">
+    <div class="toggle-switch-demo__description">
+        <h2 id="toggle-switch-demo-styles-title">סגנונות</h2>
+        <p>
+            עד שנבחרת אפשרות שני העיגולים ריקים. לחיצה על האפשרות הנבחרת משאירה אותה נבחרת, וחצים
+            מעבירים את הבחירה ביניהן.
+        </p>
+    </div>
+
+    <div class="toggle-switch-demo__grid">
+        <article class="toggle-switch-demo__card">
+            <h3 id="toggle-switch-demo-check">check · כן / לא</h3>
+            <ims-toggle-switch aria-labelledby="toggle-switch-demo-check" [(value)]="answer">
+                <ims-toggle-switch-option [value]="true">כן</ims-toggle-switch-option>
+                <ims-toggle-switch-option [value]="false">לא</ims-toggle-switch-option>
+            </ims-toggle-switch>
+            <code>value: {{ describe(answer()) }}</code>
+        </article>
+
+        <article class="toggle-switch-demo__card">
+            <h3 id="toggle-switch-demo-reject">check + reject · אישור / דחייה</h3>
+            <ims-toggle-switch aria-labelledby="toggle-switch-demo-reject" [(value)]="decision">
+                <ims-toggle-switch-option value="approved">אישור</ims-toggle-switch-option>
+                <ims-toggle-switch-option value="rejected" appearance="reject">דחייה</ims-toggle-switch-option>
+            </ims-toggle-switch>
+            <code>value: {{ describe(decision()) }}</code>
+        </article>
+    </div>
+</section>
+
+<section class="toggle-switch-demo" aria-labelledby="toggle-switch-demo-form-title">
+    <div class="toggle-switch-demo__description">
+        <h2 id="toggle-switch-demo-form-title">בתוך טופס</h2>
+        <p>
+            <code>formControl</code> עם <code>required</code> ו־<code>ims-error-popover</code>, ותווית השדה
+            שמשמשת כשם המתג. במסלול, ערכי אובייקט עם <code>compareWith</code>.
+        </p>
+    </div>
+
+    <ims-form-field-grid columns="1">
+        <ims-form-field>
+            <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -- ims-form-field names the switch from this label through aria-labelledby, and only a native label gets that. -->
+            <label>מעשן</label>
+            <ims-toggle-switch
+                required
+                ims-error-popover
+                [formControl]="smokerControl"
+                (selectionChange)="logSelection('מעשן', $event)"
+            >
+                <ims-toggle-switch-option [value]="true">כן</ims-toggle-switch-option>
+                <ims-toggle-switch-option [value]="false">לא</ims-toggle-switch-option>
+            </ims-toggle-switch>
+        </ims-form-field>
+
+        <ims-form-field>
+            <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -- ims-form-field names the switch from this label through aria-labelledby, and only a native label gets that. -->
+            <label>החלטת חיתום</label>
+            <ims-toggle-switch
+                required
+                ims-error-popover
+                [formControl]="decisionControl"
+                (selectionChange)="logSelection('החלטה', $event)"
+            >
+                <ims-toggle-switch-option value="approved">אישור</ims-toggle-switch-option>
+                <ims-toggle-switch-option value="rejected" appearance="reject">דחייה</ims-toggle-switch-option>
+            </ims-toggle-switch>
+        </ims-form-field>
+
+        <ims-form-field>
+            <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -- ims-form-field names the switch from this label through aria-labelledby, and only a native label gets that. -->
+            <label>מסלול</label>
+            <ims-toggle-switch
+                [formControl]="planControl"
+                [compareWith]="compareById"
+                (selectionChange)="logSelection('מסלול', $event)"
+            >
+                @for (plan of plans; track plan.id) {
+                    <ims-toggle-switch-option [value]="plan">{{ plan.label }}</ims-toggle-switch-option>
+                }
+            </ims-toggle-switch>
+        </ims-form-field>
+    </ims-form-field-grid>
+
+    <div class="toggle-switch-demo__actions">
+        <button type="button" (click)="setFromCode()">setValue מהקוד</button>
+        <button type="button" (click)="resetForm()">reset</button>
+    </div>
+
+    <dl class="toggle-switch-demo__readout">
+        <dt>מעשן</dt>
+        <dd>{{ describe(smokerControl.value) }} · {{ smokerControl.status }}</dd>
+        <dt>החלטת חיתום</dt>
+        <dd>{{ describe(decisionControl.value) }} · {{ decisionControl.status }}</dd>
+        <dt>מסלול</dt>
+        <dd>{{ describe(planControl.value) }} · {{ planControl.status }}</dd>
+        <dt>selectionChange</dt>
+        <dd>
+            @for (entry of selectionLog(); track $index) {
+                <span>{{ entry }}</span>
+            } @empty {
+                —
+            }
+        </dd>
+    </dl>
+</section>
+
+<section class="toggle-switch-demo" aria-labelledby="toggle-switch-demo-states-title">
+    <div class="toggle-switch-demo__description">
+        <h2 id="toggle-switch-demo-states-title">מצבים והתאמות</h2>
+    </div>
+
+    <div class="toggle-switch-demo__grid">
+        <article class="toggle-switch-demo__card">
+            <h3 id="toggle-switch-demo-disabled">מושבת</h3>
+            <ims-toggle-switch aria-labelledby="toggle-switch-demo-disabled" [formControl]="disabledDecision">
+                <ims-toggle-switch-option value="approved">אישור</ims-toggle-switch-option>
+                <ims-toggle-switch-option value="rejected" appearance="reject">דחייה</ims-toggle-switch-option>
+            </ims-toggle-switch>
+            <ims-toggle-switch aria-labelledby="toggle-switch-demo-disabled" [formControl]="disabledAnswer">
+                <ims-toggle-switch-option [value]="true">כן</ims-toggle-switch-option>
+                <ims-toggle-switch-option [value]="false">לא</ims-toggle-switch-option>
+            </ims-toggle-switch>
+        </article>
+
+        <article class="toggle-switch-demo__card" [ims-readonly]="true">
+            <h3 id="toggle-switch-demo-readonly">קריאה בלבד</h3>
+            <ims-toggle-switch aria-labelledby="toggle-switch-demo-readonly" [formControl]="readonlyDecision">
+                <ims-toggle-switch-option value="approved">אישור</ims-toggle-switch-option>
+                <ims-toggle-switch-option value="rejected" appearance="reject">דחייה</ims-toggle-switch-option>
+            </ims-toggle-switch>
+            <ims-toggle-switch aria-labelledby="toggle-switch-demo-readonly" [formControl]="readonlyAnswer">
+                <ims-toggle-switch-option [value]="true">כן</ims-toggle-switch-option>
+                <ims-toggle-switch-option [value]="false">לא</ims-toggle-switch-option>
+            </ims-toggle-switch>
+        </article>
+
+        <article class="toggle-switch-demo__card">
+            <h3 id="toggle-switch-demo-option-disabled">אפשרות מושבתת</h3>
+            <ims-toggle-switch aria-labelledby="toggle-switch-demo-option-disabled" [(value)]="partlyDisabled">
+                <ims-toggle-switch-option value="approved" disabled>אישור</ims-toggle-switch-option>
+                <ims-toggle-switch-option value="rejected" appearance="reject">דחייה</ims-toggle-switch-option>
+            </ims-toggle-switch>
+            <code>value: {{ describe(partlyDisabled()) }}</code>
+        </article>
+
+        <article class="toggle-switch-demo__card">
+            <h3 id="toggle-switch-demo-icon-only">ללא תווית · בטבלה</h3>
+            <!-- Each row's switch is its own radio group: arrow keys stay in the row. -->
+            <table class="toggle-switch-demo__table" aria-labelledby="toggle-switch-demo-icon-only">
+                <thead>
+                    <tr>
+                        <th scope="col">מסמך</th>
+                        <th scope="col">אישור / דחייה</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (reviewDocument of documents; track reviewDocument.id) {
+                        <tr>
+                            <th scope="row" [id]="'toggle-switch-demo-document-' + reviewDocument.id">
+                                {{ reviewDocument.label }}
+                            </th>
+                            <td>
+                                <ims-toggle-switch
+                                    [attr.aria-labelledby]="'toggle-switch-demo-document-' + reviewDocument.id"
+                                    [(value)]="reviewDocument.decision"
+                                >
+                                    <ims-toggle-switch-option value="approved" aria-label="אישור" imsTooltip="אישור" />
+                                    <ims-toggle-switch-option
+                                        value="rejected"
+                                        appearance="reject"
+                                        aria-label="דחייה"
+                                        imsTooltip="דחייה"
+                                    />
+                                </ims-toggle-switch>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </article>
+
+        <article class="toggle-switch-demo__card toggle-switch-demo__card--custom-accent">
+            <h3 id="toggle-switch-demo-accent">צבע מותאם</h3>
+            <ims-toggle-switch aria-labelledby="toggle-switch-demo-accent" [(value)]="mixedAccent">
+                <ims-toggle-switch-option value="approved">אישור</ims-toggle-switch-option>
+                <ims-toggle-switch-option value="rejected" appearance="reject">דחייה</ims-toggle-switch-option>
+            </ims-toggle-switch>
+            <code dir="ltr">--ims-toggle-switch-accent · --ims-toggle-switch-reject-accent</code>
+        </article>
+
+        <article class="toggle-switch-demo__card" dir="ltr">
+            <h3 id="toggle-switch-demo-ltr">LTR</h3>
+            <ims-toggle-switch aria-labelledby="toggle-switch-demo-ltr" [(value)]="ltrDecision">
+                <ims-toggle-switch-option value="approved">Approve</ims-toggle-switch-option>
+                <ims-toggle-switch-option value="rejected" appearance="reject">Reject</ims-toggle-switch-option>
+            </ims-toggle-switch>
+            <code>value: {{ describe(ltrDecision()) }}</code>
+        </article>
+
+        <article class="toggle-switch-demo__card">
+            <h3 id="toggle-switch-demo-guard">ערך שנכתב חזרה</h3>
+            <p>דחייה דורשת אישור מנהל: <code>selectionChange</code> מחזיר את הערך הקודם באותה לחיצה.</p>
+            <ims-toggle-switch
+                aria-labelledby="toggle-switch-demo-guard"
+                [formControl]="guardedControl"
+                (selectionChange)="guardSelection($event)"
+            >
+                <ims-toggle-switch-option value="approved">אישור</ims-toggle-switch-option>
+                <ims-toggle-switch-option value="rejected" appearance="reject">דחייה</ims-toggle-switch-option>
+            </ims-toggle-switch>
+            <code>value: {{ describe(guardedControl.value) }}</code>
+            <!-- Always rendered, so the live region exists before its text changes. -->
+            <p class="toggle-switch-demo__note" role="status">{{ guardMessage() }}</p>
+        </article>
+    </div>
+</section>

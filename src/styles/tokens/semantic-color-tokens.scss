@@ -107,6 +107,13 @@
     // Focus halo around a control drawn in the positive accent.
     --ims-color-success-focus-ring: var(--ims-color-success-200);
 
+    // Neutral accent for decline-style selection, such as a reject toggle-switch option:
+    // checked fill. Dark enough to read as chosen, not disabled: the disabled fill is
+    // neutral-400, and neutral-500 would sit only 1.5:1 from it. White marks reach 6.8:1.
+    --ims-color-interactive-neutral: var(--ims-color-neutral-600);
+    // Neutral accent, higher contrast — hover/pressed states of a neutral fill.
+    --ims-color-interactive-neutral-strong: var(--ims-color-neutral-700);
+
     // Alternate accent from the stronger end of the primary palette for duo-tone pairings.
     --ims-color-interactive-alt: var(--ims-color-primary-600);
     // Higher-contrast alternate accent for text, icons, hover, and pressed states.

@@ -9,6 +9,7 @@ import { ImsAutocomplete, ImsAutocompleteOption } from '../../components/ims-aut
 import { ImsCheckbox } from '../../components/ims-checkbox';
 import { ImsRadio, ImsRadioGroup } from '../../components/ims-radio';
 import { ImsOption, ImsSelect } from '../../components/ims-select';
+import { ImsToggleSwitch, ImsToggleSwitchOption } from '../../components/ims-toggle-switch';
 import { ReadonlyDirective } from '../../shared/readonly.directive';
 
 interface ComponentStateDemoOption {
@@ -32,6 +33,8 @@ type NativeDatepickerValue = ImsDatepickerValue<Date>;
     ImsRadio,
     ImsRadioGroup,
     ImsSelect,
+    ImsToggleSwitch,
+    ImsToggleSwitchOption,
     ReadonlyDirective,
   ],
   templateUrl: './component-states-demo.html',
@@ -119,6 +122,18 @@ export class ComponentStatesDemo {
   readonly radioReadonly = new FormControl<number | null>(3);
   readonly radioInvalid = new FormControl<number | null>(null, Validators.required);
   readonly radioInvalidReadonly = new FormControl<number | null>(null, Validators.required);
+
+  readonly toggleNormal = new FormControl<string | null>('rejected');
+  readonly toggleDisabled = new FormControl<string | null>({ value: 'approved', disabled: true });
+  readonly toggleReadonly = new FormControl<string | null>('rejected');
+  readonly toggleInvalid = new FormControl<string | null>(null, Validators.required);
+  readonly toggleInvalidReadonly = new FormControl<string | null>(null, Validators.required);
+
+  readonly toggleCheckNormal = new FormControl<boolean | null>(true);
+  readonly toggleCheckDisabled = new FormControl<boolean | null>({ value: false, disabled: true });
+  readonly toggleCheckReadonly = new FormControl<boolean | null>(false);
+  readonly toggleCheckInvalid = new FormControl<boolean | null>(null, Validators.required);
+  readonly toggleCheckInvalidReadonly = new FormControl<boolean | null>(null, Validators.required);
 
   readonly checkGroupNormal = new FormControl<readonly number[]>([1, 2], { nonNullable: true });
   readonly checkGroupDisabled = new FormControl<readonly number[]>(
@@ -244,6 +259,10 @@ export class ComponentStatesDemo {
       this.checkboxCheckInvalidReadonly,
       this.radioInvalid,
       this.radioInvalidReadonly,
+      this.toggleInvalid,
+      this.toggleInvalidReadonly,
+      this.toggleCheckInvalid,
+      this.toggleCheckInvalidReadonly,
       this.checkGroupInvalid,
       this.checkGroupInvalidReadonly,
       this.selectInvalid,

@@ -698,8 +698,8 @@ pixels, matching the checkbox track.
 
 ## Grouped Control Exception
 
-A grouped control, such as `ims-radio-group`, marks its host with
-`data-ims-labelled-group`:
+A grouped control, such as `ims-radio-group` or `ims-toggle-switch`, marks its
+host with `data-ims-labelled-group`:
 
 ```html
 <ims-form-field>

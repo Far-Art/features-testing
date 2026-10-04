@@ -1,0 +1,286 @@
+// Declared on :root, like --ims-radio-size, so a page can resize every switch
+// from any ancestor.
+:root {
+    // The slot each option's circle sits in: the space it takes in the layout.
+    // The same as --ims-radio-size and --ims-checkbox-size, so labels line up
+    // across the three components.
+    --ims-toggle-switch-size: 1.25rem;
+    // Outer size the circle is drawn at, border included: a little larger than
+    // its slot, so the mark reads clearly. The same as --ims-radio-check-size,
+    // so a switch matches a check-appearance radio.
+    --ims-toggle-switch-circle-size: 1.375rem;
+}
+
+// The two options side by side, wrapping only where they do not fit. As wide as
+// its options, not its container, as in ims-radio.scss: fit-content rather than
+// max-content, which would force an auto grid track open to the full row.
+.ims-toggle-switch-host {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 1.25rem;
+    width: fit-content;
+}
+
+// Inline-level like a native input. As a flex container the host is exactly as
+// tall as the option; as an inline box it would add line-box space below it.
+.ims-toggle-switch-option-host {
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+// The native radio is the real control: it covers the whole label and takes the
+// click, the focus and the form state, and its :checked, :disabled, :hover and
+// :focus-visible drive every state below. The switch keeps :checked equal to its
+// value, so the picture cannot drift from what assistive technology reads.
+.ims-toggle-switch-option {
+    --ims-toggle-switch-duration: 200ms;
+    --ims-toggle-switch-ease: cubic-bezier(0.4, 0, 0.2, 1);
+    // The tone every selected, hover and focus state paints with. The reject
+    // appearance and the state rules below retune it. The public hooks
+    // (--ims-toggle-switch-accent, --ims-toggle-switch-reject-accent and their
+    // -strong pairs) are only read here as fallbacks and never declared, so a
+    // consumer can set them on any ancestor. A -strong hook left unset follows
+    // its accent, as in ims-radio.scss.
+    --ims-toggle-switch-tone: var(--ims-toggle-switch-accent, var(--ims-color-interactive-success));
+    --ims-toggle-switch-tone-strong: var(
+        --ims-toggle-switch-accent-strong,
+        var(--ims-toggle-switch-accent, var(--ims-color-interactive-success-strong))
+    );
+    --ims-toggle-switch-tone-ring: var(--ims-color-success-focus-ring);
+    // The mark's dash pattern, longer than the mark, and how long the mark takes
+    // to draw in; the appearance picks both. The checkmark is ~11.1 long.
+    --ims-toggle-switch-mark-dash: 12;
+    --ims-toggle-switch-mark-draw: calc(var(--ims-toggle-switch-duration) * 1.6);
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    // As tall as a text field, with the circle centered in it, so an option
+    // lines up with the inputs placed beside it.
+    min-height: var(--field-height);
+    color: var(--ims-color-on-surface);
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+// Reject appearance: grey where the check appearance is green, with an X for
+// the checkmark. The focus ring stays the default blue, since a grey ring would
+// look like the grey hover halo. Each stroke of the X is ~7.8 long and draws in
+// 0.9 of the duration, and the second starts at 0.7 (see the selected rules),
+// so the X finishes with the checkmark, at 1.6.
+.ims-toggle-switch-option.ims-toggle-switch-option--reject {
+    --ims-toggle-switch-tone: var(--ims-toggle-switch-reject-accent, var(--ims-color-interactive-neutral));
+    --ims-toggle-switch-tone-strong: var(
+        --ims-toggle-switch-reject-accent-strong,
+        var(--ims-toggle-switch-reject-accent, var(--ims-color-interactive-neutral-strong))
+    );
+    --ims-toggle-switch-tone-ring: var(--ims-color-focus-ring);
+    --ims-toggle-switch-mark-dash: 8;
+    --ims-toggle-switch-mark-draw: calc(var(--ims-toggle-switch-duration) * 0.9);
+}
+
+// `ng-invalid` lands on the switch host. It outranks the reject appearance, so
+// a selected reject turns red as well, which happens only when a validator
+// rejects the chosen value. Disabled and readonly options are retuned again by
+// the rules after this one, as in ims-radio.scss.
+.ims-toggle-switch-host.ng-invalid .ims-toggle-switch-option {
+    --ims-toggle-switch-tone: var(--ims-color-invalid);
+    --ims-toggle-switch-tone-strong: var(--ims-color-invalid);
+    --ims-toggle-switch-tone-ring: var(--ims-color-invalid-focus-ring);
+}
+
+.ims-toggle-switch-option:has(> .ims-toggle-switch-option__native:disabled) {
+    --ims-toggle-switch-tone: var(--ims-color-on-surface-disabled);
+
+    color: var(--ims-color-on-surface-disabled);
+    cursor: not-allowed;
+}
+
+// Readable disabled treatment, see component-styling-guide.md. The inputs are
+// disabled whenever the switch sits in an ims-readonly scope.
+.ims-toggle-switch-host.ims-readonly .ims-toggle-switch-option:has(> .ims-toggle-switch-option__native:disabled) {
+    --ims-toggle-switch-tone: var(--ims-color-on-surface-readonly);
+
+    color: var(--ims-color-on-surface-readonly);
+}
+
+.ims-toggle-switch-option__native {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: inherit;
+}
+
+// Drawn at --ims-toggle-switch-circle-size but laid out at the slot size: the
+// negative margin makes up the difference, so every option keeps the footprint
+// of a checkbox, its label stays in line with theirs, and the row stays a field
+// height tall. Sized rather than scaled: a transform would blur on the low-DPI
+// screens and cost the CPU a repaint.
+.ims-toggle-switch-option__control {
+    position: relative;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    width: var(--ims-toggle-switch-circle-size);
+    height: var(--ims-toggle-switch-circle-size);
+    margin: calc((var(--ims-toggle-switch-size) - var(--ims-toggle-switch-circle-size)) / 2);
+    border: 2px solid var(--ims-color-border);
+    border-radius: 50%;
+    // The hover halo. Always present and transparent at rest, so hover only
+    // changes its color and never the layout.
+    outline: 3px solid transparent;
+    outline-offset: 0;
+    // An opaque input surface, as in ims-checkbox.scss, so the border keeps its
+    // 3:1 contrast against the circle's own fill on any surface. A transparent
+    // circle drops to 2.7:1 on the neutral page and card surfaces, and lower on
+    // a toned panel band.
+    background: var(--ims-color-surface-input);
+    // The marks stroke with currentColor, so this is the mark color.
+    color: transparent;
+    // The circle is positioned after the native input, so it paints above it and
+    // would take the pointer. Every hover rule reads the input's :hover, which
+    // would then match only over the label text and never over the circle itself.
+    pointer-events: none;
+}
+
+// Transitions wait for the first render, so an option that starts selected
+// appears selected instead of animating into it.
+//
+// The machines these controls run on have no GPU, and the CPU paints every
+// transformed frame. So hover draws an outline halo rather than scaling, and
+// nothing here uses a transform, as in ims-radio.scss.
+.ims-toggle-switch-option--animations-ready .ims-toggle-switch-option__control {
+    transition:
+        background-color var(--ims-toggle-switch-duration) var(--ims-toggle-switch-ease),
+        border-color var(--ims-toggle-switch-duration) var(--ims-toggle-switch-ease),
+        outline-color var(--ims-toggle-switch-duration) var(--ims-toggle-switch-ease),
+        color var(--ims-toggle-switch-duration) var(--ims-toggle-switch-ease);
+}
+
+// Whole pixels, as in ims-radio.scss. On a low-DPI screen a fractional size (a
+// rem under a non-16px root, or browser zoom) snaps the circle to an oval and
+// shifts the mark inside it off center. A whole-pixel slot and margin, with the
+// circle taking the slot less twice the (negative) margin, so it stays centered
+// in the slot. Behind @supports: without round(), these declarations would
+// compute to `auto` and collapse the empty circle.
+@supports (width: round(1.5px, 1px)) {
+    .ims-toggle-switch-option__control {
+        --ims-toggle-switch-circle-margin: round((var(--ims-toggle-switch-size) - var(--ims-toggle-switch-circle-size)) / 2, 1px);
+
+        width: calc(round(var(--ims-toggle-switch-size), 1px) - 2 * var(--ims-toggle-switch-circle-margin));
+        height: calc(round(var(--ims-toggle-switch-size), 1px) - 2 * var(--ims-toggle-switch-circle-margin));
+        margin: var(--ims-toggle-switch-circle-margin);
+    }
+}
+
+// The viewBox matches the circle's 18px inner box at the default size (a 22px
+// circle less its 2px border), so the 2px strokes stay 2px instead of blurring
+// across pixel edges.
+.ims-toggle-switch-option__icon {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+// stroke-dasharray is longer than the mark, so stroke-dashoffset alone draws
+// it in (dash → 0) and erases it (0 → dash), as in ims-radio.scss.
+.ims-toggle-switch-option__mark {
+    stroke-dasharray: var(--ims-toggle-switch-mark-dash);
+    stroke-dashoffset: var(--ims-toggle-switch-mark-dash);
+    opacity: 0;
+}
+
+.ims-toggle-switch-option--animations-ready .ims-toggle-switch-option__mark {
+    transition:
+        stroke-dashoffset var(--ims-toggle-switch-mark-draw) var(--ims-toggle-switch-ease),
+        opacity 80ms ease;
+}
+
+.ims-toggle-switch-option__label {
+    line-height: 1.4;
+}
+
+// Without projected text the label would still take a flex gap and push the
+// host wider than the circle.
+.ims-toggle-switch-option__label:empty {
+    display: none;
+}
+
+// Hovering the ims-form-field label that names the switch hovers both enabled
+// options at once. A checkbox gets this from its label's `for`; the switch is a
+// group and has no `for` (see the grouped control exception in
+// ims-form-layout/README.md), so the label hover is matched here next to each
+// real hover selector, as in ims-radio.scss.
+.ims-toggle-switch-option__native:not(:disabled):hover + .ims-toggle-switch-option__control,
+ims-form-field:has(> :is(label, [imsFormFieldLabel]):hover) .ims-toggle-switch-option__native:not(:disabled) + .ims-toggle-switch-option__control {
+    border-color: var(--ims-toggle-switch-tone);
+}
+
+// The halo sits where the focus ring does and would paint over it, so a
+// focused option keeps its focus ring instead.
+.ims-toggle-switch-option__native:not(:disabled):not(:focus-visible):hover + .ims-toggle-switch-option__control,
+ims-form-field:has(> :is(label, [imsFormFieldLabel]):hover) .ims-toggle-switch-option__native:not(:disabled):not(:focus-visible) + .ims-toggle-switch-option__control {
+    outline-color: color-mix(in srgb, var(--ims-toggle-switch-tone) 18%, transparent);
+}
+
+.ims-toggle-switch-option__native:focus-visible + .ims-toggle-switch-option__control {
+    box-shadow: 0 0 0 3px var(--ims-toggle-switch-tone-ring);
+}
+
+// The unselected states. A selected option is painted by the selected rules
+// below, with the tone the state rules above already retuned.
+.ims-toggle-switch-option__native:disabled:not(:checked) + .ims-toggle-switch-option__control {
+    border-color: var(--ims-color-border-subtle);
+    background: var(--ims-color-surface-input-disabled);
+}
+
+// Unlike a disabled option, a readonly one keeps the regular border, so an
+// unselected option stays visible, as in ims-radio.scss.
+.ims-toggle-switch-host.ims-readonly .ims-toggle-switch-option__native:disabled:not(:checked) + .ims-toggle-switch-option__control {
+    border-color: var(--ims-color-border);
+    background: var(--ims-color-surface-input-readonly);
+}
+
+// Kept after the hover rule so an invalid option keeps its danger tone under
+// the pointer; disabled and readonly options are left alone.
+.ims-toggle-switch-host.ng-invalid .ims-toggle-switch-option__native:not(:disabled):not(:checked) + .ims-toggle-switch-option__control {
+    border-color: var(--ims-color-invalid);
+}
+
+// Selected states come last: in every state the tone is already right, so a
+// selected option only needs to paint with it.
+.ims-toggle-switch-option__native:checked + .ims-toggle-switch-option__control {
+    border-color: var(--ims-toggle-switch-tone);
+    background: var(--ims-toggle-switch-tone);
+    color: var(--ims-color-on-interactive);
+}
+
+.ims-toggle-switch-option__native:checked + .ims-toggle-switch-option__control .ims-toggle-switch-option__mark {
+    stroke-dashoffset: 0;
+    opacity: 1;
+}
+
+// The X's second stroke starts once the first is under way. The delay sits only
+// in the selected rule: the rule that matches after a change sets the
+// transition, so an X being erased loses both strokes at once.
+.ims-toggle-switch-option--animations-ready .ims-toggle-switch-option__native:checked + .ims-toggle-switch-option__control .ims-toggle-switch-option__mark--second {
+    transition-delay: calc(var(--ims-toggle-switch-duration) * 0.7);
+}
+
+.ims-toggle-switch-option__native:checked:not(:disabled):hover + .ims-toggle-switch-option__control,
+ims-form-field:has(> :is(label, [imsFormFieldLabel]):hover) .ims-toggle-switch-option__native:checked:not(:disabled) + .ims-toggle-switch-option__control {
+    border-color: var(--ims-toggle-switch-tone-strong);
+    background: var(--ims-toggle-switch-tone-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ims-toggle-switch-option--animations-ready :is(.ims-toggle-switch-option__control, .ims-toggle-switch-option__mark) {
+        transition: none;
+    }
+}
