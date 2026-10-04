@@ -16,7 +16,7 @@ import {ReadonlyDirective} from '../../shared/readonly.directive';
 // Imported from the types module rather than the barrel: this is a token and
 // two interfaces, and reaching through the barrel would name the tooltip and
 // popover directives in a file that uses neither.
-import {IMS_TOOLTIP_DEFAULTS, ImsTooltipDefaults} from '../ims-tooltip/ims-tooltip.types';
+import {IMS_TOOLTIP_DEFAULTS, ImsTooltipDefaults, ImsTooltipDefaultsProvider} from '../ims-tooltip/ims-tooltip.types';
 import {IMS_BUTTON_ICON_PRESETS, ImsButtonIconPreset, ImsButtonIconPresetSeverity} from './ims-button-presets';
 
 // How long the press ring stays on. The class carries a CSS animation that
@@ -81,7 +81,7 @@ export type ImsButtonSeverity = 'info' | 'success' | 'warning' | 'danger';
         '(blur)': 'clearActivationKey()'
     }
 })
-export abstract class ImsButtonBase {
+export abstract class ImsButtonBase implements ImsTooltipDefaultsProvider {
     private readonly inheritedReadonly = ReadonlyDirective.injectSignal();
     private readonly destroyRef = inject(DestroyRef);
     private readonly host = inject<ElementRef<HTMLButtonElement>>(ElementRef);
