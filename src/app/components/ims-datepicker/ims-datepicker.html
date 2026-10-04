@@ -75,8 +75,15 @@
         [class.ims-datepicker__panel--week-numbers]="showWeekNumbers()"
         (keydown.escape)="onPanelEscape($event)"
     >
+        <!--
+            The header's listeners are delegated from the buttons inside it. tabindex="-1"
+            keeps the header out of the tab order but lets a click between its buttons
+            focus it, rather than dropping focus to the page, so Escape and the arrow keys
+            still reach the panel. The grids below do the same.
+        -->
         <header
             class="ims-datepicker__header"
+            tabindex="-1"
             (keydown)="onHeaderKeydown($event)"
             (click)="onHeaderClick($event)"
         >
@@ -198,6 +205,7 @@
                         class="ims-datepicker__grid ims-datepicker__days"
                         [class.ims-datepicker__days--week-numbers]="showWeekNumbers()"
                         role="grid"
+                        tabindex="-1"
                         [attr.data-transition-direction]="calendarTransitionDirection()"
                         [attr.aria-label]="gridAriaLabel()"
                         [attr.aria-colcount]="showWeekNumbers() ? 8 : 7"
@@ -257,6 +265,7 @@
                         #grid
                         class="ims-datepicker__grid ims-datepicker__months"
                         role="grid"
+                        tabindex="-1"
                         [attr.data-transition-direction]="calendarTransitionDirection()"
                         [attr.aria-label]="gridAriaLabel()"
                         (keydown)="onCalendarKeydown($event)"
@@ -296,6 +305,7 @@
                         #grid
                         class="ims-datepicker__grid ims-datepicker__years"
                         role="grid"
+                        tabindex="-1"
                         [attr.data-transition-direction]="calendarTransitionDirection()"
                         [attr.aria-label]="gridAriaLabel()"
                         (keydown)="onCalendarKeydown($event)"

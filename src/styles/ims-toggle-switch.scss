@@ -11,14 +11,23 @@
     --ims-toggle-switch-circle-size: 1.375rem;
 }
 
-// The two options side by side, wrapping only where they do not fit. As wide as
-// its options, not its container, as in ims-radio.scss: fit-content rather than
-// max-content, which would force an auto grid track open to the full row.
+// The two options side by side, wrapping only where they do not fit. Given a
+// width of its own, such as a field-* class, the switch spreads the options
+// across it: the first at the start, the second at the end.
 .ims-toggle-switch-host {
     display: flex;
     flex-wrap: wrap;
+    justify-content: space-between;
     align-items: center;
     column-gap: 1.25rem;
+}
+
+// As wide as its options, not its container, as in ims-radio.scss: fit-content
+// rather than max-content, which would force an auto grid track open to the full
+// row. Low, like the form layout's size defaults, so any width a consumer gives
+// the switch wins wherever its rule sits: a one-class rule loaded before this
+// file would otherwise lose to this one.
+:where(.ims-toggle-switch-host) {
     width: fit-content;
 }
 

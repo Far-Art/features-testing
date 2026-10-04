@@ -208,7 +208,17 @@ and `.ims-toggle-switch-option__mark--second` (the X's second stroke).
 The host lays the two options side by side and wraps them only where they do
 not fit. It is `width: fit-content`, like the radio group: as wide as its
 options and capped at the available width. Do not change it to `max-content`,
-which forces an auto grid track open to the full row.
+which forces an auto grid track open to the full row. Given a width of its own,
+such as a `field-*` class, the host spreads the options across it with
+`justify-content: space-between`: the first at the start, the second at the
+end.
+
+The default width is declared inside `:where()`, so it has no specificity, as
+the form layout's size defaults do. Any width a consumer sets therefore wins,
+wherever its rule sits in the cascade: a `field-*` class, a class from the
+consumer's own stylesheet, or an inline style. Keep it inside `:where()`: at the
+host class's own specificity, a one-class width rule loaded before
+`ims-toggle-switch.scss` loses to it.
 
 Every option is at least `--field-height` (26px) tall with the circle centered
 in it. Two sizes are declared on `:root`, both outer sizes with the border
@@ -271,6 +281,8 @@ after the first render, so an initially selected option does not animate in.
   and `0` are option values.
 - Do not add a `name` input. One name repeated across table rows would make the
   browser treat every row's radios as one group.
+- Keep the host's `width: fit-content` inside `:where()`. At the host class's
+  specificity it beats a consumer's one-class width rule that loads earlier.
 - Keep `pointer-events: none` on `.ims-toggle-switch-option__control`. It is
   positioned after the native radio, so it paints above it. Without the rule, a
   pointer over the circle misses the radio and no hover style applies.
