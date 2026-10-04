@@ -46,6 +46,8 @@ export class ToggleSwitchDemo {
     readonly decision = signal<Decision | null | undefined>('approved');
     readonly mixedAccent = signal<Decision | null | undefined>('rejected');
     readonly ltrDecision = signal<Decision | null | undefined>('approved');
+    // Shared by every row of the width demo, so they all show the same pick.
+    readonly widthDecision = signal<Decision | null | undefined>('approved');
     readonly partlyDisabled = signal<Decision | null | undefined>('rejected');
 
     readonly documents: readonly ReviewDocument[] = [

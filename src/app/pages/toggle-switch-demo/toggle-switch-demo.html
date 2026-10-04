@@ -197,6 +197,44 @@
             <code dir="ltr">--ims-toggle-switch-accent · --ims-toggle-switch-reject-accent</code>
         </article>
 
+        <article class="toggle-switch-demo__card toggle-switch-demo__card--width">
+            <h3 id="toggle-switch-demo-width">רוחב מותאם</h3>
+            <p>
+                רוחב שנותנים למתג גובר על <code>width: fit-content</code> של המארח, ו־<code>justify-content: space-between</code>
+                פורס את האפשרויות לשני הקצוות. הקו המקווקו מסמן את גבולות המארח.
+            </p>
+            <div class="toggle-switch-demo__width-rows">
+                <code dir="ltr">class="field-m"</code>
+                <ims-toggle-switch class="field-m" aria-labelledby="toggle-switch-demo-width" [(value)]="widthDecision">
+                    <ims-toggle-switch-option value="approved">אישור</ims-toggle-switch-option>
+                    <ims-toggle-switch-option value="rejected" appearance="reject">דחייה</ims-toggle-switch-option>
+                </ims-toggle-switch>
+
+                <code dir="ltr">class="field-stretch"</code>
+                <ims-toggle-switch class="field-stretch" aria-labelledby="toggle-switch-demo-width" [(value)]="widthDecision">
+                    <ims-toggle-switch-option value="approved">אישור</ims-toggle-switch-option>
+                    <ims-toggle-switch-option value="rejected" appearance="reject">דחייה</ims-toggle-switch-option>
+                </ims-toggle-switch>
+
+                <code dir="ltr">.toggle-switch-demo__switch-width {{ '{' }} width: 16rem {{ '}' }}</code>
+                <ims-toggle-switch
+                    class="toggle-switch-demo__switch-width"
+                    aria-labelledby="toggle-switch-demo-width"
+                    [(value)]="widthDecision"
+                >
+                    <ims-toggle-switch-option value="approved">אישור</ims-toggle-switch-option>
+                    <ims-toggle-switch-option value="rejected" appearance="reject">דחייה</ims-toggle-switch-option>
+                </ims-toggle-switch>
+
+                <code dir="ltr">style="width: 24rem"</code>
+                <ims-toggle-switch style="width: 24rem" aria-labelledby="toggle-switch-demo-width" [(value)]="widthDecision">
+                    <ims-toggle-switch-option value="approved">אישור</ims-toggle-switch-option>
+                    <ims-toggle-switch-option value="rejected" appearance="reject">דחייה</ims-toggle-switch-option>
+                </ims-toggle-switch>
+            </div>
+            <code>value: {{ describe(widthDecision()) }}</code>
+        </article>
+
         <article class="toggle-switch-demo__card" dir="ltr">
             <h3 id="toggle-switch-demo-ltr">LTR</h3>
             <ims-toggle-switch aria-labelledby="toggle-switch-demo-ltr" [(value)]="ltrDecision">

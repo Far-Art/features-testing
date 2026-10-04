@@ -65,6 +65,32 @@
     font-size: 0.875rem;
 }
 
+// Spans the whole grid row, so a stretched switch has room to show it.
+.toggle-switch-demo__card--width {
+    grid-column: 1 / -1;
+}
+
+// One row per way of giving the switch a width: how it is set, then the switch.
+.toggle-switch-demo__width-rows {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: center;
+    justify-self: stretch;
+    gap: 1rem 1.5rem;
+}
+
+// Marks the host's edges, so the options can be seen against them.
+.toggle-switch-demo__width-rows ims-toggle-switch {
+    outline: 1px dashed var(--ims-color-border);
+    outline-offset: 4px;
+}
+
+// A width from the page's own stylesheet. Its encapsulation attribute makes
+// the selector more specific than the global .ims-toggle-switch-host rule.
+.toggle-switch-demo__switch-width {
+    width: 16rem;
+}
+
 // Demonstrates the public color hooks, set on an ancestor of the switch.
 .toggle-switch-demo__card--custom-accent {
     --ims-toggle-switch-accent: #7c3aed;

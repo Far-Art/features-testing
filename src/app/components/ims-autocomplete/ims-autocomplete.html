@@ -178,8 +178,12 @@
                                 <!--
                                     Pressing a row must not take focus from the field. A row that
                                     took it would give it back once selection closes the panel, and
-                                    the input's focus handler would open the panel again.
+                                    the input's focus handler would open the panel again. The keyboard
+                                    reaches the rows through the input instead: it keeps focus, names
+                                    the active row with aria-activedescendant, and selects it on Enter,
+                                    so a key handler on the row itself would never run.
                                 -->
+                                <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events -- see the comment above -->
                                 <div
                                     *cdkVirtualFor="let option of visibleOptions(); let index = index; trackBy: trackByOption"
                                     class="ims-autocomplete__option"

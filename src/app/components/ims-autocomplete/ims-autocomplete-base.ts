@@ -207,9 +207,9 @@ export abstract class ImsAutocompleteBase<T = unknown>
     /** Replaces individual texts of the application-wide `IMS_SELECTION_LABELS`. */
     readonly labels = input<Partial<ImsSelectionLabels> | null>(null);
     /** Accessible label for the single input or multi trigger. */
-    readonly ariaLabel = input<string | null>(null, {alias: 'ariaLabel'});
+    readonly ariaLabel = input<string | null>(null);
     /** ID reference for one or more external labels. */
-    readonly ariaLabelledby = input<string | null>(null, {alias: 'ariaLabelledby'});
+    readonly ariaLabelledby = input<string | null>(null);
     readonly query = signal('');
     readonly open = signal(false);
     readonly viewMode = signal<ImsAutocompleteViewMode>('all');
@@ -937,7 +937,13 @@ export abstract class ImsAutocompleteBase<T = unknown>
         return true;
     }
 
-    protected destroyOptionsSource(): void {}
+    /**
+     * Stops whatever produces the options, when the component is destroyed.
+     * `ImsAutocompleteAsync` cancels its pending load here.
+     */
+    protected destroyOptionsSource(): void {
+        // A static option list has nothing to stop.
+    }
 
     private searchTerms(): readonly string[] {
         const query = normalizeSearchText(this.query());
@@ -1079,11 +1085,14 @@ export abstract class ImsAutocompleteBase<T = unknown>
 
     private moveActiveOption(delta: 1 | -1): void {
         const options = this.visibleOptions();
-        if (options.length === 0) return;
+        const count = options.length;
+        if (count === 0) return;
 
-        let index = this.activeIndex();
-        for (let step = 0; step < options.length; step++) {
-            index = (index + delta + options.length) % options.length;
+        // Tries each option once, stepping from the active one and wrapping
+        // around the list, and stops at the first enabled one.
+        const start = this.activeIndex();
+        for (let offset = 1; offset <= count; offset++) {
+            const index = (((start + delta * offset) % count) + count) % count;
             if (!options[index].disabled) {
                 this.activeIndex.set(index);
                 this.scrollActiveOptionIntoView();

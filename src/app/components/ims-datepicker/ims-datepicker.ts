@@ -224,8 +224,8 @@ export class ImsDatepicker
     readonly labels = input<PartialImsDatepickerLabels | null>(null);
     readonly showWeekNumbers = input<boolean, boolean | string | null | undefined>(false, {transform: booleanAttribute});
     readonly placeholder = input<string | null>(null);
-    readonly ariaLabel = input<string | null>(null, {alias: 'ariaLabel'});
-    readonly ariaLabelledby = input<string | null>(null, {alias: 'ariaLabelledby'});
+    readonly ariaLabel = input<string | null>(null);
+    readonly ariaLabelledby = input<string | null>(null);
 
     readonly opened = output<void>();
     readonly closed = output<void>();
@@ -742,7 +742,7 @@ export class ImsDatepicker
 
     onCalendarKeydown(event: KeyboardEvent): void {
         const active = this.cursor();
-        let target: ImsDatepickerDate | null = null;
+        let target: ImsDatepickerDate | null;
         const horizontalDirection = this.horizontalDirection(event.key);
 
         if (horizontalDirection !== 0) {

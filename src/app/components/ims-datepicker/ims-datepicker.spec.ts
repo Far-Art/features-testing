@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
@@ -21,29 +21,29 @@ function utcMillis(year: number, month: number, day: number): number {
 
 @Component({
     imports: [ReactiveFormsModule, ImsDatepicker],
-    changeDetection: ChangeDetectionStrategy.Eager,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <ims-datepicker
-            [class]="sizeClass"
+            [class]="sizeClass()"
             [formControl]="control"
-            [format]="format"
-            [monthDay]="monthDay"
-            [min]="min"
-            [max]="max"
-            [valueType]="valueType"
-            [dateFilter]="dateFilter"
+            [format]="format()"
+            [monthDay]="monthDay()"
+            [min]="min()"
+            [max]="max()"
+            [valueType]="valueType()"
+            [dateFilter]="dateFilter()"
         />
     `
 })
 class DatepickerTestHost {
     readonly control = new FormControl<ImsDatepickerValue>(null);
-    sizeClass = '';
-    format: 'dd/MM/yyyy' | 'MM/yyyy' = 'dd/MM/yyyy';
-    monthDay: 'start' | 'end' = 'start';
-    min: ImsDatepickerValue = null;
-    max: ImsDatepickerValue = null;
-    valueType: ImsDatepickerValueType | null = 'millis';
-    dateFilter: ImsDatepickerDateFilter | null = null;
+    readonly sizeClass = signal('');
+    readonly format = signal<'dd/MM/yyyy' | 'MM/yyyy'>('dd/MM/yyyy');
+    readonly monthDay = signal<'start' | 'end'>('start');
+    readonly min = signal<ImsDatepickerValue>(null);
+    readonly max = signal<ImsDatepickerValue>(null);
+    readonly valueType = signal<ImsDatepickerValueType | null>('millis');
+    readonly dateFilter = signal<ImsDatepickerDateFilter | null>(null);
 }
 
 describe('ImsDatepicker', () => {
@@ -93,7 +93,7 @@ describe('ImsDatepicker', () => {
     });
 
     it('accepts a sizing utility class without replacing its host layout classes', () => {
-        host.sizeClass = 'field-m';
+        host.sizeClass.set('field-m');
         fixture.detectChanges();
 
         const datepickerHost = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
@@ -161,7 +161,7 @@ describe('ImsDatepicker', () => {
     });
 
     it('emits milliseconds from an empty control when no value type is configured', () => {
-        host.valueType = null;
+        host.valueType.set(null);
         fixture.detectChanges();
 
         input.value = '5-2-2028';
@@ -173,8 +173,8 @@ describe('ImsDatepicker', () => {
     });
 
     it('automatically contributes reactive-form min and max validation', () => {
-        host.min = luxonDate(2026, 1, 1);
-        host.max = luxonDate(2026, 12, 31);
+        host.min.set(luxonDate(2026, 1, 1));
+        host.max.set(luxonDate(2026, 12, 31));
         fixture.detectChanges();
 
         host.control.setValue(utcMillis(2025, 12, 31));
@@ -191,8 +191,8 @@ describe('ImsDatepicker', () => {
     });
 
     it('does not allow an instance range to relax the default global range', () => {
-        host.min = luxonDate(1800, 1, 1);
-        host.max = luxonDate(2300, 12, 31);
+        host.min.set(luxonDate(1800, 1, 1));
+        host.max.set(luxonDate(2300, 12, 31));
         fixture.detectChanges();
 
         host.control.setValue(utcMillis(1899, 12, 31));
@@ -216,8 +216,8 @@ describe('ImsDatepicker', () => {
     });
 
     it('uses the last day at UTC midnight for end-of-month precision', () => {
-        host.format = 'MM/yyyy';
-        host.monthDay = 'end';
+        host.format.set('MM/yyyy');
+        host.monthDay.set('end');
         fixture.detectChanges();
 
         input.value = '2/2028';
@@ -245,7 +245,7 @@ describe('ImsDatepicker', () => {
     });
 
     it('does not cycle to the day view for month-only values', () => {
-        host.format = 'MM/yyyy';
+        host.format.set('MM/yyyy');
         fixture.detectChanges();
 
         const datepicker = fixture.debugElement.query(By.directive(ImsDatepicker))
@@ -438,7 +438,7 @@ describe('ImsDatepicker', () => {
     });
 
     it('leaves the value, dirty state, and dateChange alone when the field is left without typing', () => {
-        host.valueType = null;
+        host.valueType.set(null);
         host.control.setValue(luxonDate(2028, 2, 5));
         fixture.detectChanges();
 
@@ -478,7 +478,7 @@ describe('ImsDatepicker', () => {
     });
 
     it('emits valueChanges once per committed date object', () => {
-        host.valueType = 'luxon';
+        host.valueType.set('luxon');
         fixture.detectChanges();
 
         const emissions: unknown[] = [];
@@ -524,7 +524,7 @@ describe('ImsDatepicker', () => {
     });
 
     it('keeps the active day at the edge of the selectable range', async () => {
-        host.max = luxonDate(2028, 2, 29);
+        host.max.set(luxonDate(2028, 2, 29));
         host.control.setValue(utcMillis(2028, 2, 29));
         fixture.detectChanges();
 
@@ -564,7 +564,7 @@ describe('ImsDatepicker', () => {
     });
 
     it('emits milliseconds whatever kind of value it received', () => {
-        host.valueType = null;
+        host.valueType.set(null);
         fixture.detectChanges();
 
         host.control.setValue(calendarDate(2028, 2, 5));
@@ -579,7 +579,7 @@ describe('ImsDatepicker', () => {
     });
 
     it('emits native Dates when valueType is date', () => {
-        host.valueType = 'date';
+        host.valueType.set('date');
         host.control.setValue(luxonDate(2028, 2, 5));
         fixture.detectChanges();
 
@@ -591,11 +591,11 @@ describe('ImsDatepicker', () => {
 
     it('passes Luxon dates to the date filter whatever the value type', () => {
         const filteredDates: unknown[] = [];
-        host.valueType = 'millis';
-        host.dateFilter = (date) => {
+        host.valueType.set('millis');
+        host.dateFilter.set((date) => {
             filteredDates.push(date);
             return date.weekday !== 6;
-        };
+        });
         host.control.setValue(utcMillis(2028, 2, 5));
         fixture.detectChanges();
 

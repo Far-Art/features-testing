@@ -28,7 +28,7 @@ function filterOptions(query: string): readonly ImsAutocompleteOption<Bag>[] {
 
 @Component({
     imports: [ImsAutocomplete, ImsAutocompleteAsync, ReactiveFormsModule],
-    changeDetection: ChangeDetectionStrategy.Eager,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <ims-autocomplete
             data-test="single"
@@ -101,9 +101,9 @@ describe('ImsAutocomplete', () => {
     beforeAll(() => {
         // jsdom has no ResizeObserver; trigger measurement only needs one to construct.
         globalThis.ResizeObserver ??= class {
-            observe(): void {}
-            unobserve(): void {}
-            disconnect(): void {}
+            observe = () => undefined;
+            unobserve = () => undefined;
+            disconnect = () => undefined;
         } as unknown as typeof ResizeObserver;
         // Nor does it scroll elements, which the active option is kept in view with.
         Element.prototype.scrollTo ??= () => undefined;

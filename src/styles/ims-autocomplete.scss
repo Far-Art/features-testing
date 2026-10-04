@@ -81,6 +81,11 @@
     visibility: hidden;
 }
 
+// At the selected weight, so a selected row fits the width they give.
+.ims-autocomplete__sizer .ims-autocomplete__option {
+    font-weight: var(--ims-option-selected-weight);
+}
+
 // Gutters on both edges, as the ims-select listbox has, so the rounded option
 // rows sit inset from the panel border instead of running into it.
 //
