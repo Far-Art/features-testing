@@ -10,9 +10,12 @@ import {
     OnDestroy,
     ViewContainerRef,
     computed,
+    effect,
     inject,
-    input
+    input,
+    untracked
 } from '@angular/core';
+import {IMS_ERROR_POPOVER_TARGET} from '../components/ims-error-popover';
 
 /** Supported positions for the full-text tooltip relative to the host element. */
 export type ImsTextTruncatePosition = 'center' | 'top' | 'bottom';
@@ -46,6 +49,12 @@ type NativeControlKind = 'input' | 'textarea' | 'select';
  * press or a picked value closes it, and focus reveals it only when the focus
  * comes from the keyboard, because the select also takes focus back from its
  * picker after a pick by pointer.
+ *
+ * An error popover on the same field comes first. Both open beneath a field, and
+ * the one shown last would cover the other. While the panel of an
+ * `ims-error-popover` on the host, or on a component whose template holds the
+ * host, is on screen, the tooltip stays closed, and it closes if that panel opens
+ * while it is showing.
  *
  * The tooltip is non-interactive by default and closes when the pointer leaves
  * the host. Enable `imsTextTruncateInteractive` when users must select or copy
@@ -194,13 +203,37 @@ export class ImsTextTruncateDirective implements OnDestroy {
     protected readonly hostControl = getNativeControlKind(this.elementRef.nativeElement);
     private readonly overlay = inject(Overlay);
     private readonly viewContainerRef = inject(ViewContainerRef);
+    /**
+     * The error popover of the field: on the host, or on a component whose
+     * template holds the host, as `<ims-select ims-error-popover>` holds the
+     * trigger this directive sits on. Not `self`-only for that reason.
+     */
+    private readonly errorPopover = inject(IMS_ERROR_POPOVER_TARGET, {optional: true});
     private overlayRef: OverlayRef | null = null;
     private overlayPosition: ImsTextTruncatePosition | null = null;
     private popoverRef: ComponentRef<ImsTextTruncatePopover> | null = null;
     private documentMouseMoveListener: ((event: MouseEvent) => void) | null = null;
 
+    constructor() {
+        // Overlays share the browser's top layer, where the one shown last covers the
+        // rest whatever its z-index. The error popover opens beneath the field too, and
+        // its message is what the user needs, so this tooltip gives way: showPopover()
+        // keeps it closed while the panel is up, and this closes it when the panel opens.
+        effect(() => {
+            if (this.errorPopover?.visible()) {
+                untracked(() => this.hidePopoverImmediately());
+            }
+        });
+    }
+
     showPopover(): void {
         if (this.popoverDisabled()) {
+            return;
+        }
+
+        // An error popover's panel takes the space beneath the field. See the constructor.
+        if (this.errorPopover?.visible()) {
+            this.hidePopoverImmediately();
             return;
         }
 

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ImsErrorPopoverDirective } from '../../components/ims-error-popover';
 import { ImsSelectDirective } from '../../components/ims-select';
 import { ImsInputDirective } from '../../ims-input.directive';
 import { ImsTextTruncateDirective } from '../../shared/ims-text-truncate.directive';
@@ -10,6 +11,7 @@ import { ReadonlyDirective } from '../../shared/readonly.directive';
   standalone: true,
   imports: [
     FormsModule,
+    ImsErrorPopoverDirective,
     ImsInputDirective,
     ImsSelectDirective,
     ImsTextTruncateDirective,
@@ -25,6 +27,9 @@ export class TextTruncateDemo {
 
   readonly address = signal('רחוב הנשיא הראשון 128, דירה 14, קומה 3, רחובות 7630517');
   readonly email = signal('maya.levin-rosenberg.claims@example.test');
+
+  /** Valid until its @ is deleted, which opens the error popover beneath the same field. */
+  readonly renewalEmail = signal('avraham.ben-david.renewals@example.test');
 
   /** Loaded into a readonly field, which cannot be scrolled to read the rest. */
   readonly coverage = 'ביטוח דירה מורחב: מבנה ותכולה, נזקי מים, רעידת אדמה וצד שלישי';

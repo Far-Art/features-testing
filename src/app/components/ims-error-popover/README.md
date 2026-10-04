@@ -169,3 +169,17 @@ the external directive calls `registerExternalErrorPopover()`, the component
 disables its internal instance, and the external instance reads the full bound
 Angular control errors. The external instance owns its own mapper, duration,
 position, and disabled inputs.
+
+## Other surfaces on the field
+
+Every CDK overlay here sits in the browser's top layer, where the one shown last
+covers the rest whatever its `z-index`. A surface that opens beside the same
+field therefore has to keep clear of the panel itself, and
+`IMS_ERROR_POPOVER_TARGET`, which the directive provides on its element, tells
+it when: `visible` is a signal of whether the panel is on screen.
+
+`imsTextTruncate` reads it. Its full-value tooltip opens beneath a field too,
+so it stays closed while the panel is up and closes if the panel opens over it.
+It resolves the token without `self`, which also finds a popover placed on a
+component whose template holds the tooltip's host, such as
+`<ims-select ims-error-popover>`.

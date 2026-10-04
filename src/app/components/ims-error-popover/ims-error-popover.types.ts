@@ -60,8 +60,17 @@ export interface ImsErrorPopoverComponentHost {
 export const IMS_ERROR_POPOVER_COMPONENT_HOST =
     new InjectionToken<ImsErrorPopoverComponentHost>('IMS_ERROR_POPOVER_COMPONENT_HOST');
 
-/** Contract through which a same-host directive reports errors of its own. */
+/**
+ * An error popover as the directives around it see it.
+ *
+ * A directive on the same element reports errors of its own through it. A surface that
+ * opens beside the same field, such as the full-value tooltip of `ImsTextTruncateDirective`,
+ * reads whether the panel is up, so that it never opens over the message.
+ */
 export interface ImsErrorPopoverTarget {
+    /** Whether the panel is on screen. */
+    readonly visible: Signal<boolean>;
+
     /**
      * Shows errors of the caller's own for one automatic visibility window, after which
      * they are forgotten: hover and focus never bring an announcement back.
@@ -71,7 +80,10 @@ export interface ImsErrorPopoverTarget {
     announceErrors(errors: ValidationErrors | null): void;
 }
 
-/** Popover on the same element, resolved by directives that report their own errors. */
+/**
+ * The error popover on an element. Directives on the same element resolve it to report
+ * errors of their own; surfaces on it, or inside it, resolve it to keep clear of its panel.
+ */
 export const IMS_ERROR_POPOVER_TARGET =
     new InjectionToken<ImsErrorPopoverTarget>('IMS_ERROR_POPOVER_TARGET');
 

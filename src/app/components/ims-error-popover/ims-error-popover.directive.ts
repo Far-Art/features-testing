@@ -94,6 +94,11 @@ export class ImsErrorPopoverDirective
         alias: 'ims-error-popover-position'
     });
 
+    /** Written only where the panel is attached and detached. */
+    private readonly panelVisible = signal(false);
+    /** Whether the panel is on screen, for surfaces that open beside the same field. */
+    readonly visible = this.panelVisible.asReadonly();
+
     private readonly config = inject(IMS_ERROR_POPOVER_CONFIG);
     private readonly ngControl = inject(NgControl, {self: true, optional: true});
     private readonly inheritedReadonly: Signal<boolean> = ReadonlyDirective.injectSignal();
@@ -541,6 +546,7 @@ export class ImsErrorPopoverDirective
         panelRef.instance.direction.set(direction);
         panelRef.instance.errors.set(errors);
         panelRef.changeDetectorRef.detectChanges();
+        this.panelVisible.set(true);
         this.connectAriaDescription();
 
         if (!alreadyAttached) {
@@ -556,6 +562,7 @@ export class ImsErrorPopoverDirective
         this.removePanelListeners();
         this.disconnectAriaDescription();
         this.detachConnectedPopover();
+        this.panelVisible.set(false);
     }
 
     /** Subscribes to pointer transitions on the detached overlay pane. */

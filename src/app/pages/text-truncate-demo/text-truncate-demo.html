@@ -87,6 +87,29 @@
           פותח אותה גם כאן.
         </p>
       </article>
+
+      <article class="text-truncate-demo__card">
+        <h3>עם הודעת שגיאה</h3>
+        <code class="text-truncate-demo__source" dir="ltr">imsTextTruncate ims-error-popover</code>
+        <input
+          imsInput
+          imsTextTruncate
+          ims-error-popover
+          type="email"
+          email
+          dir="ltr"
+          aria-label="דוא״ל לחידוש"
+          autocomplete="off"
+          [style.inline-size.rem]="fieldWidth()"
+          [ngModel]="renewalEmail()"
+          (ngModelChange)="renewalEmail.set($event)"
+        />
+        <p>
+          מחקו את ה־<code>&#64;</code>: הכתובת כבר לא תקינה, והודעת השגיאה נפתחת מתחת לשדה. כל עוד
+          היא מוצגת, מעבר העכבר לא פותח את החלונית, כדי שלא תכסה את ההודעה. החזירו את
+          ה־<code>&#64;</code>, ומעבר העכבר הבא פותח אותה שוב.
+        </p>
+      </article>
     </div>
   </section>
 
@@ -245,6 +268,13 @@
         <strong>הרשימה קודמת לחלונית.</strong> הרשימה של <code>select</code> נפתחת במקום שבו נפתחת
         החלונית, ולכן לחיצה על השדה סוגרת את החלונית, והיא לא נפתחת כל עוד הרשימה פתוחה. מיקוד
         פותח אותה רק כשהוא מגיע מהמקלדת: אחרי בחירה בעכבר השדה מקבל את המיקוד בחזרה מהרשימה.
+      </li>
+      <li>
+        <strong>הודעת שגיאה קודמת לחלונית.</strong> גם <code>ims-error-popover</code> נפתח מתחת
+        לשדה, ומה שנפתח אחרון מכסה את מה שנפתח לפניו. לכן כל עוד מוצגת הודעה של
+        <code>ims-error-popover</code> שנמצא על השדה עצמו, או על רכיב שהשדה בתוכו, כמו
+        <code>&lt;ims-select&gt;</code>, החלונית לא נפתחת, ואם ההודעה נפתחת בזמן שהחלונית פתוחה,
+        החלונית נסגרת.
       </li>
       <li>
         <strong>סיסמה לא נחשפת.</strong> נקראים רק סוגי <code>input</code> שמציגים טקסט רגיל:

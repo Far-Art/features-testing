@@ -71,7 +71,7 @@ export type ImsButtonSeverity = 'info' | 'success' | 'warning' | 'danger';
         '[style.--ims-button-symbol-size]': 'iconSize()',
         '[class.ims-button--cta]': 'callToAction()',
         '[class.ims-readonly]': 'readonlyMode()',
-        '[class.ims-button--disabled]': 'disabledInput()',
+        '[class.ims-button--disabled]': 'disabled()',
         '[class.ims-button--readonly]': 'readonlyMode()',
         '[attr.type]': 'type()',
         '[attr.aria-disabled]': 'interactionDisabled() ? "true" : null',
@@ -120,7 +120,7 @@ export abstract class ImsButtonBase {
     }
 
     /** Native disabled state. Readonly also disables interaction through `interactionDisabled`. */
-    readonly disabledInput = input<boolean, boolean | string | null | undefined>(false, {alias: 'disabled', transform: booleanAttribute});
+    readonly disabled = input<boolean, boolean | string | null | undefined>(false, {transform: booleanAttribute});
 
     /** Defaults buttons to non-submit behavior; bind `type="submit"` when needed. */
     readonly type = input<ImsButtonType>('button');
@@ -271,7 +271,7 @@ export abstract class ImsButtonBase {
     readonly readonlyMode = this.inheritedReadonly;
 
     /** True when the host button must not run user actions. */
-    readonly interactionDisabled = computed(() => this.disabledInput() || this.readonlyMode());
+    readonly interactionDisabled = computed(() => this.disabled() || this.readonlyMode());
 
     protected handleClick(event: MouseEvent): void {
         if (this.interactionDisabled()) {
