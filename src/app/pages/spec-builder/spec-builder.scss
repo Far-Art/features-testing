@@ -1,0 +1,88 @@
+// Covers the window, above the application's header and below CDK overlays
+// (1000), so lists, dialogs and snackbars still open on top of it. To embed
+// the builder in a layout instead, give it `position: relative` and a parent
+// with a definite height.
+:host {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    background: var(--ims-background-page);
+    color: var(--ims-color-on-surface);
+}
+
+// Palette, canvas and inspector while editing; the canvas alone in preview;
+// the canvas and the reference while inspecting.
+.spec-builder__body {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr) 22rem;
+    min-block-size: 0;
+}
+
+.spec-builder__body[data-mode='preview'] {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.spec-builder__body[data-mode='inspect'] {
+    grid-template-columns: minmax(0, 1fr) 24rem;
+}
+
+// The page tabs over the canvas.
+.spec-builder__center {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    min-inline-size: 0;
+    min-block-size: 0;
+}
+
+// The palette or the list of items, under two buttons that switch between them.
+.spec-builder__start {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    min-block-size: 0;
+    border-inline-end: 1px solid var(--ims-color-border-subtle);
+    background: var(--ims-background-panel);
+}
+
+.spec-builder__tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.25rem;
+    padding: 0.75rem 1rem 0;
+}
+
+.spec-builder__tab {
+    min-width: 0;
+    padding-inline: 0.5rem;
+}
+
+// Centred physically, so it sits in the middle in either direction.
+.spec-builder__capture {
+    position: fixed;
+    inset-block-end: 1.5rem;
+    left: 50%;
+    z-index: 1;
+    inline-size: min(26rem, calc(100vw - 2rem));
+    translate: -50% 0;
+    box-shadow: 0 0.75rem 2rem color-mix(in srgb, var(--ims-color-primary-950) 22%, transparent);
+}
+
+.spec-builder__capture-image {
+    display: block;
+    max-inline-size: 100%;
+    max-block-size: 14rem;
+    margin-inline: auto;
+    border: 1px solid var(--ims-color-border-subtle);
+}
+
+.spec-builder__capture-caption {
+    margin: 0.5rem 0;
+    color: var(--ims-color-on-surface-muted);
+    font-size: 0.8rem;
+}
+
+.spec-builder__capture-actions {
+    display: flex;
+    gap: 0.5rem;
+}

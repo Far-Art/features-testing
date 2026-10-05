@@ -1,0 +1,104 @@
+<ims-panel>
+    <ims-panel-header icon="integration_instructions">
+        <h2 class="spec-builder-reference__title">{{ labels.label }}</h2>
+        <button
+            ims-button-icon
+            imsPanelHeaderActions
+            [attr.aria-label]="labels.copyMarkdown"
+            [imsTooltip]="labels.copyMarkdown"
+            (click)="reference.copyMarkdown()"
+        >
+            <ims-icon>content_copy</ims-icon>
+        </button>
+        <button
+            ims-button-icon
+            imsPanelHeaderActions
+            [attr.aria-label]="labels.downloadMarkdown"
+            [imsTooltip]="labels.downloadMarkdown"
+            (click)="reference.downloadMarkdown()"
+        >
+            <ims-icon>download</ims-icon>
+        </button>
+    </ims-panel-header>
+
+    <p class="spec-builder-reference__hint">{{ labels.hint }}</p>
+
+    @if (reference.entries().length === 0) {
+        <p class="spec-builder-reference__hint">{{ labels.empty }}</p>
+    } @else {
+        <ol class="spec-builder-reference__list" [attr.aria-label]="labels.list">
+            @for (item of reference.entries(); track item.itemId) {
+                <li>
+                    <button
+                        type="button"
+                        class="spec-builder-reference__entry"
+                        [attr.aria-pressed]="item.itemId === store.selectedItemId()"
+                        (click)="store.select(item.itemId)"
+                    >
+                        <span class="spec-builder-reference__number">{{ item.number }}</span>
+                        {{ item.blockLabel }}
+                    </button>
+                </li>
+            }
+        </ol>
+    }
+</ims-panel>
+
+@if (entry(); as entry) {
+    <ims-panel class="spec-builder-reference__details" severity="info">
+        <ims-panel-header>
+            <h2 class="spec-builder-reference__title">{{ entry.number }}. {{ entry.blockLabel }}</h2>
+        </ims-panel-header>
+
+        <dl class="spec-builder-reference__facts">
+            <dt>{{ labels.selector }}</dt>
+            <dd>
+                @if (entry.selector) {
+                    <code dir="ltr">{{ entry.selector }}</code>
+                } @else {
+                    {{ labels.none }}
+                }
+            </dd>
+            <dt>{{ labels.zone }}</dt>
+            <dd>{{ entry.zoneLabel }}</dd>
+            <dt>{{ labels.position }}</dt>
+            <dd><span dir="ltr">{{ position() }}</span></dd>
+            <dt>{{ labels.size }}</dt>
+            <dd>{{ size() }}</dd>
+        </dl>
+
+        @if (settings().length > 0) {
+            <h3 class="spec-builder-reference__heading">{{ labels.settings }}</h3>
+            <dl class="spec-builder-reference__facts">
+                @for (setting of settings(); track setting.label) {
+                    <dt>{{ setting.label }}</dt>
+                    <dd>
+                        @if (setting.swatch) {
+                            <span class="spec-builder-reference__swatch" aria-hidden="true" [style.background]="setting.swatch"></span>
+                            <code dir="ltr">{{ setting.token }}</code>
+                            @if (setting.resolved) {
+                                <span class="spec-builder-reference__resolved" dir="ltr">{{ setting.resolved }}</span>
+                            }
+                        } @else {
+                            {{ setting.value }}
+                        }
+                    </dd>
+                }
+            </dl>
+        }
+
+        @if (entry.note) {
+            <h3 class="spec-builder-reference__heading">{{ labels.note }}</h3>
+            <p class="spec-builder-reference__note">{{ entry.note }}</p>
+        }
+
+        @if (entry.snippet) {
+            <h3 class="spec-builder-reference__heading">{{ labels.snippet }}</h3>
+            <pre class="spec-builder-reference__snippet" dir="ltr"><code>{{ entry.snippet }}</code></pre>
+            <button ims-button ims-button-variation="secondary" (click)="reference.copy(entry.snippet)">
+                <ims-icon class="ims-button__symbol">content_copy</ims-icon>
+                {{ labels.copySnippet }}
+            </button>
+        }
+    </ims-panel>
+}

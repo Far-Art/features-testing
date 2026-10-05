@@ -1,0 +1,95 @@
+:host {
+    display: grid;
+    align-content: start;
+    gap: 1rem;
+    box-sizing: border-box;
+    padding: 1rem;
+    overflow-y: auto;
+    border-inline-start: 1px solid var(--ims-color-border-subtle);
+    background: var(--ims-background-panel);
+}
+
+.spec-builder-inspector__title {
+    font-size: 0.95rem;
+}
+
+.spec-builder-inspector__section {
+    display: grid;
+    gap: 0.6rem;
+}
+
+.spec-builder-inspector__heading {
+    margin: 0;
+    color: var(--ims-color-on-surface);
+    font-size: 0.85rem;
+    font-weight: var(--ims-font-weight-semibold);
+}
+
+.spec-builder-inspector__hint {
+    margin: 0;
+    color: var(--ims-color-on-surface-muted);
+    font-size: 0.8rem;
+}
+
+.spec-builder-inspector__token {
+    display: grid;
+    gap: 0.25rem;
+}
+
+.spec-builder-inspector__token-label {
+    font-size: 0.85rem;
+}
+
+.spec-builder-inspector__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.spec-builder-inspector__list {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.spec-builder-inspector__list-label {
+    font-size: 0.85rem;
+}
+
+.spec-builder-inspector__choices {
+    display: grid;
+    justify-items: start;
+    gap: 0.35rem;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+// One setting per row, divided by a hairline, so neighbouring settings do
+// not run into each other. The settings' own section gap is replaced by the
+// rows' padding.
+.spec-builder-inspector__section:has(> .spec-builder-inspector__setting) {
+    gap: 0;
+}
+
+.spec-builder-inspector__setting {
+    display: grid;
+    gap: 0.35rem;
+    padding-block: 0.6rem;
+    border-block-start: 1px solid var(--ims-color-border-subtle);
+}
+
+.spec-builder-inspector__heading + .spec-builder-inspector__setting {
+    margin-block-start: 0.4rem;
+    border-block-start: 0;
+    padding-block-start: 0;
+}
+
+.spec-builder-inspector__setting:last-child {
+    padding-block-end: 0;
+}
+
+.spec-builder-inspector__setting--toggles {
+    justify-items: start;
+    gap: 0.25rem;
+}

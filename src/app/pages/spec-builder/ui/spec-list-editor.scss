@@ -1,0 +1,61 @@
+:host {
+    display: grid;
+    justify-items: start;
+    gap: 0.5rem;
+}
+
+.spec-list-editor__rows {
+    display: grid;
+    gap: 0.5rem;
+    justify-self: stretch;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.spec-list-editor__row {
+    display: grid;
+    gap: 0.4rem;
+    padding: 0.4rem 0.6rem 0.6rem;
+    border: 1px solid var(--ims-color-border-subtle);
+    border-radius: 0.5rem;
+    background: var(--ims-color-surface-panel);
+}
+
+.spec-list-editor__row-header {
+    display: flex;
+    align-items: center;
+    gap: 0.1rem;
+}
+
+.spec-list-editor__row-title {
+    flex: 1 1 auto;
+    color: var(--ims-color-on-surface-muted);
+    font-size: 0.75rem;
+    font-weight: var(--ims-font-weight-bold);
+}
+
+.spec-list-editor__cells {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem 0.5rem;
+}
+
+.spec-list-editor__cell {
+    display: grid;
+    gap: 0.15rem;
+    min-inline-size: 0;
+}
+
+.spec-list-editor__cell--wide {
+    grid-column: 1 / -1;
+}
+
+.spec-list-editor__caption {
+    font-size: 0.75rem;
+}
+
+.spec-list-editor__empty {
+    color: var(--ims-color-on-surface-muted);
+    font-size: 0.85rem;
+}

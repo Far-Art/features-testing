@@ -1,0 +1,393 @@
+@if (item(); as item) {
+    <ims-panel>
+        <ims-panel-header [icon]="block()?.icon ?? 'help'">
+            <h2 class="spec-builder-inspector__title">{{ title() }}</h2>
+        </ims-panel-header>
+
+        <section class="spec-builder-inspector__section">
+            <h3 class="spec-builder-inspector__heading">{{ labels.geometry }}</h3>
+            <p class="spec-builder-inspector__hint">{{ labels.geometryHint }}</p>
+            <ims-checkbox [checked]="!!item.locked" (checkedChange)="setLocked($event)">{{ labels.lock }}</ims-checkbox>
+
+            <ims-form-field>
+                <label [for]="idPrefix + '-x'">{{ labels.x }}</label>
+                <input
+                    imsInput
+                    class="field-xs"
+                    type="number"
+                    min="0"
+                    [id]="idPrefix + '-x'"
+                    [disabled]="!!item.locked"
+                    [value]="item.rect.x"
+                    (input)="setRect('x', $event)"
+                >
+            </ims-form-field>
+            <ims-form-field>
+                <label [for]="idPrefix + '-y'">{{ labels.y }}</label>
+                <input
+                    imsInput
+                    class="field-xs"
+                    type="number"
+                    min="0"
+                    [id]="idPrefix + '-y'"
+                    [disabled]="!!item.locked"
+                    [value]="item.rect.y"
+                    (input)="setRect('y', $event)"
+                >
+            </ims-form-field>
+            <!-- One node per block, so ims-form-field can project the label into its label slot. -->
+            <ims-form-field>
+                @if (widthFollowsContent()) {
+                    <span imsFormFieldLabel>{{ labels.width }}</span>
+                } @else {
+                    <label [for]="idPrefix + '-width'">{{ labels.width }}</label>
+                }
+                @if (widthFollowsContent()) {
+                    <span>{{ labels.hug }}</span>
+                } @else {
+                    <input
+                        imsInput
+                        class="field-xs"
+                        type="number"
+                        min="8"
+                        [id]="idPrefix + '-width'"
+                        [disabled]="!!item.locked"
+                        [value]="item.rect.width"
+                        (input)="setRect('width', $event)"
+                    >
+                }
+            </ims-form-field>
+            <ims-form-field>
+                @if (heightFollowsContent()) {
+                    <span imsFormFieldLabel>{{ labels.height }}</span>
+                } @else {
+                    <label [for]="idPrefix + '-height'">{{ labels.height }}</label>
+                }
+                @if (heightFollowsContent()) {
+                    <span>{{ labels.hug }}</span>
+                } @else {
+                    <input
+                        imsInput
+                        class="field-xs"
+                        type="number"
+                        min="8"
+                        [id]="idPrefix + '-height'"
+                        [disabled]="!!item.locked"
+                        [value]="item.rect.height"
+                        (input)="setRect('height', $event)"
+                    >
+                }
+            </ims-form-field>
+
+            @if (zones().length > 1) {
+                <ims-form-field>
+                    <label [for]="idPrefix + '-zone'">{{ labels.zone }}</label>
+                    <ims-select
+                        class="field-stretch"
+                        [id]="idPrefix + '-zone'"
+                        [disabled]="!!item.locked"
+                        [value]="zoneId()"
+                        (valueChange)="setZone($event)"
+                    >
+                        @for (zone of zones(); track zone.id) {
+                            <ims-option [value]="zone.id" [selectionText]="zone.label">{{ zone.label }}</ims-option>
+                        }
+                    </ims-select>
+                </ims-form-field>
+            }
+        </section>
+
+        @if (fields().length > 0) {
+            <hr>
+            <section class="spec-builder-inspector__section">
+                <h3 class="spec-builder-inspector__heading">{{ labels.settings }}</h3>
+
+                @for (group of settingGroups(); track group[0].name) {
+                    <div class="spec-builder-inspector__setting" [class.spec-builder-inspector__setting--toggles]="group[0].kind === 'toggle'">
+                        @for (field of group; track field.name) {
+                            @switch (field.kind) {
+                                @case ('toggle') {
+                                    <ims-checkbox [checked]="field.value === true" (checkedChange)="setProp(field.name, $event)">
+                                        {{ field.label }}
+                                    </ims-checkbox>
+                                    @if (field.hint) {
+                                        <p class="spec-builder-inspector__hint">{{ field.hint }}</p>
+                                    }
+                                }
+                                @case ('token') {
+                                    <div class="spec-builder-inspector__token">
+                                        <label class="spec-builder-inspector__token-label" [for]="field.id">{{ field.label }}</label>
+                                        <app-spec-token-picker
+                                            [inputId]="field.id"
+                                            [value]="field.text"
+                                            [use]="field.use"
+                                            (valueChange)="setProp(field.name, $event)"
+                                        />
+                                    </div>
+                                }
+                                @case ('choice') {
+                                    <ims-form-field>
+                                        <label [for]="field.id">{{ field.label }}</label>
+                                        <ims-select
+                                            class="field-stretch"
+                                            [id]="field.id"
+                                            [value]="field.text"
+                                            (valueChange)="setProp(field.name, $event)"
+                                        >
+                                            @for (option of field.options; track option.value) {
+                                                <ims-option [value]="option.value" [selectionText]="option.label">{{ option.label }}</ims-option>
+                                            }
+                                        </ims-select>
+                                        @if (field.hint) {
+                                            <span imsFormFieldHint>{{ field.hint }}</span>
+                                        }
+                                    </ims-form-field>
+                                }
+                                @case ('selection') {
+                                    <fieldset class="spec-builder-inspector__choices">
+                                        <legend class="spec-builder-inspector__list-label">{{ field.label }}</legend>
+                                        <p class="spec-builder-inspector__hint">
+                                            {{ field.choices.length === 0 ? labels.noChoices : field.pickMany ? labels.pickMany : labels.pickOne }}
+                                        </p>
+                                        @for (choice of field.choices; track $index) {
+                                            <ims-checkbox [checked]="choice.picked" (checkedChange)="pick(field, choice.value, $event)">
+                                                {{ choice.value }}
+                                            </ims-checkbox>
+                                        }
+                                    </fieldset>
+                                }
+                                @case ('list') {
+                                    @if (field.list; as list) {
+                                        <div class="spec-builder-inspector__list">
+                                            <span class="spec-builder-inspector__list-label">{{ field.label }}</span>
+                                            @if (field.hint) {
+                                                <p class="spec-builder-inspector__hint">{{ field.hint }}</p>
+                                            }
+                                            <app-spec-list-editor
+                                                [property]="list"
+                                                [rows]="field.rows"
+                                                [inputId]="field.id"
+                                                (rowsChange)="setProp(field.name, $event)"
+                                            />
+                                        </div>
+                                    }
+                                }
+                                @case ('number') {
+                                    <ims-form-field>
+                                        <label [for]="field.id">{{ field.label }}</label>
+                                        <input
+                                            imsInput
+                                            class="field-xs"
+                                            type="number"
+                                            [id]="field.id"
+                                            [value]="field.value"
+                                            [attr.min]="field.min"
+                                            [attr.max]="field.max"
+                                            [step]="field.step"
+                                            (input)="setNumberProp(field, $event)"
+                                        >
+                                        @if (field.hint) {
+                                            <span imsFormFieldHint>{{ field.hint }}</span>
+                                        }
+                                    </ims-form-field>
+                                }
+                                @default {
+                                    <ims-form-field>
+                                        <label [for]="field.id">{{ field.label }}</label>
+                                        @if (field.multiline) {
+                                            <textarea
+                                                imsInput
+                                                rows="3"
+                                                [id]="field.id"
+                                                [value]="field.text"
+                                                (input)="setTextProp(field.name, $event)"
+                                            ></textarea>
+                                        } @else {
+                                            <input
+                                                imsInput
+                                                class="field-stretch"
+                                                type="text"
+                                                [id]="field.id"
+                                                [value]="field.text"
+                                                (input)="setTextProp(field.name, $event)"
+                                            >
+                                        }
+                                        @if (field.hint) {
+                                            <span imsFormFieldHint>{{ field.hint }}</span>
+                                        }
+                                    </ims-form-field>
+                                }
+                            }
+                        }
+                    </div>
+                }
+            </section>
+        }
+
+        <hr>
+        <section class="spec-builder-inspector__section">
+            <label class="spec-builder-inspector__heading" [for]="idPrefix + '-note'">{{ labels.note }}</label>
+            <textarea
+                imsInput
+                rows="3"
+                [id]="idPrefix + '-note'"
+                [placeholder]="labels.notePlaceholder"
+                [value]="item.note"
+                (input)="setNote($event)"
+            ></textarea>
+        </section>
+
+        <hr>
+        <div class="spec-builder-inspector__actions">
+            <button ims-button ims-button-variation="secondary" (click)="duplicate()">
+                <ims-icon class="ims-button__symbol">content_copy</ims-icon>
+                {{ labels.duplicate }}
+            </button>
+            <button ims-button ims-button-variation="secondary" (click)="bringToFront()">
+                <ims-icon class="ims-button__symbol">flip_to_front</ims-icon>
+                {{ labels.bringToFront }}
+            </button>
+            <button ims-button ims-button-variation="secondary" (click)="sendToBack()">
+                <ims-icon class="ims-button__symbol">flip_to_back</ims-icon>
+                {{ labels.sendToBack }}
+            </button>
+            <button ims-button ims-button-variation="outline" ims-button-severity="danger" (click)="remove()">
+                <ims-icon class="ims-button__symbol">delete</ims-icon>
+                {{ labels.remove }}
+            </button>
+        </div>
+    </ims-panel>
+} @else {
+    <ims-panel>
+        <ims-panel-header icon="library_books">
+            <h2 class="spec-builder-inspector__title">{{ labels.documentTitle }}</h2>
+        </ims-panel-header>
+
+        <section class="spec-builder-inspector__section">
+            <ims-form-field>
+                <label [for]="idPrefix + '-title'">{{ labels.title }}</label>
+                <input
+                    imsInput
+                    class="field-stretch"
+                    type="text"
+                    [id]="idPrefix + '-title'"
+                    [value]="store.document().title"
+                    (input)="setTitle($event)"
+                >
+                <span imsFormFieldHint>{{ labels.titleHint }}</span>
+            </ims-form-field>
+        </section>
+    </ims-panel>
+
+    <ims-panel>
+        <ims-panel-header icon="description">
+            <h2 class="spec-builder-inspector__title">{{ labels.pageTitle }}</h2>
+        </ims-panel-header>
+
+        <section class="spec-builder-inspector__section">
+            <p class="spec-builder-inspector__hint">{{ labels.pageHint }}</p>
+
+            <ims-form-field>
+                <label [for]="idPrefix + '-page-name'">{{ labels.pageName }}</label>
+                <input
+                    imsInput
+                    class="field-stretch"
+                    type="text"
+                    [id]="idPrefix + '-page-name'"
+                    [value]="store.page().name"
+                    (input)="renamePage($event)"
+                >
+            </ims-form-field>
+
+            <ims-form-field>
+                <label [for]="idPrefix + '-view'">{{ labels.view }}</label>
+                <ims-select
+                    class="field-stretch"
+                    [id]="idPrefix + '-view'"
+                    [value]="store.view().id"
+                    (valueChange)="setView($event)"
+                >
+                    @for (view of config.views; track view.id) {
+                        <ims-option [value]="view.id" [selectionText]="view.label">{{ view.label }}</ims-option>
+                    }
+                </ims-select>
+            </ims-form-field>
+
+            <ims-form-field>
+                <label [for]="idPrefix + '-preset'">{{ labels.pagePreset }}</label>
+                <ims-select
+                    class="field-stretch"
+                    [id]="idPrefix + '-preset'"
+                    [placeholder]="labels.customSize"
+                    [value]="pagePreset()"
+                    (valueChange)="setPagePreset($event)"
+                >
+                    @for (preset of config.pagePresets; track preset.label; let index = $index) {
+                        <ims-option [value]="'' + index" [selectionText]="preset.label">{{ preset.label }}</ims-option>
+                    }
+                </ims-select>
+            </ims-form-field>
+
+            <ims-form-field>
+                <label [for]="idPrefix + '-page-width'">{{ labels.width }}</label>
+                <input
+                    imsInput
+                    class="field-xs"
+                    type="number"
+                    min="320"
+                    [id]="idPrefix + '-page-width'"
+                    [value]="store.page().size.width"
+                    (change)="setPageSide('width', $event)"
+                >
+            </ims-form-field>
+            <ims-form-field>
+                <label [for]="idPrefix + '-page-height'">{{ labels.height }}</label>
+                <input
+                    imsInput
+                    class="field-xs"
+                    type="number"
+                    min="320"
+                    [id]="idPrefix + '-page-height'"
+                    [value]="store.page().size.height"
+                    (change)="setPageSide('height', $event)"
+                >
+            </ims-form-field>
+        </section>
+
+        <hr>
+        <div class="spec-builder-inspector__actions">
+            <button ims-button ims-button-variation="secondary" (click)="store.duplicatePage()">
+                <ims-icon class="ims-button__symbol">content_copy</ims-icon>
+                {{ labels.duplicatePage }}
+            </button>
+            <button
+                ims-button
+                ims-button-variation="secondary"
+                [disabled]="store.pages()[0] === store.page()"
+                (click)="store.movePage(-1)"
+            >
+                <ims-icon class="ims-button__symbol">arrow_forward</ims-icon>
+                {{ labels.movePageEarlier }}
+            </button>
+            <button
+                ims-button
+                ims-button-variation="secondary"
+                [disabled]="store.pages()[store.pages().length - 1] === store.page()"
+                (click)="store.movePage(1)"
+            >
+                <ims-icon class="ims-button__symbol">arrow_back</ims-icon>
+                {{ labels.movePageLater }}
+            </button>
+            <button
+                ims-button
+                ims-button-variation="outline"
+                ims-button-severity="danger"
+                [disabled]="store.pages().length < 2"
+                (click)="removePage()"
+            >
+                <ims-icon class="ims-button__symbol">delete</ims-icon>
+                {{ labels.deletePage }}
+            </button>
+        </div>
+    </ims-panel>
+}

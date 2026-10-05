@@ -1,0 +1,219 @@
+<div class="spec-builder-toolbar__group">
+    <button
+        ims-button-icon
+        [attr.aria-label]="exitLabel"
+        [imsTooltip]="exitLabel"
+        (click)="exit()"
+    >
+        <ims-icon>logout</ims-icon>
+    </button>
+    <input
+        imsInput
+        class="spec-builder-toolbar__name"
+        type="text"
+        [attr.aria-label]="labels.documentName"
+        [value]="store.document().name"
+        (input)="rename($event)"
+    >
+</div>
+
+<div class="spec-builder-toolbar__group">
+    <button
+        ims-button-icon
+        [attr.aria-label]="labels.newDocument"
+        [imsTooltip]="labels.newDocument"
+        (click)="newDocument()"
+    >
+        <ims-icon>note_add</ims-icon>
+    </button>
+    <button
+        ims-button-icon
+        [attr.aria-label]="labels.open"
+        [imsTooltip]="labels.open"
+        (click)="fileInput.click()"
+    >
+        <ims-icon>folder_open</ims-icon>
+    </button>
+    <button
+        ims-button-icon
+        [attr.aria-label]="labels.save"
+        [imsTooltip]="labels.save"
+        (click)="save()"
+    >
+        <ims-icon>save</ims-icon>
+    </button>
+    <input
+        #fileInput
+        type="file"
+        accept=".json,application/json"
+        hidden
+        [attr.aria-label]="labels.open"
+        (change)="openFile($event)"
+    >
+</div>
+
+<div class="spec-builder-toolbar__group">
+    <button
+        ims-button-icon
+        [attr.aria-label]="labels.undo"
+        [imsTooltip]="labels.undo"
+        [disabled]="!store.canUndo()"
+        (click)="store.undo()"
+    >
+        <ims-icon>undo</ims-icon>
+    </button>
+    <button
+        ims-button-icon
+        [attr.aria-label]="labels.redo"
+        [imsTooltip]="labels.redo"
+        [disabled]="!store.canRedo()"
+        (click)="store.redo()"
+    >
+        <ims-icon>redo</ims-icon>
+    </button>
+</div>
+
+<div class="spec-builder-toolbar__group" role="group" [attr.aria-label]="labels.modes">
+    @for (mode of modes; track mode) {
+        <button
+            ims-button
+            [ims-button-variation]="store.mode() === mode ? 'primary' : 'secondary'"
+            [attr.aria-pressed]="store.mode() === mode"
+            (click)="store.setMode(mode)"
+        >
+            {{ modeLabels[mode] }}
+        </button>
+    }
+</div>
+
+@if (store.mode() === 'edit') {
+    <div class="spec-builder-toolbar__group">
+        <button
+            ims-button-icon
+            class="spec-builder-toolbar__toggle"
+            [attr.aria-label]="labels.showGrid"
+            [attr.aria-pressed]="store.showGrid()"
+            [imsTooltip]="labels.showGrid"
+            (click)="store.showGrid.set(!store.showGrid())"
+        >
+            <ims-icon>grid_on</ims-icon>
+        </button>
+        <button
+            ims-button-icon
+            class="spec-builder-toolbar__toggle"
+            [attr.aria-label]="labels.snapToGrid"
+            [attr.aria-pressed]="store.snapToGrid()"
+            [imsTooltip]="labels.snapToGrid"
+            (click)="store.snapToGrid.set(!store.snapToGrid())"
+        >
+            <ims-icon>straighten</ims-icon>
+        </button>
+        <ims-select
+            class="spec-builder-toolbar__grid-size"
+            [ariaLabel]="labels.gridSize"
+            [imsTooltip]="labels.gridSize"
+            [value]="store.gridSize()"
+            (valueChange)="setGridSize($event)"
+        >
+            @for (size of gridSizes; track size) {
+                <ims-option [value]="size" [selectionText]="labels.gridSizeOption(size)">{{ labels.gridSizeOption(size) }}</ims-option>
+            }
+        </ims-select>
+        <button
+            ims-button-icon
+            class="spec-builder-toolbar__toggle"
+            [attr.aria-label]="labels.showNumbers"
+            [attr.aria-pressed]="store.showNumbers()"
+            [imsTooltip]="labels.showNumbers"
+            (click)="store.showNumbers.set(!store.showNumbers())"
+        >
+            <ims-icon>format_list_numbered</ims-icon>
+        </button>
+    </div>
+}
+
+<div class="spec-builder-toolbar__group spec-builder-toolbar__group--end">
+    <button
+        ims-button-icon
+        [attr.aria-label]="labels.zoomOut"
+        [imsTooltip]="labels.zoomOut"
+        [disabled]="!zoom.canZoomOut()"
+        (click)="zoom.zoomOut()"
+    >
+        <ims-icon>zoom_out</ims-icon>
+    </button>
+    <button
+        ims-button
+        class="spec-builder-toolbar__zoom-level"
+        ims-button-variation="secondary"
+        [attr.aria-label]="labels.zoomLevel + ' ' + zoom.percent() + '%. ' + labels.zoomReset"
+        [imsTooltip]="labels.zoomReset"
+        (click)="zoom.reset()"
+    >
+        <span dir="ltr">{{ zoom.percent() }}%</span>
+    </button>
+    <button
+        ims-button-icon
+        [attr.aria-label]="labels.zoomIn"
+        [imsTooltip]="labels.zoomIn"
+        [disabled]="!zoom.canZoomIn()"
+        (click)="zoom.zoomIn()"
+    >
+        <ims-icon>zoom_in</ims-icon>
+    </button>
+    <button
+        ims-button-icon
+        class="spec-builder-toolbar__toggle"
+        [attr.aria-label]="labels.zoomFit"
+        [attr.aria-pressed]="zoom.fitting()"
+        [imsTooltip]="labels.zoomFit"
+        (click)="zoom.fit()"
+    >
+        <ims-icon>fit_screen</ims-icon>
+    </button>
+</div>
+
+<div class="spec-builder-toolbar__group">
+    <button
+        ims-button-icon
+        [attr.aria-label]="labels.capture"
+        [imsTooltip]="labels.capture"
+        [disabled]="screenshot.busy()"
+        (click)="screenshot.capture()"
+    >
+        <ims-icon>photo_camera</ims-icon>
+    </button>
+    @if (screenshot.countdown() > 0) {
+        <span class="spec-builder-toolbar__countdown" role="status">
+            {{ labels.captureCountdown(screenshot.countdown()) }}
+        </span>
+    } @else {
+        <button
+            ims-button-icon
+            [attr.aria-label]="labels.captureTimer"
+            [imsTooltip]="labels.captureTimer"
+            [disabled]="screenshot.busy()"
+            (click)="captureLater()"
+        >
+            <ims-icon>timer</ims-icon>
+        </button>
+    }
+    @if (screenshot.sharing()) {
+        <button
+            ims-button-icon
+            [attr.aria-label]="labels.stopSharing"
+            [imsTooltip]="labels.stopSharing"
+            (click)="screenshot.stopSharing()"
+        >
+            <ims-icon>stop_screen_share</ims-icon>
+        </button>
+    }
+    <button
+        ims-button-icon
+        [attr.aria-label]="labels.exportReference"
+        [imsTooltip]="labels.exportReference"
+        (click)="reference.downloadMarkdown()"
+    >
+        <ims-icon>description</ims-icon>
+    </button>
+</div>

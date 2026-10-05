@@ -1,0 +1,79 @@
+<app-spec-builder-toolbar/>
+
+<div class="spec-builder__body" [attr.data-mode]="store.mode()">
+    @if (store.mode() === 'edit') {
+        <div class="spec-builder__start">
+            <div class="spec-builder__tabs" role="group" [attr.aria-label]="elementLabels.tabs">
+                <button
+                    ims-button
+                    class="spec-builder__tab"
+                    [ims-button-variation]="startPanel() === 'add' ? 'primary' : 'secondary'"
+                    [attr.aria-pressed]="startPanel() === 'add'"
+                    (click)="startPanel.set('add')"
+                >
+                    {{ elementLabels.add }}
+                </button>
+                <button
+                    ims-button
+                    class="spec-builder__tab"
+                    [ims-button-variation]="startPanel() === 'list' ? 'primary' : 'secondary'"
+                    [attr.aria-pressed]="startPanel() === 'list'"
+                    (click)="startPanel.set('list')"
+                >
+                    {{ elementLabels.list(store.page().items.length) }}
+                </button>
+            </div>
+            @if (startPanel() === 'add') {
+                <app-spec-builder-palette/>
+            } @else {
+                <app-spec-builder-elements/>
+            }
+        </div>
+    }
+
+    <div class="spec-builder__center">
+        <app-spec-builder-pages/>
+        <app-spec-builder-canvas/>
+    </div>
+
+    @if (store.mode() === 'edit') {
+        <app-spec-builder-inspector/>
+    } @else if (store.mode() === 'inspect') {
+        <app-spec-builder-reference/>
+    }
+</div>
+
+<!-- Hidden while the next picture is taken, so it is not in it. -->
+@if (screenshot.result(); as shot) {
+    <ims-panel class="spec-builder__capture" severity="info" [hidden]="store.capturing()">
+        <ims-panel-header icon="photo_camera">
+            {{ labels.title }}
+            <button
+                ims-button-icon
+                imsPanelHeaderActions
+                [attr.aria-label]="labels.close"
+                (click)="screenshot.dismissResult()"
+            >
+                <ims-icon>close</ims-icon>
+            </button>
+        </ims-panel-header>
+
+        <img class="spec-builder__capture-image" [src]="shot.url" [alt]="labels.preview">
+        <p class="spec-builder__capture-caption">
+            {{ labels.size(shot.width, shot.height) }}
+            @if (shot.zoomPercent !== 100) {
+                <br>{{ labels.zoomNote(shot.zoomPercent) }}
+            }
+        </p>
+        <div class="spec-builder__capture-actions">
+            <button ims-button ims-button-variation="primary" (click)="screenshot.copyResult()">
+                <ims-icon class="ims-button__symbol">content_copy</ims-icon>
+                {{ labels.copy }}
+            </button>
+            <button ims-button ims-button-variation="secondary" (click)="screenshot.downloadResult()">
+                <ims-icon class="ims-button__symbol">download</ims-icon>
+                {{ labels.download }}
+            </button>
+        </div>
+    </ims-panel>
+}

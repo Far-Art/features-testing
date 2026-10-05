@@ -1,0 +1,129 @@
+// The track may not grow past the column: long token names wrap and the
+// template scrolls inside its own box.
+:host {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 1rem;
+    box-sizing: border-box;
+    padding: 1rem;
+    overflow-y: auto;
+    border-inline-start: 1px solid var(--ims-color-border-subtle);
+    background: var(--ims-background-panel);
+}
+
+.spec-builder-reference__title {
+    font-size: 0.95rem;
+}
+
+.spec-builder-reference__hint {
+    margin: 0 0 0.5rem;
+    color: var(--ims-color-on-surface-muted);
+    font-size: 0.8rem;
+}
+
+.spec-builder-reference__list {
+    display: grid;
+    gap: 0.2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.spec-builder-reference__entry {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    inline-size: 100%;
+    padding: 0.25rem 0.4rem;
+    border: 1px solid transparent;
+    border-radius: 0.5rem;
+    background: none;
+    color: var(--ims-color-on-surface);
+    font: inherit;
+    font-size: 0.85rem;
+    text-align: start;
+    cursor: pointer;
+}
+
+.spec-builder-reference__entry:hover {
+    background: var(--ims-color-interactive-subtle);
+}
+
+.spec-builder-reference__entry:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--ims-color-focus-ring);
+}
+
+.spec-builder-reference__entry[aria-pressed='true'] {
+    border-color: var(--ims-color-interactive);
+    background: var(--ims-color-interactive-alt-subtle);
+}
+
+// Same colours as the badge on the page, so the two are easy to match.
+.spec-builder-reference__number {
+    display: grid;
+    place-items: center;
+    min-inline-size: 1.4rem;
+    block-size: 1.4rem;
+    border-radius: 0.7rem;
+    background: var(--ims-color-status-danger);
+    color: var(--ims-color-on-interactive);
+    font-size: 0.75rem;
+    font-weight: var(--ims-font-weight-bold);
+}
+
+.spec-builder-reference__heading {
+    margin: 0.75rem 0 0.35rem;
+    font-size: 0.85rem;
+}
+
+.spec-builder-reference__facts {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 0.3rem 0.75rem;
+    margin: 0;
+    font-size: 0.85rem;
+}
+
+.spec-builder-reference__facts dt {
+    color: var(--ims-color-on-surface-muted);
+}
+
+.spec-builder-reference__facts dd {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.spec-builder-reference__swatch {
+    inline-size: 0.9rem;
+    block-size: 0.9rem;
+    border: 1px solid var(--ims-color-border);
+    border-radius: 0.2rem;
+}
+
+.spec-builder-reference__resolved {
+    color: var(--ims-color-on-surface-muted);
+    font-size: 0.75rem;
+}
+
+.spec-builder-reference__note {
+    margin: 0;
+    font-size: 0.85rem;
+    white-space: pre-line;
+}
+
+.spec-builder-reference__snippet {
+    margin: 0 0 0.5rem;
+    padding: 0.6rem;
+    overflow-x: auto;
+    border: 1px solid var(--ims-color-border-subtle);
+    border-radius: 0.5rem;
+    background: var(--ims-color-surface-panel);
+    font-size: 0.75rem;
+    text-align: left;
+}

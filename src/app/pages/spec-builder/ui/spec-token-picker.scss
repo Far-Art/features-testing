@@ -1,0 +1,120 @@
+:host {
+    display: grid;
+    gap: 0.35rem;
+    min-inline-size: 0;
+}
+
+.spec-token-picker__trigger,
+.spec-token-picker__none {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-sizing: border-box;
+    min-block-size: var(--field-height);
+    padding: 0.15rem 0.5rem;
+    border: 1px solid var(--ims-color-border);
+    border-radius: 0.5rem;
+    background: var(--ims-background-input);
+    color: var(--ims-color-on-surface);
+    font: inherit;
+    font-size: 0.8rem;
+    text-align: start;
+    cursor: pointer;
+}
+
+.spec-token-picker__trigger:hover,
+.spec-token-picker__none:hover {
+    border-color: var(--ims-color-interactive-alt);
+}
+
+.spec-token-picker__trigger:focus-visible,
+.spec-token-picker__none:focus-visible,
+.spec-token-picker__option:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--ims-color-focus-ring);
+}
+
+.spec-token-picker__none[aria-pressed='true'] {
+    border-color: var(--ims-color-interactive);
+}
+
+.spec-token-picker__caption {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.spec-token-picker__chevron {
+    --ims-icon-size: 1.1rem;
+
+    color: var(--ims-color-on-surface-muted);
+}
+
+.spec-token-picker__swatch {
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    inline-size: 1rem;
+    block-size: 1rem;
+    border: 1px solid var(--ims-color-border);
+    border-radius: 0.25rem;
+}
+
+// No colour: a diagonal line through an empty swatch.
+.spec-token-picker__swatch--none {
+    background: linear-gradient(to top right, transparent 45%, var(--ims-color-invalid) 45% 55%, transparent 55%);
+}
+
+.spec-token-picker__panel {
+    display: grid;
+    gap: 0.5rem;
+    max-block-size: 16rem;
+    padding: 0.5rem;
+    overflow-y: auto;
+    border: 1px solid var(--ims-color-border-subtle);
+    border-radius: 0.5rem;
+    background: var(--ims-background-panel);
+}
+
+.spec-token-picker__group {
+    display: grid;
+    gap: 0.2rem;
+}
+
+.spec-token-picker__group-name {
+    color: var(--ims-color-on-surface-muted);
+    font-size: 0.7rem;
+    text-align: start;
+}
+
+.spec-token-picker__swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.spec-token-picker__option {
+    box-sizing: border-box;
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+    padding: 0;
+    border: 1px solid var(--ims-color-border);
+    border-radius: 0.25rem;
+    cursor: pointer;
+}
+
+.spec-token-picker__option:hover {
+    border-color: var(--ims-color-on-surface);
+}
+
+.spec-token-picker__option--selected {
+    outline: 2px solid var(--ims-color-interactive);
+    outline-offset: 1px;
+}
+
+.spec-token-picker__empty {
+    margin: 0;
+    color: var(--ims-color-on-surface-muted);
+    font-size: 0.8rem;
+}

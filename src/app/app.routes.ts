@@ -115,6 +115,11 @@ export const routes: Routes = [
             import('./pages/icons-demo/icons-demo').then((module) => module.IconsDemo)
     },
     {
+        path: 'spec-builder',
+        loadComponent: () =>
+            import('./pages/spec-builder/spec-builder').then((module) => module.SpecBuilder)
+    },
+    {
         path: '',
         pathMatch: 'full',
         redirectTo: 'forms'

@@ -1,0 +1,57 @@
+:host {
+    position: relative;
+    display: block;
+    min-inline-size: 0;
+    min-block-size: 0;
+}
+
+// The editing aids are painted on a layer of their own, under the items, so
+// they never compete with the background the view gives the zone.
+:host::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+:host(.spec-builder-zone--editing) {
+    outline: 1px dashed var(--ims-color-border);
+    outline-offset: -1px;
+}
+
+// Grid lines start at the zone's inline-start edge, where item positions are
+// measured from, so a snapped item sits on a line in either direction.
+:host(.spec-builder-zone--grid)::before {
+    background-image:
+        linear-gradient(to right, var(--ims-color-border-subtle) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--ims-color-border-subtle) 1px, transparent 1px);
+    background-size: var(--spec-grid-size) var(--spec-grid-size);
+}
+
+:host(.spec-builder-zone--grid:dir(rtl))::before {
+    background-image:
+        linear-gradient(to left, var(--ims-color-border-subtle) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--ims-color-border-subtle) 1px, transparent 1px);
+    background-position: top right;
+}
+
+:host(.spec-builder-zone--drop-target) {
+    outline: 2px solid var(--ims-color-interactive);
+    outline-offset: -2px;
+}
+
+:host(.spec-builder-zone--drop-target)::before {
+    background-color: color-mix(in srgb, var(--ims-color-interactive-subtle) 60%, transparent);
+}
+
+.spec-builder-zone__label {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    padding: 0.1rem 0.4rem;
+    border-end-start-radius: 0.375rem;
+    background: var(--ims-color-surface-subtle);
+    color: var(--ims-color-on-surface-muted);
+    font-size: 0.75rem;
+    pointer-events: none;
+}

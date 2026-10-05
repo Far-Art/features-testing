@@ -6,24 +6,47 @@
  * structure and adapter rules.
  */
 
+/*
+ * `styled`: a bordered table. A tinted header band, rows divided by
+ * hairlines, and a tint on the row under the pointer.
+ *
+ * Rows and the header are subgrids that span every column, so their
+ * backgrounds and borders reach the grid's edges. Their inline padding insets
+ * the first and last cells without moving the shared column tracks, and the
+ * header pads the same, so the columns still line up. Nothing here clips the
+ * grid (`overflow`, `contain`), which would break a sticky header and the
+ * subgrid chain described in ims-grid.scss.
+ */
 ims-grid[appearance='styled'] {
-    /*
-     * Grid-level styled appearance rules go here.
-     * Header rows inherit this appearance unless they provide their own input.
-     */
+    border: 1px solid var(--ims-color-border-subtle);
+    background: var(--ims-background-panel);
 
     ims-grid-row {
+        padding-inline: 0.75rem;
+        border-block-start: 1px solid var(--ims-color-border-subtle);
+    }
 
-        &:hover:not(:has(ims-grid-row:hover)) {
-            //background-color: #9e4f4f;
-        }
+    // Only the innermost row under the pointer, when rows are nested.
+    ims-grid-row:hover:not(:has(ims-grid-row:hover)) {
+        background-color: var(--ims-color-interactive-subtle);
+    }
+
+    ims-grid-cell {
+        min-block-size: var(--field-height);
+        padding-block: 0.4rem;
     }
 }
 
+/*
+ * The header band. This selector also covers the effective appearance a
+ * header inherits from its grid, and a header that sets its own.
+ */
 ims-grid-header[appearance='styled'] {
-    /*
-     * Header-specific styled appearance rules go here.
-     * This selector also covers the inherited effective appearance from the grid.
-     */
+    padding-inline: 0.75rem;
+    background-color: var(--ims-color-surface-subtle);
+    color: var(--ims-color-on-surface);
 
+    ims-grid-cell {
+        padding-block: 0.5rem;
+    }
 }

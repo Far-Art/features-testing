@@ -1,0 +1,39 @@
+:host {
+    display: grid;
+    min-inline-size: 0;
+    min-block-size: 0;
+}
+
+// A grid, so the sizer can centre itself with auto margins: unlike centring
+// with justify-content, that keeps an overflowing page reachable by scrolling.
+.spec-builder-canvas__viewport {
+    display: grid;
+    box-sizing: border-box;
+    padding: 2rem;
+    overflow: auto;
+    background: var(--ims-color-surface-subtle);
+    outline: none;
+}
+
+.spec-builder-canvas__viewport:focus-visible {
+    box-shadow: inset 0 0 0 3px var(--ims-color-focus-ring);
+}
+
+.spec-builder-canvas__sizer {
+    position: relative;
+    margin: auto;
+}
+
+// Scaled from its physical top-left corner in either direction, so the
+// sizer and the page always cover the same box.
+.spec-builder-canvas__page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: grid;
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+    overflow: clip;
+    transform-origin: 0 0;
+    background: var(--ims-background-page);
+    box-shadow: 0 0.25rem 1.25rem color-mix(in srgb, var(--ims-color-primary-950) 14%, transparent);
+}

@@ -1,0 +1,144 @@
+// Sizes of the editing aids are divided by the zoom, so they keep one size on
+// screen however far the page is zoomed. --spec-zoom is set on the page.
+:host {
+    --spec-item-aid: calc(1px / var(--spec-zoom, 1));
+
+    position: absolute;
+    display: block;
+    box-sizing: border-box;
+}
+
+:host(.spec-builder-item--editing:hover) {
+    outline: var(--spec-item-aid) solid var(--ims-color-interactive-alt-subtle);
+}
+
+// Listed with :hover too, so the hover outline above never replaces it.
+:host(.spec-builder-item--selected),
+:host(.spec-builder-item--selected:hover) {
+    outline: calc(var(--spec-item-aid) * 2) solid var(--ims-color-interactive);
+    outline-offset: calc(var(--spec-item-aid) * 2);
+}
+
+// Typing into the item's field: the outline turns dashed, as the component is live.
+:host(.spec-builder-item--typing),
+:host(.spec-builder-item--typing:hover) {
+    outline-style: dashed;
+}
+
+// Blockifies the component's host and stretches it over the sides the block
+// can resize, whatever display the component gives itself.
+.spec-builder-item__content {
+    display: grid;
+    inline-size: 100%;
+    block-size: 100%;
+}
+
+// Slightly larger than the item, so a thin shape such as a line is easy to grab.
+.spec-builder-item__grab {
+    position: absolute;
+    inset: calc(var(--spec-item-aid) * -4);
+    outline: none;
+}
+
+:host(.spec-builder-item--editing) .spec-builder-item__grab {
+    cursor: move;
+}
+
+// A locked item can still be selected, but not moved.
+:host(.spec-builder-item--editing.spec-builder-item--locked) .spec-builder-item__grab {
+    cursor: default;
+}
+
+:host(.spec-builder-item--inspecting) .spec-builder-item__grab {
+    cursor: pointer;
+}
+
+:host(.spec-builder-item--editing) .spec-builder-item__grab:focus-visible,
+:host(.spec-builder-item--inspecting) .spec-builder-item__grab:focus-visible {
+    box-shadow: 0 0 0 calc(var(--spec-item-aid) * 3) var(--ims-color-focus-ring);
+}
+
+.spec-builder-item__handle {
+    position: absolute;
+    box-sizing: border-box;
+    inline-size: calc(var(--spec-item-aid) * 10);
+    block-size: calc(var(--spec-item-aid) * 10);
+    border: var(--spec-item-aid) solid var(--ims-color-interactive);
+    border-radius: calc(var(--spec-item-aid) * 2);
+    background: var(--ims-color-surface-panel);
+    touch-action: none;
+}
+
+.spec-builder-item__handle--inline-end {
+    inset-block-start: calc(50% - var(--spec-item-aid) * 5);
+    inset-inline-end: calc(var(--spec-item-aid) * -7);
+    cursor: ew-resize;
+}
+
+.spec-builder-item__handle--block-end {
+    inset-block-end: calc(var(--spec-item-aid) * -7);
+    inset-inline-start: calc(50% - var(--spec-item-aid) * 5);
+    cursor: ns-resize;
+}
+
+.spec-builder-item__handle--corner {
+    inset-block-end: calc(var(--spec-item-aid) * -7);
+    inset-inline-end: calc(var(--spec-item-aid) * -7);
+    cursor: nwse-resize;
+}
+
+.spec-builder-item__handle--corner:dir(rtl) {
+    cursor: nesw-resize;
+}
+
+// An editing aid like the handles: shown while editing, never in screenshots.
+.spec-builder-item__lock {
+    position: absolute;
+    inset-block-start: calc(var(--spec-item-aid) * -9);
+    inset-inline-end: calc(var(--spec-item-aid) * -9);
+    display: grid;
+    place-items: center;
+    inline-size: calc(var(--spec-item-aid) * 18);
+    block-size: calc(var(--spec-item-aid) * 18);
+    border-radius: 50%;
+    background: var(--ims-color-surface-inverse);
+    color: var(--ims-color-on-surface-inverse);
+    pointer-events: none;
+}
+
+// On the icon itself, which declares its own size.
+.spec-builder-item__lock ims-icon {
+    --ims-icon-size: calc(var(--spec-item-aid) * 12);
+}
+
+// Part of the page in screenshots, so it is drawn with tokens like the page.
+.spec-builder-item__badge {
+    position: absolute;
+    inset-block-start: -0.9em;
+    inset-inline-start: -0.9em;
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    min-inline-size: 1.8em;
+    block-size: 1.8em;
+    padding-inline: 0.35em;
+    border: 0.15em solid var(--ims-color-surface-panel);
+    border-radius: 0.9em;
+    background: var(--ims-color-status-danger);
+    color: var(--ims-color-on-interactive);
+    font-size: calc(var(--spec-item-aid) * 11);
+    font-weight: var(--ims-font-weight-bold);
+    line-height: 1;
+    pointer-events: none;
+}
+
+.spec-builder-item__missing {
+    display: grid;
+    place-items: center;
+    padding: 0.5rem;
+    border: 1px dashed var(--ims-color-invalid);
+    background: var(--ims-color-status-danger-subtle);
+    color: var(--ims-color-on-status-danger);
+    font-size: 0.8rem;
+    text-align: center;
+}

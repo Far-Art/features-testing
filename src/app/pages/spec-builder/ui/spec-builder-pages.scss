@@ -1,0 +1,70 @@
+:host {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    padding: 0.4rem 1rem;
+    border-block-end: 1px solid var(--ims-color-border-subtle);
+    background: var(--ims-background-panel);
+}
+
+// Scrolls sideways when there are more pages than fit, instead of wrapping.
+.spec-builder-pages__tabs {
+    display: flex;
+    gap: 0.25rem;
+    min-inline-size: 0;
+    overflow-x: auto;
+}
+
+.spec-builder-pages__tab {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.4rem;
+    max-inline-size: 14rem;
+    min-block-size: 2rem;
+    padding: 0.2rem 0.75rem 0.2rem 0.5rem;
+    border: 1px solid var(--ims-color-border-subtle);
+    border-radius: 0.5rem;
+    background: var(--ims-color-surface-panel);
+    color: var(--ims-color-on-surface);
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.spec-builder-pages__tab:hover {
+    border-color: var(--ims-color-interactive-alt);
+    background: var(--ims-color-interactive-subtle);
+}
+
+.spec-builder-pages__tab:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--ims-color-focus-ring);
+}
+
+.spec-builder-pages__tab[aria-pressed='true'] {
+    border-color: var(--ims-color-interactive);
+    background: var(--ims-color-interactive-alt-subtle);
+    font-weight: var(--ims-font-weight-semibold);
+}
+
+.spec-builder-pages__number {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    min-inline-size: 1.25rem;
+    block-size: 1.25rem;
+    border-radius: 0.3rem;
+    background: var(--ims-color-surface-inverse);
+    color: var(--ims-color-on-surface-inverse);
+    font-size: 0.7rem;
+    font-weight: var(--ims-font-weight-bold);
+}
+
+.spec-builder-pages__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

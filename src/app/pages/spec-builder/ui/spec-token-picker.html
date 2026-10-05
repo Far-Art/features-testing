@@ -1,0 +1,53 @@
+<button
+    type="button"
+    class="spec-token-picker__trigger"
+    [id]="inputId()"
+    [attr.aria-expanded]="open()"
+    [attr.aria-controls]="panelId"
+    (click)="toggle()"
+>
+    <span
+        class="spec-token-picker__swatch"
+        aria-hidden="true"
+        [class.spec-token-picker__swatch--none]="!swatch()"
+        [style.background]="swatch()"
+    ></span>
+    <span class="spec-token-picker__caption" dir="ltr">{{ caption() }}</span>
+    <ims-icon class="spec-token-picker__chevron">{{ open() ? 'expand_less' : 'expand_more' }}</ims-icon>
+</button>
+
+@if (open()) {
+    <div class="spec-token-picker__panel" [id]="panelId">
+        <button
+            type="button"
+            class="spec-token-picker__none"
+            [attr.aria-pressed]="value() === ''"
+            (click)="pick('')"
+        >
+            <span class="spec-token-picker__swatch spec-token-picker__swatch--none" aria-hidden="true"></span>
+            {{ labels.none }}
+        </button>
+
+        @for (group of groups(); track group.id) {
+            <div class="spec-token-picker__group" role="group" [attr.aria-label]="group.id">
+                <span class="spec-token-picker__group-name" dir="ltr">{{ group.id }}</span>
+                <div class="spec-token-picker__swatches">
+                    @for (token of group.tokens; track token.name) {
+                        <button
+                            type="button"
+                            class="spec-token-picker__option"
+                            [class.spec-token-picker__option--selected]="token.name === value()"
+                            [attr.aria-label]="token.name"
+                            [attr.aria-pressed]="token.name === value()"
+                            [title]="token.name"
+                            [style.background]="paint(token.name)"
+                            (click)="pick(token.name)"
+                        ></button>
+                    }
+                </div>
+            </div>
+        } @empty {
+            <p class="spec-token-picker__empty">{{ labels.empty }}</p>
+        }
+    </div>
+}

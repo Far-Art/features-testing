@@ -1,0 +1,58 @@
+:host {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.25rem;
+    box-sizing: border-box;
+    padding: 0.5rem 1rem;
+    border-block-end: 1px solid var(--ims-color-border-subtle);
+    background: var(--ims-background-panel);
+}
+
+.spec-builder-toolbar__group {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+// Zoom and exports sit at the inline end, as in a browser.
+.spec-builder-toolbar__group--end {
+    margin-inline-start: auto;
+}
+
+.spec-builder-toolbar__name {
+    inline-size: var(--field-width-l);
+}
+
+// A toggle that is on: a tinted, outlined plate with a stronger glyph. Set on
+// background-color itself, since an icon button paints that property
+// directly rather than through --ims-button-background.
+.spec-builder-toolbar__toggle[aria-pressed='true'] {
+    --ims-button-color: var(--ims-color-interactive-alt-strong);
+
+    background-color: var(--ims-color-interactive-alt-subtle);
+    box-shadow: inset 0 0 0 1px var(--ims-color-interactive-alt);
+}
+
+// Keeps the focus ring, which the plate above would otherwise replace.
+.spec-builder-toolbar__toggle[aria-pressed='true']:focus-visible {
+    box-shadow:
+        inset 0 0 0 1px var(--ims-color-interactive-alt),
+        0 0 0 3px var(--ims-button-focus-ring);
+}
+
+.spec-builder-toolbar__grid-size {
+    inline-size: 5.5rem;
+}
+
+.spec-builder-toolbar__zoom-level {
+    min-width: 4.5rem;
+    padding-inline: 0.5rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.spec-builder-toolbar__countdown {
+    min-inline-size: 6rem;
+    color: var(--ims-color-interactive-strong);
+    font-weight: var(--ims-font-weight-semibold);
+}
