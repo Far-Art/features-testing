@@ -277,7 +277,7 @@ sevenfold shorter tail.
 The scale amounts are part of the same fix, since the drift is proportional to
 the delta. The tooltip started at `0.88`, which moved a 96px bubble's edges
 about 6px; at `0.94` it is 2.9px. The popover is shallower again at `0.97`,
-because the same factor on a 384px surface travels four times as far.
+because the same factor on a 480px surface travels five times as far.
 
 If the settle ever comes back, the levers in order are: lower the curve's second
 control point (shorter tail, more abrupt stop), then raise the scale start
