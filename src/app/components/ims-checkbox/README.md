@@ -98,8 +98,9 @@ assistive technology reads.
 - Readonly: inside an `ims-readonly` scope the host gets `.ims-readonly` and the
   native input is disabled. The box keeps the regular `--ims-color-border` on
   the readonly surface, so an unchecked box stays visible, and a checked or
-  indeterminate box fills with `--ims-color-on-surface-readonly` behind the
-  white mark. The value stays readable and never looks enabled or disabled.
+  indeterminate box fills with its appearance's accent faded 60% toward the
+  input surface (primary-300 for the square, success-300 for the check circle
+  by default) behind the white mark. Invalid does not change that fill. The value stays readable and never looks enabled or disabled.
 - Invalid: `ng-invalid` on the host tints the box border (and the fill when
   checked) and the hover halo with `--ims-color-invalid`, and the focus ring
   with `--ims-color-invalid-focus-ring`. It outranks the appearance, so a check

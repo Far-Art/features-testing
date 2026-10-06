@@ -155,7 +155,9 @@ value can be `:checked`. See Options sharing a value.
   `--ims-color-on-surface-disabled`.
 - Readonly: inside an `ims-readonly` scope the group host gets `.ims-readonly`
   and every native input is disabled. Options keep the regular border on the
-  readonly surface, and a selected one paints with
+  readonly surface, and a selected one paints its border and dot or fill with
+  its appearance's accent faded 60% toward the input surface (primary-300 for
+  the radio dot, success-300 for the check circle by default). Labels keep
   `--ims-color-on-surface-readonly`.
 - Invalid: `ng-invalid` on the group host tints enabled options in
   `--ims-color-invalid`, with the `--ims-color-invalid-focus-ring` focus ring.

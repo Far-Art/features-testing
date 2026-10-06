@@ -61,7 +61,12 @@
     // are only read here as fallbacks and never declared, so a consumer can set
     // them on any ancestor. A -strong hook left unset follows its accent, so
     // recoloring only the accent never leaves a default hover color behind.
-    --ims-radio-tone: var(--ims-radio-accent, var(--ims-color-interactive));
+    //
+    // The accent tone is the appearance's own color, which only the appearance
+    // sets. The state rules retune --ims-radio-tone and leave it alone, so a
+    // readonly option can fade its appearance's color even when it is invalid.
+    --ims-radio-accent-tone: var(--ims-radio-accent, var(--ims-color-interactive));
+    --ims-radio-tone: var(--ims-radio-accent-tone);
     --ims-radio-tone-strong: var(
         --ims-radio-accent-strong,
         var(--ims-radio-accent, var(--ims-color-interactive-strong))
@@ -84,7 +89,7 @@
 }
 
 .ims-radio.ims-radio--check {
-    --ims-radio-tone: var(--ims-radio-check-accent, var(--ims-color-interactive-success));
+    --ims-radio-accent-tone: var(--ims-radio-check-accent, var(--ims-color-interactive-success));
     --ims-radio-tone-strong: var(
         --ims-radio-check-accent-strong,
         var(--ims-radio-check-accent, var(--ims-color-interactive-success-strong))
@@ -109,9 +114,13 @@
 }
 
 // Readable disabled treatment, see component-styling-guide.md. The inputs are
-// disabled whenever the group sits in an ims-readonly scope.
+// disabled whenever the group sits in an ims-readonly scope. A selected option
+// paints with its appearance's accent, faded toward the input surface: blue for
+// the radio dot, green for the check circle. 60% of a 500 step lands on its 300
+// step (see the color ramp), as in ims-checkbox.scss. The label keeps the
+// readonly text color.
 .ims-radio-group-host.ims-readonly .ims-radio:has(> .ims-radio__native:disabled) {
-    --ims-radio-tone: var(--ims-color-on-surface-readonly);
+    --ims-radio-tone: color-mix(in srgb, var(--ims-radio-accent-tone) 60%, var(--ims-color-surface-input));
 
     color: var(--ims-color-on-surface-readonly);
 }

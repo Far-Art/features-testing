@@ -289,6 +289,11 @@ Use these semantic tokens:
 --ims-color-border-readonly
 ```
 
+A readonly checkbox or radio has no token for its checked mark: it keeps its
+appearance's accent, faded to 60% toward `--ims-color-surface-input` (the 300
+step of a 500 accent), so a checked box or selected option reads as chosen
+without looking editable.
+
 `--ims-color-border-readonly` is for controls drawn only by their border, such
 as a checkbox. Shared inputs keep `--ims-color-border-subtle`, which would leave
 an unchecked box barely visible against the readonly surface.

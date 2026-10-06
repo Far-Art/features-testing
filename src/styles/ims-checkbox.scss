@@ -33,7 +33,12 @@
     // can set them on any ancestor. A -strong hook left unset follows its
     // accent, so recoloring only the accent never leaves a default hover color
     // behind. The same arrangement as ims-radio.scss.
-    --ims-checkbox-tone: var(--ims-checkbox-accent, var(--ims-color-interactive));
+    //
+    // The accent tone is the appearance's own color, which only the appearance
+    // sets. The state rules retune --ims-checkbox-tone and leave it alone, so a
+    // readonly box can fade its appearance's color even when it is invalid.
+    --ims-checkbox-accent-tone: var(--ims-checkbox-accent, var(--ims-color-interactive));
+    --ims-checkbox-tone: var(--ims-checkbox-accent-tone);
     --ims-checkbox-tone-strong: var(
         --ims-checkbox-accent-strong,
         var(--ims-checkbox-accent, var(--ims-color-interactive-strong))
@@ -62,7 +67,7 @@
 // Only the tone, the drawn size and the mark change; every state rule below is
 // shared.
 .ims-checkbox.ims-checkbox--check {
-    --ims-checkbox-tone: var(--ims-checkbox-check-accent, var(--ims-color-interactive-success));
+    --ims-checkbox-accent-tone: var(--ims-checkbox-check-accent, var(--ims-color-interactive-success));
     --ims-checkbox-tone-strong: var(
         --ims-checkbox-check-accent-strong,
         var(--ims-checkbox-check-accent, var(--ims-color-interactive-success-strong))
@@ -272,15 +277,20 @@
 // disabled whenever the host sits in an ims-readonly scope. Unlike a disabled
 // box it keeps a readonly border, lighter than the regular one but darker than
 // a field's subtle border, so an unchecked box stays visible; a checked box
-// fills with the readonly text color in place of the accent.
+// fills with its appearance's accent, faded toward the input surface: blue for
+// the square, green for the check circle. 60% of a 500 step lands on its 300
+// step (see the color ramp), so the default accents fade to primary-300 and
+// success-300.
 .ims-checkbox-host.ims-readonly .ims-checkbox__native:disabled + .ims-checkbox__track {
     border-color: var(--ims-color-border-readonly);
     background: var(--ims-color-surface-input-readonly);
 }
 
 .ims-checkbox-host.ims-readonly .ims-checkbox__native:disabled:is(:checked, :indeterminate) + .ims-checkbox__track {
-    border-color: var(--ims-color-on-surface-readonly);
-    background: var(--ims-color-on-surface-readonly);
+    --ims-checkbox-readonly-fill: color-mix(in srgb, var(--ims-checkbox-accent-tone) 60%, var(--ims-color-surface-input));
+
+    border-color: var(--ims-checkbox-readonly-fill);
+    background: var(--ims-checkbox-readonly-fill);
 }
 
 @media (prefers-reduced-motion: reduce) {
