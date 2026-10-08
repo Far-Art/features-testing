@@ -179,6 +179,7 @@ export class ImsSelectDirective {
             if (optionChanged) {
                 const option = this.select.selectedOptions[0];
                 selectedContent.replaceChildren(...Array.from(option?.childNodes ?? [], (node) => node.cloneNode(true)));
+                this.reserveSelectedWeight();
             }
         });
 
@@ -189,5 +190,19 @@ export class ImsSelectDirective {
             attributeFilter: ['disabled']
         });
         this.destroyRef.onDestroy(() => observer.disconnect());
+    }
+
+    /**
+     * Copies each option's label into its `data-ims-label` attribute, which the
+     * stylesheet lays out, unseen, at the selected weight, so a row is as wide
+     * unselected as once selected. Not observed, so writing it never calls
+     * observeSelect() back.
+     */
+    private reserveSelectedWeight(): void {
+        for (const option of Array.from(this.select.options)) {
+            if (option.dataset['imsLabel'] !== option.label) {
+                option.dataset['imsLabel'] = option.label;
+            }
+        }
     }
 }

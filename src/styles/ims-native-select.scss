@@ -133,6 +133,9 @@
     // The checkmark's box and the gap before it. Every option reserves them, so
     // selecting one never changes the row's width.
     --ims-option-check-space: calc(0.35rem + 1.5px + 0.5rem);
+    // The selected row's weight. Every row reserves the room its label takes
+    // at this weight, so selecting an option never widens the panel.
+    --ims-option-selected-weight: var(--ims-font-weight-semibold);
 
     position: relative;
     box-sizing: border-box;
@@ -146,6 +149,25 @@
     cursor: pointer;
     white-space: nowrap;
     transition: background-color 100ms ease, color 100ms ease;
+    // Chrome's row is a flex row; turned to a column, the label and its weight
+    // reserve below stack, and the row is as wide as the wider of them. Still
+    // centred in the row's height, as Chrome's row centres it.
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    gap: 0;
+}
+
+// The option's label at the selected weight, with no height and unseen, so the
+// row is as wide unselected as it is once selected. ImsSelectDirective copies
+// the label into `data-ims-label`: text only, so an option with richer content
+// reserves the room of its text alone.
+.ims-native-select option::after {
+    content: attr(data-ims-label) / '';
+    block-size: 0;
+    overflow: hidden;
+    font-weight: var(--ims-option-selected-weight);
+    visibility: hidden;
 }
 
 // The active row: the one under the pointer, the one the keyboard moved focus
@@ -158,9 +180,11 @@
     background: var(--ims-color-interactive-alt-subtle);
 }
 
-// Colour and the checkmark, never weight, which would widen the row.
+// The room for the heavier weight is already reserved, by the hidden copy
+// above, so the panel keeps its width either way.
 .ims-native-select option:checked {
     color: var(--ims-color-interactive-strong);
+    font-weight: var(--ims-option-selected-weight);
 }
 
 // Pinned to the row's end edge, in the space the option reserves for it.
