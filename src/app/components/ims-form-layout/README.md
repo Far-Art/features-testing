@@ -809,7 +809,7 @@ The main field custom properties are:
 
 | Property | Default | Purpose |
 | --- | --- | --- |
-| `--ims-form-field-gap` | `0.5rem` | Gap between a field's label and value when they sit side by side, and between the items of an `imsFormFieldInline` value. Outside a grid, a field with an empty label track has none. |
+| `--ims-form-field-gap` | `0.3rem` | Gap between a field's label and value when they sit side by side, and between the items of an `imsFormFieldInline` value. Outside a grid, a field with an empty label track has none. |
 | `--ims-form-field-stacked-gap` | `0.25rem` | Gap between a stacked label and the value below it, between a control and a hint under it, and between the lines of an `imsFormFieldInline` value. |
 | `--ims-form-accent` | `#1769aa` | Focus and hover accent. |
 | `--ims-form-checkbox-size` | `--ims-checkbox-size` fallback | Direct-checkbox placement offset. |
