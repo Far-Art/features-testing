@@ -1,6 +1,6 @@
 import { Directive, inject } from '@angular/core';
 import { ImsDialogRef } from './ims-dialog-ref';
-import { IMS_DIALOG_DATA } from './ims-dialog.types';
+import { IMS_DIALOG_DATA, ImsDialogOnDismiss } from './ims-dialog.types';
 
 /**
  * Injection-aware base directive for components rendered inside an IMS dialog.
@@ -12,7 +12,9 @@ import { IMS_DIALOG_DATA } from './ims-dialog.types';
  * @typeParam Result - Optional value accepted when closing the dialog.
  */
 @Directive()
-export abstract class ImsAbstractDialog<Data = unknown, Result = unknown> {
+export abstract class ImsAbstractDialog<Data = unknown, Result = unknown>
+  implements ImsDialogOnDismiss<Result>
+{
   /** Data resolved from the builder and CDK dialog configuration. */
   readonly dialogData = inject(IMS_DIALOG_DATA) as Data;
 
@@ -26,5 +28,19 @@ export abstract class ImsAbstractDialog<Data = unknown, Result = unknown> {
    */
   closeDialog(result?: Result): void {
     this.dialogRef.close(result);
+  }
+
+  /**
+   * Supplies the result of a close without a value.
+   *
+   * The dialog calls it when it is dismissed: through the X control, the
+   * generated Close action, Escape, a backdrop click, or `closeDialog()`
+   * without a result. Override it to close with a value instead of
+   * `undefined`.
+   *
+   * @returns `undefined`, which closes the dialog without a result.
+   */
+  onDismiss(): Result | undefined {
+    return undefined;
   }
 }

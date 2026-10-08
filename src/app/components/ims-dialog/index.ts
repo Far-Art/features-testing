@@ -22,6 +22,7 @@ export type {
   ImsDialogConfirmationLabels,
   ImsDialogContentType,
   ImsDialogMode,
+  ImsDialogOnDismiss,
   ImsDialogOpenOptions,
   ImsDialogResolvedConfirmationLabels,
   ImsDialogRuntimeConfig,

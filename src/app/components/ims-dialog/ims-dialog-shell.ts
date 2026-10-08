@@ -1,6 +1,14 @@
 import { NgComponentOutlet } from '@angular/common';
 import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, ElementRef, Type, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ComponentRef,
+  ElementRef,
+  Type,
+  inject,
+  viewChild,
+} from '@angular/core';
 import {ImsButton, ImsButtonIcon} from '../ims-button';
 import {ImsIcon} from '../ims-icon';
 import { ReadonlyDirective } from '../../shared/readonly.directive';
@@ -10,6 +18,7 @@ import { ImsDialogSectionRegistry } from './ims-dialog-section-registry';
 import {
   IMS_DIALOG_CONFIG,
   IMS_DIALOG_READONLY,
+  ImsDialogOnDismiss,
   ImsDialogRuntimeConfig,
   isBaseOutput,
   isMessageArray,
@@ -23,6 +32,14 @@ interface ImsDialogMessageRow {
   readonly message: string;
   readonly style: ImsDialogMessageStyle;
   readonly icon: string;
+}
+
+/**
+ * Private state of `NgComponentOutlet` holding the component it created, which
+ * Angular before 19.1 offers no public way to read.
+ */
+interface NgComponentOutletInternals {
+  readonly _componentRef?: ComponentRef<unknown>;
 }
 
 /**
@@ -62,6 +79,7 @@ interface ImsDialogMessageRow {
 })
 export class ImsDialogShell {
   private readonly hostElement = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly contentOutlet = viewChild(NgComponentOutlet);
   readonly config = inject(IMS_DIALOG_CONFIG) as ImsDialogRuntimeConfig;
   readonly dialogRef = inject(ImsDialogRef);
   readonly sections = inject(ImsDialogSectionRegistry);
@@ -122,6 +140,30 @@ export class ImsDialogShell {
   close(): void {
     this.dialogRef.close();
   }
+
+  /**
+   * Result of a close without a value: what the content component's
+   * `onDismiss()` returns, whether or not it extends `ImsAbstractDialog`, or
+   * `undefined` when it declares no such method or there is no component.
+   *
+   * @internal
+   */
+  resolveDismissResult(): unknown {
+    // TODO: Once on Angular 19.1 or later, read the outlet's public
+    // `componentInstance` instead and remove `NgComponentOutletInternals`:
+    // `const content: unknown = this.contentOutlet()?.componentInstance;`
+    const outlet = this.contentOutlet() as unknown as NgComponentOutletInternals | undefined;
+    const content = outlet?._componentRef?.instance;
+    return hasDismissHook(content) ? content.onDismiss() : undefined;
+  }
+}
+
+function hasDismissHook(content: unknown): content is ImsDialogOnDismiss {
+  return (
+    typeof content === 'object' &&
+    content !== null &&
+    typeof (content as Partial<ImsDialogOnDismiss>).onDismiss === 'function'
+  );
 }
 
 function resolveMessageStyle(level: number): ImsDialogMessageStyle {

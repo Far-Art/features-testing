@@ -174,6 +174,21 @@
         <button type="button" (click)="openError('opaque')">Opaque value</button>
       </div>
     </article>
+
+    <article class="dialog-demo-card dialog-demo-card--info">
+      <div class="dialog-demo-card__index">12</div>
+      <div class="dialog-demo-card__body">
+        <span class="dialog-demo-card__tag">Dismiss result</span>
+        <h2>X keeps a draft</h2>
+        <p>
+          The content declares <code>onDismiss()</code> without extending
+          <code>ImsAbstractDialog</code>. Closing through X, Escape, or the backdrop returns its
+          draft; Save and Discard close with values of their own.
+        </p>
+        <code>onDismiss(): NoteDialogResult</code>
+      </div>
+      <button type="button" (click)="openDismissResult()">Write a note</button>
+    </article>
   </section>
 
   <app-dialog-inside-playground (dialogClosed)="lastEvent.set($event)" />

@@ -78,6 +78,27 @@ export interface ImsDialogOpenOptions {
   readonly config: ImsDialogConfig;
 }
 
+/**
+ * Hook a dialog content component declares to choose the result of a close
+ * without a value.
+ *
+ * The dialog looks for the method on any content component, so implementing
+ * this interface or extending `ImsAbstractDialog` is optional.
+ *
+ * @typeParam R - Result the dialog closes with.
+ */
+export interface ImsDialogOnDismiss<R = unknown> {
+  /**
+   * Called while the dialog closes without a value: through the X control,
+   * the generated Close action, Escape, a backdrop click, or
+   * `ImsDialogRef.close()` without a result.
+   *
+   * @returns The result `ImsDialogRef.closed` emits. Confirmation dialogs
+   * convert it to a boolean.
+   */
+  onDismiss(): R | undefined;
+}
+
 export const IMS_DIALOG_DATA = new InjectionToken<unknown>('IMS_DIALOG_DATA');
 
 export const IMS_DIALOG_CONFIG = new InjectionToken<ImsDialogRuntimeConfig>('IMS_DIALOG_CONFIG');

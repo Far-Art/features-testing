@@ -26,6 +26,12 @@ export class ImsDialogRef<R = unknown> {
     ) as Observable<R>;
   }
 
+  /**
+   * Closes the dialog.
+   *
+   * @param result Value `closed` emits. Without one, the dialog closes with
+   * what the content component's `onDismiss()` returns, if it declares one.
+   */
   close(result?: R): void {
     this.dialogRef.close(result);
   }

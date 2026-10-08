@@ -323,7 +323,9 @@ The `closed` observable always emits a boolean:
 
 - Affirmative action: `true`
 - Negative action: `false`
-- Escape, backdrop click, or `close()` without a value: `false`
+- Escape, backdrop click, or `close()` without a value: `false`, or the
+  content component's [`onDismiss()`](#dismiss-result) result converted to a
+  boolean
 - A custom confirmation action is converted with normal boolean coercion.
 
 ### `asReadonly()`
@@ -581,9 +583,10 @@ For confirmation dialogs, it returns `ImsDialogRef<boolean>`.
 ## `ImsAbstractDialog`
 
 Dialog content components can extend `ImsAbstractDialog<Data, Result>` to gain
-typed access to `dialogData`, `dialogRef`, and a forwarding
+typed access to `dialogData`, `dialogRef`, a forwarding
 `closeDialog(result?)`
-method:
+method, and an [`onDismiss()`](#dismiss-result) hook that returns `undefined`
+until it is overridden:
 
 ```ts
 @Component({
@@ -602,6 +605,49 @@ export class EditorDialog extends ImsAbstractDialog<
 The abstract directive is intended only for inheritance and has no selector or
 rendered host element. Components can still inject `IMS_DIALOG_DATA` and
 `ImsDialogRef` directly when inheritance is not appropriate.
+
+## Dismiss result
+
+A dialog is dismissed when it closes without a value: through the X control in
+the title row, the generated Close action, Escape, a backdrop click,
+`ImsDialogRef.close()` or `closeDialog()` without a result, and the closes CDK
+makes itself, such as on navigation. A dismissal emits `undefined` unless the
+content component declares an `onDismiss()` method, in which case the dialog
+calls it and closes with what it returns:
+
+```ts
+export class NoteDialog extends ImsAbstractDialog<NoteData, NoteResult> {
+  readonly note = signal('');
+
+  override onDismiss(): NoteResult {
+    return { status: 'draft', note: this.note() };
+  }
+}
+```
+
+The dialog looks the method up on whatever component it renders, so extending
+`ImsAbstractDialog` is optional. A component that does not can implement
+`ImsDialogOnDismiss<Result>` to have the method checked:
+
+```ts
+export class NoteDialog implements ImsDialogOnDismiss<NoteResult> {
+  onDismiss(): NoteResult {
+    return { status: 'draft', note: this.note() };
+  }
+}
+```
+
+- `onDismiss()` runs before the dialog closes, while the content is still
+  rendered, so it can read form state.
+- A close with any value other than `undefined`, including `null` and `false`,
+  skips the hook. Pass one from an action that should not count as a dismissal.
+- Returning `undefined` closes the dialog without a result, as before.
+- In confirmation mode the returned value is converted to a boolean, like any
+  other close result.
+- A close the hook makes itself without a value closes with `undefined` rather
+  than calling the hook again.
+- Dialogs without a content component, such as text, message, and error
+  dialogs, have no hook and dismiss with `undefined`.
 
 ## Dragging and boundaries
 
@@ -702,8 +748,10 @@ provide the appropriate `ariaLabel` or `ariaLabelledBy` through `config()`.
   entrypoints, and error-value normalization.
 - `ims-dialog-builder.ts`: fluent builder, the reduced error builder surface,
   and result typing.
-- `ims-abstract-dialog.ts`: injectable base directive for dialog components.
+- `ims-abstract-dialog.ts`: injectable base directive for dialog components,
+  with the default `onDismiss()`.
 - `ims-dialog-ref.ts`: dedicated close reference and confirmation mapping.
+  Dismissals are routed to `onDismiss()` in `ims-dialog.service.ts`.
 - `ims-dialog-shell.ts` / `ims-dialog-shell.html`: private internal shell.
 - `ims-dialog-section.ts`: the four supporting components.
 - `ims-dialog-section-registry.ts`: custom-section registration.

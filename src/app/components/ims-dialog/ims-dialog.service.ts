@@ -225,6 +225,8 @@ export class ImsDialogService implements ImsDialogBuilderHost {
 
     const cdkDialogRef = this.dialog.open<unknown, unknown, ImsDialogShell>(ImsDialogShell, config);
 
+    closeDismissalsWithContentResult(cdkDialogRef);
+
     if (insideBoundary) {
       keepCenteredOnBoundary(cdkDialogRef);
     }
@@ -308,6 +310,37 @@ function keepCenteredOnBoundary(dialogRef: DialogRef<unknown, ImsDialogShell>): 
 
   observer.observe(pane);
   dialogRef.closed.subscribe(() => observer.disconnect());
+}
+
+/**
+ * Gives every close without a value the result of the content's `onDismiss()`.
+ *
+ * The X control, the generated Close action, Escape, a backdrop click, and the
+ * closes CDK makes itself (overlay detachment, navigation) all reach
+ * `DialogRef.close()` without a value, so wrapping it is the one place that
+ * sees each of them while the content component is still alive. A close the
+ * hook makes without a value of its own closes with `undefined` instead of
+ * asking the hook again.
+ */
+function closeDismissalsWithContentResult(dialogRef: DialogRef<unknown, ImsDialogShell>): void {
+  const close = dialogRef.close.bind(dialogRef);
+  let resolving = false;
+
+  dialogRef.close = (result, options) => {
+    const shell = dialogRef.componentInstance;
+
+    if (result !== undefined || resolving || !shell) {
+      close(result, options);
+      return;
+    }
+
+    resolving = true;
+    try {
+      close(shell.resolveDismissResult(), options);
+    } finally {
+      resolving = false;
+    }
+  };
 }
 
 function resolveDefaultIcon(

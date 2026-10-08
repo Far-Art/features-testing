@@ -9,6 +9,8 @@ import {
   ImsAbstractDialog,
   ImsDialogActions,
   ImsDialogContent,
+  type ImsDialogOnDismiss,
+  ImsDialogRef,
   ImsDialogService,
   ImsDialogSeverity,
   ImsDialogTitle,
@@ -38,6 +40,11 @@ interface RiskDialogData {
 }
 
 type DialogButtonReviewResult = 'default' | 'primary' | 'secondary';
+
+interface NoteDialogResult {
+  readonly status: 'saved' | 'draft' | 'discarded';
+  readonly note: string;
+}
 
 const LONG_DIALOG_CONTENT: string[] = [
   'The content region owns all overflow while the dialog title, toolbar, and actions remain fixed in their intrinsic grid rows.',
@@ -411,6 +418,86 @@ export class DialogButtonReviewContent extends ImsAbstractDialog<
 
   select(result: DialogButtonReviewResult): void {
     this.closeDialog(result);
+  }
+}
+
+@Component({
+  selector: 'app-dialog-note-content',
+  standalone: true,
+  imports: [ImsButton, ImsDialogActions, ImsDialogContent],
+  template: `
+    <ims-dialog-content>
+      <label class="note-dialog-demo">
+        Note
+        <textarea rows="4" [value]="note()" (input)="updateNote($event)"></textarea>
+      </label>
+      <p class="note-dialog-demo__hint">
+        Close with X, Escape, or the backdrop to keep the text as a draft.
+      </p>
+    </ims-dialog-content>
+
+    <ims-dialog-actions>
+      <button ims-button ims-button-variation="secondary" (click)="discard()">Discard</button>
+      <button ims-button ims-button-variation="primary" (click)="save()">Save</button>
+    </ims-dialog-actions>
+  `,
+  styles: `
+    .note-dialog-demo {
+      display: grid;
+      gap: 0.375rem;
+      color: var(--ims-color-on-surface-muted);
+      font-size: 0.8rem;
+      font-weight: var(--ims-font-weight-semibold);
+    }
+
+    .note-dialog-demo textarea {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--ims-color-border);
+      border-radius: 0.625rem;
+      background: var(--ims-background-input);
+      color: var(--ims-color-on-surface);
+      font: inherit;
+      font-weight: normal;
+      resize: vertical;
+    }
+
+    .note-dialog-demo textarea:focus {
+      border-color: var(--ims-color-interactive);
+      outline: none;
+      box-shadow: 0 0 0 3px var(--ims-color-focus-ring);
+    }
+
+    .note-dialog-demo__hint {
+      margin: 0.75rem 0 0;
+      color: var(--ims-color-on-surface-muted);
+      font-size: 0.84rem;
+    }
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class DialogNoteContent implements ImsDialogOnDismiss<NoteDialogResult> {
+  // Deliberately not an ImsAbstractDialog: the dialog finds onDismiss() on any
+  // content component.
+  private readonly dialogRef = inject(ImsDialogRef) as ImsDialogRef<NoteDialogResult>;
+  readonly note = signal('Call the vendor about the renewal.');
+
+  updateNote(event: Event): void {
+    const target = event.target;
+    if (target instanceof HTMLTextAreaElement) {
+      this.note.set(target.value);
+    }
+  }
+
+  save(): void {
+    this.dialogRef.close({ status: 'saved', note: this.note() });
+  }
+
+  discard(): void {
+    this.dialogRef.close({ status: 'discarded', note: '' });
+  }
+
+  onDismiss(): NoteDialogResult {
+    return { status: 'draft', note: this.note() };
   }
 }
 
@@ -840,6 +927,23 @@ export class DialogDemo {
         result
           ? `Custom dialog returned: ${result.displayName}.`
           : 'Custom profile dialog dismissed without a result.',
+      );
+    });
+  }
+
+  openDismissResult(): void {
+    const ref = this.dialog
+      .info(DialogNoteContent)
+      .title('Quick note')
+      .withIcon('edit_note')
+      .config({ direction: 'ltr', width: 'min(30rem, calc(100vw - 2rem))' })
+      .open<NoteDialogResult>();
+
+    ref.closed.subscribe((result) => {
+      this.lastEvent.set(
+        result
+          ? `Note dialog returned ${result.status}: "${result.note}".`
+          : 'Note dialog closed without a result.',
       );
     });
   }
