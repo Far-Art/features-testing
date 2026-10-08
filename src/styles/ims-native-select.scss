@@ -57,6 +57,16 @@
     white-space: nowrap;
 }
 
+// Text an option shows in the list but not in the field, such as a description
+// after its name. Wrap the option's whole label in one inline element as well,
+// or the option's column layout below puts the name and this text on separate
+// lines. A block such as a `div` would keep a long value from ending in the
+// field's ellipsis, which only marks overflowing inline content:
+// `<option><span>Name<span class="ims-option-detail">, description</span></span></option>`.
+.ims-native-select selectedcontent .ims-option-detail {
+    display: none;
+}
+
 // A selected option the user cannot pick reads as ims-select's placeholder:
 // the field's "no value" entry, `<option [ngValue]="null" disabled hidden>`.
 // Matched by attribute, because Chrome matches `:disabled` on every option of a
