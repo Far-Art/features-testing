@@ -69,8 +69,9 @@ ims-form-field {
         }
     }
 
-    // Size defaults stay at the specificity of the element name, so a class on
-    // the label or value, including a component's own, sets its size instead.
+    // Size and text defaults stay at the specificity of the element name, so a
+    // class on the label or value, including a component's own, sets them
+    // instead.
     //
     // A label is only as wide as its text, and wraps when there is less room
     // than that. Stretched, the empty rest of its track, or of the whole field
@@ -78,6 +79,7 @@ ims-form-field {
     // the control.
     > :where(label, [imsFormFieldLabel]) {
         justify-self: start;
+        letter-spacing: -0.2px;
     }
 
     > :where(:not(label):not([imsFormFieldLabel])) {
