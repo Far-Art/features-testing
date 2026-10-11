@@ -532,7 +532,7 @@ stays within the available inline size. The calendar overlay and validation
 popover remain anchored to the bordered field rather than the adjacent action.
 
 The bordered field defaults to `--field-width-xs`, while the field and calendar
-button use `--field-height`. A `10ch` floor on the host keeps a squeezed field
+button use `--field-height`. A `10.5ch` floor on the host keeps a squeezed field
 wide enough for a full date, so a narrow container overflows rather than clipping
 the value. Apply one of the shared sizing utility classes to override the
 preferred field width from consumer markup:
