@@ -1,5 +1,5 @@
 import {
-    afterEveryRender,
+    afterNextRender,
     booleanAttribute,
     computed,
     contentChildren,
@@ -8,7 +8,9 @@ import {
     ElementRef,
     forwardRef,
     inject,
+    Injector,
     input,
+    isDevMode,
     NgZone
 } from '@angular/core';
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
@@ -106,18 +108,20 @@ export class ImsTableDirective implements ImsTableContext {
 
     private readonly rows = new Map<HTMLElement, ImsTableRowRef>();
     private readonly ngZone = inject(NgZone);
+    private readonly injector = inject(Injector);
     /** The tab stop outside a virtual viewport, tracked by element so it survives sorting. */
     private activeRow: ImsTableRowRef | null = null;
     /** The tab stop inside a virtual viewport, tracked by data index because row elements are recycled. */
     private activeIndex = -1;
     private pendingFocusIndex: number | null = null;
     private pendingFocusRenders = 0;
-    private tabStopsDirty = true;
+    private tabStopsDirty = false;
+    private flushScheduled = false;
 
     constructor() {
         effect(() => {
             this.interactive();
-            this.tabStopsDirty = true;
+            this.markTabStopsDirty();
         });
 
         // A virtual viewport reuses row elements for other items as it scrolls, so
@@ -129,9 +133,7 @@ export class ImsTableDirective implements ImsTableContext {
                 return;
             }
 
-            const subscription = viewport.renderedRangeStream.subscribe(() => {
-                this.tabStopsDirty = true;
-            });
+            const subscription = viewport.renderedRangeStream.subscribe(() => this.markTabStopsDirty());
             onCleanup(() => subscription.unsubscribe());
         });
 
@@ -148,13 +150,11 @@ export class ImsTableDirective implements ImsTableContext {
             observer.observe(this.hostElement, {childList: true, subtree: true});
             onCleanup(() => observer.disconnect());
         });
-
-        afterEveryRender(() => this.flushAfterRender());
     }
 
     registerRow(row: ImsTableRowRef): void {
         this.rows.set(row.element, row);
-        this.tabStopsDirty = true;
+        this.markTabStopsDirty();
     }
 
     unregisterRow(row: ImsTableRowRef): void {
@@ -164,7 +164,7 @@ export class ImsTableDirective implements ImsTableContext {
         if (this.activeRow === row) {
             this.activeRow = null;
         }
-        this.tabStopsDirty = true;
+        this.markTabStopsDirty();
     }
 
     activateRow(row: ImsTableRowRef): void {
@@ -269,6 +269,7 @@ export class ImsTableDirective implements ImsTableContext {
         this.activeIndex = index;
         this.pendingFocusIndex = index;
         this.pendingFocusRenders = 0;
+        this.scheduleFlush();
 
         const rowHeight = domain.rendered[0]?.element.getBoundingClientRect().height ?? 0;
         if (rowHeight > 0) {
@@ -288,6 +289,34 @@ export class ImsTableDirective implements ImsTableContext {
         }
 
         viewport.checkViewportSize();
+    }
+
+    private markTabStopsDirty(): void {
+        this.tabStopsDirty = true;
+        this.scheduleFlush();
+    }
+
+    /**
+     * Runs the pending work once the next render has put the rows in the DOM.
+     *
+     * Booked per need with `afterNextRender` rather than kept with a hook on
+     * every render: the table has nothing to do on most renders, and
+     * `afterNextRender` is the same API from Angular 18 on, where the
+     * every-render hook has changed name.
+     */
+    private scheduleFlush(): void {
+        if (this.flushScheduled) {
+            return;
+        }
+
+        this.flushScheduled = true;
+        afterNextRender(
+            () => {
+                this.flushScheduled = false;
+                this.flushAfterRender();
+            },
+            {injector: this.injector}
+        );
     }
 
     private flushAfterRender(): void {
@@ -313,7 +342,12 @@ export class ImsTableDirective implements ImsTableContext {
         this.pendingFocusRenders += 1;
         if (!viewport || this.pendingFocusRenders >= PENDING_FOCUS_RENDER_LIMIT) {
             this.pendingFocusIndex = null;
+            return;
         }
+
+        // Not rendered yet: CDK renders the new window in a render of its own,
+        // after this one. Wait for that.
+        this.scheduleFlush();
     }
 
     /** Gives the tab stop `tabindex="0"`, every other row `-1`, or clears both when not interactive. */
@@ -464,7 +498,7 @@ export class ImsTableDirective implements ImsTableContext {
 let missingRowIndexWarned = false;
 
 function warnMissingRowIndex(): void {
-    if (missingRowIndexWarned || (typeof ngDevMode !== 'undefined' && !ngDevMode)) {
+    if (missingRowIndexWarned || !isDevMode()) {
         return;
     }
 
