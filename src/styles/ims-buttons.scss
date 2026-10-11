@@ -239,9 +239,9 @@
 // four severities is sixteen looks out of seven blocks, and a variation added
 // later works in all four severities without touching them.
 .ims-button--default {
-  --ims-button-background: var(--ims-button-ramp-50);
-  --ims-button-background-hover: var(--ims-button-ramp-100);
-  --ims-button-background-active: var(--ims-button-ramp-150);
+  --ims-button-background: var(--ims-button-ramp-100);
+  --ims-button-background-hover: var(--ims-button-ramp-150);
+  --ims-button-background-active: var(--ims-button-ramp-200);
   --ims-button-color: var(--ims-button-ramp-800);
   --ims-button-color-active: var(--ims-button-ramp-900);
   --ims-button-ring-color: var(--ims-button-ramp-450);
@@ -278,8 +278,8 @@
 
 .ims-button--secondary {
   --ims-button-background: var(--ims-color-surface-input);
-  --ims-button-background-hover: var(--ims-button-ramp-50);
-  --ims-button-background-active: var(--ims-button-ramp-100);
+  --ims-button-background-hover: var(--ims-button-ramp-100);
+  --ims-button-background-active: var(--ims-button-ramp-150);
   --ims-button-color: var(--ims-button-ramp-800);
   --ims-button-color-active: var(--ims-button-ramp-900);
   --ims-button-ring-color: var(--ims-button-ramp-450);
@@ -287,8 +287,8 @@
 
 .ims-button--outline {
   --ims-button-background: transparent;
-  --ims-button-background-hover: var(--ims-button-ramp-50);
-  --ims-button-background-active: var(--ims-button-ramp-100);
+  --ims-button-background-hover: var(--ims-button-ramp-100);
+  --ims-button-background-active: var(--ims-button-ramp-150);
   --ims-button-color: var(--ims-button-ramp-600);
   --ims-button-color-active: var(--ims-button-ramp-700);
   // Two steps down the ramp from the resting border, not the same slot:
@@ -347,8 +347,8 @@
 //
 // The icon glyph moves only half a step, to 650. A glyph is a graphic, so it
 // needs 3:1 rather than text's 4.5:1: 600 clears that on white (3.5:1) but not
-// on its own hover fill (2.9:1 against 100), while 650 holds it on both (4.4:1
-// and 3.7:1) and still reads as amber.
+// on its own hover fill (2.9:1 against 150), while 650 holds it on both (4.4:1
+// and 3.6:1) and still reads as amber.
 .ims-button--warning {
   --ims-button-ramp-50: var(--ims-color-warning-50);
   --ims-button-ramp-100: var(--ims-color-warning-100);
@@ -396,7 +396,7 @@
 // clears at the same step — 3.6:1 for the press ring at 450, 4.4:1 for an
 // outline border at 500, 6.8:1 for a solid fill and an outline label at 600 —
 // so nothing here is shifted. The glyph sits on 600, the neutral status colour,
-// as success and danger sit on theirs: 6.8:1 on white and 5.7:1 on its own
+// as success and danger sit on theirs: 6.8:1 on white and 5.0:1 on its own
 // hover fill. The focus halo at 200 comes out a touch fainter than the other
 // hues' (1.6:1 on white; info's is 1.9:1).
 .ims-button--neutral {
@@ -597,7 +597,7 @@
 
 // A duo icon inside a button adopts the button's own colours instead of the
 // brand palette. The icon's fixed periwinkle collides with almost every button
-// surface: the tint washes out on the light variants (1.2:1 against
+// surface: the tint vanishes on the light variants (it is the very tone of
 // --default's hover fill) and the contour disappears on the dark ones (1.1:1
 // against brand navy, even at rest). Deriving both layers from the label colour
 // keeps them readable on every variant and state, including ones added later,
