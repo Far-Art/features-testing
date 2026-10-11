@@ -301,18 +301,30 @@ close to the enabled look, but a readonly button is natively disabled, so
 
 ## Press Ring and Focus
 
-Every activation repaints the 1px border in the variation's ring colour, holds
-it for a beat and fades it out, 450ms in all. The ring fires on a pointer click,
+Every activation paints a 1px ring in the variation's ring colour, holds it for
+a beat and fades it out, 450ms in all. The ring is an outline drawn inward, on
+the first pixel inside the border, so it stays on the button's own surface and
+the button never looks bigger while it shows. On `outline` it lies on the
+border itself, which is already that variation's visible edge. On an icon
+button the hover plate holds at full size while the ring shows, so the ring
+always has the plate under it, even after a touch tap or when the pointer
+leaves mid-blink. The ring fires on a pointer click,
 and on the release of an Enter or Space press that started on the button. Focus
 leaving the button before the release cancels it.
 
 The ring is the only part the directive handles. Activation stays native: Enter
 clicks on keydown and Space on keyup, and the directive changes neither.
 
-Keyboard focus draws a 3px halo outside the border, in the ramp's 200 step, so
-it follows the severity. Pointer focus draws nothing. The halo is a
-`box-shadow` and the ring is the `border-color`, so a keyboard press shows both
-at once without either one interrupting the other.
+Keyboard focus draws a 3px halo in the ramp's 200 step, so it follows the
+severity, with a 1px gap between it and the button. Pointer focus draws nothing.
+The halo and the press ring share the outline: focus moves it outside and widens
+it. On an icon button the halo sits on the border box, since the plate already
+stops 1px inside the transparent border, which makes the gap.
+
+A keyboard press on a focused button flashes the halo in the ring colour and
+fades it back to the halo's own colour, instead of drawing a second ring inside.
+If focus leaves mid-press, the ring finishes inside the button as an unfocused
+press would.
 
 ## Accessibility
 
@@ -397,7 +409,9 @@ different in its own context overrides them:
 | `--ims-button-color-active` | The label or glyph while pressed. |
 | `--ims-button-border` | The 1px border at rest. Transparent except on `outline`. |
 | `--ims-button-ring-color` | The press ring and the call-to-action halo. |
+| `--ims-button-ring-offset` | Where the press ring sits: `-2px`, just inside the border, or `-1px` on `outline`, over it. |
 | `--ims-button-focus-ring` | The keyboard focus halo. |
+| `--ims-button-focus-offset` | The gap before the focus halo: `1px`, or `0px` on an icon button, whose transparent border is already the gap. |
 | `--ims-button-radius` | A label button's corners, 4px. An icon button is rounded to 0.5rem by a rule of its own. |
 | `--ims-button-symbol-size` | `.ims-button__symbol` glyphs, 1.125rem. A preset's block may set its own; `icon-size` writes it inline, over both. |
 
@@ -436,8 +450,9 @@ The motion is built for the CPU-rendered machines this ships to:
   stands, and only then does its radius reset.
 - An icon button has no ripple, because at 26px the gradient's soft edge steps
   visibly. It fades and scales in a hover plate (`::before`) instead.
-- The press ring is a 450ms keyframe animation on `border-color`. The focus halo
-  is a `box-shadow`, and the call-to-action halo is a `box-shadow` animation.
+- The press ring is a 450ms keyframe animation on `outline-color`. The focus halo
+  is the same outline, and it appears without a fade. The call-to-action halo is
+  a `box-shadow` animation.
 - A duo icon inside a button does not animate.
 - `.ims-button--mounting` turns every transition off for the first frame, so a
   button that mounts under a stationary pointer does not animate a hover in and
@@ -450,8 +465,18 @@ and the call-to-action pulse all run regardless of that setting.
 
 - Keep `ACTION_BLINK_MS` in `ims-button.ts` equal to the 450ms of the
   `ims-button-action-blink` animation. If it is shorter, the fade is cut off.
-- Keep `border-color` out of the `.ims-button` transitions. The press ring's
+- Keep `outline-color` out of the `.ims-button` transitions. The press ring's
   keyframes own that property, and a transition would fight them on the way out.
+  On blur, it would also leave a focus-coloured ring fading inside the button.
+- Keep the `ims-button-action-blink` keyframes without a 100% frame, and set no
+  `outline-color` on `.ims-button--action-blink`. The ring fades to the
+  outline's own colour, which is what makes a focused button's halo come back.
+- Keep the press ring's offset inside the visible surface. An icon button's
+  hover plate stops at the padding box, so a ring on the border shows outside
+  the plate and the button looks a pixel bigger on every side.
+- Keep the icon button's plate pinned to full size under
+  `.ims-button--action-blink`. Left to its hover transition, it can still be
+  scaling in, or already shrinking away, while the ring shows.
 - Declare the call-to-action halo only on the idle button, as the `:not(…)` rule
   does. An element has one `animation` property, so an `animation: none` in the
   engaged states would override `.ims-button--action-blink` and remove the

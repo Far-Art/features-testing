@@ -70,6 +70,10 @@
   // focused button is that button's own hue. The neutral value is the same
   // colour the shared token resolves to.
   --ims-button-focus-ring: var(--ims-button-ramp-200);
+  // How far the focus halo stands off the border box. 1px leaves a 1px gap
+  // between the button and its halo; an icon button, whose plate already stops
+  // 1px inside the border, sets 0 — see .ims-button-icon.
+  --ims-button-focus-offset: 1px;
   --ims-button-radius: 4px;
   --ims-button-ring-color: var(--ims-button-ramp-solid-ring);
   // Where the press ring sits. -2px puts the 1px ring on the first pixel inside
@@ -113,17 +117,20 @@
   line-height: 1;
   cursor: pointer;
   user-select: none;
-  // The press ring rides on the outline, drawn inward by the offset. Outlines
-  // paint above the content, so the ring also shows over an icon button's
-  // hover plate, and they take no room, so the box never changes size. At rest
-  // it is transparent, which also suppresses the UA focus ring; keyboard focus
-  // is the box-shadow halo instead.
+  // Both rings ride on the outline. Here it is the press ring, drawn inward by
+  // the offset; under keyboard focus it moves outside and becomes the focus
+  // halo (see :focus-visible below). Outlines paint above the content, so the
+  // ring also shows over an icon button's hover plate, and they take no room,
+  // so the box never changes size. At rest it is transparent, which also
+  // suppresses the UA focus ring.
   outline: 1px solid transparent;
   outline-offset: var(--ims-button-ring-offset);
   // outline-color is deliberately absent from the list below, in every state.
-  // The press ring is a keyframe animation that already ends on the resting
-  // transparent, and a transition on the same property would only fight it on
-  // the way out — the ring snaps into place and fades out on the keyframes.
+  // The press ring is a keyframe animation that already ends on the outline's
+  // own colour, and a transition on the same property would only fight it on
+  // the way out — the ring snaps into place and fades out on the keyframes. It
+  // would also drag a focus-coloured ring inside the button on blur, where the
+  // outline's width and offset snap back before its colour could fade.
   //
   // Rest state, i.e. the way *out*: alpha fades the ripple away where it
   // stands, and the radius reset is a 0s change delayed until that fade has
@@ -209,36 +216,38 @@
 // than a ring appearing, and it sits inside the button's own surface (see
 // --ims-button-ring-offset), so the button never looks any bigger.
 //
-// The last frame lands on transparent, the value the element goes back to the
-// instant the class drops. That is the same whether the press came from a
-// pointer or the keyboard, so one keyframe set covers both and the handoff is
-// invisible either way.
+// There is no 100% keyframe, so the ring fades to whatever colour the outline
+// has without it: transparent at rest, or the halo's on a keyboard-focused
+// button. So one keyframe set covers both kinds of press. A keyboard press
+// flashes the focus halo in the ring colour and fades it back, rather than
+// drawing a second ring, since the outline can only be in one place. The fade
+// ends on the value the element goes back to the instant the class drops, so
+// the handoff is invisible either way. Nothing else on the class may set
+// outline-color, or that would become the colour the ring fades to.
 @keyframes ims-button-action-blink {
   0%,
   24% {
     outline-color: var(--ims-button-ring-color);
-  }
-
-  100% {
-    outline-color: transparent;
   }
 }
 
 // Kept in step with ACTION_BLINK_MS in ims-button.ts, which is how long the
 // class stays on — shorter there would cut the fade off mid-way.
 .ims-button.ims-button--action-blink {
-  outline-color: var(--ims-button-ring-color);
   animation: ims-button-action-blink 450ms ease-out forwards;
 }
 
-// Keyboard focus rides on box-shadow, deliberately a different channel
-// from the outline the press ring uses, so the two never fight: a button
-// pressed with the keyboard shows both at once, the focus halo outside
-// the border box and the ring inside it.
-// Plain :focus needs no rule at all — the base sets `outline: none`,
-// which already suppresses the UA focus ring.
+// Keyboard focus moves the outline outside the button and widens it into the
+// halo, standing it off by --ims-button-focus-offset so a 1px gap separates
+// the two. An outline is the only ring that can leave that gap: a box-shadow
+// starts right at the border box, and the button's background fills the
+// border, so a halo there would touch it.
+// Plain :focus needs no rule at all — the base's transparent outline already
+// suppresses the UA focus ring.
 .ims-button:focus-visible {
-  box-shadow: 0 0 0 3px var(--ims-button-focus-ring);
+  outline-width: 3px;
+  outline-color: var(--ims-button-focus-ring);
+  outline-offset: var(--ims-button-focus-offset);
 }
 
 // The four variations. Each says how loudly the button speaks — how much of
@@ -490,8 +499,8 @@
 // colour from whichever it lands on.
 //
 // The halo rides on box-shadow because the button's other two ring channels
-// are already spoken for: the outline carries the press ring and
-// background-image carries the ripple. A pseudo-element is not an option
+// are already spoken for: the outline carries the press ring and the focus
+// halo, and background-image carries the ripple. A pseudo-element is not an option
 // either — the base clips its children with `overflow: hidden`, while an
 // outer box-shadow paints past the border box untouched by it, and its spread
 // costs no layout.
@@ -564,6 +573,15 @@
   // under a pixel wide, so without a GPU to smooth it the growing circle steps
   // visibly. The hover plate below replaces it.
   background-image: none;
+  // The plate stops 1px inside the border, and the border is transparent, so
+  // the border itself is already the 1px gap before the focus halo.
+  --ims-button-focus-offset: 0px;
+}
+
+// Unless the border is drawn: an outlined icon button's edge is its border, not
+// the plate, so its halo stands off the way a label button's does.
+.ims-button--outline.ims-button-icon {
+  --ims-button-focus-offset: 1px;
 }
 
 // Hover plate: the fill tone as a solid rounded square that scales up from
@@ -595,6 +613,19 @@
 
 .ims-button-icon:active::before {
   background-color: var(--ims-button-background-active);
+}
+
+// The press ring sits on the plate's outer edge, so the plate has to be there,
+// full size, for as long as the ring shows. Left to the states above, it
+// isn't: it scales in over 160ms, and it shrinks away as soon as the pointer
+// leaves or a touch press lifts, while the ring holds for 450ms — so the ring
+// drew outside a plate still growing or already gone, and the button looked
+// bigger. The plate snaps to full here, only the press tone keeps its fade,
+// and once the class drops it eases back to whatever the states above say.
+.ims-button-icon.ims-button--action-blink::before {
+  opacity: 1;
+  transform: scale(1);
+  transition: background-color 90ms ease-out;
 }
 
 // Class, not attribute, for the same reason as the optical-centering rules

@@ -110,6 +110,10 @@
   --ims-button-background-hover: var(--ims-color-interactive-alt-subtle);
   --ims-button-color: var(--ims-color-interactive-strong);
   --ims-button-border: var(--ims-color-interactive);
+  // The border is visible here, so the press ring lies on it and the focus
+  // halo stands off it, as on --outline.
+  --ims-button-ring-offset: -1px;
+  --ims-button-focus-offset: 1px;
 }
 
 .ims-transfer-dialog__count {
