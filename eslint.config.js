@@ -50,6 +50,14 @@ module.exports = defineConfig([
                     controlComponents: ['ims-autocomplete', 'ims-autocomplete-async', 'ims-checkbox', 'ims-datepicker', 'ims-radio', 'ims-select'],
                 },
             ],
+            // Buttons that name themselves, so one carrying the attribute is not
+            // empty: imsExpandCollapseButton writes its own aria-label.
+            '@angular-eslint/template/elements-content': [
+                'error',
+                {
+                    allowList: ['imsExpandCollapseButton'],
+                },
+            ],
         },
     },
 ]);

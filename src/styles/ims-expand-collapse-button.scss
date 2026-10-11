@@ -1,91 +1,117 @@
-.ims-expand-collapse-button {
-    --ims-expand-collapse-button-size: 2.75rem;
-    --ims-expand-collapse-button-icon-size: calc(var(--ims-expand-collapse-button-size) * 0.33);
-    --ims-expand-collapse-button-radius: calc(var(--ims-expand-collapse-button-size) * 0.18);
+// The expand/collapse button is an icon-only ims-button: `.ims-button` and
+// `.ims-button-icon` give it its shape, focus halo, press ring, hover plate
+// (on ::before) and disabled look, and its variation is one of that button's
+// own colour sets — `light` is `.ims-button--secondary`, `dark` is
+// `.ims-button--primary`. What is left here is its size and its glyph.
+//
+// --ims-expand-collapse-button-size is read with a fallback rather than
+// declared, so it can be set on any ancestor — a panel, a table — as well as
+// on the button. The default, 20px, sits inside a field's height (26px) with
+// room around it: a toggle beside a row's text, not a control of the row's
+// size.
 
-    position: relative;
-    inline-size: var(--ims-expand-collapse-button-size);
-    block-size: var(--ims-expand-collapse-button-size);
-    padding: 0;
-    border: 1px solid color-mix(in oklch, currentColor 28%, transparent);
-    border-radius: var(--ims-expand-collapse-button-radius);
-    background: transparent;
-    color: #243246;
-    cursor: pointer;
-    outline: none;
-    transform-origin: center;
-    transition:
-        color 180ms ease,
-        border-color 180ms ease,
-        transform 180ms ease;
+// A little squarer than an icon button's 0.5rem, which on a button this small
+// reads nearly round. Three classes, so it holds over `.ims-button.ims-button-icon`
+// in any load order; the hover plate inherits it.
+.ims-button.ims-button-icon.ims-expand-collapse-button {
+    border-radius: var(--ims-expand-collapse-button-radius, 6px);
 }
 
-.ims-expand-collapse-button::before,
+.ims-button-icon.ims-expand-collapse-button {
+    inline-size: var(--ims-expand-collapse-button-size, 20px);
+    block-size: var(--ims-expand-collapse-button-size, 20px);
+    min-inline-size: 0;
+    // An icon button is transparent at rest, which would leave `light` without
+    // its plate and `dark` without its fill. Two classes, so this holds over
+    // `.ims-button-icon` in any load order.
+    background-color: var(--ims-button-background);
+}
+
+// `hidden` hides it, as it hides any element. `.ims-button` declares a display
+// of its own, which outranks the user agent's `[hidden] { display: none }`, so
+// without this a hidden button still shows.
+.ims-expand-collapse-button[hidden] {
+    display: none;
+}
+
+// The plus, as two bars drawn in the button's text colour. One pseudo-element
+// with two background layers, since ::before is the hover plate's.
 .ims-expand-collapse-button::after {
     content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    inline-size: var(--ims-expand-collapse-button-icon-size);
-    block-size: 2px;
-    border-radius: 999px;
-    background: currentColor;
-    transform: translate(-50%, -50%);
-    transform-origin: center;
+    inset: 0;
+    margin: auto;
+    inline-size: calc(var(--ims-expand-collapse-button-size, 20px) * 0.42);
+    block-size: calc(var(--ims-expand-collapse-button-size, 20px) * 0.42);
+    background:
+        linear-gradient(currentColor, currentColor) center / 100% 2px no-repeat,
+        linear-gradient(currentColor, currentColor) center / 2px 100% no-repeat;
+    border-radius: 1px;
+    pointer-events: none;
     transition:
-        transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
-        opacity 220ms ease,
-        inline-size 280ms cubic-bezier(0.22, 1, 0.36, 1);
+        background-size 280ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.ims-expand-collapse-button::after {
-    transform: translate(-50%, -50%) rotate(90deg);
-}
-
-.ims-expand-collapse-button:hover:not(:disabled) {
-    border-color: color-mix(in oklch, currentColor 56%, transparent);
-}
-
-.ims-expand-collapse-button--expanded {
-    color: #0d5c52;
-    border-color: color-mix(in oklch, currentColor 40%, transparent);
-}
-
-.ims-expand-collapse-button--expanded::before {
-    inline-size: calc(var(--ims-expand-collapse-button-icon-size) * 1.1);
-    transform: translate(-50%, -50%) rotate(180deg) scaleX(1.08);
-}
-
+// The minus: the upright bar shrinks into the crossbar while the glyph makes a
+// half turn, so the plus reads as folding into the minus.
 .ims-expand-collapse-button--expanded::after {
-    opacity: 0;
-    transform: translate(-50%, -50%) rotate(270deg) scaleX(0.15);
+    background-size: 100% 2px, 2px 0%;
+    transform: rotate(180deg);
 }
 
-.ims-expand-collapse-button--expanded:hover:not(:disabled)::before {
-    transform: translate(-50%, -50%) rotate(180deg) scaleX(1.08);
+// Whole pixels. This button ships to low-DPI screens, where a length that ends
+// between two pixels is drawn across both: a 2px bar smears into a faint 3px
+// one, and when the two bars round differently they no longer cross at the
+// button's centre, so the plus reads off center. A rem under a non-16px root, a
+// size that is not a whole number of pixels, or the 0.42 above is enough to
+// cause it. Behind @supports, as in ims-checkbox.scss and ims-radio.scss:
+// without round() these declarations would be dropped as invalid, and the
+// rules above stand.
+//
+// A plus is only exactly centred when the button, the glyph box and the bars
+// share a parity, since each offset is half a difference. The bars are 2px, so
+// the glyph box rounds to an even number of pixels, and on the default 20px
+// button every offset comes out whole. An odd button size cannot centre an
+// even glyph; there the glyph rounds a half pixel toward the start edge rather
+// than straddling two pixels. The half turn stays on whole pixels as well: it
+// pivots on the centre of an even-sized box.
+@supports (width: round(1.5px, 1px)) {
+    .ims-button-icon.ims-expand-collapse-button {
+        --ims-expand-collapse-button-pixel-size: round(var(--ims-expand-collapse-button-size, 20px), 1px);
+
+        inline-size: var(--ims-expand-collapse-button-pixel-size);
+        block-size: var(--ims-expand-collapse-button-pixel-size);
+    }
+
+    .ims-expand-collapse-button::after {
+        --ims-expand-collapse-button-glyph-size: round(var(--ims-expand-collapse-button-pixel-size) * 0.42, 2px);
+        // Measured in the padding box, which positions the glyph: the button's
+        // 1px border, from .ims-button, makes it 2px smaller than the button.
+        --ims-expand-collapse-button-glyph-offset: round(
+            down,
+            (var(--ims-expand-collapse-button-pixel-size) - 2px - var(--ims-expand-collapse-button-glyph-size)) / 2,
+            1px
+        );
+        // Where each 2px bar starts inside the glyph box.
+        --ims-expand-collapse-button-bar-offset: round(down, (var(--ims-expand-collapse-button-glyph-size) - 2px) / 2, 1px);
+
+        inset-block: var(--ims-expand-collapse-button-glyph-offset) auto;
+        inset-inline: var(--ims-expand-collapse-button-glyph-offset) auto;
+        margin: 0;
+        inline-size: var(--ims-expand-collapse-button-glyph-size);
+        block-size: var(--ims-expand-collapse-button-glyph-size);
+        // The crossbar at a whole-pixel row, the upright at a whole-pixel
+        // column. The upright keeps 50% vertically, so it shrinks toward the
+        // middle as the plus folds into the minus.
+        background-position:
+            0 var(--ims-expand-collapse-button-bar-offset),
+            var(--ims-expand-collapse-button-bar-offset) 50%;
+    }
 }
 
-.ims-expand-collapse-button--disabled,
-.ims-expand-collapse-button:disabled {
-    color: #97a3b6;
-    border-color: rgba(151, 163, 182, 0.45);
-    cursor: not-allowed;
-    transform: none;
-}
-
-.ims-expand-collapse-button:disabled::before,
-.ims-expand-collapse-button:disabled::after {
-    opacity: 0.72;
-}
-
-.ims-expand-collapse-button:disabled:hover {
-    transform: none;
-}
-
-.ims-expand-collapse-button:disabled:hover::before {
-    transform: translate(-50%, -50%);
-}
-
-.ims-expand-collapse-button:disabled:hover::after {
-    transform: translate(-50%, -50%) rotate(90deg);
+@media (prefers-reduced-motion: reduce) {
+    .ims-expand-collapse-button::after {
+        transition: none;
+    }
 }
