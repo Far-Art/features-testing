@@ -110,6 +110,13 @@ export const routes: Routes = [
             import('./pages/panel-demo/panel-demo').then((module) => module.PanelDemo)
     },
     {
+        path: 'expansion-panel',
+        loadComponent: () =>
+            import('./pages/expansion-panel-demo/expansion-panel-demo').then(
+                (module) => module.ExpansionPanelDemo
+            )
+    },
+    {
         path: 'tooltip',
         loadComponent: () =>
             import('./pages/tooltip-demo/tooltip-demo').then((module) => module.TooltipDemo)
