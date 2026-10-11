@@ -1,4 +1,20 @@
-import {ChangeDetectionStrategy, Component, computed, contentChildren, DestroyRef, effect, ElementRef, forwardRef, inject, input, Signal} from '@angular/core';
+import {
+    afterNextRender,
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    contentChildren,
+    DestroyRef,
+    effect,
+    ElementRef,
+    forwardRef,
+    inject,
+    Injector,
+    input,
+    Signal,
+    signal,
+    untracked
+} from '@angular/core';
 import {ImsGridCell} from './ims-grid-cell';
 import {IMS_GRID_CONTEXT, IMS_GRID_ROW_CONTEXT, ImsGridAppearance, ImsGridRowContext} from './ims-grid.tokens';
 
@@ -44,6 +60,16 @@ export class ImsGridRow implements ImsGridRowContext {
         return this.appearance() ?? this.grid?.appearance() ?? 'default';
     });
     private readonly cells = contentChildren(ImsGridCell, {descendants: true});
+    private readonly injector = inject(Injector);
+    /**
+     * Bumped after a render. Which cells are this row's own is read from the
+     * DOM, and a cell projected through another component — an expansion
+     * panel's header, written in the row — reaches the row there only once
+     * that component has rendered, after the effect below first runs. Reading
+     * this in {@link ownCells} makes the row count and index its cells again
+     * once they are in place.
+     */
+    private readonly layoutVersion = signal(0);
     /** `row` once the owning grid is an `ims-table`; a layout grid's rows have no role. */
     readonly role: Signal<'row' | null> = computed(() => (this.grid?.semantics() ? 'row' : null));
 
@@ -54,16 +80,26 @@ export class ImsGridRow implements ImsGridRowContext {
             this.grid?.unregisterRow(this);
         });
 
-        effect(
-            () => {
-                this.assignColumnIndexes(this.ownCells());
-            },
-            {allowSignalWrites: true}
-        );
+        // The cells' index signals are written untracked rather than under
+        // `allowSignalWrites`. Angular 18 needs one of the two to let an effect
+        // write; later versions need neither, and in development log a
+        // deprecation warning for every effect created with the flag — one per
+        // row, which a virtual viewport creating rows as it scrolls turned into
+        // a stream of console calls on the scroll path.
+        effect(() => {
+            const cells = this.ownCells();
+            untracked(() => this.assignColumnIndexes(cells));
+        });
+
+        effect(() => {
+            this.cells();
+            afterNextRender(() => this.layoutVersion.update((version) => version + 1), {injector: this.injector});
+        });
     }
 
     /** Returns cells whose nearest grid row/header is this row. */
     private ownCells(): readonly ImsGridCell[] {
+        this.layoutVersion();
         return this.cells().filter((cell) => this.belongsToThisRow(cell));
     }
 
