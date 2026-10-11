@@ -72,6 +72,11 @@
   --ims-button-focus-ring: var(--ims-button-ramp-200);
   --ims-button-radius: 4px;
   --ims-button-ring-color: var(--ims-button-ramp-solid-ring);
+  // Where the press ring sits. -2px puts the 1px ring on the first pixel inside
+  // the border, so it lands on the button's own surface: the icon button's
+  // hover plate stops at the padding box, one pixel short of the border, and a
+  // ring drawn on the border showed outside it and made the button look bigger.
+  --ims-button-ring-offset: -2px;
   --ims-button-border: transparent;
   --ims-button-fill-color: var(--ims-button-background-hover);
   --ims-button-fill-radius: 0%;
@@ -108,14 +113,17 @@
   line-height: 1;
   cursor: pointer;
   user-select: none;
-  // Nothing rides on the outline any more: the press ring is border-color and
-  // keyboard focus is box-shadow, so the only thing an outline can still add
-  // here is the UA focus ring stacked on top of ours — which this suppresses.
-  outline: none;
-  // border-color is deliberately absent from the list below, in every state.
+  // The press ring rides on the outline, drawn inward by the offset. Outlines
+  // paint above the content, so the ring also shows over an icon button's
+  // hover plate, and they take no room, so the box never changes size. At rest
+  // it is transparent, which also suppresses the UA focus ring; keyboard focus
+  // is the box-shadow halo instead.
+  outline: 1px solid transparent;
+  outline-offset: var(--ims-button-ring-offset);
+  // outline-color is deliberately absent from the list below, in every state.
   // The press ring is a keyframe animation that already ends on the resting
-  // border colour, and a transition on the same property would only fight it
-  // on the way out — the ring snaps into place and fades out on the keyframes.
+  // transparent, and a transition on the same property would only fight it on
+  // the way out — the ring snaps into place and fades out on the keyframes.
   //
   // Rest state, i.e. the way *out*: alpha fades the ripple away where it
   // stands, and the radius reset is a 0s change delayed until that fade has
@@ -196,36 +204,37 @@
 // entered when the blink class drops is plain :hover — so fading it that way
 // would drag the same fade onto every hover, which is exactly what the ring is
 // not supposed to do. Keyframes keep the fade attached to the press alone.
-// Only border-color moves — the 1px border is already there in every variation
-// and every state, so this is a repaint of a line that exists rather than a
-// ring appearing, and the box never changes size.
+// Only outline-color moves — the 1px outline is already there in every
+// variation and every state, so this is a repaint of a line that exists rather
+// than a ring appearing, and it sits inside the button's own surface (see
+// --ims-button-ring-offset), so the button never looks any bigger.
 //
-// The last frame lands on the variation's own resting border colour, which is
-// the value the element goes back to the instant the class drops. That is the
-// same colour whether the press came from a pointer or the keyboard, so one
-// keyframe set covers both and the handoff is invisible either way.
+// The last frame lands on transparent, the value the element goes back to the
+// instant the class drops. That is the same whether the press came from a
+// pointer or the keyboard, so one keyframe set covers both and the handoff is
+// invisible either way.
 @keyframes ims-button-action-blink {
   0%,
   24% {
-    border-color: var(--ims-button-ring-color);
+    outline-color: var(--ims-button-ring-color);
   }
 
   100% {
-    border-color: var(--ims-button-border);
+    outline-color: transparent;
   }
 }
 
 // Kept in step with ACTION_BLINK_MS in ims-button.ts, which is how long the
 // class stays on — shorter there would cut the fade off mid-way.
 .ims-button.ims-button--action-blink {
-  border-color: var(--ims-button-ring-color);
+  outline-color: var(--ims-button-ring-color);
   animation: ims-button-action-blink 450ms ease-out forwards;
 }
 
 // Keyboard focus rides on box-shadow, deliberately a different channel
-// from the border the press ring uses, so the two never fight: a button
+// from the outline the press ring uses, so the two never fight: a button
 // pressed with the keyboard shows both at once, the focus halo outside
-// the border box and the ring on the border itself.
+// the border box and the ring inside it.
 // Plain :focus needs no rule at all — the base sets `outline: none`,
 // which already suppresses the UA focus ring.
 .ims-button:focus-visible {
@@ -293,8 +302,11 @@
   --ims-button-color-active: var(--ims-button-ramp-700);
   // Two steps down the ramp from the resting border, not the same slot:
   // this is the only variation with a border you can already see, so the
-  // press has to read as that line darkening.
+  // press has to read as that line darkening. For the same reason the ring
+  // lies on the border here rather than inside it — the border is already the
+  // button's visible edge, so drawing over it adds nothing outside.
   --ims-button-ring-color: var(--ims-button-ramp-700);
+  --ims-button-ring-offset: -1px;
   --ims-button-border: var(--ims-button-ramp-500);
 }
 
@@ -478,7 +490,7 @@
 // colour from whichever it lands on.
 //
 // The halo rides on box-shadow because the button's other two ring channels
-// are already spoken for: the border carries the press ring and
+// are already spoken for: the outline carries the press ring and
 // background-image carries the ripple. A pseudo-element is not an option
 // either — the base clips its children with `overflow: hidden`, while an
 // outer box-shadow paints past the border box untouched by it, and its spread
