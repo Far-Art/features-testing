@@ -1,5 +1,6 @@
 import {ChangeDetectionStrategy, Component, computed, DestroyRef, ElementRef, forwardRef, inject, input, Signal, signal} from '@angular/core';
-import {IMS_GRID_CONTEXT, ImsGridAppearance, ImsGridContext, ImsGridRowContext} from './ims-grid.tokens';
+import {IMS_TABLE_CONTEXT} from '../ims-table/ims-table.tokens';
+import {IMS_GRID_CONTEXT, ImsGridAppearance, ImsGridContext, ImsGridRowContext, ImsGridSemantics} from './ims-grid.tokens';
 
 
 @Component({
@@ -24,15 +25,21 @@ import {IMS_GRID_CONTEXT, ImsGridAppearance, ImsGridContext, ImsGridRowContext} 
 })
 /**
  * Root grid container that owns the shared column template for `ims-grid-row`,
- * `ims-grid-header`, and nested subgrid wrappers.
+ * `ims-grid-header`, `ims-grid-footer`, and nested subgrid wrappers.
  *
  * The component intentionally keeps layout state at the root and exposes it
  * through CSS custom properties so projected rows can align with the header
  * using CSS `subgrid`.
  */
 export class ImsGrid implements ImsGridContext {
-    /** Horizontal gutter track between logical columns. */
-    readonly gap = input<string | number>(3, {alias: 'columnGap'});
+    /**
+     * Horizontal gutter track between logical columns.
+     *
+     * Unset leaves the gutter to the stylesheet: 3px on a bare grid, none on an
+     * `ims-table`, whose cells pad themselves instead. A value given here is
+     * written inline and wins over both.
+     */
+    readonly gap = input<string | number | undefined>(undefined, {alias: 'columnGap'});
     /** Vertical gap between top-level grid rows. */
     readonly rowGapInput = input<string | number>(0, {alias: 'rowGap'});
     /** Start rail track applied once on the root grid without shrinking full-width children. */
@@ -57,8 +64,11 @@ export class ImsGrid implements ImsGridContext {
     readonly columnTemplate = input<string | undefined>(undefined);
     /** Appearance marker mirrored to `appearance` attribute on host. */
     readonly appearance = input<ImsGridAppearance>('default');
-    /** Normalized CSS length for the column gutter track custom property. */
-    readonly columnGap: Signal<string> = computed(() => toCssLength(this.gap()));
+    /** Normalized CSS length for the column gutter track custom property, or `null` to leave it to CSS. */
+    readonly columnGap: Signal<string | null> = computed(() => {
+        const gap = this.gap();
+        return gap === undefined ? null : toCssLength(gap);
+    });
     /** Normalized CSS length for the host row gap style. */
     readonly rowGap: Signal<string> = computed(() => toCssLength(this.rowGapInput()));
     /** Normalized CSS length for the root start rail. */
@@ -68,6 +78,16 @@ export class ImsGrid implements ImsGridContext {
     private readonly destroyRef = inject(DestroyRef);
     private readonly hostElement = inject(ElementRef<HTMLElement>).nativeElement;
     private readonly rows = signal<readonly ImsGridRowContext[]>([]);
+    /** An `ims-table` directive on this same host, which turns the grid from a layout into a table. */
+    private readonly table = inject(IMS_TABLE_CONTEXT, {self: true, optional: true});
+    /** ARIA semantics passed down to rows and cells: none for a layout grid. */
+    readonly semantics: Signal<ImsGridSemantics> = computed(() => {
+        if (!this.table) {
+            return null;
+        }
+
+        return this.table.interactive() ? 'grid' : 'table';
+    });
     /** Maximum logical column count across header rows, falling back to body rows. */
     readonly columnCount: Signal<number> = computed(() => {
         const rows = this.rows();
@@ -120,7 +140,11 @@ export class ImsGrid implements ImsGridContext {
             columnTracks.push(headerRow?.resolveColumnTrack(index) ?? defaultTrack);
         }
 
-        return buildTemplateWithOffsetRails(columnTracks);
+        // A table paints its rows edge to edge inside its frame. When no column
+        // can take the grid's leftover width, the end rail takes it, so the
+        // rows, the header band and the separators still reach the frame.
+        const fillEndRail = this.semantics() !== null && !columnTracks.some(isGrowingTrack);
+        return buildTemplateWithOffsetRails(columnTracks, fillEndRail);
     });
 
     constructor() {
@@ -145,7 +169,7 @@ export class ImsGrid implements ImsGridContext {
     }
 }
 
-function buildTemplateWithOffsetRails(columnTracks: readonly string[]): string {
+function buildTemplateWithOffsetRails(columnTracks: readonly string[], fillEndRail: boolean): string {
     const tracks = ['var(--ims-grid-offset-start)'];
 
     columnTracks.forEach((track, index) => {
@@ -156,9 +180,15 @@ function buildTemplateWithOffsetRails(columnTracks: readonly string[]): string {
         tracks.push(track);
     });
 
-    tracks.push('var(--ims-grid-offset-end)');
+    tracks.push(fillEndRail ? 'minmax(var(--ims-grid-offset-end), 1fr)' : 'var(--ims-grid-offset-end)');
 
     return tracks.join(' ');
+}
+
+/** Whether a track takes a share of leftover width: `auto` stretches, `fr` flexes. */
+function isGrowingTrack(track: string): boolean {
+    const normalized = track.trim().toLowerCase();
+    return normalized === 'auto' || /\dfr\b/.test(normalized) || /,\s*auto\s*\)$/.test(normalized);
 }
 
 /** Converts numeric or unitless length inputs into valid CSS length strings. */
@@ -185,7 +215,7 @@ function resolveSelectedGridText(hostElement: HTMLElement, selection: Selection 
     }
 
     const rows = Array.from(
-        hostElement.querySelectorAll<HTMLElement>('ims-grid-header, ims-grid-row')
+        hostElement.querySelectorAll<HTMLElement>('ims-grid-header, ims-grid-row, ims-grid-footer')
     ).filter((row) => row.closest('ims-grid') === hostElement);
 
     const lines: string[] = [];
@@ -204,7 +234,7 @@ function resolveSelectedGridText(hostElement: HTMLElement, selection: Selection 
 
 function resolveOwnGridCells(row: HTMLElement): readonly HTMLElement[] {
     return Array.from(row.querySelectorAll<HTMLElement>('ims-grid-cell'))
-                .filter((cell) => cell.closest('ims-grid-row, ims-grid-header') === row);
+                .filter((cell) => cell.closest('ims-grid-row, ims-grid-header, ims-grid-footer') === row);
 }
 
 function resolveSelectedNodeText(selection: Selection, node: HTMLElement): string | null {

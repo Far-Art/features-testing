@@ -1,4 +1,8 @@
 ims-grid {
+    // The gutter track between columns. `columnGap` writes it inline when set;
+    // otherwise this default holds, and `ims-table` replaces it with cell padding.
+    --ims-grid-column-gap: 3px;
+
     display: grid;
     grid-template-columns: var(--ims-grid-template);
     column-gap: 0;
@@ -19,7 +23,7 @@ ims-grid {
     // Row count is handled by virtualisation instead, which is why
     // `.cdk-virtual-scroll-content-wrapper` is excluded from the rule below:
     // CDK's wrapper stays out of the subgrid chain rather than bridging it.
-    :where(*:not(ims-grid):not(.cdk-virtual-scroll-content-wrapper):has(> :is(ims-grid-row, ims-grid-header))) {
+    :where(*:not(ims-grid):not(.cdk-virtual-scroll-content-wrapper):has(> :is(ims-grid-row, ims-grid-header, ims-grid-footer))) {
         display: grid;
         grid-column: 1 / -1;
         grid-template-columns: subgrid;
@@ -30,7 +34,7 @@ ims-grid {
         box-sizing: border-box;
     }
 
-    :is(ims-grid-row, ims-grid-header) {
+    :is(ims-grid-row, ims-grid-header, ims-grid-footer) {
         display: grid;
         grid-column: 1 / -1;
         grid-template-columns: subgrid;
@@ -63,9 +67,8 @@ ims-grid {
         ims-grid-cell::after {
             content: '';
             position: absolute;
-            right: 0.5rem;
+            inset-inline: 0 0.5rem;
             bottom: 0;
-            left: 0;
             height: 1px;
             background: currentColor;
             opacity: 0;

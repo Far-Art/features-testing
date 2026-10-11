@@ -1,0 +1,352 @@
+// The IMS table look, shared by `table[ims-table]` and `ims-grid[ims-table]`.
+//
+// The directive puts `.ims-table-new` on either host. It is not `.ims-table`:
+// that name belongs to an older table style this one lives beside, and nothing
+// here touches it. Both hosts are painted from the slots below, side by side in
+// this one file, so a native table and a grid cannot drift apart.
+//
+// A grid's rows and cells are matched by the ARIA role the grid gives them
+// (`ims-grid-row[role='row']`, `ims-grid-cell[role]`). An `ims-grid` only hands
+// out roles when `ims-table` sits on it, and each row and cell takes them from
+// its *nearest* grid — so a bare layout grid nested in a table's cell keeps its
+// rows unpainted, which no descendant selector could promise.
+
+// Hover and selection are layers painted over the row's fill rather than
+// replacements for it. That is what lets one slot recolour a row: an orange row
+// still darkens under the pointer and still tints when selected, because
+// neither state knows what colour it is drawn over.
+//
+// Registered so they do not inherit: a selected row must not tint the rows
+// nested inside it.
+@property --ims-table-row-hover-paint {
+    syntax: '<color>';
+    inherits: false;
+    initial-value: transparent;
+}
+
+@property --ims-table-row-state-paint {
+    syntax: '<color>';
+    inherits: false;
+    initial-value: transparent;
+}
+
+@property --ims-table-row-stripe-paint {
+    syntax: '<color>';
+    inherits: false;
+    initial-value: transparent;
+}
+
+// One cell's own fill, painted over its row. Not inherited, so setting it on a
+// cell paints that cell and nothing inside it.
+@property --ims-table-cell-fill {
+    syntax: '<color>';
+    inherits: false;
+    initial-value: transparent;
+}
+
+// The slots — the public colour and layout API.
+//
+// Each one inherits, so it can be set on the table for every row, on a row for
+// that row, or anywhere above the table. `:where()` keeps the defaults at zero
+// specificity, so a call site's own rule on the table wins whatever its
+// selector and wherever its stylesheet loads.
+:where(.ims-table-new) {
+    // Row background. The table owns a white surface, so the states below read
+    // the same whether the table sits on a white dialog or a grey panel.
+    --ims-table-row-fill: var(--ims-color-surface-panel);
+    --ims-table-row-color: var(--ims-color-on-surface);
+    // The selection bar, the selected and active tints, and the focus ring. A
+    // row repainted in another hue sets this too, so its selection speaks that
+    // hue rather than blue over orange.
+    --ims-table-row-accent: var(--ims-color-interactive);
+    // Translucent, so it darkens whatever fill it lands on. Over white it comes
+    // out within a shade of --ims-color-surface-subtle, the hover-row token.
+    --ims-table-hover-layer: color-mix(in srgb, var(--ims-color-neutral-600) 7%, transparent);
+    // The stripe on every other row of a `zebra` table. Lighter than the hover
+    // layer, and drawn beneath it, so a hovered stripe still darkens.
+    --ims-table-stripe-layer: color-mix(in srgb, var(--ims-color-neutral-600) 4%, transparent);
+    --ims-table-header-fill: var(--ims-color-surface-subtle);
+    --ims-table-header-color: var(--ims-color-on-surface);
+    // The frame and the line under every row and the header. One colour for
+    // all of them: every line in a table is the same line.
+    --ims-table-border: var(--ims-color-border-subtle);
+    --ims-table-separator: var(--ims-color-border-subtle);
+
+    // A field's height plus 3px each side: the room an input's focus halo needs
+    // inside a cell that clips, and the reason a row of inputs and a row of
+    // text come out the same height.
+    --ims-table-row-height: calc(var(--field-height) + 6px);
+    --ims-table-cell-padding-block: 0.1875rem;
+    --ims-table-cell-padding-inline: 0.625rem;
+    --ims-table-radius: 0.5rem;
+    // How far inside the scrollport's top and bottom edges the header and the
+    // footer pin. Raise them to clear a sticky page header or action bar.
+    --ims-table-sticky-offset: 0px;
+    --ims-table-sticky-offset-end: 0px;
+}
+
+.ims-table-new {
+    box-sizing: border-box;
+    // `clip` rather than `hidden`: the header band and row fills have to stop at
+    // the rounded corners, but a scroll container here would capture the sticky
+    // header, which has to pin to whatever scrolls around the table.
+    overflow: clip;
+    border: 1px solid var(--ims-table-border);
+    border-radius: var(--ims-table-radius);
+    background: var(--ims-table-row-fill);
+    color: var(--ims-table-row-color);
+}
+
+// Native table structure.
+//
+// Child combinators throughout, so a plain table nested in a cell keeps its own
+// look. `separate` because `collapse` drops a sticky header's border and
+// ignores the frame's radius.
+table.ims-table-new {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+table.ims-table-new > :is(thead, tbody, tfoot) > tr > :is(th, td) {
+    box-sizing: border-box;
+    block-size: var(--ims-table-row-height);
+    padding-block: var(--ims-table-cell-padding-block);
+    padding-inline: var(--ims-table-cell-padding-inline);
+    text-align: start;
+    vertical-align: middle;
+}
+
+table.ims-table-new > thead > tr > :is(th, td) {
+    position: sticky;
+    inset-block-start: var(--ims-table-sticky-offset);
+    z-index: 1;
+    border-block-end: 1px solid var(--ims-table-separator);
+    background: var(--ims-table-header-fill);
+    color: var(--ims-table-header-color);
+    font-weight: var(--ims-font-weight-semibold);
+}
+
+table.ims-table-new > tbody > tr > :is(th, td) {
+    border-block-end: 1px solid var(--ims-table-separator);
+    background-color: var(--ims-table-cell-fill);
+}
+
+// The footer closes the table the way the header opens it: the same band, and
+// pinned to the bottom of the scrollport, so totals stay in view beside the
+// rows they sum. It is a summary rather than a row, so it takes no hover,
+// selection or focus.
+table.ims-table-new > tfoot > tr > :is(th, td) {
+    position: sticky;
+    inset-block-end: var(--ims-table-sticky-offset-end);
+    z-index: 1;
+    border-block-start: 1px solid var(--ims-table-separator);
+    background: var(--ims-table-header-fill);
+    color: var(--ims-table-header-color);
+    font-weight: var(--ims-font-weight-semibold);
+}
+
+// The frame already draws the bottom edge, and the footer draws its own top
+// edge, which the last body row's line would otherwise double.
+table.ims-table-new > tbody:last-child > tr:last-child > :is(th, td),
+table.ims-table-new:has(> tfoot) > tbody:last-of-type > tr:last-child > :is(th, td) {
+    border-block-end-color: transparent;
+}
+
+// Grid structure.
+//
+// Cells pad themselves instead of the grid putting gutter tracks between them,
+// which is what a native table does too. It also matters inside the cell:
+// `ims-grid-cell` clips its overflow, and padding is what keeps an input's
+// focus halo inside the clip.
+ims-grid.ims-table-new {
+    --ims-grid-column-gap: 0px;
+}
+
+ims-grid-header[role='row'] {
+    position: sticky;
+    inset-block-start: var(--ims-table-sticky-offset);
+    z-index: 1;
+    min-block-size: var(--ims-table-row-height);
+    border-block-end: 1px solid var(--ims-table-separator);
+    background: var(--ims-table-header-fill);
+    color: var(--ims-table-header-color);
+}
+
+ims-grid-row[role='row'] {
+    position: relative;
+    min-block-size: var(--ims-table-row-height);
+    border-block-end: 1px solid var(--ims-table-separator);
+
+    &:last-child,
+    &:has(+ ims-grid-footer) {
+        border-block-end-color: transparent;
+    }
+}
+
+ims-grid-footer[role='row'] {
+    position: sticky;
+    inset-block-end: var(--ims-table-sticky-offset-end);
+    z-index: 1;
+    min-block-size: var(--ims-table-row-height);
+    border-block-start: 1px solid var(--ims-table-separator);
+    background: var(--ims-table-header-fill);
+    color: var(--ims-table-header-color);
+    font-weight: var(--ims-font-weight-semibold);
+}
+
+ims-grid-cell[role] {
+    box-sizing: border-box;
+    padding-block: var(--ims-table-cell-padding-block);
+    padding-inline: var(--ims-table-cell-padding-inline);
+}
+
+ims-grid-cell:is([role='cell'], [role='gridcell']) {
+    align-self: stretch;
+    background-color: var(--ims-table-cell-fill);
+}
+
+// The sort underline spans the cell's text, not its padding.
+ims-grid-cell[role='columnheader']::after {
+    inset-inline: var(--ims-table-cell-padding-inline);
+}
+
+ims-grid-cell[role='columnheader']:has(.mat-sort-header-sorted) {
+    color: var(--ims-color-interactive-strong);
+}
+
+// Rows: one paint rule for both hosts. Every state below only repoints a layer.
+table.ims-table-new > tbody > tr,
+ims-grid-row[role='row'] {
+    background-color: var(--ims-table-row-fill);
+    background-image:
+        linear-gradient(var(--ims-table-row-hover-paint), var(--ims-table-row-hover-paint)),
+        linear-gradient(var(--ims-table-row-state-paint), var(--ims-table-row-state-paint)),
+        linear-gradient(var(--ims-table-row-stripe-paint), var(--ims-table-row-stripe-paint));
+    color: var(--ims-table-row-color);
+}
+
+// Zebra. Whether a table stripes is said once, on the table, as the colour the
+// stripe takes there — transparent when it does not. Rows read it by
+// inheritance, so each takes it from its nearest table and a plain table
+// nested in a striped one stays plain.
+.ims-table-new {
+    --ims-table-row-stripe: transparent;
+}
+
+.ims-table-new.ims-table-new--zebra {
+    --ims-table-row-stripe: var(--ims-table-stripe-layer);
+}
+
+// Every second row among its siblings, the header not counted. A virtual
+// viewport's rows are left out: their place among the rendered elements moves
+// as the window scrolls, which would swap the stripes under the pointer.
+table.ims-table-new > tbody > tr:nth-child(even),
+ims-grid-row[role='row']:not(.cdk-virtual-scroll-content-wrapper > *):nth-child(even of ims-grid-row[role='row']) {
+    --ims-table-row-stripe-paint: var(--ims-table-row-stripe);
+}
+
+// Virtual rows stripe by the item index bound to `[ims-table-row]`.
+.cdk-virtual-scroll-content-wrapper > ims-grid-row[role='row'].ims-table-new__row--alternate {
+    --ims-table-row-stripe-paint: var(--ims-table-row-stripe);
+}
+
+// Every row, interactive or not: on a wide row the tint is what keeps the eye
+// on one line. A row that holds the hovered nested row stays untinted, so only
+// the innermost row lights.
+table.ims-table-new > tbody > tr:hover,
+ims-grid-row[role='row']:hover:not(:has(ims-grid-row[role='row']:hover)) {
+    --ims-table-row-hover-paint: var(--ims-table-hover-layer);
+}
+
+// Selected comes from `aria-selected`, so the look and what assistive
+// technology announces cannot disagree. Over white the tint is within a shade
+// of --ims-color-interactive-subtle, the selected-row token.
+table.ims-table-new > tbody > tr[aria-selected='true'],
+ims-grid-row[role='row'][aria-selected='true'] {
+    --ims-table-row-state-paint: color-mix(in srgb, var(--ims-table-row-accent) 10%, transparent);
+}
+
+// Active is emphasis the call site asks for — the record open beside the table,
+// a row just changed — and has no ARIA meaning of its own. Twice the selected
+// tint, about --ims-color-interactive-alt-subtle over white, and no bar: the
+// bar says "chosen", and an active row has not been. Declared after selected
+// at the same specificity, so a row that is both takes the stronger tint.
+table.ims-table-new > tbody > tr.ims-table-new__row--active,
+ims-grid-row[role='row'].ims-table-new__row--active {
+    --ims-table-row-state-paint: color-mix(in srgb, var(--ims-table-row-accent) 20%, transparent);
+}
+
+// The selection bar on the row's start edge. A shape as well as a tint, so a
+// selected row still reads as one on a row already filled with colour.
+table.ims-table-new > tbody > tr > :first-child {
+    position: relative;
+}
+
+table.ims-table-new > tbody > tr[aria-selected='true'] > :first-child::before,
+ims-grid-row[role='row'][aria-selected='true']::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    inline-size: 3px;
+    background: var(--ims-table-row-accent);
+    pointer-events: none;
+}
+
+// Interactive rows.
+.ims-table-new__row--interactive {
+    cursor: pointer;
+    // A row focused from the keyboard scrolls in below the sticky header, not
+    // under it.
+    scroll-margin-block-start: calc(var(--ims-table-row-height) + 1px);
+
+    &:focus-visible {
+        // Drawn inside the row: an outer ring would be covered by the next row
+        // and clipped by the frame.
+        outline: 2px solid var(--ims-table-row-accent);
+        outline-offset: -2px;
+    }
+}
+
+// A virtual viewport scrolls below the header rather than under it.
+.cdk-virtual-scroll-content-wrapper > .ims-table-new__row--interactive {
+    scroll-margin-block-start: 0;
+}
+
+// Status presets: each repoints the row's fill and accent and nothing else.
+//
+// No `info`: its fill is the blue a selected row is tinted with, and an info
+// row would be told apart from a selected one only by the bar.
+.ims-table-new__row--success {
+    --ims-table-row-fill: var(--ims-color-status-success-subtle);
+    --ims-table-row-accent: var(--ims-color-status-success);
+}
+
+.ims-table-new__row--warning {
+    --ims-table-row-fill: var(--ims-color-status-warning-subtle);
+    --ims-table-row-accent: var(--ims-color-status-warning);
+}
+
+.ims-table-new__row--danger {
+    --ims-table-row-fill: var(--ims-color-status-danger-subtle);
+    --ims-table-row-accent: var(--ims-color-status-danger);
+}
+
+// Amounts, counts and dates: digits of equal width, lined up on the end edge.
+// `text-align` serves a table cell, `justify-content` a grid cell, which lays
+// its content out as a flex row. The native selector repeats the cell rule's
+// shape so it outranks that rule's `text-align: start`.
+//
+// `end` rather than `flex-end`: the sort header's `arrowPosition="before"` lays
+// its row out reversed, which turns `flex-end` around. `end` is the writing
+// direction's end whichever way the flex row runs.
+table.ims-table-new > :is(thead, tbody, tfoot) > tr > .ims-table-new__cell--numeric,
+ims-grid-cell.ims-table-new__cell--numeric {
+    justify-content: end;
+    font-variant-numeric: tabular-nums;
+    text-align: end;
+
+    .mat-sort-header-container {
+        justify-content: end;
+    }
+}

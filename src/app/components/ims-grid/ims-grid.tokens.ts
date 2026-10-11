@@ -1,7 +1,15 @@
 import {InjectionToken, Signal} from '@angular/core';
 
 
-export type ImsGridAppearance = 'default' | 'styled';
+export type ImsGridAppearance = 'default';
+
+/**
+ * What an `ims-grid` is to assistive technology.
+ *
+ * `null` is a bare grid used for layout, such as a form; `table` and `grid` are
+ * what `ims-table` makes it, without and with `interactive`.
+ */
+export type ImsGridSemantics = 'table' | 'grid' | null;
 
 /** Internal row contract consumed by the root grid to derive column count and track sizing. */
 export interface ImsGridRowContext {
@@ -25,6 +33,8 @@ export interface ImsGridContext {
     readonly appearance: Signal<ImsGridAppearance>;
     /** Number of logical data columns shared by all subgrid rows. */
     readonly columnCount: Signal<number>;
+    /** ARIA semantics rows and cells take their roles from. */
+    readonly semantics: Signal<ImsGridSemantics>;
 
     /** Registers a row/header so the root grid can derive the shared column template. */
     registerRow(row: ImsGridRowContext): void;
@@ -35,3 +45,6 @@ export interface ImsGridContext {
 
 /** Injection token used to connect projected grid rows/cells to their owning root grid. */
 export const IMS_GRID_CONTEXT = new InjectionToken<ImsGridContext>('IMS_GRID_CONTEXT');
+
+/** Connects projected cells to their nearest row or header. */
+export const IMS_GRID_ROW_CONTEXT = new InjectionToken<ImsGridRowContext>('IMS_GRID_ROW_CONTEXT');

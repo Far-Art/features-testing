@@ -1,21 +1,29 @@
-import {ChangeDetectionStrategy, Component, computed, contentChildren, DestroyRef, effect, ElementRef, inject, input, Signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, contentChildren, DestroyRef, effect, ElementRef, forwardRef, inject, input, Signal} from '@angular/core';
 import {ImsGridCell} from './ims-grid-cell';
-import {IMS_GRID_CONTEXT, ImsGridAppearance, ImsGridRowContext} from './ims-grid.tokens';
+import {IMS_GRID_CONTEXT, IMS_GRID_ROW_CONTEXT, ImsGridAppearance, ImsGridRowContext} from './ims-grid.tokens';
 
 
 @Component({
-    selector: 'ims-grid-row, ims-grid-header',
+    selector: 'ims-grid-row, ims-grid-header, ims-grid-footer',
     standalone: true,
     template: '<ng-content/>',
     host: {
-        '[attr.appearance]': 'effectiveAppearance()'
+        '[attr.appearance]': 'effectiveAppearance()',
+        '[attr.role]': 'role()'
     },
+    providers: [
+        {
+            provide: IMS_GRID_ROW_CONTEXT,
+            useExisting: forwardRef(() => ImsGridRow)
+        }
+    ],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 /**
  * Logical grid row/header that participates in an owning `ims-grid` subgrid.
  *
- * `ims-grid-header` contributes column sizing metadata. `ims-grid-row`
+ * `ims-grid-header` contributes column sizing metadata. `ims-grid-footer` is a
+ * closing row, such as totals, laid out like a body row. `ims-grid-row`
  * contributes body cells and can contain nested wrappers; CSS `:has()` turns
  * those wrappers into subgrid bridges.
  */
@@ -36,6 +44,8 @@ export class ImsGridRow implements ImsGridRowContext {
         return this.appearance() ?? this.grid?.appearance() ?? 'default';
     });
     private readonly cells = contentChildren(ImsGridCell, {descendants: true});
+    /** `row` once the owning grid is an `ims-table`; a layout grid's rows have no role. */
+    readonly role: Signal<'row' | null> = computed(() => (this.grid?.semantics() ? 'row' : null));
 
     constructor() {
         this.grid?.registerRow(this);
@@ -59,7 +69,7 @@ export class ImsGridRow implements ImsGridRowContext {
 
     /** Excludes cells projected into nested rows from this row's calculations. */
     private belongsToThisRow(cell: ImsGridCell): boolean {
-        const nearestRow = cell.getHostElement().closest('ims-grid-row, ims-grid-header');
+        const nearestRow = cell.getHostElement().closest('ims-grid-row, ims-grid-header, ims-grid-footer');
         return nearestRow === this.hostElement;
     }
 

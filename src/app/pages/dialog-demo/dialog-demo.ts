@@ -17,6 +17,7 @@ import {
   ImsDialogToolbar,
 } from '../../components/ims-dialog';
 import { ImsGrid, ImsGridCell, ImsGridRow } from '../../components/ims-grid';
+import { ImsTableDirective } from '../../components/ims-table';
 
 interface MergeDialogData {
   readonly fromConfig: string;
@@ -661,7 +662,7 @@ export class DialogToolbarContent {
 @Component({
   selector: 'app-dialog-grid-content',
   standalone: true,
-  imports: [ImsDialogContent, ImsGrid, ImsGridCell, ImsGridRow],
+  imports: [ImsDialogContent, ImsGrid, ImsGridCell, ImsGridRow, ImsTableDirective],
   template: `
     <ims-dialog-content>
       <div class="dialog-grid-demo__intro">
@@ -669,7 +670,7 @@ export class DialogToolbarContent {
         <p>Scroll this dialog body. The column header should remain pinned to its top edge.</p>
       </div>
 
-      <ims-grid appearance="styled" columnGap="16" rowGap="0">
+      <ims-grid ims-table>
         <ims-grid-header>
           <ims-grid-cell width="5rem">ID</ims-grid-cell>
           <ims-grid-cell minWidth="12rem">Policy holder</ims-grid-cell>
@@ -704,31 +705,6 @@ export class DialogToolbarContent {
       margin: 0.375rem 0 0;
       color: var(--ims-color-on-surface-muted);
       line-height: 1.5;
-    }
-
-    ims-grid-header {
-      position: sticky;
-      z-index: 1;
-      top: 0;
-      min-height: 3rem;
-      padding-block: 0.75rem;
-      border-bottom: 1px solid var(--ims-color-border-subtle);
-      background: var(--ims-color-surface-subtle);
-      box-shadow: 0 0.35rem 0.75rem rgb(22 35 58 / 10%);
-    }
-
-    ims-grid-row {
-      min-height: 3rem;
-      padding-block: 0.65rem;
-      border-bottom: 1px solid var(--ims-color-border-subtle);
-    }
-
-    ims-grid-row:last-child {
-      border-bottom: 0;
-    }
-
-    ims-grid-cell {
-      padding-inline: 0.75rem;
     }
 
     .dialog-grid-demo__status {

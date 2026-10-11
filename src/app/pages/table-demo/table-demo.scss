@@ -1,0 +1,137 @@
+.page-heading {
+    margin-block-end: 1.5rem;
+}
+
+.page-heading h1,
+.page-heading p {
+    margin: 0;
+}
+
+.page-heading p {
+    margin-block-start: 0.5rem;
+    color: var(--ims-color-on-surface-muted);
+}
+
+.page-heading code,
+.table-demo__description code,
+.table-demo__toolbar code {
+    direction: ltr;
+    unicode-bidi: isolate;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.85em;
+}
+
+// Grey, like the panels and pages tables usually sit on, so the white table
+// surface and its frame read as they will in the application.
+.table-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-block-end: 2rem;
+    padding: 1.75rem 2rem;
+    border-radius: 1.25rem;
+    background: var(--ims-background-page);
+    box-shadow: 0 0.5rem 1.75rem color-mix(in srgb, var(--ims-color-primary-950) 8%, transparent);
+}
+
+.table-demo__description h2 {
+    margin: 0 0 0.5rem;
+    color: var(--ims-color-on-surface);
+}
+
+.table-demo__description p {
+    max-width: 52rem;
+    margin: 0;
+    color: var(--ims-color-on-surface-muted);
+    line-height: 1.6;
+}
+
+.table-demo__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+    color: var(--ims-color-on-surface-muted);
+    font-size: 0.875rem;
+}
+
+.table-demo__color {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.table-demo__color input {
+    inline-size: 2.5rem;
+    block-size: var(--field-height);
+    padding: 0;
+    border: 1px solid var(--ims-color-border);
+    border-radius: 0.375rem;
+    background: var(--ims-color-surface-input);
+}
+
+.table-demo__table {
+    inline-size: 100%;
+}
+
+.table-demo__split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(14rem, 18rem);
+    align-items: start;
+    gap: 1rem;
+}
+
+.table-demo__actions {
+    inline-size: 1%;
+    white-space: nowrap;
+}
+
+.table-demo__log {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--ims-color-border-subtle);
+    border-radius: 0.5rem;
+    background: var(--ims-background-panel);
+    font-size: 0.85rem;
+}
+
+.table-demo__log h3 {
+    margin: 0 0 0.5rem;
+    font-size: 0.9rem;
+}
+
+.table-demo__log p,
+.table-demo__log ol {
+    margin: 0;
+    color: var(--ims-color-on-surface-muted);
+}
+
+.table-demo__log ol {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding-inline-start: 1.1rem;
+}
+
+// A virtual viewport needs a real height to compute its window from.
+.table-demo__viewport {
+    block-size: 20rem;
+}
+
+.table-demo__visually-hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+@media (max-width: 860px) {
+    .table-demo {
+        padding: 1.25rem;
+    }
+
+    .table-demo__split {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

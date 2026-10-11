@@ -324,6 +324,31 @@ Shared validation colors are:
 --ims-color-invalid-focus-ring
 ```
 
+## Tables
+
+Put `ims-table` on a native `table` or an `ims-grid` instead of styling either
+by hand. The directive adds `.ims-table-new` — not `.ims-table`, which belongs
+to an older table style — and `src/styles/ims-table.scss` paints both hosts
+from one set of slots:
+
+```html
+<table ims-table>…</table>
+<ims-grid ims-table>…</ims-grid>
+```
+
+Recolor a row, a cell or the whole table through the slots rather than through
+`background`, which would cover the hover and selection layers:
+
+```scss
+.ims-example__overdue-row {
+    --ims-table-row-fill: var(--ims-color-warning-100);
+}
+```
+
+Selection is `aria-selected="true"` on the row; emphasis is
+`.ims-table-new__row--active`. See `src/app/components/ims-table/README.md`
+for the slots, the interactive mode and virtual scrolling.
+
 ## Selectors and Sass nesting
 
 Use Sass nesting only for actual descendants, pseudo-classes, pseudo-elements,
@@ -375,6 +400,7 @@ Do not construct class names with the parent selector:
 - Mark a wrapped control's primary control with `data-ims-main-control` when it
   uses `ims-error-popover`.
 - Use the shared input-action classes for one fixed-size adjacent button.
+- Use `ims-table` for tables and recolor them through the `--ims-table-*` slots.
 - Keep layout and structural styles inside the component stylesheet.
 - Write full class names for elements and modifiers.
 - Check hover, hover from the field's label, keyboard focus, disabled,

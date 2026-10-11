@@ -1,0 +1,241 @@
+<header class="page-heading">
+    <h1>טבלאות</h1>
+    <p>
+        <code>ims-table</code> נותן לטבלה רגילה ול-<code>ims-grid</code> אותו מראה, ועם
+        <code>interactive</code> גם ניווט במקלדת ואירועי לחיצה על שורות.
+    </p>
+</header>
+
+<section class="table-demo">
+    <div class="table-demo__description">
+        <h2>מראה וצבעים</h2>
+        <p>
+            טבלה שאינה אינטראקטיבית. שורה ממתינה ושורה שבוטלה צבועות במחלקות המוכנות
+            <code>ims-table-new__row--warning</code> ו-<code>--danger</code>, שורה אחת מודגשת
+            ב-<code>ims-table-new__row--active</code>, ותא אחד צבוע לבדו ב-<code>--ims-table-cell-fill</code>.
+            הצבע שנבחר כאן נכתב ב-<code>--ims-table-row-fill</code> על שורה אחת — ריחוף עדיין מכהה אותה.
+            שורת הסיכום ב-<code>tfoot</code> מקבלת את פס הכותרת ונצמדת לתחתית אזור הגלילה.
+            פסי הזברה הם שכבה שקופה, ולכן הם נראים גם על שורה צבועה.
+        </p>
+    </div>
+
+    <div class="table-demo__toolbar">
+        <label class="table-demo__color" for="table-demo-fill">
+            <span>צבע לשורה של {{ policies[highlightedRowId - 1].customerName }}</span>
+            <input id="table-demo-fill" type="color" [value]="customFill()" (input)="onFillInput($event)">
+        </label>
+        <code dir="ltr">--ims-table-row-fill: {{ customFill() }}</code>
+        <label class="table-demo__color" for="table-demo-zebra">
+            <input id="table-demo-zebra" type="checkbox" [checked]="zebra()" (change)="onZebraChange($event)">
+            <span>פסי זברה (<code dir="ltr">zebra</code>)</span>
+        </label>
+    </div>
+
+    <table ims-table [zebra]="zebra()" class="table-demo__table">
+        <thead>
+            <tr>
+                <th scope="col">מספר פוליסה</th>
+                <th scope="col">שם לקוח</th>
+                <th scope="col">סטטוס</th>
+                <th scope="col">תוקף</th>
+                <th scope="col" class="ims-table-new__cell--numeric">פרמיה חודשית</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (policy of policies; track policy.id) {
+                <tr
+                    [class.ims-table-new__row--warning]="policy.status === 'pending'"
+                    [class.ims-table-new__row--danger]="policy.status === 'cancelled'"
+                    [class.ims-table-new__row--active]="policy.id === 5"
+                    [style.--ims-table-row-fill]="policy.id === highlightedRowId ? customFill() : null"
+                >
+                    <td><span dir="ltr">{{ policy.policyNumber }}</span></td>
+                    <td>{{ policy.customerName }}</td>
+                    <td>{{ statusLabels[policy.status] }}</td>
+                    <td><span dir="ltr">{{ policy.validUntil | date: 'dd/MM/yyyy' : 'UTC' }}</span></td>
+                    <td
+                        class="ims-table-new__cell--numeric"
+                        [style.--ims-table-cell-fill]="policy.id === highlightedCellRowId ? 'var(--ims-color-warning-100)' : null"
+                    >
+                        ₪ {{ policy.premium | number: '1.2-2' }}
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <th scope="row" colspan="4">סה״כ {{ policies.length }} פוליסות</th>
+                <td class="ims-table-new__cell--numeric">₪ {{ totalPremium | number: '1.2-2' }}</td>
+            </tr>
+        </tfoot>
+    </table>
+</section>
+
+<section class="table-demo">
+    <div class="table-demo__description">
+        <h2>טבלה אינטראקטיבית</h2>
+        <p>
+            לחיצה בוחרת שורה ולחיצה כפולה פותחת אותה. הטבלה היא עצירת Tab אחת; בתוכה החצים,
+            Home/End ו-PageUp/PageDown עוברים בין שורות, רווח בוחר ו-Enter פותח. לחיצה על כפתור
+            הפרטים שייכת לכפתור בלבד, וגרירה שבוחרת טקסט אינה בוחרת שורה.
+        </p>
+    </div>
+
+    <div class="table-demo__split">
+        <table ims-table interactive class="table-demo__table" aria-label="פוליסות">
+            <thead>
+                <tr>
+                    <th scope="col">מספר פוליסה</th>
+                    <th scope="col">שם לקוח</th>
+                    <th scope="col">סטטוס</th>
+                    <th scope="col" class="ims-table-new__cell--numeric">פרמיה חודשית</th>
+                    <th scope="col"><span class="table-demo__visually-hidden">פעולות</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (policy of policies; track policy.id) {
+                    <tr
+                        ims-table-row
+                        [attr.aria-selected]="policy.id === nativeSelectedId()"
+                        [class.ims-table-new__row--active]="policy.id === nativeOpenedId()"
+                        (rowClick)="select('native', policy, $event)"
+                        (rowDblclick)="open('native', policy, $event)"
+                    >
+                        <td><span dir="ltr">{{ policy.policyNumber }}</span></td>
+                        <td>{{ policy.customerName }}</td>
+                        <td>{{ statusLabels[policy.status] }}</td>
+                        <td class="ims-table-new__cell--numeric">₪ {{ policy.premium | number: '1.2-2' }}</td>
+                        <td class="table-demo__actions">
+                            <button
+                                type="button"
+                                ims-button-icon
+                                [attr.aria-label]="'פרטים על ' + policy.customerName"
+                                (click)="onDetailsButton(policy)"
+                            >
+                                <ims-icon>info</ims-icon>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th scope="row" colspan="3">סה״כ</th>
+                    <td class="ims-table-new__cell--numeric">₪ {{ totalPremium | number: '1.2-2' }}</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <aside class="table-demo__log" aria-label="אירועים אחרונים" aria-live="polite">
+            <h3>אירועים אחרונים</h3>
+            @if (latestEvents().length === 0) {
+                <p>עדיין לא נלחצה שורה.</p>
+            } @else {
+                <ol>
+                    @for (entry of latestEvents(); track $index) {
+                        <li>{{ entry }}</li>
+                    }
+                </ol>
+            }
+        </aside>
+    </div>
+</section>
+
+<section class="table-demo">
+    <div class="table-demo__description">
+        <h2>ims-grid אינטראקטיבי עם מיון</h2>
+        <p>
+            אותו מראה ואותה מקלדת על <code>ims-grid</code>. כותרות המיון נשארות עצירות Tab משלהן
+            לפני השורות; מיון לא מזיז את עצירת ה-Tab מהשורה שהייתה פעילה.
+        </p>
+    </div>
+
+    <ims-grid
+        ims-table
+        interactive
+        aria-label="פוליסות לפי מיון"
+        [imsGridSort]="policies"
+        #gridSort="imsGridSort"
+    >
+        <ims-grid-header>
+            <ims-grid-cell>
+                <ims-grid-sort-header field="policyNumber">מספר פוליסה</ims-grid-sort-header>
+            </ims-grid-cell>
+            <ims-grid-cell>
+                <ims-grid-sort-header field="customerName">שם לקוח</ims-grid-sort-header>
+            </ims-grid-cell>
+            <ims-grid-cell>
+                <ims-grid-sort-header field="validUntil">תוקף</ims-grid-sort-header>
+            </ims-grid-cell>
+            <ims-grid-cell class="ims-table-new__cell--numeric">
+                <ims-grid-sort-header field="premium" arrowPosition="before">פרמיה חודשית</ims-grid-sort-header>
+            </ims-grid-cell>
+        </ims-grid-header>
+
+        @for (policy of gridSort.sortedData(); track policy.id) {
+            <ims-grid-row
+                ims-table-row
+                [attr.aria-selected]="policy.id === gridSelectedId()"
+                [class.ims-table-new__row--active]="policy.id === gridOpenedId()"
+                [class.ims-table-new__row--warning]="policy.status === 'pending'"
+                (rowClick)="select('grid', policy, $event)"
+                (rowDblclick)="open('grid', policy, $event)"
+            >
+                <ims-grid-cell><span dir="ltr">{{ policy.policyNumber }}</span></ims-grid-cell>
+                <ims-grid-cell>{{ policy.customerName }}</ims-grid-cell>
+                <ims-grid-cell><span dir="ltr">{{ policy.validUntil | date: 'dd/MM/yyyy' : 'UTC' }}</span></ims-grid-cell>
+                <ims-grid-cell class="ims-table-new__cell--numeric">₪ {{ policy.premium | number: '1.2-2' }}</ims-grid-cell>
+            </ims-grid-row>
+        }
+
+        <ims-grid-footer>
+            <ims-grid-cell span="1 / 4">סה״כ {{ policies.length }} פוליסות</ims-grid-cell>
+            <ims-grid-cell span="4 / 5" class="ims-table-new__cell--numeric">₪ {{ totalPremium | number: '1.2-2' }}</ims-grid-cell>
+        </ims-grid-footer>
+    </ims-grid>
+</section>
+
+<section class="table-demo">
+    <div class="table-demo__description">
+        <h2>גלילה וירטואלית</h2>
+        <p>
+            {{ manyPolicies.length | number }} שורות, מתוכן רק החלון הנראה קיים ב-DOM. מעבר עם החצים
+            מעבר לקצה החלון, End או PageDown גוללים את ה-viewport וממקדים את השורה אחרי שהיא מוצגת.
+            פסי הזברה נקבעים לפי האינדקס של הפריט ולא לפי המקום בחלון, ולכן אינם מתחלפים בזמן גלילה.
+        </p>
+    </div>
+
+    <ims-grid ims-table interactive zebra aria-label="פוליסות, גלילה וירטואלית">
+        <ims-grid-header>
+            <ims-grid-cell width="5rem" class="ims-table-new__cell--numeric">#</ims-grid-cell>
+            <ims-grid-cell width="9rem">מספר פוליסה</ims-grid-cell>
+            <ims-grid-cell minWidth="10rem" maxWidth="1fr">שם לקוח</ims-grid-cell>
+            <ims-grid-cell width="7rem">סטטוס</ims-grid-cell>
+            <ims-grid-cell width="9rem" class="ims-table-new__cell--numeric">פרמיה חודשית</ims-grid-cell>
+        </ims-grid-header>
+
+        <cdk-virtual-scroll-viewport itemSize="32" class="table-demo__viewport">
+            <ims-grid-row
+                [ims-table-row]="index"
+                *cdkVirtualFor="let policy of manyPolicies; let index = index; trackBy: trackPolicy"
+                [attr.aria-selected]="policy.id === virtualSelectedId()"
+                [class.ims-table-new__row--active]="policy.id === virtualOpenedId()"
+                [class.ims-table-new__row--danger]="policy.status === 'cancelled'"
+                (rowClick)="select('virtual', policy, $event)"
+                (rowDblclick)="open('virtual', policy, $event)"
+            >
+                <ims-grid-cell class="ims-table-new__cell--numeric">{{ policy.id }}</ims-grid-cell>
+                <ims-grid-cell><span dir="ltr">{{ policy.policyNumber }}</span></ims-grid-cell>
+                <ims-grid-cell>{{ policy.customerName }}</ims-grid-cell>
+                <ims-grid-cell>{{ statusLabels[policy.status] }}</ims-grid-cell>
+                <ims-grid-cell class="ims-table-new__cell--numeric">₪ {{ policy.premium | number: '1.2-2' }}</ims-grid-cell>
+            </ims-grid-row>
+        </cdk-virtual-scroll-viewport>
+
+        <ims-grid-footer>
+            <ims-grid-cell span="1 / 5">סה״כ {{ manyPolicies.length | number }} פוליסות</ims-grid-cell>
+            <ims-grid-cell span="5 / 6" class="ims-table-new__cell--numeric">₪ {{ manyTotalPremium | number: '1.2-2' }}</ims-grid-cell>
+        </ims-grid-footer>
+    </ims-grid>
+</section>

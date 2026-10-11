@@ -1,4 +1,5 @@
 import {ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal} from '@angular/core';
+import {IMS_GRID_CONTEXT, IMS_GRID_ROW_CONTEXT} from './ims-grid.tokens';
 
 type ResolvedCellSpan =
     | {kind: 'cell'}
@@ -13,7 +14,8 @@ type ResolvedCellSpan =
     host: {
         '[class.ims-grid-cell-row-span]': 'isRowSpan()',
         '[style.grid-column-start]': 'gridColumnStart()',
-        '[style.grid-column-end]': 'gridColumnEnd()'
+        '[style.grid-column-end]': 'gridColumnEnd()',
+        '[attr.role]': 'role()'
     },
     changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -44,7 +46,25 @@ export class ImsGridCell {
      */
     readonly span = input<'cell' | 'row' | string>('cell');
     private readonly elementRef = inject(ElementRef<HTMLElement>);
+    private readonly grid = inject(IMS_GRID_CONTEXT, {optional: true});
+    private readonly row = inject(IMS_GRID_ROW_CONTEXT, {optional: true});
     private readonly columnIndex = signal(0);
+    /**
+     * ARIA role once the owning grid is an `ims-table`: a header cell, a table
+     * cell, or an interactive grid's cell. A layout grid's cells have none.
+     */
+    readonly role = computed(() => {
+        const semantics = this.grid?.semantics() ?? null;
+        if (!semantics) {
+            return null;
+        }
+
+        if (this.row?.isHeaderRow) {
+            return 'columnheader';
+        }
+
+        return semantics === 'grid' ? 'gridcell' : 'cell';
+    });
     private readonly resolvedSpan = computed(() => resolveCellSpan(this.span()));
     /** Whether this cell spans the full parent row data area. */
     readonly isRowSpan = computed(() => this.resolvedSpan().kind === 'row');
