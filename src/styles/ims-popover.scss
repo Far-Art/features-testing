@@ -17,7 +17,7 @@
 
     display: block;
     box-sizing: border-box;
-    max-inline-size: min(30rem, calc(100vw - 1.5rem));
+    max-inline-size: min(50rem, calc(100vw - 1.5rem));
     // A popover can hold a list; it scrolls rather than leaving the viewport.
     max-block-size: min(50rem, calc(100vh - 1.5rem));
     overflow-y: auto;
@@ -76,7 +76,7 @@
 }
 
 // Shallower than the tooltip's 0.94, because the drift is a fraction of the
-// box: the same factor on a 480px surface moves its edges five times as far as
+// box: the same factor on an 800px surface moves its edges eight times as far as
 // on a 96px bubble. 0.97 keeps the absolute travel in the same range.
 @keyframes ims-popover-enter {
     from {
