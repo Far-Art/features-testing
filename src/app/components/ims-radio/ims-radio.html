@@ -8,6 +8,7 @@
         The input's :disabled and :hover drive those states. The selected look
         comes from .ims-radio--selected instead of :checked, because in single mode
         only one of several options sharing the selected value can be :checked.
+        [checked] sets only the property; attr.checked mirrors it in the DOM.
     -->
     <input
         #native
@@ -17,6 +18,7 @@
         [attr.id]="id()"
         [attr.aria-label]="ariaLabel()"
         [checked]="nativeChecked()"
+        [attr.checked]="nativeChecked() ? '' : null"
         [disabled]="disabled()"
         (change)="onNativeChange($event)"
     />

@@ -3,7 +3,10 @@
     [class.ims-checkbox--check]="appearance() === 'check'"
     [class.ims-checkbox--animations-ready]="animationsReady()"
 >
-    <!-- Every visual state is styled from this input's pseudo-classes. -->
+    <!--
+        Every visual state is styled from this input's pseudo-classes.
+        [checked] sets only the property; attr.checked mirrors it in the DOM.
+    -->
     <input
         #native
         class="ims-checkbox__native"
@@ -11,7 +14,8 @@
         data-ims-main-control
         [attr.id]="id()"
         [attr.aria-required]="required() || null"
-        [checked]="isChecked() && !intermediate()"
+        [checked]="nativeChecked()"
+        [attr.checked]="nativeChecked() ? '' : null"
         [indeterminate]="intermediate()"
         [disabled]="interactionDisabled()"
         (change)="toggle($event)"

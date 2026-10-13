@@ -150,6 +150,13 @@ clicks, focus, and form state. Styles read its `:disabled`, `:hover`, and
 from `:checked`: in single mode only one of several options sharing the selected
 value can be `:checked`. See Options sharing a value.
 
+The natively checked input also carries a `checked` attribute, so the state
+shows in the DOM and in `input[checked]` queries. It follows `:checked` with one
+exception: in single mode, before any user pick, every option sharing the
+selected value carries the attribute while the browser checks only the last of
+them. The first pick settles it. Style from `.ims-radio--selected`, not from
+the attribute.
+
 - Disabled: the native input is disabled. An unselected option uses the subtle
   border on the disabled surface; a selected one paints its dot or fill with
   `--ims-color-on-surface-disabled`.
@@ -319,9 +326,9 @@ Watch for two silent failures:
 - Style the selected state from `.ims-radio--selected`, never `:checked`. The
   class swaps in for `:checked` at equal specificity, so the cascade order is
   unchanged.
-- Bind the native `checked` only through `isNativeChecked`. Binding it to
-  `selected` for every duplicate makes Angular and the browser fight over which
-  radio is checked.
+- Bind the native `checked`, property and attribute, only through
+  `isNativeChecked`. Binding it to `selected` for every duplicate makes Angular
+  and the browser fight over which radio is checked.
 - `isNativeChecked` must read only the asking option's value and the picked
   option's value. Another option's required `value` input may not be set yet
   while this one renders, and reading it throws NG0950.
