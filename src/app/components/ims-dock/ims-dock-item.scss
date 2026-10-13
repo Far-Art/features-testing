@@ -1,3 +1,12 @@
+/*
+ * Structure only: the item brings no look of its own beyond the cursor, and a
+ * page styles it however it likes from a global stylesheet. The hooks are
+ * .ims-dock-item (with .ims-dock-item--disabled), .ims-dock-item__button,
+ * .ims-dock-item__icon and .ims-dock-item__tooltip. The rules a page might
+ * want to change sit in :where(), which has no specificity, so any selector
+ * of the page's wins without !important. The glyph's proportion of the item
+ * is the exception, set through --ims-dock-item-icon-size.
+ */
 :host {
     position: relative;
     display: flex;
@@ -13,7 +22,12 @@
     contain: layout;
 }
 
-.ims-dock-item__button {
+/*
+ * A blank button: the user agent's border, padding, background, colour and
+ * font are reset, and only the cursor is added. It fills the item, so it grows
+ * with the magnification.
+ */
+:where(.ims-dock-item__button) {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -21,73 +35,37 @@
     height: 100%;
     padding: 0;
     border: 0;
-    border-radius: 0.8rem;
-    /*
-     * Transparent at rest; hover and press are plain background-colour swaps on
-     * the button itself. No overlay layers, gradients, shadows or transforms —
-     * this runs without a GPU, so every state change stays a flat repaint of one
-     * small box rather than a composited layer.
-     */
-    background-color: transparent;
-    cursor: pointer;
+    background: none;
+    color: inherit;
     font: inherit;
     line-height: 1;
-    transition: background-color 140ms ease;
+    cursor: pointer;
+}
+
+/* A disabled item always renders as a disabled <button>, never as a link. */
+:where(.ims-dock-item__button:disabled) {
+    cursor: not-allowed;
 }
 
 /*
- * Hover is matched on the button rather than on :host — the button fills the host
- * exactly, so the two are equivalent to point at, but the host form drags an extra
- * attribute selector into the specificity and would then outrank the press rule
- * below (a mouse press is always hovering too). Same weight here, press last wins.
+ * Sized against the item, so the glyph grows with the magnification too. Not
+ * in :where(): this has to outweigh the duo icon's own fixed size, or the
+ * glyph would stay put while the item grows around it.
  */
-.ims-dock-item__button:hover:not(:disabled),
-.ims-dock-item__button:focus-visible {
-    background-color: var(--ims-color-interactive-subtle);
-}
-
-/* Press is one step deeper on the same ramp, and arrives quicker than the hover
-   fade — press feedback should read as immediate. */
-.ims-dock-item__button:active:not(:disabled) {
-    background-color: var(--ims-color-interactive-alt-subtle);
-    transition-duration: 90ms;
-}
-
-.ims-dock-item__button:focus-visible {
-    outline: 3px solid var(--ims-color-focus-ring);
-    outline-offset: 3px;
-}
-
-.ims-dock-item__button:disabled {
-    cursor: not-allowed;
-    opacity: 0.4;
-}
-
-:host(.ims-dock-item--disabled) {
-    cursor: not-allowed;
-}
-
 .ims-dock-item__icon {
-    inline-size: 62%;
-    block-size: 62%;
+    inline-size: var(--ims-dock-item-icon-size, 62%);
+    block-size: var(--ims-dock-item-icon-size, 62%);
 }
 
-.ims-dock-item__tooltip {
+/* Placed above the icon and shown on hover or keyboard focus; its look is the page's. */
+:where(.ims-dock-item__tooltip) {
     position: absolute;
     inset-block-end: calc(100% + 10px);
     /* Physical centring so the label sits above the icon regardless of RTL/LTR. */
     left: 50%;
-    right: auto;
     translate: -50% 0;
-    padding: 4px 10px;
-    border-radius: 8px;
-    background: color-mix(in srgb, var(--ims-color-surface-inverse) 92%, transparent);
-    color: var(--ims-color-on-surface-inverse);
-    font-size: 0.78rem;
-    font-weight: var(--ims-font-weight-semibold);
     white-space: nowrap;
     opacity: 0;
-    transition: opacity 120ms ease;
     pointer-events: none;
 }
 

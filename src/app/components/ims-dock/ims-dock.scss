@@ -19,17 +19,13 @@
     overflow: visible;
     gap: var(--ims-dock-gap);
     padding: 10px 14px;
-    border-radius: 26px;
+    /* A host that nests the bar in a rounded surface of its own sets --ims-dock-radius to match it. */
+    border-radius: var(--ims-dock-radius, 26px);
+    /*
+     * No backdrop blur and no shadow: this ships to machines without a GPU, where
+     * both are drawn on the CPU every frame. A page that wants the bar raised
+     * gives it a shadow with a class of its own.
+     */
     background: color-mix(in srgb, var(--ims-color-surface-panel) 62%, transparent);
     border: 1px solid color-mix(in srgb, var(--ims-color-surface-panel) 70%, transparent);
-    box-shadow:
-        inset 0 1px 0 color-mix(in srgb, var(--ims-color-surface-panel) 90%, transparent),
-        0 18px 48px color-mix(in srgb, var(--ims-color-on-surface) 22%, transparent);
-    backdrop-filter: blur(18px) saturate(140%);
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .ims-dock__row {
-        backdrop-filter: none;
-    }
 }
