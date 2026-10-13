@@ -1,0 +1,49 @@
+<header class="page-heading">
+    <h1>סרגל תהליך</h1>
+    <p>
+        הודעות נשברות לרוחב סרגל התהליך כולו וממשיכות אל מתחת לסרגל ההפעלה, שם הן דוהות. הכפתור
+        שבמרכז העליון מרחיב את סרגל התהליך ומסתיר את סרגל ההפעלה.
+    </p>
+</header>
+
+<section class="process-toolbar-demo__controls" aria-label="פעולות הדגמה">
+    <button ims-button (click)="addMessage()">הוספת הודעה</button>
+    <button ims-button (click)="addLongMessage()">הוספת הודעה ארוכה</button>
+    <button ims-button (click)="resetMessages()">איפוס</button>
+    <button ims-button (click)="clearMessages()">ניקוי</button>
+
+    <p class="process-toolbar-demo__status" aria-live="polite">
+        {{ expanded() ? 'מורחב' : 'מכווץ' }} · {{ messages().length }} הודעות
+        @if (lastActivated(); as active) {
+            · הופעל: {{ active.label }}
+        }
+    </p>
+</section>
+
+<section class="process-toolbar-demo__stage" aria-label="סביבת עבודה לדוגמה">
+    <div class="process-toolbar-demo__workspace">
+        <article class="process-toolbar-demo__card">
+            <h2>פוליסות פעילות</h2>
+            <p class="process-toolbar-demo__figure">1,284</p>
+            <p>עלייה של 3.2% מהחודש הקודם</p>
+        </article>
+        <article class="process-toolbar-demo__card">
+            <h2>ממתינות לחיתום</h2>
+            <p class="process-toolbar-demo__figure">41</p>
+            <p>12 מהן נפתחו השבוע</p>
+        </article>
+        <article class="process-toolbar-demo__card">
+            <h2>חידושים החודש</h2>
+            <p class="process-toolbar-demo__figure">312</p>
+            <p>18 דורשות עדכון פרטי תשלום</p>
+        </article>
+    </div>
+
+    <ims-process-toolbar
+        class="process-toolbar-demo__toolbar"
+        [messages]="messages()"
+        [dockItems]="dockItems"
+        [(expanded)]="expanded"
+        (dockItemActivated)="lastActivated.set($event)"
+    />
+</section>
