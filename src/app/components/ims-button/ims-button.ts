@@ -117,6 +117,8 @@ export abstract class ImsButtonBase implements ImsTooltipDefaultsProvider {
         });
 
         this.destroyRef.onDestroy(() => this.clearActionBlinkTimer());
+
+        ReadonlyDirective.shareHostDisabled(this.interactionDisabled);
     }
 
     /** Native disabled state. Readonly also disables interaction through `interactionDisabled`. */

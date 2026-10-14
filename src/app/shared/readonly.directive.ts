@@ -42,7 +42,7 @@ export const IMS_READONLY_HOST_PARENT = new InjectionToken<Signal<boolean>>(
   ],
   host: {
     '[class.ims-readonly]': 'readonlySignal()',
-    '[attr.disabled]': 'readonlySignal() ? "" : null',
+    '[attr.disabled]': 'disabledAttribute()',
     '[attr.ims-readonly-provider]': 'readonlySignal()',
   },
 })
@@ -50,6 +50,24 @@ export class ReadonlyDirective implements ImsReadonlyStateProvider {
   /** Injects the nearest readonly provider, or a `false` signal when none exists. */
   static injectSignal(): Signal<boolean> {
     return inject(IMS_READONLY_STATE, { optional: true })?.readonlySignal ?? signal(false);
+  }
+
+  /**
+   * Hands a control's own disabled state to an `ims-readonly` on the same host.
+   *
+   * Both write the host's `disabled` attribute, and this directive's binding
+   * runs after the control's. Left alone, `[ims-readonly]="false"` on a
+   * disabled control would remove the attribute the control just set. With
+   * the control's state shared, both bindings compute the same value.
+   *
+   * Call from the control's constructor. Does nothing when the host carries no
+   * `ims-readonly`.
+   */
+  static shareHostDisabled(disabled: Signal<boolean>): void {
+    const provider = inject(IMS_READONLY_STATE, { optional: true, self: true });
+    if (provider instanceof ReadonlyDirective) {
+      provider.hostDisabled.set(disabled);
+    }
   }
 
   /** Local readonly state. `null` and `undefined` inherit the parent state. */
@@ -86,4 +104,12 @@ export class ReadonlyDirective implements ImsReadonlyStateProvider {
 
     return true;
   });
+
+  /** Disabled state of a control on this same host, once it shares one. */
+  private readonly hostDisabled = signal<Signal<boolean> | null>(null);
+
+  /** Set while readonly, and while a control on this host is disabled. */
+  protected readonly disabledAttribute = computed(() =>
+    this.readonlySignal() || this.hostDisabled()?.() ? '' : null,
+  );
 }
