@@ -124,6 +124,9 @@ associates its label with the native checkbox through `id`. See
 - The accessible name is the projected label, or the associated field label.
 - Checked and mixed states come from the native `checked` and `indeterminate`
   properties; do not add `aria-checked` to the native checkbox.
+- The native checkbox also carries a `checked` attribute while it is checked,
+  so the state shows in the DOM and in `input[checked]` queries. An
+  indeterminate box never has it. Style from `:checked`, not from the attribute.
 - `required` sets `aria-required` on the native checkbox rather than the native
   `required` attribute, so the browser never runs its own validation.
 - The track and SVG mark are `aria-hidden`.

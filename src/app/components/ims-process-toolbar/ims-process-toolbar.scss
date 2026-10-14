@@ -1,0 +1,389 @@
+// Customization: --ims-process-toolbar-expanded-rows (8), read below with that
+// default. The other custom properties declared on the host are internal. The
+// component writes one from its measurement: --ims-process-toolbar-fit-size,
+// where the second message ends.
+:host {
+    --ims-process-toolbar-line: 1.25rem;
+    --ims-process-toolbar-row-padding: 0.25rem;
+    --ims-process-toolbar-row-gap: 0.125rem;
+    --ims-process-toolbar-list-padding: 0.25rem;
+    // Space between the messages and either side of the toolbar.
+    --ims-process-toolbar-gutter: 0.75rem;
+    // A message on one line.
+    --ims-process-toolbar-row-size: calc(var(--ims-process-toolbar-line) + 2 * var(--ims-process-toolbar-row-padding));
+    // Collapsed, the toolbar holds its first two messages however many lines they
+    // wrap to, and is never shorter than two one-line messages.
+    --ims-process-toolbar-collapsed-size: max(
+        2 * var(--ims-process-toolbar-row-size) + var(--ims-process-toolbar-row-gap) +
+            2 * var(--ims-process-toolbar-list-padding),
+        var(--ims-process-toolbar-fit-size, 0px) + var(--ims-process-toolbar-list-padding)
+    );
+    --ims-process-toolbar-expanded-size: max(
+        var(--ims-process-toolbar-expanded-rows, 8) * var(--ims-process-toolbar-row-size) +
+            (var(--ims-process-toolbar-expanded-rows, 8) - 1) * var(--ims-process-toolbar-row-gap) +
+            2 * var(--ims-process-toolbar-list-padding),
+        var(--ims-process-toolbar-collapsed-size)
+    );
+    --ims-process-toolbar-radius: 1rem;
+    // The layers inside the 1px border follow its inner curve.
+    --ims-process-toolbar-inner-radius: calc(var(--ims-process-toolbar-radius) - 1px);
+    // The dock's distance from the toolbar's end edge: the gap the 56px dock
+    // leaves above and below it in a toolbar of two one-line messages, so it
+    // nests into the corner evenly.
+    --ims-process-toolbar-dock-inset: 0.3125rem;
+    // The dock's fade starts this far ahead of the dock, and turns solid this far
+    // after it starts, well under the dock.
+    --ims-process-toolbar-dock-fade-lead: 3rem;
+    --ims-process-toolbar-dock-fade: 10rem;
+    --ims-process-toolbar-haze-size: 0.75rem;
+    --ims-process-toolbar-easing: cubic-bezier(0.22, 1, 0.36, 1);
+    // 1 where the inline axis runs left to right, -1 where it runs right to left.
+    // Gradients and slides along the inline axis are multiplied by it.
+    --ims-process-toolbar-inline-sign: 1;
+
+    position: relative;
+    isolation: isolate;
+    display: block;
+    box-sizing: border-box;
+    block-size: calc(var(--ims-process-toolbar-collapsed-size) + 2px);
+    // Transparent: .ims-process-toolbar__outline draws the edge over it. No
+    // shadow; a page that wants the toolbar raised gives it one with a class.
+    border: 1px solid transparent;
+    border-radius: var(--ims-process-toolbar-radius);
+    background-color: var(--ims-color-surface-panel);
+    color: var(--ims-color-on-surface);
+    transition: block-size 320ms var(--ims-process-toolbar-easing);
+}
+
+:host(:dir(rtl)) {
+    --ims-process-toolbar-inline-sign: -1;
+}
+
+:host(.ims-process-toolbar--expanded) {
+    block-size: calc(var(--ims-process-toolbar-expanded-size) + 2px);
+}
+
+// Clips the scroll area, scrollbar included, to the panel's rounded corners.
+// The host itself can't clip: the knob and the dock's tooltips reach past it.
+.ims-process-toolbar__body {
+    position: absolute;
+    inset: 0;
+    overflow: clip;
+    border-radius: var(--ims-process-toolbar-inner-radius);
+}
+
+.ims-process-toolbar__scroller {
+    block-size: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+    border-radius: inherit;
+}
+
+.ims-process-toolbar__scroller:focus-visible {
+    outline: 2px solid var(--ims-color-focus-ring);
+    outline-offset: -2px;
+}
+
+// A scroller paints its scrollbar at its own inline end, but the scrollbar
+// belongs at the inline start, on the side where the messages begin and away
+// from the dock. So the scroller runs against the page's direction and its
+// content runs with the page again. :dir() reads the direction from the
+// markup, so the scroller's flipped `direction` doesn't change what it matches.
+.ims-process-toolbar__scroller:dir(rtl),
+.ims-process-toolbar__content:dir(ltr) {
+    direction: ltr;
+}
+
+.ims-process-toolbar__scroller:dir(ltr),
+.ims-process-toolbar__content:dir(rtl) {
+    direction: rtl;
+}
+
+// The messages wrap at the toolbar's full width, whether the dock is over their
+// end or not, so expanding reveals them without re-wrapping a line.
+.ims-process-toolbar__content {
+    position: relative;
+    padding-block: var(--ims-process-toolbar-list-padding);
+    padding-inline: var(--ims-process-toolbar-gutter);
+}
+
+.ims-process-toolbar__sentinel {
+    position: absolute;
+    inset-inline: 0;
+    block-size: 1px;
+    pointer-events: none;
+}
+
+.ims-process-toolbar__sentinel--start {
+    inset-block-start: 0;
+}
+
+.ims-process-toolbar__sentinel--end {
+    inset-block-end: 0;
+}
+
+// Sticky inside the scroller, so the haze stays on the visible edge and never
+// covers the scrollbar. A negative margin keeps it out of the layout.
+.ims-process-toolbar__haze {
+    position: sticky;
+    z-index: 1;
+    display: block;
+    block-size: var(--ims-process-toolbar-haze-size);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 140ms ease;
+}
+
+.ims-process-toolbar__haze--start {
+    inset-block-start: 0;
+    margin-block-end: calc(-1 * var(--ims-process-toolbar-haze-size));
+    background: linear-gradient(to bottom, var(--ims-color-surface-panel), transparent);
+}
+
+.ims-process-toolbar__haze--end {
+    inset-block-end: 0;
+    margin-block-start: calc(-1 * var(--ims-process-toolbar-haze-size));
+    background: linear-gradient(to top, var(--ims-color-surface-panel), transparent);
+}
+
+.ims-process-toolbar__haze--visible {
+    opacity: 1;
+}
+
+.ims-process-toolbar__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ims-process-toolbar-row-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ims-process-toolbar__message {
+    // Tone of the leading glyph; each severity re-points it.
+    --ims-process-toolbar-message-tone: var(--ims-color-status-neutral);
+
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding-block: var(--ims-process-toolbar-row-padding);
+    font-size: 0.875rem;
+    line-height: var(--ims-process-toolbar-line);
+}
+
+.ims-process-toolbar__message--info {
+    --ims-process-toolbar-message-tone: var(--ims-color-status-info);
+}
+
+.ims-process-toolbar__message--success {
+    --ims-process-toolbar-message-tone: var(--ims-color-status-success);
+}
+
+.ims-process-toolbar__message--warning {
+    --ims-process-toolbar-message-tone: var(--ims-color-status-warning);
+}
+
+.ims-process-toolbar__message--danger {
+    --ims-process-toolbar-message-tone: var(--ims-color-status-danger);
+}
+
+// One line tall, so the glyph centres on the message's first line, and the
+// lines that wrap hang under the text rather than under the glyph.
+.ims-process-toolbar__message-icon {
+    --ims-icon-size: 1.125rem;
+
+    flex: none;
+    line-height: var(--ims-process-toolbar-line);
+    color: var(--ims-process-toolbar-message-tone);
+}
+
+.ims-process-toolbar__message-text {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+}
+
+// The panel's edge and the knob, drawn by one SVG. A CSS border snaps to
+// device pixels and an SVG doesn't, so at fractional zoom (125%, 150%) the two
+// never quite met: the border showed through the knob's foot, and the curve
+// stepped off the edge line. Drawn together, the curve runs straight on from
+// the edge. The SVG covers the padding box; the frame and the knob reach half
+// a pixel past it, onto the centre of the host's transparent border.
+.ims-process-toolbar__outline {
+    position: absolute;
+    z-index: 1;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.ims-process-toolbar__frame {
+    x: -0.5px;
+    y: -0.5px;
+    width: calc(100% + 1px);
+    height: calc(100% + 1px);
+    rx: calc(var(--ims-process-toolbar-radius) - 0.5px);
+    fill: none;
+    stroke: var(--ims-color-border-subtle);
+    stroke-width: 1px;
+}
+
+// round() puts the knob's centre on a whole pixel, the same one the toggle's
+// box below is centred on, so the chevron sits square in the cap.
+.ims-process-toolbar__knob-shape {
+    transform-box: view-box;
+    transform: translate(round(50%, 1px), -0.5px);
+}
+
+.ims-process-toolbar__knob-fill {
+    fill: var(--ims-color-surface-panel);
+}
+
+.ims-process-toolbar__knob-outline {
+    fill: none;
+    stroke: var(--ims-color-border-subtle);
+    stroke-width: 1px;
+}
+
+// The toggle's box, over the knob. Centred physically, like the dock's
+// tooltips: the knob sits in the middle whichever way the page runs.
+.ims-process-toolbar__knob {
+    position: absolute;
+    z-index: 2;
+    inset-block-end: 100%;
+    left: round(50%, 1px);
+    translate: -50% 0;
+    pointer-events: none;
+}
+
+// The whole knob is the button, and a strip of the panel under it, so the low
+// cap is easy to hit. The chevron centres in that box, inside the cap.
+.ims-process-toolbar__toggle {
+    position: absolute;
+    inset: 0 0 -0.25rem;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: var(--ims-color-on-surface-muted);
+    cursor: pointer;
+    font: inherit;
+    pointer-events: auto;
+    transition: color 140ms ease;
+}
+
+.ims-process-toolbar__toggle:hover,
+.ims-process-toolbar__toggle:focus-visible {
+    color: var(--ims-color-interactive-strong);
+}
+
+.ims-process-toolbar__toggle:active {
+    color: var(--ims-color-interactive-alt-strong);
+    transition-duration: 90ms;
+}
+
+.ims-process-toolbar__toggle:focus-visible {
+    outline: 2px solid var(--ims-color-focus-ring);
+    outline-offset: 1px;
+}
+
+.ims-process-toolbar__toggle-icon {
+    --ims-icon-size: 1.125rem;
+
+    transition: rotate 320ms var(--ims-process-toolbar-easing);
+}
+
+:host(.ims-process-toolbar--expanded) .ims-process-toolbar__toggle-icon {
+    rotate: 180deg;
+}
+
+// The column the dock floats in, over the end of the messages. Above the knob,
+// so a tooltip rising from an icon under the knob stays in front of it. Only
+// the dock itself takes the pointer.
+.ims-process-toolbar__dock-area {
+    position: absolute;
+    z-index: 3;
+    inset-block: 0;
+    inset-inline-end: 0;
+    display: flex;
+    align-items: flex-end;
+    pointer-events: none;
+    transition:
+        opacity 240ms ease,
+        translate 320ms var(--ims-process-toolbar-easing),
+        visibility 0s linear 0s;
+}
+
+// The fade the messages run into. It starts ahead of the dock and eases to the
+// panel's colour well under it, so a line slips under the dock's glass and
+// fades out there instead of being cut at the dock's edge. The stops follow a
+// smoothstep, which hides where the fade begins and ends.
+.ims-process-toolbar__dock-area::before {
+    position: absolute;
+    z-index: -1;
+    inset-block: 0;
+    inset-inline-start: calc(-1 * var(--ims-process-toolbar-dock-fade-lead));
+    inset-inline-end: 0;
+    border-start-end-radius: var(--ims-process-toolbar-inner-radius);
+    border-end-end-radius: var(--ims-process-toolbar-inner-radius);
+    background: linear-gradient(
+        calc(var(--ims-process-toolbar-inline-sign) * 90deg),
+        transparent 0,
+        color-mix(in srgb, var(--ims-color-surface-panel) 10%, transparent)
+            calc(0.2 * var(--ims-process-toolbar-dock-fade)),
+        color-mix(in srgb, var(--ims-color-surface-panel) 35%, transparent)
+            calc(0.4 * var(--ims-process-toolbar-dock-fade)),
+        color-mix(in srgb, var(--ims-color-surface-panel) 65%, transparent)
+            calc(0.6 * var(--ims-process-toolbar-dock-fade)),
+        color-mix(in srgb, var(--ims-color-surface-panel) 90%, transparent)
+            calc(0.8 * var(--ims-process-toolbar-dock-fade)),
+        var(--ims-color-surface-panel) var(--ims-process-toolbar-dock-fade)
+    );
+    content: '';
+}
+
+:host(.ims-process-toolbar--expanded) .ims-process-toolbar__dock-area {
+    opacity: 0;
+    translate: calc(var(--ims-process-toolbar-inline-sign) * 1.5rem) 0;
+    visibility: hidden;
+    transition:
+        opacity 160ms ease,
+        translate 320ms var(--ims-process-toolbar-easing),
+        visibility 0s linear 320ms;
+}
+
+// Collapsed height, held at the bottom: when the toolbar grows upward the dock
+// stays where it was while it fades out.
+.ims-process-toolbar__dock-slot {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    block-size: var(--ims-process-toolbar-collapsed-size);
+    padding-inline: var(--ims-process-toolbar-dock-inset);
+}
+
+// Nested in the panel's corner, so its corners are concentric with the panel's.
+.ims-process-toolbar__dock {
+    --ims-dock-radius: calc(var(--ims-process-toolbar-inner-radius) - var(--ims-process-toolbar-dock-inset));
+
+    pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :host,
+    .ims-process-toolbar__haze,
+    .ims-process-toolbar__toggle-icon,
+    .ims-process-toolbar__dock-area {
+        transition: none;
+    }
+
+    :host(.ims-process-toolbar--expanded) .ims-process-toolbar__dock-area {
+        transition: none;
+    }
+}

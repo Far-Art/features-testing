@@ -15,8 +15,11 @@ import {ImsDockItem as ImsDockItemData} from './ims-dock.model';
  * Presentational icon used inside {@link ImsDock}.
  *
  * The parent owns the magnification maths and feeds the resolved pixel `size`; this
- * component only paints the glyph, tooltip and optional badge, and reports pointer /
+ * component only renders the glyph, tooltip and optional badge, and reports pointer /
  * focus / activation intent back up so the dock can update its shared pointer signal.
+ *
+ * It applies no styling of its own beyond that structure. A page styles the button,
+ * glyph and tooltip from a global stylesheet; ims-dock-item.scss lists the classes.
  */
 @Component({
     selector: 'ims-dock-item',

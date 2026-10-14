@@ -1,0 +1,83 @@
+<div class="ims-process-toolbar__body">
+    <div
+        #scroller
+        class="ims-process-toolbar__scroller"
+        role="log"
+        [id]="scrollerId"
+        [attr.aria-label]="ariaLabel()"
+        [attr.tabindex]="scrollable() ? 0 : null"
+    >
+        <span
+            class="ims-process-toolbar__haze ims-process-toolbar__haze--start"
+            [class.ims-process-toolbar__haze--visible]="moreAbove()"
+            aria-hidden="true"
+        ></span>
+
+        <div #content class="ims-process-toolbar__content">
+            <span
+                #startSentinel
+                class="ims-process-toolbar__sentinel ims-process-toolbar__sentinel--start"
+                aria-hidden="true"
+            ></span>
+
+            <ul #list class="ims-process-toolbar__list">
+                @for (message of messages(); track message.id) {
+                    @let severity = message.severity ?? 'neutral';
+                    <li
+                        class="ims-process-toolbar__message"
+                        [class.ims-process-toolbar__message--info]="severity === 'info'"
+                        [class.ims-process-toolbar__message--success]="severity === 'success'"
+                        [class.ims-process-toolbar__message--warning]="severity === 'warning'"
+                        [class.ims-process-toolbar__message--danger]="severity === 'danger'"
+                    >
+                        <ims-icon class="ims-process-toolbar__message-icon" filled>{{ severityIcons[severity] }}</ims-icon>
+                        <span class="ims-process-toolbar__message-text">{{ message.text }}</span>
+                    </li>
+                }
+            </ul>
+
+            <span
+                #endSentinel
+                class="ims-process-toolbar__sentinel ims-process-toolbar__sentinel--end"
+                aria-hidden="true"
+            ></span>
+        </div>
+
+        <span
+            class="ims-process-toolbar__haze ims-process-toolbar__haze--end"
+            [class.ims-process-toolbar__haze--visible]="moreBelow()"
+            aria-hidden="true"
+        ></span>
+    </div>
+</div>
+
+<svg class="ims-process-toolbar__outline" aria-hidden="true" focusable="false">
+    <rect class="ims-process-toolbar__frame" />
+    <g class="ims-process-toolbar__knob-shape">
+        <path class="ims-process-toolbar__knob-fill" [attr.d]="knob.fillPath" />
+        <path class="ims-process-toolbar__knob-outline" [attr.d]="knob.outlinePath" />
+    </g>
+</svg>
+
+<div class="ims-process-toolbar__knob" [style.inline-size.px]="knob.width" [style.block-size.px]="knob.height">
+    <button
+        type="button"
+        class="ims-process-toolbar__toggle"
+        [attr.aria-expanded]="expanded()"
+        [attr.aria-controls]="scrollerId"
+        [attr.aria-label]="expanded() ? collapseAriaLabel() : expandAriaLabel()"
+        (click)="toggle()"
+    >
+        <ims-icon class="ims-process-toolbar__toggle-icon">keyboard_arrow_up</ims-icon>
+    </button>
+</div>
+
+<div class="ims-process-toolbar__dock-area" [attr.inert]="expanded() ? '' : null">
+    <div class="ims-process-toolbar__dock-slot">
+        <ims-dock
+            class="ims-process-toolbar__dock"
+            [items]="dockItems()"
+            (activated)="dockItemActivated.emit($event)"
+        />
+    </div>
+</div>

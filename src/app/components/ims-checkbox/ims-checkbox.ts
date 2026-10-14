@@ -126,6 +126,8 @@ export class ImsCheckbox<T = boolean, F = boolean> extends BasicValueAccessor<T 
         const explicit = this.checkedState();
         return explicit !== undefined ? explicit : Object.is(this.currentValue(), this.trueValue());
     });
+    /** The native input's checked state: an indeterminate box is never checked. */
+    readonly nativeChecked = computed(() => this.isChecked() && !this.intermediate());
     readonly svgPath = computed(() => {
         const paths = MARK_PATHS[this.appearance()];
         return this.intermediate() ? paths.dash : paths.checkmark;

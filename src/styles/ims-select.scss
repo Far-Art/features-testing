@@ -5,12 +5,14 @@
 .ims-select-host {
     // Anchors the clear button, which sits over the trigger as its sibling.
     position: relative;
-    // The trigger is the host's only in-flow child, so as a grid item it
-    // stretches to a `height` or `min-height` set on the host. The zero track
-    // minimum keeps a long value from widening the host past its own width,
-    // where the value would otherwise stop truncating.
+    // The zero track minimum keeps a long value from widening the host past its
+    // own width, where the value would otherwise stop truncating.
     display: inline-grid;
     grid-template-columns: minmax(0, 1fr);
+    // The host owns the select's height; the trigger fills it. Set `height` on
+    // the host, or --field-height, to resize the select.
+    box-sizing: border-box;
+    block-size: var(--field-height);
 }
 
 .ims-select__trigger {
@@ -18,10 +20,10 @@
     align-items: center;
     gap: 0.5rem;
     inline-size: 100%;
-    // A floor, not a fixed size, so a taller host stretches the trigger with it.
-    // Set --field-height instead to make the select shorter.
-    block-size: auto;
-    min-block-size: var(--field-height);
+    // Takes the host's height, shorter or taller than --field-height alike, so
+    // the .ims-input floor is lifted too.
+    block-size: 100%;
+    min-block-size: 0;
     padding: 0 0.65rem;
     color: inherit;
     cursor: pointer;

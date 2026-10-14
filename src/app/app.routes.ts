@@ -66,6 +66,13 @@ export const routes: Routes = [
             import('./pages/dock-demo/dock-demo').then((module) => module.DockDemo)
     },
     {
+        path: 'process-toolbar',
+        loadComponent: () =>
+            import('./pages/process-toolbar-demo/process-toolbar-demo').then(
+                (module) => module.ProcessToolbarDemo
+            )
+    },
+    {
         path: 'readonly',
         loadComponent: () =>
             import('./pages/readonly-demo/readonly-demo').then((module) => module.ReadonlyDemo)
