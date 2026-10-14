@@ -1,10 +1,12 @@
 import {ChangeDetectionStrategy, Component, computed, signal} from '@angular/core';
 import {DatePipe, DecimalPipe} from '@angular/common';
 import {ScrollingModule} from '@angular/cdk/scrolling';
-import {ImsButtonIcon} from '../../components/ims-button';
+import {FormArray, FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {ImsButton, ImsButtonIcon} from '../../components/ims-button';
 import {ImsGridV2, ImsGridCellV2, ImsGridRowV2, ImsGridSortDirectiveV2, ImsGridSortHeaderV2} from '../../components/ims-grid-v2';
 import {ImsIcon} from '../../components/ims-icon';
 import {ImsTableDirective, ImsTableRowDirective, ImsTableRowTrigger} from '../../components/ims-table';
+import {ImsInputDirective} from '../../ims-input.directive';
 
 type DemoPolicyStatus = 'active' | 'pending' | 'cancelled';
 
@@ -31,6 +33,17 @@ const CUSTOMER_NAMES = [
 ];
 
 /** Deterministic rows, so the page reads the same on every load. */
+/** One editable row of the FormArray example. */
+function createPolicyRow(policy: Pick<DemoPolicy, 'policyNumber' | 'customerName' | 'premium'>) {
+    return new FormGroup({
+        policyNumber: new FormControl(policy.policyNumber, {nonNullable: true}),
+        customerName: new FormControl(policy.customerName, {nonNullable: true}),
+        premium: new FormControl(policy.premium, {nonNullable: true})
+    });
+}
+
+type PolicyRow = ReturnType<typeof createPolicyRow>;
+
 function createPolicies(count: number): DemoPolicy[] {
     return Array.from({length: count}, (_, index) => ({
         id: index + 1,
@@ -47,7 +60,9 @@ function createPolicies(count: number): DemoPolicy[] {
     imports: [
         DatePipe,
         DecimalPipe,
+        ReactiveFormsModule,
         ScrollingModule,
+        ImsButton,
         ImsButtonIcon,
         ImsGridV2,
         ImsGridCellV2,
@@ -55,6 +70,7 @@ function createPolicies(count: number): DemoPolicy[] {
         ImsGridSortDirectiveV2,
         ImsGridSortHeaderV2,
         ImsIcon,
+        ImsInputDirective,
         ImsTableDirective,
         ImsTableRowDirective
     ],
@@ -70,6 +86,8 @@ export class TableDemo {
     };
 
     readonly policies = createPolicies(8);
+    /** The FormArray example: rows sorted as controls, edited in place. */
+    readonly policyRows = new FormArray(createPolicies(5).map(createPolicyRow));
     readonly manyPolicies = createPolicies(2000);
     readonly totalPremium = sumPremiums(this.policies);
     readonly manyTotalPremium = sumPremiums(this.manyPolicies);
@@ -124,6 +142,19 @@ export class TableDemo {
 
     private log(entry: string): void {
         this.events.update((events) => [entry, ...events].slice(0, 20));
+    }
+
+    addPolicyRow(): void {
+        const number = this.policyRows.length + 1;
+        this.policyRows.push(createPolicyRow({
+            policyNumber: `40-900-${String(1000 + number * 37).slice(-4)}`,
+            customerName: 'לקוח חדש',
+            premium: 500
+        }));
+    }
+
+    removePolicyRow(row: PolicyRow): void {
+        this.policyRows.removeAt(this.policyRows.controls.indexOf(row));
     }
 }
 

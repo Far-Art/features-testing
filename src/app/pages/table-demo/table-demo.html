@@ -198,6 +198,47 @@
 
 <section class="table-demo">
     <div class="table-demo__description">
+        <h2>מיון של FormArray</h2>
+        <p>
+            <code>[imsGridSortV2]</code> מקבל גם <code>FormArray</code>: <code>sortedData()</code> מחזיר את הקונטרולים
+            ממוינים, וכל שורה נקשרת ב-<code>[formGroup]</code>. הוספה או הסרה של שורה ממיינות מחדש; עריכה של ערך
+            לא מזיזה את השורה בזמן ההקלדה, והמיון הבא משתמש בערכים העדכניים.
+        </p>
+    </div>
+
+    <div class="table-demo__toolbar">
+        <button type="button" ims-button ims-button-variation="outline" (click)="addPolicyRow()">הוסף שורה</button>
+    </div>
+
+    <ims-grid-v2 ims-table aria-label="פוליסות לעריכה" [imsGridSortV2]="policyRows" #formSort="imsGridSortV2">
+        <ims-grid-header-v2>
+            <ims-grid-cell-v2 width="10rem">
+                <ims-grid-sort-header-v2 field="policyNumber">מספר פוליסה</ims-grid-sort-header-v2>
+            </ims-grid-cell-v2>
+            <ims-grid-cell-v2 minWidth="12rem" maxWidth="1fr">
+                <ims-grid-sort-header-v2 field="customerName">שם לקוח</ims-grid-sort-header-v2>
+            </ims-grid-cell-v2>
+            <ims-grid-cell-v2 width="9rem">
+                <ims-grid-sort-header-v2 field="premium">פרמיה חודשית</ims-grid-sort-header-v2>
+            </ims-grid-cell-v2>
+            <ims-grid-cell-v2 width="6rem"><span class="table-demo__visually-hidden">פעולות</span></ims-grid-cell-v2>
+        </ims-grid-header-v2>
+
+        @for (row of formSort.sortedData(); track row) {
+            <ims-grid-row-v2 [formGroup]="row">
+                <ims-grid-cell-v2><input imsInput formControlName="policyNumber" dir="ltr" aria-label="מספר פוליסה"></ims-grid-cell-v2>
+                <ims-grid-cell-v2><input imsInput formControlName="customerName" aria-label="שם לקוח"></ims-grid-cell-v2>
+                <ims-grid-cell-v2><input imsInput type="number" formControlName="premium" dir="ltr" aria-label="פרמיה חודשית"></ims-grid-cell-v2>
+                <ims-grid-cell-v2>
+                    <button type="button" ims-button ims-button-variation="outline" (click)="removePolicyRow(row)">הסר</button>
+                </ims-grid-cell-v2>
+            </ims-grid-row-v2>
+        }
+    </ims-grid-v2>
+</section>
+
+<section class="table-demo">
+    <div class="table-demo__description">
         <h2>גלילה וירטואלית</h2>
         <p>
             {{ manyPolicies.length | number }} שורות, מתוכן רק החלון הנראה קיים ב-DOM. מעבר עם החצים
