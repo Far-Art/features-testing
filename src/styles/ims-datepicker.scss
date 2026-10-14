@@ -29,8 +29,9 @@
     color: inherit;
     font: inherit;
     // After the `font` shorthand, which resets it.
-    font-size: 0.9em;
-    letter-spacing: 0.02em;
+    font-size: 0.86em;
+    // Opens a small gap between the digits and the `/` separators.
+    letter-spacing: 0.06em;
     // Dates read left to right in either page direction. `end` resolves
     // against this input's own ltr direction, so the text sits on the right.
     direction: ltr;
