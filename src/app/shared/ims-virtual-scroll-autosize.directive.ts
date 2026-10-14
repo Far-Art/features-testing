@@ -150,7 +150,7 @@ export class ImsAutosizeVirtualScrollStrategy implements VirtualScrollStrategy {
      * microtask, after the change detection pass that rendered them and before
      * the browser paints. Not in the viewport's callback itself. It runs among
      * the render hooks of that pass, ahead of hooks the rows register for
-     * themselves, and a row may finish its layout in one: `ims-grid-row` places
+     * themselves, and a row may finish its layout in one: `ims-grid-row-v2` places
      * the cells projected through a panel's header there. Measured in the
      * callback, every new row came out at the height of its unfinished layout
      * — 209px, its cells stacked in one column, for a 33px row — and was put
@@ -349,11 +349,11 @@ export class ImsAutosizeVirtualScrollStrategy implements VirtualScrollStrategy {
 
 /**
  * Lets a `cdk-virtual-scroll-viewport` hold items of different heights, such
- * as rows holding an `ims-expansion-panel` that opens:
+ * as rows holding an `ims-expansion-panel-v2` that opens:
  *
  * ```html
  * <cdk-virtual-scroll-viewport imsVirtualScrollAutosize="33">
- *     <ims-grid-row *cdkVirtualFor="let item of items; templateCacheSize: 0">…</ims-grid-row>
+ *     <ims-grid-row-v2 *cdkVirtualFor="let item of items; templateCacheSize: 0">…</ims-grid-row-v2>
  * </cdk-virtual-scroll-viewport>
  * ```
  *

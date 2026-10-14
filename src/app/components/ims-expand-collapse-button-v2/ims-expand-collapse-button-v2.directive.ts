@@ -7,9 +7,9 @@ import {IMS_TOOLTIP_DEFAULTS} from '../ims-tooltip/ims-tooltip.types';
  * the ramp's ink, as `ims-button-variation="secondary"` is; `dark` is a solid
  * fill in white, as `primary` is.
  */
-export type ImsExpandCollapseButtonVariation = 'light' | 'dark';
+export type ImsExpandCollapseButtonVariationV2 = 'light' | 'dark';
 
-/** Never readonly: see {@link ImsExpandCollapseButtonDirective.readonlyMode}. */
+/** Never readonly: see {@link ImsExpandCollapseButtonDirectiveV2.readonlyMode}. */
 const NEVER_READONLY: Signal<boolean> = signal(false).asReadonly();
 
 /**
@@ -17,8 +17,8 @@ const NEVER_READONLY: Signal<boolean> = signal(false).asReadonly();
  * minus as it opens.
  *
  * ```html
- * <button imsExpandCollapseButton [(expanded)]="open" aria-controls="details"></button>
- * <button imsExpandCollapseButton variation="dark" [(expanded)]="open"></button>
+ * <button imsExpandCollapseButtonV2 [(expanded)]="open" aria-controls="details"></button>
+ * <button imsExpandCollapseButtonV2 variation="dark" [(expanded)]="open"></button>
  * ```
  *
  * It is an `ims-button`: the same base class, so the same focus halo, press
@@ -31,26 +31,26 @@ const NEVER_READONLY: Signal<boolean> = signal(false).asReadonly();
  * `aria-expanded`. An `aria-label` written at the call site, in either
  * spelling, wins over both.
  *
- * Presentation is in the global src/styles/ims-expand-collapse-button.scss,
+ * Presentation is in the global src/styles/ims-expand-collapse-button-v2.scss,
  * on top of src/styles/ims-buttons.scss.
  */
 @Directive({
-    selector: 'button[imsExpandCollapseButton]',
+    selector: 'button[imsExpandCollapseButtonV2]',
     standalone: true,
-    providers: [{provide: IMS_TOOLTIP_DEFAULTS, useExisting: forwardRef(() => ImsExpandCollapseButtonDirective)}],
+    providers: [{provide: IMS_TOOLTIP_DEFAULTS, useExisting: forwardRef(() => ImsExpandCollapseButtonDirectiveV2)}],
     host: {
         // `ims-button-icon` for the icon button's square shape and its hover
         // plate. The glyph is drawn on ::after, which that class leaves free.
-        class: 'ims-button-icon ims-expand-collapse-button',
+        class: 'ims-button-icon ims-expand-collapse-button-v2',
         '[class.ims-button--secondary]': 'variation() === "light"',
         '[class.ims-button--primary]': 'variation() === "dark"',
-        '[class.ims-expand-collapse-button--expanded]': 'expanded()',
+        '[class.ims-expand-collapse-button-v2--expanded]': 'expanded()',
         '[attr.aria-expanded]': 'expanded() ? "true" : "false"',
         '[disabled]': 'interactionDisabled()',
         '(click)': 'toggle()'
     }
 })
-export class ImsExpandCollapseButtonDirective extends ImsButtonBase {
+export class ImsExpandCollapseButtonDirectiveV2 extends ImsButtonBase {
     /** Whether the thing this button controls is showing. Two-way bindable. */
     readonly expanded = model(false);
     /**
@@ -58,7 +58,7 @@ export class ImsExpandCollapseButtonDirective extends ImsButtonBase {
      *
      * @defaultValue `'light'`
      */
-    readonly variation = input<ImsExpandCollapseButtonVariation>('light');
+    readonly variation = input<ImsExpandCollapseButtonVariationV2>('light');
     /**
      * Accessible name while collapsed.
      *

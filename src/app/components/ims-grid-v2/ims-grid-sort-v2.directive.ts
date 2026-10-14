@@ -4,14 +4,14 @@ import {MatSort, Sort} from '@angular/material/sort';
 
 
 /** Resolves the value used to sort an item for a given field id. */
-export type ImsGridSortAccessor<T> = (item: T, field: string) => unknown;
+export type ImsGridSortAccessorV2<T> = (item: T, field: string) => unknown;
 /** Compares two resolved sort values for a field. */
-export type ImsGridSortCompare = (left: unknown, right: unknown, field: string) => number;
+export type ImsGridSortCompareV2 = (left: unknown, right: unknown, field: string) => number;
 
 @Directive({
-    selector: 'ims-grid[imsGridSort]',
+    selector: 'ims-grid-v2[imsGridSortV2]',
     standalone: true,
-    exportAs: 'imsGridSort',
+    exportAs: 'imsGridSortV2',
     hostDirectives: [
         {
             directive: MatSort,
@@ -27,22 +27,22 @@ export type ImsGridSortCompare = (left: unknown, right: unknown, field: string) 
     ]
 })
 /**
- * Adds data sorting behavior to an `ims-grid` while delegating header UI state
+ * Adds data sorting behavior to an `ims-grid-v2` while delegating header UI state
  * to Angular Material `MatSort`.
  *
- * Consumers pass the source data to `[imsGridSort]` and render
- * `#sort="imsGridSort"; sort.sortedData()`. The directive never mutates the
+ * Consumers pass the source data to `[imsGridSortV2]` and render
+ * `#sort="imsGridSortV2"; sort.sortedData()`. The directive never mutates the
  * source data array; sorted output is stable and recomputed from current inputs.
  */
-export class ImsGridSortDirective<T> {
+export class ImsGridSortDirectiveV2<T> {
     /** Source data to sort. Returned as-is when no sort direction is active. */
-    readonly data = input<readonly T[]>([], {alias: 'imsGridSort'});
+    readonly data = input<readonly T[]>([], {alias: 'imsGridSortV2'});
     /** Optional custom accessor for resolving values from each data item. */
-    readonly accessor = input<ImsGridSortAccessor<T> | null>(null, {alias: 'imsGridSortAccessor'});
+    readonly accessor = input<ImsGridSortAccessorV2<T> | null>(null, {alias: 'imsGridSortAccessorV2'});
     /** Optional custom comparator for resolved sort values. */
-    readonly compare = input<ImsGridSortCompare | null>(null, {alias: 'imsGridSortCompare'});
+    readonly compare = input<ImsGridSortCompareV2 | null>(null, {alias: 'imsGridSortCompareV2'});
     /** Emits whenever the computed sorted data changes. */
-    readonly sortedDataChange = output<readonly T[]>({alias: 'imsGridSortedDataChange'});
+    readonly sortedDataChange = output<readonly T[]>({alias: 'imsGridSortedDataChangeV2'});
     private readonly destroyRef = inject(DestroyRef);
     private readonly matSort = inject(MatSort, {host: true});
     private readonly sortState = signal<Sort>({

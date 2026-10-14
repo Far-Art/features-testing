@@ -1,37 +1,37 @@
 import {ChangeDetectionStrategy, Component, computed, DestroyRef, ElementRef, forwardRef, inject, input, Signal, signal} from '@angular/core';
 import {IMS_TABLE_CONTEXT} from '../ims-table/ims-table.tokens';
-import {IMS_GRID_CONTEXT, ImsGridAppearance, ImsGridContext, ImsGridRowContext, ImsGridSemantics} from './ims-grid.tokens';
+import {IMS_GRID_CONTEXT_V2, ImsGridAppearanceV2, ImsGridContextV2, ImsGridRowContextV2, ImsGridSemanticsV2} from './ims-grid-v2.tokens';
 
 
 @Component({
-    selector: 'ims-grid',
+    selector: 'ims-grid-v2',
     standalone: true,
     template: '<ng-content/>',
     host: {
-        '[style.--ims-grid-column-gap]': 'columnGap()',
-        '[style.--ims-grid-offset-start]': 'offsetStartCss()',
-        '[style.--ims-grid-offset-end]': 'offsetEndCss()',
-        '[style.--ims-grid-template]': 'resolvedColumnTemplate()',
+        '[style.--ims-grid-v2-column-gap]': 'columnGap()',
+        '[style.--ims-grid-v2-offset-start]': 'offsetStartCss()',
+        '[style.--ims-grid-v2-offset-end]': 'offsetEndCss()',
+        '[style.--ims-grid-v2-template]': 'resolvedColumnTemplate()',
         '[style.row-gap]': 'rowGap()',
         '[attr.appearance]': 'appearance()'
     },
     providers: [
         {
-            provide: IMS_GRID_CONTEXT,
-            useExisting: forwardRef(() => ImsGrid)
+            provide: IMS_GRID_CONTEXT_V2,
+            useExisting: forwardRef(() => ImsGridV2)
         }
     ],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 /**
- * Root grid container that owns the shared column template for `ims-grid-row`,
- * `ims-grid-header`, `ims-grid-footer`, and nested subgrid wrappers.
+ * Root grid container that owns the shared column template for `ims-grid-row-v2`,
+ * `ims-grid-header-v2`, `ims-grid-footer-v2`, and nested subgrid wrappers.
  *
  * The component intentionally keeps layout state at the root and exposes it
  * through CSS custom properties so projected rows can align with the header
  * using CSS `subgrid`.
  */
-export class ImsGrid implements ImsGridContext {
+export class ImsGridV2 implements ImsGridContextV2 {
     /**
      * Horizontal gutter track between logical columns.
      *
@@ -58,12 +58,12 @@ export class ImsGrid implements ImsGridContext {
      * Optional complete CSS grid-template-columns override.
      *
      * This is an advanced escape hatch. The default template includes offset
-     * rails and explicit gutter tracks, which is what `ims-grid-cell` indexes
+     * rails and explicit gutter tracks, which is what `ims-grid-cell-v2` indexes
      * against. Custom templates should preserve that track structure.
      */
     readonly columnTemplate = input<string | undefined>(undefined);
     /** Appearance marker mirrored to `appearance` attribute on host. */
-    readonly appearance = input<ImsGridAppearance>('default');
+    readonly appearance = input<ImsGridAppearanceV2>('default');
     /** Normalized CSS length for the column gutter track custom property, or `null` to leave it to CSS. */
     readonly columnGap: Signal<string | null> = computed(() => {
         const gap = this.gap();
@@ -77,11 +77,11 @@ export class ImsGrid implements ImsGridContext {
     readonly offsetEndCss: Signal<string> = computed(() => toCssLength(this.offsetEnd()));
     private readonly destroyRef = inject(DestroyRef);
     private readonly hostElement = inject(ElementRef<HTMLElement>).nativeElement;
-    private readonly rows = signal<readonly ImsGridRowContext[]>([]);
+    private readonly rows = signal<readonly ImsGridRowContextV2[]>([]);
     /** An `ims-table` directive on this same host, which turns the grid from a layout into a table. */
     private readonly table = inject(IMS_TABLE_CONTEXT, {self: true, optional: true});
     /** ARIA semantics passed down to rows and cells: none for a layout grid. */
-    readonly semantics: Signal<ImsGridSemantics> = computed(() => {
+    readonly semantics: Signal<ImsGridSemanticsV2> = computed(() => {
         if (!this.table) {
             return null;
         }
@@ -104,12 +104,12 @@ export class ImsGrid implements ImsGridContext {
     });
 
     /** Adds a row/header to the root grid's column calculations. */
-    registerRow(row: ImsGridRowContext): void {
+    registerRow(row: ImsGridRowContextV2): void {
         this.rows.update((rows) => rows.includes(row) ? rows : [...rows, row]);
     }
 
     /** Removes a row/header from the root grid's column calculations. */
-    unregisterRow(row: ImsGridRowContext): void {
+    unregisterRow(row: ImsGridRowContextV2): void {
         this.rows.update((rows) => rows.filter((current) => current !== row));
     }
 
@@ -170,17 +170,17 @@ export class ImsGrid implements ImsGridContext {
 }
 
 function buildTemplateWithOffsetRails(columnTracks: readonly string[], fillEndRail: boolean): string {
-    const tracks = ['var(--ims-grid-offset-start)'];
+    const tracks = ['var(--ims-grid-v2-offset-start)'];
 
     columnTracks.forEach((track, index) => {
         if (index > 0) {
-            tracks.push('var(--ims-grid-column-gap)');
+            tracks.push('var(--ims-grid-v2-column-gap)');
         }
 
         tracks.push(track);
     });
 
-    tracks.push(fillEndRail ? 'minmax(var(--ims-grid-offset-end), 1fr)' : 'var(--ims-grid-offset-end)');
+    tracks.push(fillEndRail ? 'minmax(var(--ims-grid-v2-offset-end), 1fr)' : 'var(--ims-grid-v2-offset-end)');
 
     return tracks.join(' ');
 }
@@ -215,8 +215,8 @@ function resolveSelectedGridText(hostElement: HTMLElement, selection: Selection 
     }
 
     const rows = Array.from(
-        hostElement.querySelectorAll<HTMLElement>('ims-grid-header, ims-grid-row, ims-grid-footer')
-    ).filter((row) => row.closest('ims-grid') === hostElement);
+        hostElement.querySelectorAll<HTMLElement>('ims-grid-header-v2, ims-grid-row-v2, ims-grid-footer-v2')
+    ).filter((row) => row.closest('ims-grid-v2') === hostElement);
 
     const lines: string[] = [];
     for (const row of rows) {
@@ -233,8 +233,8 @@ function resolveSelectedGridText(hostElement: HTMLElement, selection: Selection 
 }
 
 function resolveOwnGridCells(row: HTMLElement): readonly HTMLElement[] {
-    return Array.from(row.querySelectorAll<HTMLElement>('ims-grid-cell'))
-                .filter((cell) => cell.closest('ims-grid-row, ims-grid-header, ims-grid-footer') === row);
+    return Array.from(row.querySelectorAll<HTMLElement>('ims-grid-cell-v2'))
+                .filter((cell) => cell.closest('ims-grid-row-v2, ims-grid-header-v2, ims-grid-footer-v2') === row);
 }
 
 function resolveSelectedNodeText(selection: Selection, node: HTMLElement): string | null {

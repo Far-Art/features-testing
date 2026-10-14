@@ -209,7 +209,7 @@
     <div>
         <h2>כפתור הרחבה וכיווץ</h2>
         <p>
-            <code>imsExpandCollapseButton</code> הוא כפתור אייקון של <code>ims-button</code>: פלוס שהופך למינוס.
+            <code>imsExpandCollapseButtonV2</code> הוא כפתור אייקון של <code>ims-button</code>: פלוס שהופך למינוס.
             <code>variation="light"</code> נראה כמו <code>secondary</code> ו-<code>variation="dark"</code> כמו
             <code>primary</code>, ושניהם מקבלים <code>ims-button-severity</code>. הכפתור מתעלם מ-<code>ims-readonly</code>,
             כי פתיחת מקטע אינה עריכה.
@@ -219,35 +219,35 @@
     <div class="button-demo__group">
         <span class="button-demo__group-label">variation="light"</span>
         <div class="button-demo__ims-buttons" aria-label="Expand collapse light">
-            <button imsExpandCollapseButton></button>
-            <button imsExpandCollapseButton [expanded]="true"></button>
-            <button imsExpandCollapseButton ims-button-severity="success"></button>
-            <button imsExpandCollapseButton ims-button-severity="warning"></button>
-            <button imsExpandCollapseButton ims-button-severity="danger"></button>
-            <button imsExpandCollapseButton disabled></button>
+            <button imsExpandCollapseButtonV2></button>
+            <button imsExpandCollapseButtonV2 [expanded]="true"></button>
+            <button imsExpandCollapseButtonV2 ims-button-severity="success"></button>
+            <button imsExpandCollapseButtonV2 ims-button-severity="warning"></button>
+            <button imsExpandCollapseButtonV2 ims-button-severity="danger"></button>
+            <button imsExpandCollapseButtonV2 disabled></button>
         </div>
     </div>
 
     <div class="button-demo__group">
         <span class="button-demo__group-label">variation="dark"</span>
         <div class="button-demo__ims-buttons" aria-label="Expand collapse dark">
-            <button imsExpandCollapseButton variation="dark"></button>
-            <button imsExpandCollapseButton variation="dark" [expanded]="true"></button>
-            <button imsExpandCollapseButton variation="dark" ims-button-severity="success"></button>
-            <button imsExpandCollapseButton variation="dark" ims-button-severity="warning"></button>
-            <button imsExpandCollapseButton variation="dark" ims-button-severity="danger"></button>
-            <button imsExpandCollapseButton variation="dark" disabled></button>
+            <button imsExpandCollapseButtonV2 variation="dark"></button>
+            <button imsExpandCollapseButtonV2 variation="dark" [expanded]="true"></button>
+            <button imsExpandCollapseButtonV2 variation="dark" ims-button-severity="success"></button>
+            <button imsExpandCollapseButtonV2 variation="dark" ims-button-severity="warning"></button>
+            <button imsExpandCollapseButtonV2 variation="dark" ims-button-severity="danger"></button>
+            <button imsExpandCollapseButtonV2 variation="dark" disabled></button>
         </div>
     </div>
 
     <div class="button-demo__group">
-        <span class="button-demo__group-label">ims-readonly, --ims-expand-collapse-button-size</span>
+        <span class="button-demo__group-label">ims-readonly, --ims-expand-collapse-button-v2-size</span>
         <div class="button-demo__ims-buttons" aria-label="Expand collapse readonly and sizes" [ims-readonly]="true">
             <button ims-button>Readonly</button>
-            <button imsExpandCollapseButton></button>
-            <button imsExpandCollapseButton variation="dark"></button>
-            <button imsExpandCollapseButton class="button-demo__expand-large"></button>
-            <button imsExpandCollapseButton variation="dark" class="button-demo__expand-large"></button>
+            <button imsExpandCollapseButtonV2></button>
+            <button imsExpandCollapseButtonV2 variation="dark"></button>
+            <button imsExpandCollapseButtonV2 class="button-demo__expand-large"></button>
+            <button imsExpandCollapseButtonV2 variation="dark" class="button-demo__expand-large"></button>
         </div>
     </div>
 </section>

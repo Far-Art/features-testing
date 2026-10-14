@@ -191,7 +191,7 @@ visible context, such as a column header, or a tooltip:
 </ims-toggle-switch>
 ```
 
-In a container that clips its overflow, such as `ims-grid-cell`, leave about
+In a container that clips its overflow, such as `ims-grid-cell-v2`, leave about
 4px of inline room around the switch. The circle overhangs its slot by 1px and
 the focus ring adds 3px.
 

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ImsButton } from '../../components/ims-button';
 import { ImsFocusMode } from '../../components/ims-focus-mode';
-import { ImsGrid, ImsGridCell, ImsGridRow } from '../../components/ims-grid';
+import { ImsGridV2, ImsGridCellV2, ImsGridRowV2 } from '../../components/ims-grid-v2';
 import {
   ImsFormField,
   ImsFormFieldGrid,
@@ -27,9 +27,9 @@ const LONG_NOTE = [
     ImsFormField,
     ImsFormFieldGrid,
     ImsFormFieldRow,
-    ImsGrid,
-    ImsGridCell,
-    ImsGridRow,
+    ImsGridV2,
+    ImsGridCellV2,
+    ImsGridRowV2,
     ImsInputDirective,
     ReactiveFormsModule,
     ReadonlyDirective,

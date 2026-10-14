@@ -87,13 +87,13 @@ export class ImsFormFieldRow {
             // In a grid the row adopts the grid's tracks, and the grid decides
             // where labels go. The row marks itself, since an element with
             // display: contents may sit between the two, which the styles'
-            // child combinator cannot cross. An ims-grid cell sizes its own
+            // child combinator cannot cross. An ims-grid-v2 cell sizes its own
             // content.
             if (layoutParent(this.hostElement)?.matches('ims-form-field-grid')) {
                 this.hostElement.setAttribute(SUBGRID_ATTRIBUTE, '');
                 return;
             }
-            if (this.hostElement.closest('ims-grid-cell')) {
+            if (this.hostElement.closest('ims-grid-cell-v2')) {
                 return;
             }
 

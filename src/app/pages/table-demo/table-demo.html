@@ -1,7 +1,7 @@
 <header class="page-heading">
     <h1>טבלאות</h1>
     <p>
-        <code>ims-table</code> נותן לטבלה רגילה ול-<code>ims-grid</code> אותו מראה, ועם
+        <code>ims-table</code> נותן לטבלה רגילה ול-<code>ims-grid-v2</code> אותו מראה, ועם
         <code>interactive</code> גם ניווט במקלדת ואירועי לחיצה על שורות.
     </p>
 </header>
@@ -144,37 +144,37 @@
 
 <section class="table-demo">
     <div class="table-demo__description">
-        <h2>ims-grid אינטראקטיבי עם מיון</h2>
+        <h2>ims-grid-v2 אינטראקטיבי עם מיון</h2>
         <p>
-            אותו מראה ואותה מקלדת על <code>ims-grid</code>. כותרות המיון נשארות עצירות Tab משלהן
+            אותו מראה ואותה מקלדת על <code>ims-grid-v2</code>. כותרות המיון נשארות עצירות Tab משלהן
             לפני השורות; מיון לא מזיז את עצירת ה-Tab מהשורה שהייתה פעילה.
         </p>
     </div>
 
-    <ims-grid
+    <ims-grid-v2
         ims-table
         interactive
         aria-label="פוליסות לפי מיון"
-        [imsGridSort]="policies"
-        #gridSort="imsGridSort"
+        [imsGridSortV2]="policies"
+        #gridSort="imsGridSortV2"
     >
-        <ims-grid-header>
-            <ims-grid-cell>
-                <ims-grid-sort-header field="policyNumber">מספר פוליסה</ims-grid-sort-header>
-            </ims-grid-cell>
-            <ims-grid-cell>
-                <ims-grid-sort-header field="customerName">שם לקוח</ims-grid-sort-header>
-            </ims-grid-cell>
-            <ims-grid-cell>
-                <ims-grid-sort-header field="validUntil">תוקף</ims-grid-sort-header>
-            </ims-grid-cell>
-            <ims-grid-cell class="ims-table-new__cell--numeric">
-                <ims-grid-sort-header field="premium" arrowPosition="before">פרמיה חודשית</ims-grid-sort-header>
-            </ims-grid-cell>
-        </ims-grid-header>
+        <ims-grid-header-v2>
+            <ims-grid-cell-v2>
+                <ims-grid-sort-header-v2 field="policyNumber">מספר פוליסה</ims-grid-sort-header-v2>
+            </ims-grid-cell-v2>
+            <ims-grid-cell-v2>
+                <ims-grid-sort-header-v2 field="customerName">שם לקוח</ims-grid-sort-header-v2>
+            </ims-grid-cell-v2>
+            <ims-grid-cell-v2>
+                <ims-grid-sort-header-v2 field="validUntil">תוקף</ims-grid-sort-header-v2>
+            </ims-grid-cell-v2>
+            <ims-grid-cell-v2 class="ims-table-new__cell--numeric">
+                <ims-grid-sort-header-v2 field="premium" arrowPosition="before">פרמיה חודשית</ims-grid-sort-header-v2>
+            </ims-grid-cell-v2>
+        </ims-grid-header-v2>
 
         @for (policy of gridSort.sortedData(); track policy.id) {
-            <ims-grid-row
+            <ims-grid-row-v2
                 ims-table-row
                 [attr.aria-selected]="policy.id === gridSelectedId()"
                 [class.ims-table-new__row--active]="policy.id === gridOpenedId()"
@@ -182,18 +182,18 @@
                 (rowClick)="select('grid', policy, $event)"
                 (rowDblclick)="open('grid', policy, $event)"
             >
-                <ims-grid-cell><span dir="ltr">{{ policy.policyNumber }}</span></ims-grid-cell>
-                <ims-grid-cell>{{ policy.customerName }}</ims-grid-cell>
-                <ims-grid-cell><span dir="ltr">{{ policy.validUntil | date: 'dd/MM/yyyy' : 'UTC' }}</span></ims-grid-cell>
-                <ims-grid-cell class="ims-table-new__cell--numeric">₪ {{ policy.premium | number: '1.2-2' }}</ims-grid-cell>
-            </ims-grid-row>
+                <ims-grid-cell-v2><span dir="ltr">{{ policy.policyNumber }}</span></ims-grid-cell-v2>
+                <ims-grid-cell-v2>{{ policy.customerName }}</ims-grid-cell-v2>
+                <ims-grid-cell-v2><span dir="ltr">{{ policy.validUntil | date: 'dd/MM/yyyy' : 'UTC' }}</span></ims-grid-cell-v2>
+                <ims-grid-cell-v2 class="ims-table-new__cell--numeric">₪ {{ policy.premium | number: '1.2-2' }}</ims-grid-cell-v2>
+            </ims-grid-row-v2>
         }
 
-        <ims-grid-footer>
-            <ims-grid-cell span="1 / 4">סה״כ {{ policies.length }} פוליסות</ims-grid-cell>
-            <ims-grid-cell span="4 / 5" class="ims-table-new__cell--numeric">₪ {{ totalPremium | number: '1.2-2' }}</ims-grid-cell>
-        </ims-grid-footer>
-    </ims-grid>
+        <ims-grid-footer-v2>
+            <ims-grid-cell-v2 span="1 / 4">סה״כ {{ policies.length }} פוליסות</ims-grid-cell-v2>
+            <ims-grid-cell-v2 span="4 / 5" class="ims-table-new__cell--numeric">₪ {{ totalPremium | number: '1.2-2' }}</ims-grid-cell-v2>
+        </ims-grid-footer-v2>
+    </ims-grid-v2>
 </section>
 
 <section class="table-demo">
@@ -206,17 +206,17 @@
         </p>
     </div>
 
-    <ims-grid ims-table interactive zebra aria-label="פוליסות, גלילה וירטואלית">
-        <ims-grid-header>
-            <ims-grid-cell width="5rem" class="ims-table-new__cell--numeric">#</ims-grid-cell>
-            <ims-grid-cell width="9rem">מספר פוליסה</ims-grid-cell>
-            <ims-grid-cell minWidth="10rem" maxWidth="1fr">שם לקוח</ims-grid-cell>
-            <ims-grid-cell width="7rem">סטטוס</ims-grid-cell>
-            <ims-grid-cell width="9rem" class="ims-table-new__cell--numeric">פרמיה חודשית</ims-grid-cell>
-        </ims-grid-header>
+    <ims-grid-v2 ims-table interactive zebra aria-label="פוליסות, גלילה וירטואלית">
+        <ims-grid-header-v2>
+            <ims-grid-cell-v2 width="5rem" class="ims-table-new__cell--numeric">#</ims-grid-cell-v2>
+            <ims-grid-cell-v2 width="9rem">מספר פוליסה</ims-grid-cell-v2>
+            <ims-grid-cell-v2 minWidth="10rem" maxWidth="1fr">שם לקוח</ims-grid-cell-v2>
+            <ims-grid-cell-v2 width="7rem">סטטוס</ims-grid-cell-v2>
+            <ims-grid-cell-v2 width="9rem" class="ims-table-new__cell--numeric">פרמיה חודשית</ims-grid-cell-v2>
+        </ims-grid-header-v2>
 
         <cdk-virtual-scroll-viewport itemSize="32" class="table-demo__viewport">
-            <ims-grid-row
+            <ims-grid-row-v2
                 [ims-table-row]="index"
                 *cdkVirtualFor="let policy of manyPolicies; let index = index; trackBy: trackPolicy"
                 [attr.aria-selected]="policy.id === virtualSelectedId()"
@@ -225,17 +225,17 @@
                 (rowClick)="select('virtual', policy, $event)"
                 (rowDblclick)="open('virtual', policy, $event)"
             >
-                <ims-grid-cell class="ims-table-new__cell--numeric">{{ policy.id }}</ims-grid-cell>
-                <ims-grid-cell><span dir="ltr">{{ policy.policyNumber }}</span></ims-grid-cell>
-                <ims-grid-cell>{{ policy.customerName }}</ims-grid-cell>
-                <ims-grid-cell>{{ statusLabels[policy.status] }}</ims-grid-cell>
-                <ims-grid-cell class="ims-table-new__cell--numeric">₪ {{ policy.premium | number: '1.2-2' }}</ims-grid-cell>
-            </ims-grid-row>
+                <ims-grid-cell-v2 class="ims-table-new__cell--numeric">{{ policy.id }}</ims-grid-cell-v2>
+                <ims-grid-cell-v2><span dir="ltr">{{ policy.policyNumber }}</span></ims-grid-cell-v2>
+                <ims-grid-cell-v2>{{ policy.customerName }}</ims-grid-cell-v2>
+                <ims-grid-cell-v2>{{ statusLabels[policy.status] }}</ims-grid-cell-v2>
+                <ims-grid-cell-v2 class="ims-table-new__cell--numeric">₪ {{ policy.premium | number: '1.2-2' }}</ims-grid-cell-v2>
+            </ims-grid-row-v2>
         </cdk-virtual-scroll-viewport>
 
-        <ims-grid-footer>
-            <ims-grid-cell span="1 / 5">סה״כ {{ manyPolicies.length | number }} פוליסות</ims-grid-cell>
-            <ims-grid-cell span="5 / 6" class="ims-table-new__cell--numeric">₪ {{ manyTotalPremium | number: '1.2-2' }}</ims-grid-cell>
-        </ims-grid-footer>
-    </ims-grid>
+        <ims-grid-footer-v2>
+            <ims-grid-cell-v2 span="1 / 5">סה״כ {{ manyPolicies.length | number }} פוליסות</ims-grid-cell-v2>
+            <ims-grid-cell-v2 span="5 / 6" class="ims-table-new__cell--numeric">₪ {{ manyTotalPremium | number: '1.2-2' }}</ims-grid-cell-v2>
+        </ims-grid-footer-v2>
+    </ims-grid-v2>
 </section>

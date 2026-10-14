@@ -5,15 +5,15 @@ import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {ImsButton} from '../../components/ims-button';
 import {ImsCheckbox} from '../../components/ims-checkbox';
 import {
-    ImsAccordionDirective,
-    ImsExpansionPanel,
-    ImsExpansionPanelBody,
-    ImsExpansionPanelContent,
-    ImsExpansionPanelHeader,
-    ImsExpansionPanelSeverity,
-    ImsExpansionPanelToggle
-} from '../../components/ims-expansion-panel';
-import {ImsGrid, ImsGridCell, ImsGridRow} from '../../components/ims-grid';
+    ImsAccordionDirectiveV2,
+    ImsExpansionPanelV2,
+    ImsExpansionPanelBodyV2,
+    ImsExpansionPanelContentV2,
+    ImsExpansionPanelHeaderV2,
+    ImsExpansionPanelSeverityV2,
+    ImsExpansionPanelToggleV2
+} from '../../components/ims-expansion-panel-v2';
+import {ImsGridV2, ImsGridCellV2, ImsGridRowV2} from '../../components/ims-grid-v2';
 import {ImsTableDirective, ImsTableRowDirective} from '../../components/ims-table';
 import {ImsVirtualScrollAutosizeDirective} from '../../shared/ims-virtual-scroll-autosize.directive';
 
@@ -64,17 +64,17 @@ interface DemoClaim {
     imports: [
         DecimalPipe,
         ReactiveFormsModule,
-        ImsAccordionDirective,
+        ImsAccordionDirectiveV2,
         ImsButton,
         ImsCheckbox,
-        ImsExpansionPanel,
-        ImsExpansionPanelBody,
-        ImsExpansionPanelContent,
-        ImsExpansionPanelHeader,
-        ImsExpansionPanelToggle,
-        ImsGrid,
-        ImsGridCell,
-        ImsGridRow,
+        ImsExpansionPanelV2,
+        ImsExpansionPanelBodyV2,
+        ImsExpansionPanelContentV2,
+        ImsExpansionPanelHeaderV2,
+        ImsExpansionPanelToggleV2,
+        ImsGridV2,
+        ImsGridCellV2,
+        ImsGridRowV2,
         ImsTableDirective,
         ImsTableRowDirective,
         ImsVirtualScrollAutosizeDirective,
@@ -131,7 +131,7 @@ export class ExpansionPanelDemo {
     readonly policyToggleHidden = signal(false);
     readonly lastEvent = signal('');
 
-    readonly severities: readonly ImsExpansionPanelSeverity[] = ['neutral', 'info', 'success', 'warning', 'danger'];
+    readonly severities: readonly ImsExpansionPanelSeverityV2[] = ['neutral', 'info', 'success', 'warning', 'danger'];
     readonly policies = createPolicies(400);
     /** The first few, for the example without a virtual viewport. */
     readonly samplePolicies = this.policies.slice(0, 5);

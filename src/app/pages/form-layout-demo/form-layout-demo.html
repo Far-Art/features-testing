@@ -627,38 +627,38 @@
     <div class="form-layout-demo__example">
         <h2>טבלה כערך של שדה</h2>
         <p class="form-layout-demo__hint">
-            ims-grid יחיד הוא הערך של השדה, ולכן הוא ממוקם בעמודת הערך כמו כל רכיב שאינו תווית.
+            ims-grid-v2 יחיד הוא הערך של השדה, ולכן הוא ממוקם בעמודת הערך כמו כל רכיב שאינו תווית.
             כשהמסגרת צרה מהתווית והטבלה ברוחבן הטבעי, התווית עוברת אל מעל הטבלה.
         </p>
 
         <app-demo-resize-frame>
             <ims-form-field>
                 <span imsFormFieldLabel id="demo-table-value-label">פוליסות פעילות</span>
-                <ims-grid
+                <ims-grid-v2
                     columnGap="1rem"
                     role="group"
                     aria-labelledby="demo-table-value-label"
                 >
-                    <ims-grid-header>
-                        <ims-grid-cell>שם לקוח</ims-grid-cell>
-                        <ims-grid-cell>מספר פוליסה</ims-grid-cell>
-                        <ims-grid-cell>תוקף</ims-grid-cell>
-                        <ims-grid-cell>פרמיה חודשית</ims-grid-cell>
-                    </ims-grid-header>
+                    <ims-grid-header-v2>
+                        <ims-grid-cell-v2>שם לקוח</ims-grid-cell-v2>
+                        <ims-grid-cell-v2>מספר פוליסה</ims-grid-cell-v2>
+                        <ims-grid-cell-v2>תוקף</ims-grid-cell-v2>
+                        <ims-grid-cell-v2>פרמיה חודשית</ims-grid-cell-v2>
+                    </ims-grid-header-v2>
 
                     @for (row of autoWidthGridSource; track row.id) {
-                        <ims-grid-row>
-                            <ims-grid-cell>{{ row.customerName }}</ims-grid-cell>
-                            <ims-grid-cell>
+                        <ims-grid-row-v2>
+                            <ims-grid-cell-v2>{{ row.customerName }}</ims-grid-cell-v2>
+                            <ims-grid-cell-v2>
                                 <span dir="ltr">{{ row.policyNumber }}</span>
-                            </ims-grid-cell>
-                            <ims-grid-cell>
+                            </ims-grid-cell-v2>
+                            <ims-grid-cell-v2>
                                 <span dir="ltr">{{ row.validUntil | date: 'dd/MM/yyyy' : 'UTC' }}</span>
-                            </ims-grid-cell>
-                            <ims-grid-cell>{{ row.premium }}</ims-grid-cell>
-                        </ims-grid-row>
+                            </ims-grid-cell-v2>
+                            <ims-grid-cell-v2>{{ row.premium }}</ims-grid-cell-v2>
+                        </ims-grid-row-v2>
                     }
-                </ims-grid>
+                </ims-grid-v2>
             </ims-form-field>
         </app-demo-resize-frame>
     </div>
@@ -1305,29 +1305,29 @@
     </div>
 
     <div class="form-grid-demo__viewport">
-        <ims-grid
+        <ims-grid-v2
             columnGap="1rem"
-            [imsGridSort]="autoWidthGridSource"
-            #autoWidthSort="imsGridSort"
+            [imsGridSortV2]="autoWidthGridSource"
+            #autoWidthSort="imsGridSortV2"
         >
-            <ims-grid-header>
-                <ims-grid-cell>
-                    <ims-grid-sort-header field="customerName">שם לקוח</ims-grid-sort-header>
-                </ims-grid-cell>
-                <ims-grid-cell>
-                    <ims-grid-sort-header field="policyNumber">מספר פוליסה</ims-grid-sort-header>
-                </ims-grid-cell>
-                <ims-grid-cell>
-                    <ims-grid-sort-header field="validUntil">תוקף</ims-grid-sort-header>
-                </ims-grid-cell>
-                <ims-grid-cell>
-                    <ims-grid-sort-header field="premium">פרמיה חודשית</ims-grid-sort-header>
-                </ims-grid-cell>
-            </ims-grid-header>
+            <ims-grid-header-v2>
+                <ims-grid-cell-v2>
+                    <ims-grid-sort-header-v2 field="customerName">שם לקוח</ims-grid-sort-header-v2>
+                </ims-grid-cell-v2>
+                <ims-grid-cell-v2>
+                    <ims-grid-sort-header-v2 field="policyNumber">מספר פוליסה</ims-grid-sort-header-v2>
+                </ims-grid-cell-v2>
+                <ims-grid-cell-v2>
+                    <ims-grid-sort-header-v2 field="validUntil">תוקף</ims-grid-sort-header-v2>
+                </ims-grid-cell-v2>
+                <ims-grid-cell-v2>
+                    <ims-grid-sort-header-v2 field="premium">פרמיה חודשית</ims-grid-sort-header-v2>
+                </ims-grid-cell-v2>
+            </ims-grid-header-v2>
 
             @for (row of autoWidthSort.sortedData(); track row.id) {
-                <ims-grid-row>
-                    <ims-grid-cell>
+                <ims-grid-row-v2>
+                    <ims-grid-cell-v2>
                         <ims-form-field>
                             <label imsFormFieldLabel>
                                 {{ row.id === 3 ? 'שם המבוטח הראשי' : 'לקוח' }}
@@ -1336,9 +1336,9 @@
                                 {{ row.customerName }}
                             </span>
                         </ims-form-field>
-                    </ims-grid-cell>
+                    </ims-grid-cell-v2>
 
-                    <ims-grid-cell>
+                    <ims-grid-cell-v2>
                         <ims-form-field>
                             <label imsFormFieldLabel>
                                 {{ row.id === 2 ? 'מספר פוליסה פנימי' : 'פוליסה' }}
@@ -1349,9 +1349,9 @@
                                 {{ row.policyNumber }}
                             </span>
                         </ims-form-field>
-                    </ims-grid-cell>
+                    </ims-grid-cell-v2>
 
-                    <ims-grid-cell>
+                    <ims-grid-cell-v2>
                         <ims-form-field>
                             <label imsFormFieldLabel>
                                 {{ row.id === 4 ? 'תוקף כיסוי ביטוחי' : 'עד' }}
@@ -1362,19 +1362,19 @@
                                 {{ row.validUntil | date: 'dd/MM/yyyy' : 'UTC' }}
                             </span>
                         </ims-form-field>
-                    </ims-grid-cell>
+                    </ims-grid-cell-v2>
 
-                    <ims-grid-cell>
+                    <ims-grid-cell-v2>
                         <ims-form-field>
                             <label imsFormFieldLabel>₪</label>
                             <span>
                                 {{ row.premium }}
                             </span>
                         </ims-form-field>
-                    </ims-grid-cell>
-                </ims-grid-row>
+                    </ims-grid-cell-v2>
+                </ims-grid-row-v2>
             }
-        </ims-grid>
+        </ims-grid-v2>
     </div>
 </section>
 
@@ -1391,36 +1391,36 @@
     </div>
 
     <div class="form-grid-demo__viewport">
-        <ims-grid
+        <ims-grid-v2
             columnGap="1rem"
-            [imsGridSort]="explicitWidthGridSource"
-            #explicitWidthSort="imsGridSort"
+            [imsGridSortV2]="explicitWidthGridSource"
+            #explicitWidthSort="imsGridSortV2"
         >
-            <ims-grid-header>
-                <ims-grid-cell>
-                    <ims-grid-sort-header field="customerName">שם לקוח</ims-grid-sort-header>
-                </ims-grid-cell>
-                <ims-grid-cell width="16rem">
-                    <ims-grid-sort-header field="policyNumber">מספר פוליסה</ims-grid-sort-header>
-                </ims-grid-cell>
-                <ims-grid-cell>
-                    <ims-grid-sort-header field="validUntil">תוקף</ims-grid-sort-header>
-                </ims-grid-cell>
-                <ims-grid-cell width="11rem">
-                    <ims-grid-sort-header field="premium">פרמיה חודשית</ims-grid-sort-header>
-                </ims-grid-cell>
-            </ims-grid-header>
+            <ims-grid-header-v2>
+                <ims-grid-cell-v2>
+                    <ims-grid-sort-header-v2 field="customerName">שם לקוח</ims-grid-sort-header-v2>
+                </ims-grid-cell-v2>
+                <ims-grid-cell-v2 width="16rem">
+                    <ims-grid-sort-header-v2 field="policyNumber">מספר פוליסה</ims-grid-sort-header-v2>
+                </ims-grid-cell-v2>
+                <ims-grid-cell-v2>
+                    <ims-grid-sort-header-v2 field="validUntil">תוקף</ims-grid-sort-header-v2>
+                </ims-grid-cell-v2>
+                <ims-grid-cell-v2 width="11rem">
+                    <ims-grid-sort-header-v2 field="premium">פרמיה חודשית</ims-grid-sort-header-v2>
+                </ims-grid-cell-v2>
+            </ims-grid-header-v2>
 
             @for (row of explicitWidthSort.sortedData(); track row.id) {
-                <ims-grid-row>
-                    <ims-grid-cell>
+                <ims-grid-row-v2>
+                    <ims-grid-cell-v2>
                         <ims-form-field>
                             <label imsFormFieldLabel>לקוח</label>
                             <input imsInput [(ngModel)]="row.customerName">
                         </ims-form-field>
-                    </ims-grid-cell>
+                    </ims-grid-cell-v2>
 
-                    <ims-grid-cell>
+                    <ims-grid-cell-v2>
                         <ims-form-field>
                             <label imsFormFieldLabel>פוליסה</label>
                             <input
@@ -1429,9 +1429,9 @@
                                 dir="ltr"
                             >
                         </ims-form-field>
-                    </ims-grid-cell>
+                    </ims-grid-cell-v2>
 
-                    <ims-grid-cell>
+                    <ims-grid-cell-v2>
                         <ims-form-field>
                             <label imsFormFieldLabel>עד</label>
                             <ims-datepicker
@@ -1440,9 +1440,9 @@
                                 [(ngModel)]="row.validUntil"
                             />
                         </ims-form-field>
-                    </ims-grid-cell>
+                    </ims-grid-cell-v2>
 
-                    <ims-grid-cell>
+                    <ims-grid-cell-v2>
                         <ims-form-field>
                             <label imsFormFieldLabel>₪</label>
                             <input
@@ -1453,9 +1453,9 @@
                                 [(ngModel)]="row.premium"
                             >
                         </ims-form-field>
-                    </ims-grid-cell>
-                </ims-grid-row>
+                    </ims-grid-cell-v2>
+                </ims-grid-row-v2>
             }
-        </ims-grid>
+        </ims-grid-v2>
     </div>
 </section>

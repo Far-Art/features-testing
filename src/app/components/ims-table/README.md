@@ -1,6 +1,6 @@
 # IMS Table Implementation Guide
 
-`ims-table` gives a native `table` and an `ims-grid` one look, and with
+`ims-table` gives a native `table` and an `ims-grid-v2` one look, and with
 `interactive` one keyboard model and one pair of row outputs. Treat the
 behavior documented here as part of the component contract unless a requested
 change explicitly replaces it.
@@ -9,9 +9,9 @@ change explicitly replaces it.
 
 | File | Purpose |
 | --- | --- |
-| `ims-table.directive.ts` | `ImsTableDirective` on `table[ims-table]` and `ims-grid[ims-table]`: the host class, roles, tab stops, keyboard navigation, virtual-viewport support. |
-| `ims-table-row.directive.ts` | `ImsTableRowDirective` on `tr[ims-table-row]` and `ims-grid-row[ims-table-row]`: `rowClick`, `rowDblclick`, click filtering, Enter and Space. |
-| `ims-table.tokens.ts` | `IMS_TABLE_CONTEXT`, and the contracts between the table, its rows, and `ims-grid`. |
+| `ims-table.directive.ts` | `ImsTableDirective` on `table[ims-table]` and `ims-grid-v2[ims-table]`: the host class, roles, tab stops, keyboard navigation, virtual-viewport support. |
+| `ims-table-row.directive.ts` | `ImsTableRowDirective` on `tr[ims-table-row]` and `ims-grid-row-v2[ims-table-row]`: `rowClick`, `rowDblclick`, click filtering, Enter and Space. |
+| `ims-table.tokens.ts` | `IMS_TABLE_CONTEXT`, and the contracts between the table, its rows, and `ims-grid-v2`. |
 | `index.ts` | Public API barrel. |
 | `ims-table.directive.spec.ts` | Specs for both directives, on both hosts, with and without a virtual viewport. |
 | `src/styles/ims-table.scss` | All presentation. Global, loaded from `src/styles.scss`. |
@@ -38,25 +38,25 @@ the old class, or both styles apply.
 ```
 
 ```html
-<ims-grid ims-table>
-    <ims-grid-header>
-        <ims-grid-cell>מספר פוליסה</ims-grid-cell>
-        <ims-grid-cell class="ims-table-new__cell--numeric">פרמיה</ims-grid-cell>
-    </ims-grid-header>
+<ims-grid-v2 ims-table>
+    <ims-grid-header-v2>
+        <ims-grid-cell-v2>מספר פוליסה</ims-grid-cell-v2>
+        <ims-grid-cell-v2 class="ims-table-new__cell--numeric">פרמיה</ims-grid-cell-v2>
+    </ims-grid-header-v2>
     @for (policy of policies; track policy.id) {
-        <ims-grid-row>
-            <ims-grid-cell>{{ policy.number }}</ims-grid-cell>
-            <ims-grid-cell class="ims-table-new__cell--numeric">{{ policy.premium }}</ims-grid-cell>
-        </ims-grid-row>
+        <ims-grid-row-v2>
+            <ims-grid-cell-v2>{{ policy.number }}</ims-grid-cell-v2>
+            <ims-grid-cell-v2 class="ims-table-new__cell--numeric">{{ policy.premium }}</ims-grid-cell-v2>
+        </ims-grid-row-v2>
     }
-</ims-grid>
+</ims-grid-v2>
 ```
 
 ## Zebra
 
 ```html
 <table ims-table zebra>…</table>
-<ims-grid ims-table [zebra]="striped()">…</ims-grid>
+<ims-grid-v2 ims-table [zebra]="striped()">…</ims-grid-v2>
 ```
 
 `zebra` (off by default) stripes every second body row. The stripe is a
@@ -70,7 +70,7 @@ as the window scrolls. Without a bound index, virtual rows are not striped.
 
 ## Footer
 
-A closing row, such as totals: `tfoot` on a native table, `ims-grid-footer` on
+A closing row, such as totals: `tfoot` on a native table, `ims-grid-footer-v2` on
 a grid. It takes the header's band and weight and pins to the bottom of the
 scrollport, so totals stay in view beside the rows they sum. It is a summary,
 not a row of the list: no hover, selection, focus or keyboard stop.
@@ -85,10 +85,10 @@ not a row of the list: no hover, selection, focus or keyboard stop.
 ```
 
 ```html
-<ims-grid-footer>
-    <ims-grid-cell span="1 / 4">סה״כ</ims-grid-cell>
-    <ims-grid-cell span="4 / 5" class="ims-table-new__cell--numeric">{{ total }}</ims-grid-cell>
-</ims-grid-footer>
+<ims-grid-footer-v2>
+    <ims-grid-cell-v2 span="1 / 4">סה״כ</ims-grid-cell-v2>
+    <ims-grid-cell-v2 span="4 / 5" class="ims-table-new__cell--numeric">{{ total }}</ims-grid-cell-v2>
+</ims-grid-footer-v2>
 ```
 
 In a grid, a cell after a spanning cell needs its own `span`: cells are placed
@@ -96,7 +96,7 @@ by their position in the row, not after the span before them.
 
 A native table needs its rows in `thead`, `tbody` or `tfoot`; the stylesheet
 uses child combinators so a plain table nested in a cell keeps its own look.
-An `ims-grid` without `ims-table` stays a bare layout grid, as forms use it.
+An `ims-grid-v2` without `ims-table` stays a bare layout grid, as forms use it.
 
 ## Interactive Rows
 
@@ -171,27 +171,27 @@ therefore stay non-interactive.
 | Host | Not interactive | Interactive |
 | --- | --- | --- |
 | `table` | its native table role | `grid` |
-| `ims-grid` | `table`; rows `row`; cells `cell`; header cells `columnheader` | `grid`; cells `gridcell` |
-| `ims-grid` without `ims-table` | none | — |
+| `ims-grid-v2` | `table`; rows `row`; cells `cell`; header cells `columnheader` | `grid`; cells `gridcell` |
+| `ims-grid-v2` without `ims-table` | none | — |
 
-`ImsGrid` reads an `ims-table` on its own host and passes the semantics down
-through `IMS_GRID_CONTEXT`; each row and cell takes them from its nearest grid.
+`ImsGridV2` reads an `ims-table` on its own host and passes the semantics down
+through `IMS_GRID_CONTEXT_V2`; each row and cell takes them from its nearest grid.
 
 ## Virtual Scrolling
 
 ```html
-<ims-grid ims-table interactive>
-    <ims-grid-header>…</ims-grid-header>
+<ims-grid-v2 ims-table interactive>
+    <ims-grid-header-v2>…</ims-grid-header-v2>
     <cdk-virtual-scroll-viewport itemSize="32">
-        <ims-grid-row
+        <ims-grid-row-v2
             [ims-table-row]="i"
             *cdkVirtualFor="let policy of policies; let i = index"
-        >…</ims-grid-row>
+        >…</ims-grid-row-v2>
     </cdk-virtual-scroll-viewport>
-</ims-grid>
+</ims-grid-v2>
 ```
 
-Supported inside an `ims-grid`. The active row is tracked by item index, since
+Supported inside an `ims-grid-v2`. The active row is tracked by item index, since
 CDK recycles row elements. Moving past the rendered window scrolls the viewport
 by the least amount that brings the row into view, calls
 `checkViewportSize()` so the new window is computed now rather than on the next
@@ -273,7 +273,7 @@ Selected and active together take the stronger tint and the bar.
 | `--ims-table-sticky-offset` | `0px` | How far below the scrollport's top the header pins. |
 | `--ims-table-sticky-offset-end` | `0px` | How far above the scrollport's bottom the footer pins. |
 
-In an `ims-grid`, cells pad themselves and the column gutter is `0`. An
+In an `ims-grid-v2`, cells pad themselves and the column gutter is `0`. An
 explicit `columnGap` on the grid is still written inline and adds to the
 padding. When none of its columns can grow — all fixed widths, or
 `minmax(…, max-content)` — the end rail takes the leftover width, so rows, the

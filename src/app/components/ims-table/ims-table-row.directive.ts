@@ -34,7 +34,7 @@ const INTERACTIVE_CONTENT = [
 ].join(', ');
 
 /** Every element that is a row, so a click inside a nested row is that row's, not its parent's. */
-export const IMS_TABLE_ROW_ELEMENTS = 'tr, ims-grid-row, ims-grid-header, ims-grid-footer';
+export const IMS_TABLE_ROW_ELEMENTS = 'tr, ims-grid-row-v2, ims-grid-header-v2, ims-grid-footer-v2';
 
 /** Elements the browser puts in the tab order unless told otherwise. */
 const TABBABLE_CONTENT = [
@@ -59,7 +59,7 @@ const SAVED_TABINDEX = 'data-ims-table-tabindex';
 export type ImsTableRowTrigger = MouseEvent | KeyboardEvent;
 
 @Directive({
-    selector: 'tr[ims-table-row], ims-grid-row[ims-table-row]',
+    selector: 'tr[ims-table-row], ims-grid-row-v2[ims-table-row]',
     standalone: true,
     exportAs: 'imsTableRow',
     host: {

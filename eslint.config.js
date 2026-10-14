@@ -51,11 +51,11 @@ module.exports = defineConfig([
                 },
             ],
             // Buttons that name themselves, so one carrying the attribute is not
-            // empty: imsExpandCollapseButton writes its own aria-label.
+            // empty: imsExpandCollapseButtonV2 writes its own aria-label.
             '@angular-eslint/template/elements-content': [
                 'error',
                 {
-                    allowList: ['imsExpandCollapseButton'],
+                    allowList: ['imsExpandCollapseButtonV2'],
                 },
             ],
         },

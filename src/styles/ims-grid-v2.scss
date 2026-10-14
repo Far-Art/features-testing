@@ -1,29 +1,29 @@
-ims-grid {
+ims-grid-v2 {
     // The gutter track between columns. `columnGap` writes it inline when set;
     // otherwise this default holds, and `ims-table` replaces it with cell padding.
-    --ims-grid-column-gap: 3px;
+    --ims-grid-v2-column-gap: 3px;
 
     display: grid;
-    grid-template-columns: var(--ims-grid-template);
+    grid-template-columns: var(--ims-grid-v2-template);
     column-gap: 0;
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
 
-    // Every box between `ims-grid` and its cells is a subgrid, which is how the
+    // Every box between `ims-grid-v2` and its cells is a subgrid, which is how the
     // header's column tracks reach the body rows. A subgrid that establishes its
     // own independent formatting context computes `subgrid` back to `grid` and
     // re-derives its columns from its own content, so the body silently stops
     // lining up with the header — no error, no warning, just drift. `contain:
     // layout` and `contain: paint` each force that context on their own, and
     // `content-visibility` implies both, so none of them belong on a row, a
-    // header, or any bridge wrapper below. Containment *above* `ims-grid` is
+    // header, or any bridge wrapper below. Containment *above* `ims-grid-v2` is
     // safe; it is the boundary between a grid and its own rows that breaks.
     //
     // Row count is handled by virtualisation instead, which is why
     // `.cdk-virtual-scroll-content-wrapper` is excluded from the rule below:
     // CDK's wrapper stays out of the subgrid chain rather than bridging it.
-    :where(*:not(ims-grid):not(.cdk-virtual-scroll-content-wrapper):has(> :is(ims-grid-row, ims-grid-header, ims-grid-footer))) {
+    :where(*:not(ims-grid-v2):not(.cdk-virtual-scroll-content-wrapper):has(> :is(ims-grid-row-v2, ims-grid-header-v2, ims-grid-footer-v2))) {
         display: grid;
         grid-column: 1 / -1;
         grid-template-columns: subgrid;
@@ -34,7 +34,7 @@ ims-grid {
         box-sizing: border-box;
     }
 
-    :is(ims-grid-row, ims-grid-header, ims-grid-footer) {
+    :is(ims-grid-row-v2, ims-grid-header-v2, ims-grid-footer-v2) {
         display: grid;
         grid-column: 1 / -1;
         grid-template-columns: subgrid;
@@ -44,7 +44,7 @@ ims-grid {
         width: 100%;
         box-sizing: border-box;
 
-        :where(*:not(ims-grid):not(ims-grid-cell):not(:has(> ims-grid)):has(ims-grid-cell)) {
+        :where(*:not(ims-grid-v2):not(ims-grid-cell-v2):not(:has(> ims-grid-v2)):has(ims-grid-cell-v2)) {
             display: grid !important;
             grid-column: 1 / -1 !important;
             grid-template-columns: subgrid !important;
@@ -55,16 +55,16 @@ ims-grid {
         }
     }
 
-    ims-grid-header {
+    ims-grid-header-v2 {
         font-weight: var(--ims-font-weight-semibold);
         user-select: none;
 
-        ims-grid-cell {
+        ims-grid-cell-v2 {
             position: relative;
             user-select: none;
         }
 
-        ims-grid-cell::after {
+        ims-grid-cell-v2::after {
             content: '';
             position: absolute;
             inset-inline: 0 0.5rem;
@@ -75,37 +75,37 @@ ims-grid {
             transition: opacity 160ms cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        ims-grid-cell:has(.mat-sort-header-container.mat-sort-header-sorted)::after,
-        ims-grid-cell:has(.ims-grid-sort-header-trigger.cdk-keyboard-focused)::after,
-        ims-grid-cell:has(.ims-grid-sort-header-trigger.cdk-program-focused)::after,
-        ims-grid-cell:has(.ims-grid-sort-header-trigger:focus-visible)::after {
+        ims-grid-cell-v2:has(.mat-sort-header-container.mat-sort-header-sorted)::after,
+        ims-grid-cell-v2:has(.ims-grid-sort-header-v2-trigger.cdk-keyboard-focused)::after,
+        ims-grid-cell-v2:has(.ims-grid-sort-header-v2-trigger.cdk-program-focused)::after,
+        ims-grid-cell-v2:has(.ims-grid-sort-header-v2-trigger:focus-visible)::after {
             opacity: 1;
         }
     }
 
-    ims-grid-cell {
+    ims-grid-cell-v2 {
         display: flex;
         align-items: center;
         min-width: 0;
         overflow: hidden;
         grid-column-end: span 1;
 
-        &.ims-grid-cell-row-span {
+        &.ims-grid-cell-v2-row-span {
             align-items: stretch;
         }
     }
 
-    .ims-grid-clip {
+    .ims-grid-clip-v2 {
         overflow: hidden;
         min-height: 0;
     }
 
-    ims-grid-sort-header {
+    ims-grid-sort-header-v2 {
         display: block;
         width: 100%;
         min-width: 0;
 
-        .ims-grid-sort-header-trigger {
+        .ims-grid-sort-header-v2-trigger {
             display: block;
             width: 100%;
             min-width: 0;

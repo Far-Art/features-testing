@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal} from '@angular/core';
-import {IMS_GRID_CONTEXT, IMS_GRID_ROW_CONTEXT} from './ims-grid.tokens';
+import {IMS_GRID_CONTEXT_V2, IMS_GRID_ROW_CONTEXT_V2} from './ims-grid-v2.tokens';
 
 type ResolvedCellSpan =
     | {kind: 'cell'}
@@ -8,11 +8,11 @@ type ResolvedCellSpan =
 
 
 @Component({
-    selector: 'ims-grid-cell',
+    selector: 'ims-grid-cell-v2',
     standalone: true,
     template: '<ng-content/>',
     host: {
-        '[class.ims-grid-cell-row-span]': 'isRowSpan()',
+        '[class.ims-grid-cell-v2-row-span]': 'isRowSpan()',
         '[style.grid-column-start]': 'gridColumnStart()',
         '[style.grid-column-end]': 'gridColumnEnd()',
         '[attr.role]': 'role()'
@@ -20,7 +20,7 @@ type ResolvedCellSpan =
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 /**
- * Logical cell rendered in a shared `ims-grid` column.
+ * Logical cell rendered in a shared `ims-grid-v2` column.
  *
  * Cells receive their column index from the nearest owning row/header. Header
  * cells may also provide column track sizing through `width`, `minWidth`, and
@@ -30,7 +30,7 @@ type ResolvedCellSpan =
  * data area, such as an independent nested grid. Use logical ranges like
  * `span="1 / 3"` to span visible grid columns one through two.
  */
-export class ImsGridCell {
+export class ImsGridCellV2 {
     /** Fixed column track width consumed from the header row. */
     readonly width = input<string | number | undefined>(undefined);
     /** Minimum column track width consumed from the header row. */
@@ -46,8 +46,8 @@ export class ImsGridCell {
      */
     readonly span = input<'cell' | 'row' | string>('cell');
     private readonly elementRef = inject(ElementRef<HTMLElement>);
-    private readonly grid = inject(IMS_GRID_CONTEXT, {optional: true});
-    private readonly row = inject(IMS_GRID_ROW_CONTEXT, {optional: true});
+    private readonly grid = inject(IMS_GRID_CONTEXT_V2, {optional: true});
+    private readonly row = inject(IMS_GRID_ROW_CONTEXT_V2, {optional: true});
     private readonly columnIndex = signal(0);
     /**
      * ARIA role once the owning grid is an `ims-table`: a header cell, a table

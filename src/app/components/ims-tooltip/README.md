@@ -345,7 +345,7 @@ Three things at once:
 
 Dropping it also retired the `font-family` override the bubble used to carry:
 owning the surface means it inherits the application's typeface like everything
-else. `@angular/material` remains a dependency — `ims-grid-sort` uses `MatSort`.
+else. `@angular/material` remains a dependency — `ims-grid-sort-v2` uses `MatSort`.
 
 ## Safe Change Guide
 

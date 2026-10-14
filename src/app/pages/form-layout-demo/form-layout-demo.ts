@@ -16,12 +16,12 @@ import {
     ImsFormFieldRow
 } from '../../components/ims-form-layout';
 import {
-    ImsGrid,
-    ImsGridCell,
-    ImsGridRow,
-    ImsGridSortDirective,
-    ImsGridSortHeader
-} from '../../components/ims-grid';
+    ImsGridV2,
+    ImsGridCellV2,
+    ImsGridRowV2,
+    ImsGridSortDirectiveV2,
+    ImsGridSortHeaderV2
+} from '../../components/ims-grid-v2';
 import {ImsOption, ImsSelect} from '../../components/ims-select';
 import {ImsInputDirective} from '../../ims-input.directive';
 import {ReadonlyDirective} from '../../shared/readonly.directive';
@@ -57,11 +57,11 @@ function utcDate(value: string): Date {
         ImsFormFieldHint,
         ImsFormFieldInline,
         ImsFormFieldLabel,
-        ImsGrid,
-        ImsGridRow,
-        ImsGridCell,
-        ImsGridSortDirective,
-        ImsGridSortHeader,
+        ImsGridV2,
+        ImsGridRowV2,
+        ImsGridCellV2,
+        ImsGridSortDirectiveV2,
+        ImsGridSortHeaderV2,
         ImsFormFieldGrid,
         ImsInputDirective,
         ImsOption,

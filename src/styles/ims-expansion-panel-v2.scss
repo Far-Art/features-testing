@@ -1,14 +1,14 @@
 // An expansion panel is a header that stays and a body that opens and closes
 // under it. Three boxes paint it, and each paints its own background:
 //
-//   ims-expansion-panel          the frame, and the fill seen behind the body
-//   ims-expansion-panel-header   the band at the top
-//   ims-expansion-panel-body     the content box, transparent by default
+//   ims-expansion-panel-v2          the frame, and the fill seen behind the body
+//   ims-expansion-panel-header-v2   the band at the top
+//   ims-expansion-panel-body-v2     the content box, transparent by default
 //
 // Every rule that paints one of the three is wrapped in :where(), so it has no
 // specificity at all. A call site recolors a part by selecting it:
 //
-//   ims-expansion-panel-header { background: red; }
+//   ims-expansion-panel-header-v2 { background: red; }
 //
 // and that rule wins whatever its selector and wherever its stylesheet loads,
 // a component's own stylesheet included. Against a class-based default, the
@@ -17,120 +17,125 @@
 // Each background reads a variable first, so a whole area of the page can be
 // recolored from above without selecting anything:
 //
-//   --ims-expansion-panel-background
-//   --ims-expansion-panel-header-background
-//   --ims-expansion-panel-body-background
+//   --ims-expansion-panel-v2-background
+//   --ims-expansion-panel-v2-header-background
+//   --ims-expansion-panel-v2-body-background
 //
 // The defaults sit at the use site as fallbacks rather than being declared on
 // the panel, so a variable set on any ancestor reaches every panel under it.
 //
 // A severity, as on ims-panel, sets the values these fall back to: the panel's
-// `severity` input repoints the --ims-expansion-panel-tone-* values below, and
+// `severity` input repoints the --ims-expansion-panel-v2-tone-* values below, and
 // the variables above still win over it.
 //
-// The rest of the API: --ims-expansion-panel-border (the frame and the divider),
-// --ims-expansion-panel-radius, --ims-expansion-panel-shadow,
-// --ims-expansion-panel-padding (the header's inline padding and the body's
-// padding, so their text shares an edge), and --ims-expansion-panel-spacing
+// The rest of the API: --ims-expansion-panel-v2-border (the frame and the divider),
+// --ims-expansion-panel-v2-radius, --ims-expansion-panel-v2-shadow,
+// --ims-expansion-panel-v2-padding (the header's inline padding and the body's
+// padding, so their text shares an edge), and --ims-expansion-panel-v2-spacing
 // (the space an open panel opens above and below itself, in an accordion or in
-// a grid). The toggle is an imsExpandCollapseButton, 20px by default;
-// --ims-expand-collapse-button-size resizes it from the panel or any ancestor.
+// a grid). The toggle is an imsExpandCollapseButtonV2, 20px by default;
+// --ims-expand-collapse-button-v2-size resizes it from the panel or any ancestor.
 
 // Severity: which voice the panel speaks in, in the colours ims-panel gives the
 // same word. Each block repoints the values below and does nothing else. They
 // are declared on every panel, `neutral` included, so a panel nested in another
 // one's body never takes its parent's tone, and every paint rule reads them
 // beneath the public variables, so a call site's value still wins.
-:where(.ims-expansion-panel) {
-    --ims-expansion-panel-tone-fill: var(--ims-color-status-neutral-subtle);
-    --ims-expansion-panel-tone-border: var(--ims-color-status-neutral-border);
+:where(.ims-expansion-panel-v2) {
+    --ims-expansion-panel-v2-tone-fill: var(--ims-color-status-neutral-subtle);
+    --ims-expansion-panel-v2-tone-border: var(--ims-color-status-neutral-border);
     // The soft house blue rather than info's band, as on ims-panel: the step
     // between the two keeps a default panel from reading as an `info` one.
-    --ims-expansion-panel-tone-header-fill: var(--ims-color-primary-100);
-    --ims-expansion-panel-tone-header-color: var(--ims-color-on-status-info);
-    --ims-expansion-panel-tone-heading-color: var(--ims-color-primary-700);
+    --ims-expansion-panel-v2-tone-header-fill: var(--ims-color-primary-100);
+    --ims-expansion-panel-v2-tone-header-color: var(--ims-color-on-status-info);
+    --ims-expansion-panel-v2-tone-heading-color: var(--ims-color-primary-700);
     // A light toggle's plate under the pointer and while pressed, and its press
     // ring: the steps .ims-button--secondary takes from a button's ramp, taken
     // from the panel's hue. Neutral and info keep the house blue the toggle
     // always had, which is the band's own hue.
-    --ims-expansion-panel-tone-toggle-hover: var(--ims-color-primary-100);
-    --ims-expansion-panel-tone-toggle-active: var(--ims-color-primary-150);
-    --ims-expansion-panel-tone-toggle-ring: var(--ims-color-primary-450);
+    --ims-expansion-panel-v2-tone-toggle-hover: var(--ims-color-primary-100);
+    --ims-expansion-panel-v2-tone-toggle-active: var(--ims-color-primary-150);
+    --ims-expansion-panel-v2-tone-toggle-ring: var(--ims-color-primary-450);
 }
 
-:where(.ims-expansion-panel--info) {
-    --ims-expansion-panel-tone-fill: var(--ims-color-status-info-subtle);
-    --ims-expansion-panel-tone-border: var(--ims-color-status-info-border);
-    --ims-expansion-panel-tone-header-fill: var(--ims-color-status-info-accent);
+:where(.ims-expansion-panel-v2--info) {
+    --ims-expansion-panel-v2-tone-fill: var(--ims-color-status-info-subtle);
+    --ims-expansion-panel-v2-tone-border: var(--ims-color-status-info-border);
+    --ims-expansion-panel-v2-tone-header-fill: var(--ims-color-status-info-accent);
 }
 
-:where(.ims-expansion-panel--success) {
-    --ims-expansion-panel-tone-fill: var(--ims-color-status-success-subtle);
-    --ims-expansion-panel-tone-border: var(--ims-color-status-success-border);
-    --ims-expansion-panel-tone-header-fill: var(--ims-color-status-success-accent);
-    --ims-expansion-panel-tone-header-color: var(--ims-color-on-status-success);
-    --ims-expansion-panel-tone-heading-color: var(--ims-color-success-800);
-    --ims-expansion-panel-tone-toggle-hover: var(--ims-color-success-100);
-    --ims-expansion-panel-tone-toggle-active: var(--ims-color-success-150);
-    --ims-expansion-panel-tone-toggle-ring: var(--ims-color-success-450);
+:where(.ims-expansion-panel-v2--success) {
+    --ims-expansion-panel-v2-tone-fill: var(--ims-color-status-success-subtle);
+    --ims-expansion-panel-v2-tone-border: var(--ims-color-status-success-border);
+    --ims-expansion-panel-v2-tone-header-fill: var(--ims-color-status-success-accent);
+    --ims-expansion-panel-v2-tone-header-color: var(--ims-color-on-status-success);
+    --ims-expansion-panel-v2-tone-heading-color: var(--ims-color-success-800);
+    --ims-expansion-panel-v2-tone-toggle-hover: var(--ims-color-success-100);
+    --ims-expansion-panel-v2-tone-toggle-active: var(--ims-color-success-150);
+    --ims-expansion-panel-v2-tone-toggle-ring: var(--ims-color-success-450);
 }
 
 // Amber's ink one step darker than its on-status token, and its ring one step
 // darker than the other hues', as ims-panel and .ims-button--warning have them:
 // amber is the light hue, and read straight across it misses AA.
-:where(.ims-expansion-panel--warning) {
-    --ims-expansion-panel-tone-fill: var(--ims-color-status-warning-subtle);
-    --ims-expansion-panel-tone-border: var(--ims-color-status-warning-border);
-    --ims-expansion-panel-tone-header-fill: var(--ims-color-status-warning-accent);
-    --ims-expansion-panel-tone-header-color: var(--ims-color-warning-900);
-    --ims-expansion-panel-tone-heading-color: var(--ims-color-warning-850);
-    --ims-expansion-panel-tone-toggle-hover: var(--ims-color-warning-100);
-    --ims-expansion-panel-tone-toggle-active: var(--ims-color-warning-150);
-    --ims-expansion-panel-tone-toggle-ring: var(--ims-color-warning-500);
+:where(.ims-expansion-panel-v2--warning) {
+    --ims-expansion-panel-v2-tone-fill: var(--ims-color-status-warning-subtle);
+    --ims-expansion-panel-v2-tone-border: var(--ims-color-status-warning-border);
+    --ims-expansion-panel-v2-tone-header-fill: var(--ims-color-status-warning-accent);
+    --ims-expansion-panel-v2-tone-header-color: var(--ims-color-warning-900);
+    --ims-expansion-panel-v2-tone-heading-color: var(--ims-color-warning-850);
+    --ims-expansion-panel-v2-tone-toggle-hover: var(--ims-color-warning-100);
+    --ims-expansion-panel-v2-tone-toggle-active: var(--ims-color-warning-150);
+    --ims-expansion-panel-v2-tone-toggle-ring: var(--ims-color-warning-500);
 }
 
-:where(.ims-expansion-panel--danger) {
-    --ims-expansion-panel-tone-fill: var(--ims-color-status-danger-subtle);
-    --ims-expansion-panel-tone-border: var(--ims-color-status-danger-border);
-    --ims-expansion-panel-tone-header-fill: var(--ims-color-status-danger-accent);
-    --ims-expansion-panel-tone-header-color: var(--ims-color-on-status-danger);
-    --ims-expansion-panel-tone-heading-color: var(--ims-color-danger-800);
-    --ims-expansion-panel-tone-toggle-hover: var(--ims-color-danger-100);
-    --ims-expansion-panel-tone-toggle-active: var(--ims-color-danger-150);
-    --ims-expansion-panel-tone-toggle-ring: var(--ims-color-danger-450);
+:where(.ims-expansion-panel-v2--danger) {
+    --ims-expansion-panel-v2-tone-fill: var(--ims-color-status-danger-subtle);
+    --ims-expansion-panel-v2-tone-border: var(--ims-color-status-danger-border);
+    --ims-expansion-panel-v2-tone-header-fill: var(--ims-color-status-danger-accent);
+    --ims-expansion-panel-v2-tone-header-color: var(--ims-color-on-status-danger);
+    --ims-expansion-panel-v2-tone-heading-color: var(--ims-color-danger-800);
+    --ims-expansion-panel-v2-tone-toggle-hover: var(--ims-color-danger-100);
+    --ims-expansion-panel-v2-tone-toggle-active: var(--ims-color-danger-150);
+    --ims-expansion-panel-v2-tone-toggle-ring: var(--ims-color-danger-450);
 }
 
 // Invalid content: the header's text and its headings in danger red, over
 // whatever severity the panel speaks in. Only those two values: the frame, the
 // band and the body keep the panel's severity, so it still reads as the panel
 // it is. The toggle turns danger in its component. After the severity blocks,
-// which it overrides; danger's ink clears AA on every band, white included.
-:where(.ims-expansion-panel--invalid) {
-    --ims-expansion-panel-tone-header-color: var(--ims-color-on-status-danger);
-    --ims-expansion-panel-tone-heading-color: var(--ims-color-danger-800);
+// which it overrides.
+//
+// 600, the vivid red, clears AA for the header's text on the default band
+// (4.5:1) and on a white header (5.5:1), the two a panel mostly has. On a toned
+// band it does not: 3.4:1 on info's, 2.9:1 on success's, 2.6:1 on warning's and
+// 2.5:1 on danger's own, where 800 would still give 5.5:1 or more.
+:where(.ims-expansion-panel-v2--invalid) {
+    --ims-expansion-panel-v2-tone-header-color: var(--ims-color-danger-600);
+    --ims-expansion-panel-v2-tone-heading-color: var(--ims-color-danger-600);
 }
 
 // Where the header is a row — an expandable row in a grid, a tbody's first row —
 // the row's text takes it: through ims-table's row-colour slot, which a table
 // paints its rows with, and as plain colour for a bare grid's rows, which have
 // none. The rows in the body keep theirs.
-:where(.ims-expansion-panel--invalid.ims-expansion-panel--grid-row > ims-grid-row, tbody.ims-expansion-panel--invalid > tr:first-child) {
-    --ims-table-row-color: var(--ims-color-on-status-danger);
-    color: var(--ims-color-on-status-danger);
+:where(.ims-expansion-panel-v2--invalid.ims-expansion-panel-v2--grid-row > ims-grid-row-v2, tbody.ims-expansion-panel-v2--invalid > tr:first-child) {
+    --ims-table-row-color: var(--ims-color-danger-600);
+    color: var(--ims-color-danger-600);
 }
 
 // The frame. Not on a tbody, which takes the class too but is laid out by its
 // table: a block display there would pull it out of the table.
-:where(.ims-expansion-panel:not(tbody)) {
+:where(.ims-expansion-panel-v2:not(tbody)) {
     display: block;
     box-sizing: border-box;
     // `clip` rather than `hidden`: the header band has to stop at the rounded
     // corners, but a select or tooltip in the panel must not be trapped in a
     // scroll container.
     overflow: clip;
-    border: 1px solid var(--ims-expansion-panel-border, var(--ims-expansion-panel-tone-border));
-    border-radius: var(--ims-expansion-panel-radius, 0.75rem);
-    background: var(--ims-expansion-panel-background, var(--ims-expansion-panel-tone-fill));
+    border: 1px solid var(--ims-expansion-panel-v2-border, var(--ims-expansion-panel-v2-tone-border));
+    border-radius: var(--ims-expansion-panel-v2-radius, 0.75rem);
+    background: var(--ims-expansion-panel-v2-background, var(--ims-expansion-panel-v2-tone-fill));
     // A low elevation, as mat-expansion-panel has, in the house blue rather
     // than black, and cast downward only. In each layer the blur is used up by
     // the negative spread and the offset together (blur + spread - offset is
@@ -140,7 +145,7 @@
     // above it and covers that one's shadow, so a panel parted from the stack
     // shows it in full.
     box-shadow: var(
-        --ims-expansion-panel-shadow,
+        --ims-expansion-panel-v2-shadow,
         0 1px 2px -1px color-mix(in srgb, var(--ims-color-primary-950) 14%, transparent),
         0 4px 6px -2px color-mix(in srgb, var(--ims-color-primary-950) 10%, transparent)
     );
@@ -151,7 +156,7 @@
 // CSS animates to and from a height it does not know. While closed the content
 // keeps its full layout and is only clipped to nothing, so a list or a chart in
 // it measures the same open or closed.
-.ims-expansion-panel__region {
+.ims-expansion-panel-v2__region {
     display: grid;
     grid-template-rows: 0fr;
     // Takes the closed content out of the tab order and the accessibility tree.
@@ -164,18 +169,18 @@
         visibility 225ms;
 }
 
-.ims-expansion-panel--expanded > .ims-expansion-panel__region {
+.ims-expansion-panel-v2--expanded > .ims-expansion-panel-v2__region {
     grid-template-rows: 1fr;
     visibility: visible;
 }
 
 // Stretched to the track, so the clip cuts the content to the height the track
 // has at that moment of the transition. Said here rather than left to the
-// default: inside an ims-grid row the region is a subgrid bridge, and ims-grid
+// default: inside an ims-grid-v2 row the region is a subgrid bridge, and ims-grid-v2
 // centers a bridge's items. Centered, this box keeps its full height while the
 // track opens and closes, and the content shows over the header and the rows
 // around the panel.
-.ims-expansion-panel__region-content {
+.ims-expansion-panel-v2__region-content {
     align-self: stretch;
     min-block-size: 0;
     overflow: clip;
@@ -184,15 +189,15 @@
 // The line between the header and the body. Drawn inside the clip, so it folds
 // away with the body: a closed panel has no line above its bottom edge. It is
 // the panel's rather than the body's, so restyling the body cannot remove it.
-.ims-expansion-panel__region-content::before {
+.ims-expansion-panel-v2__region-content::before {
     content: '';
     display: block;
-    border-block-start: 1px solid var(--ims-expansion-panel-border, var(--ims-expansion-panel-tone-border));
+    border-block-start: 1px solid var(--ims-expansion-panel-v2-border, var(--ims-expansion-panel-v2-tone-border));
 }
 
 // The header is a row that wraps, like ims-panel-header, and is painted the
 // way an ims-panel header of the same severity is: the band and its ink.
-:where(.ims-expansion-panel-header) {
+:where(.ims-expansion-panel-header-v2) {
     display: flex;
     align-items: center;
     gap: 0.5rem 0.75rem;
@@ -201,31 +206,31 @@
     // control of a field's height with the padding around it.
     min-block-size: 2.5rem;
     padding-block: 0.375rem;
-    padding-inline: var(--ims-expansion-panel-padding, 0.75rem);
-    background: var(--ims-expansion-panel-header-background, var(--ims-expansion-panel-tone-header-fill));
-    color: var(--ims-expansion-panel-tone-header-color);
+    padding-inline: var(--ims-expansion-panel-v2-padding, 0.75rem);
+    background: var(--ims-expansion-panel-v2-header-background, var(--ims-expansion-panel-v2-tone-header-fill));
+    color: var(--ims-expansion-panel-v2-tone-header-color);
     font-weight: var(--ims-font-weight-semibold);
 }
 
 // Secondary: a white header, the panel's surface rather than a band, which is
 // why its toggle turns dark — a light one would be a white plate on white. The
 // same variable as the band, so a call site's value or rule still wins.
-:where(.ims-expansion-panel--secondary) > :where(.ims-expansion-panel-header) {
-    background: var(--ims-expansion-panel-header-background, var(--ims-color-surface-panel));
+:where(.ims-expansion-panel-v2--secondary) > :where(.ims-expansion-panel-header-v2) {
+    background: var(--ims-expansion-panel-v2-header-background, var(--ims-color-surface-panel));
 }
 
 // A projected heading arrives with user-agent margins sized in em, which would
 // inflate the band by a different amount at every level. Size and weight stay:
 // the level is the call site's choice.
-:where(.ims-expansion-panel-header) :is(h1, h2, h3, h4, h5, h6) {
+:where(.ims-expansion-panel-header-v2) :is(h1, h2, h3, h4, h5, h6) {
     margin: 0;
-    color: var(--ims-expansion-panel-tone-heading-color);
+    color: var(--ims-expansion-panel-v2-tone-heading-color);
 }
 
 // The toggle comes first in the row, on its start edge — the right in this RTL
 // application. The content takes the rest, and min-inline-size: 0 lets a long
 // title wrap instead of widening the row past the panel.
-.ims-expansion-panel-header__content {
+.ims-expansion-panel-header-v2__content {
     display: flex;
     flex: 1 1 auto;
     flex-wrap: wrap;
@@ -234,14 +239,14 @@
     min-inline-size: 0;
 }
 
-:where(.ims-expansion-panel-body) {
+:where(.ims-expansion-panel-body-v2) {
     display: block;
     box-sizing: border-box;
-    padding: var(--ims-expansion-panel-padding, 0.75rem);
-    background: var(--ims-expansion-panel-body-background, transparent);
+    padding: var(--ims-expansion-panel-v2-padding, 0.75rem);
+    background: var(--ims-expansion-panel-v2-body-background, transparent);
 }
 
-.ims-expansion-panel-toggle {
+.ims-expansion-panel-toggle-v2 {
     display: inline-flex;
     flex: 0 0 auto;
     vertical-align: middle;
@@ -257,18 +262,18 @@
 // Not on a toggle given a severity of its own, `danger` for content that needs
 // attention: that one is painted from its own ramp throughout, and a hover in
 // the panel's hue would contradict the red glyph it just showed.
-.ims-expansion-panel-toggle__button.ims-button--secondary:not(.ims-expansion-panel-toggle__button--own-severity) {
-    --ims-button-background-hover: var(--ims-expansion-panel-tone-toggle-hover);
-    --ims-button-background-active: var(--ims-expansion-panel-tone-toggle-active);
-    --ims-button-ring-color: var(--ims-expansion-panel-tone-toggle-ring);
+.ims-expansion-panel-toggle-v2__button.ims-button--secondary:not(.ims-expansion-panel-toggle-v2__button--own-severity) {
+    --ims-button-background-hover: var(--ims-expansion-panel-v2-tone-toggle-hover);
+    --ims-button-background-active: var(--ims-expansion-panel-v2-tone-toggle-active);
+    --ims-button-ring-color: var(--ims-expansion-panel-v2-tone-toggle-ring);
 }
 
 // A hidden toggle keeps its place: hidden rather than left out, so a header's
 // title stays lined up with the titles of panels that show theirs, and a table
 // row keeps the height the button gives it. A hidden button cannot be clicked
 // or focused, and assistive technology does not find it.
-.ims-expansion-panel-toggle--hidden,
-.ims-expansion-panel-header__toggle--hidden {
+.ims-expansion-panel-toggle-v2--hidden,
+.ims-expansion-panel-header-v2__toggle--hidden {
     visibility: hidden;
 }
 
@@ -280,7 +285,7 @@
 // rounded rather than each panel's.
 //
 // An open panel parts from the panels on both sides of it, as in mat-accordion:
-// --ims-expansion-panel-spacing above it and below it, and all four of its
+// --ims-expansion-panel-v2-spacing above it and below it, and all four of its
 // corners rounded. The panels beside it keep their corners as they are, square
 // apart from the stack's outer ones, as mat-accordion's do. The space is the
 // neighbours' margin rather than the open panel's own, so where there is no
@@ -295,20 +300,20 @@
 // Only the element form, and only a panel that is its direct child. The
 // attribute form sits on a grid or a table, whose panels are rows and stay
 // rows, so it is left with the layout it has.
-:where(ims-accordion) {
+:where(ims-accordion-v2) {
     display: block;
 }
 
-// In an ims-grid it spans the grid, as a row does. Holding rows directly, it is
-// made a subgrid bridge by ims-grid's own rule; holding a virtual viewport, it
+// In an ims-grid-v2 it spans the grid, as a row does. Holding rows directly, it is
+// made a subgrid bridge by ims-grid-v2's own rule; holding a virtual viewport, it
 // stays a block, and the viewport's content lays its rows out on the grid's
-// template itself (see ims-grid-adapters.scss).
-ims-grid > :where(ims-accordion) {
+// template itself (see ims-grid-adapters-v2.scss).
+ims-grid-v2 > :where(ims-accordion-v2) {
     grid-column: 1 / -1;
     min-inline-size: 0;
 }
 
-:where(ims-accordion > ims-expansion-panel) {
+:where(ims-accordion-v2 > ims-expansion-panel-v2) {
     border-radius: 0;
     transition:
         margin 225ms cubic-bezier(0.4, 0, 0.2, 1),
@@ -316,54 +321,54 @@ ims-grid > :where(ims-accordion) {
 }
 
 // Each panel after the first overlaps the one above it by its border.
-:where(ims-accordion > ims-expansion-panel:not(:first-of-type)) {
+:where(ims-accordion-v2 > ims-expansion-panel-v2:not(:first-of-type)) {
     margin-block-start: -1px;
 }
 
-:where(ims-accordion > ims-expansion-panel:first-of-type) {
-    border-start-start-radius: var(--ims-expansion-panel-radius, 0.75rem);
-    border-start-end-radius: var(--ims-expansion-panel-radius, 0.75rem);
+:where(ims-accordion-v2 > ims-expansion-panel-v2:first-of-type) {
+    border-start-start-radius: var(--ims-expansion-panel-v2-radius, 0.75rem);
+    border-start-end-radius: var(--ims-expansion-panel-v2-radius, 0.75rem);
 }
 
-:where(ims-accordion > ims-expansion-panel:last-of-type) {
-    border-end-start-radius: var(--ims-expansion-panel-radius, 0.75rem);
-    border-end-end-radius: var(--ims-expansion-panel-radius, 0.75rem);
+:where(ims-accordion-v2 > ims-expansion-panel-v2:last-of-type) {
+    border-end-start-radius: var(--ims-expansion-panel-v2-radius, 0.75rem);
+    border-end-end-radius: var(--ims-expansion-panel-v2-radius, 0.75rem);
 }
 
-:where(ims-accordion > ims-expansion-panel.ims-expansion-panel--expanded) {
-    border-radius: var(--ims-expansion-panel-radius, 0.75rem);
+:where(ims-accordion-v2 > ims-expansion-panel-v2.ims-expansion-panel-v2--expanded) {
+    border-radius: var(--ims-expansion-panel-v2-radius, 0.75rem);
 }
 
 // The panel above an open one holds the space under itself.
-:where(ims-accordion > ims-expansion-panel:has(+ ims-expansion-panel.ims-expansion-panel--expanded)) {
-    margin-block-end: var(--ims-expansion-panel-spacing, 1rem);
+:where(ims-accordion-v2 > ims-expansion-panel-v2:has(+ ims-expansion-panel-v2.ims-expansion-panel-v2--expanded)) {
+    margin-block-end: var(--ims-expansion-panel-v2-spacing, 1rem);
 }
 
 // The panel below an open one holds the space above itself, its -1px overlap
 // growing into it.
-:where(ims-accordion > ims-expansion-panel.ims-expansion-panel--expanded + ims-expansion-panel) {
-    margin-block-start: var(--ims-expansion-panel-spacing, 1rem);
+:where(ims-accordion-v2 > ims-expansion-panel-v2.ims-expansion-panel-v2--expanded + ims-expansion-panel-v2) {
+    margin-block-start: var(--ims-expansion-panel-v2-spacing, 1rem);
 }
 
 // An open panel stops overlapping the panel above it, whose margin holds the
 // space. After the rule above, which it overrides for the second of two open
 // panels.
-:where(ims-accordion > ims-expansion-panel + ims-expansion-panel.ims-expansion-panel--expanded) {
+:where(ims-accordion-v2 > ims-expansion-panel-v2 + ims-expansion-panel-v2.ims-expansion-panel-v2--expanded) {
     margin-block-start: 0;
 }
 
-// In an ims-grid.
+// In an ims-grid-v2.
 //
-// A panel headed by an ims-grid-row is a group of rows in its grid, and the
-// grid already lays it out as one: ims-grid's own rule makes any element that
+// A panel headed by an ims-grid-row-v2 is a group of rows in its grid, and the
+// grid already lays it out as one: ims-grid-v2's own rule makes any element that
 // holds a row a subgrid spanning the grid, so the row inside lines up with the
 // grid's header. What is left is to drop the frame — a group of rows is not a
 // box — and lay the body across the grid under its row.
-:where(.ims-expansion-panel--grid-row) {
+:where(.ims-expansion-panel-v2--grid-row) {
     overflow: visible;
     border: 0;
     border-radius: 0;
-    background: var(--ims-expansion-panel-background, transparent);
+    background: var(--ims-expansion-panel-v2-background, transparent);
     box-shadow: none;
 }
 
@@ -371,7 +376,7 @@ ims-grid > :where(ims-accordion) {
 // column, and an item spanning auto tracks would otherwise widen them to fit a
 // long line of text. The region is not a subgrid, so containment here leaves
 // the subgrid chain above it intact.
-.ims-expansion-panel--grid-row > .ims-expansion-panel__region {
+.ims-expansion-panel-v2--grid-row > .ims-expansion-panel-v2__region {
     grid-column: 1 / -1;
     min-inline-size: 0;
     contain: inline-size;
@@ -385,35 +390,35 @@ ims-grid > :where(ims-accordion) {
 // of the gap keeps its own. The row inside gives up its own separator, which
 // would sit between it and its body; the divider draws that line instead, and
 // only while the body is open.
-:where(.ims-table-new) :where(.ims-expansion-panel--grid-row) {
+:where(.ims-table-new) :where(.ims-expansion-panel-v2--grid-row) {
     margin-block-start: -1px;
-    border-block: 1px solid var(--ims-expansion-panel-border, var(--ims-table-separator));
+    border-block: 1px solid var(--ims-expansion-panel-v2-border, var(--ims-table-separator));
 }
 
-:where(.ims-table-new) :where(.ims-expansion-panel--grid-row:first-child) {
+:where(.ims-table-new) :where(.ims-expansion-panel-v2--grid-row:first-child) {
     border-block-start-color: transparent;
 }
 
-:where(.ims-table-new) :where(.ims-expansion-panel--grid-row:last-child, .ims-expansion-panel--grid-row:has(+ ims-grid-footer)) {
+:where(.ims-table-new) :where(.ims-expansion-panel-v2--grid-row:last-child, .ims-expansion-panel-v2--grid-row:has(+ ims-grid-footer-v2)) {
     border-block-end-color: transparent;
 }
 
-.ims-expansion-panel--grid-row > ims-grid-row[role='row'] {
+.ims-expansion-panel-v2--grid-row > ims-grid-row-v2[role='row'] {
     border-block-end-color: transparent;
 }
 
-.ims-table-new .ims-expansion-panel--grid-row > .ims-expansion-panel__region > .ims-expansion-panel__region-content::before {
-    border-block-start-color: var(--ims-expansion-panel-border, var(--ims-table-separator));
+.ims-table-new .ims-expansion-panel-v2--grid-row > .ims-expansion-panel-v2__region > .ims-expansion-panel-v2__region-content::before {
+    border-block-start-color: var(--ims-expansion-panel-v2-border, var(--ims-table-separator));
 }
 
 // Zebra counts groups rather than the rows in them. Each group holds one row,
 // so among its own siblings every one of them would be the first.
-.ims-expansion-panel--grid-row:nth-child(even of .ims-expansion-panel--grid-row) > ims-grid-row[role='row'] {
+.ims-expansion-panel-v2--grid-row:nth-child(even of .ims-expansion-panel-v2--grid-row) > ims-grid-row-v2[role='row'] {
     --ims-table-row-stripe-paint: var(--ims-table-row-stripe);
 }
 
 // An open group parts from the groups on both sides of it, as an open panel
-// does in an accordion: --ims-expansion-panel-spacing above it and below it,
+// does in an accordion: --ims-expansion-panel-v2-spacing above it and below it,
 // held by the neighbours' margins. Where there is no group beside it there is
 // no space: the group under the header opens without moving down, and nothing
 // is left over the footer or the frame's bottom edge. The margins move with the
@@ -422,36 +427,36 @@ ims-grid > :where(ims-accordion) {
 // A block margin only. An inline margin on a subgrid is added to the items at
 // its edges, and here it would push the row's fill and frame inward past its
 // first and last cells.
-:where(.ims-expansion-panel--grid-row) {
+:where(.ims-expansion-panel-v2--grid-row) {
     transition: margin 225ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-:where(.ims-expansion-panel--grid-row:has(+ .ims-expansion-panel--grid-row.ims-expansion-panel--expanded)) {
-    margin-block-end: var(--ims-expansion-panel-spacing, 1rem);
+:where(.ims-expansion-panel-v2--grid-row:has(+ .ims-expansion-panel-v2--grid-row.ims-expansion-panel-v2--expanded)) {
+    margin-block-end: var(--ims-expansion-panel-v2-spacing, 1rem);
 }
 
-:where(.ims-expansion-panel--grid-row.ims-expansion-panel--expanded + .ims-expansion-panel--grid-row) {
-    margin-block-start: var(--ims-expansion-panel-spacing, 1rem);
+:where(.ims-expansion-panel-v2--grid-row.ims-expansion-panel-v2--expanded + .ims-expansion-panel-v2--grid-row) {
+    margin-block-start: var(--ims-expansion-panel-v2-spacing, 1rem);
 }
 
 // An open group stops overlapping the group above it, whose margin holds the
 // space. After the rule above, so two open groups side by side are one spacing
 // apart rather than two.
-:where(.ims-expansion-panel--grid-row + .ims-expansion-panel--grid-row.ims-expansion-panel--expanded) {
+:where(.ims-expansion-panel-v2--grid-row + .ims-expansion-panel-v2--grid-row.ims-expansion-panel-v2--expanded) {
     margin-block-start: 0;
 }
 
-// Inside an ims-grid row.
+// Inside an ims-grid-v2 row.
 //
-// A panel written in an ims-grid-row, rather than in one of its cells, is that
+// A panel written in an ims-grid-row-v2, rather than in one of its cells, is that
 // row's content: its header holds the row's cells and its body holds nested
-// rows. ims-grid's rule for wrappers inside a row makes every box between the
+// rows. ims-grid-v2's rule for wrappers inside a row makes every box between the
 // row and those cells a subgrid — the panel, its header, the region and the
 // body — so the cells land on the grid's columns, under its header, with no
 // rule here. What these rules take out is whatever would push an edge cell off
 // its column: a subgrid's inline padding and its gaps are added to the items at
 // its edges. The panel keeps its look: frame, header band, divider and body.
-:where(.ims-expansion-panel--in-grid-row) > :where(.ims-expansion-panel-header) {
+:where(.ims-expansion-panel-v2--in-grid-row) > :where(.ims-expansion-panel-header-v2) {
     padding: 0;
     // As tall as a table row, with or without the band's padding: the cells
     // pad themselves in an ims-table, and the grid's rails inset them in a
@@ -462,25 +467,25 @@ ims-grid > :where(ims-accordion) {
 // The content box's gap is the one rule the subgrid would otherwise take: a
 // subgrid's own gap replaces its parent's, and shifts every cell by half the
 // difference.
-.ims-expansion-panel--in-grid-row > .ims-expansion-panel-header > .ims-expansion-panel-header__content {
+.ims-expansion-panel-v2--in-grid-row > .ims-expansion-panel-header-v2 > .ims-expansion-panel-header-v2__content {
     column-gap: 0;
 }
 
 // The divider is a grid item here, and would land in the zero-width start rail.
-.ims-expansion-panel--in-grid-row > .ims-expansion-panel__region > .ims-expansion-panel__region-content::before {
+.ims-expansion-panel-v2--in-grid-row > .ims-expansion-panel-v2__region > .ims-expansion-panel-v2__region-content::before {
     grid-column: 1 / -1;
 }
 
 // The nested rows reach both edges, as rows do; their cells pad themselves.
-:where(.ims-expansion-panel--in-grid-row > .ims-expansion-panel__region > .ims-expansion-panel__region-content > .ims-expansion-panel-body) {
+:where(.ims-expansion-panel-v2--in-grid-row > .ims-expansion-panel-v2__region > .ims-expansion-panel-v2__region-content > .ims-expansion-panel-body-v2) {
     padding: 0;
 }
 
 // The rows stack the way an accordion's panels do: one border between
 // neighbours, the stack's corners rounded rather than each panel's, and an open
 // panel rounding its own corners and parting from the rows on both sides of it
-// by --ims-expansion-panel-spacing; the rows beside it keep their corners. Row
-// after row, with or without an ims-accordion around them: the grid is the
+// by --ims-expansion-panel-v2-spacing; the rows beside it keep their corners. Row
+// after row, with or without an ims-accordion-v2 around them: the grid is the
 // stack.
 //
 // The margins are laid out for a virtual viewport, whose strategy measures
@@ -504,7 +509,7 @@ ims-grid > :where(ims-accordion) {
 // In a virtual viewport the first and last rows are the first and last
 // rendered, which sit in the viewport's buffer, out of sight, unless the list is
 // scrolled to its start or its end.
-:where(ims-grid-row > .ims-expansion-panel--in-grid-row) {
+:where(ims-grid-row-v2 > .ims-expansion-panel-v2--in-grid-row) {
     margin-block-end: -1px;
     border-radius: 0;
     transition: border-radius 225ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -513,40 +518,40 @@ ims-grid > :where(ims-accordion) {
 // Whole where nothing follows it, or where a space does: under the last row, an
 // open panel, and the row before an open one.
 :where(
-    ims-grid-row:last-of-type > .ims-expansion-panel--in-grid-row,
-    ims-grid-row > .ims-expansion-panel--in-grid-row.ims-expansion-panel--expanded,
-    ims-grid-row:has(+ ims-grid-row > .ims-expansion-panel--expanded) > .ims-expansion-panel--in-grid-row
+    ims-grid-row-v2:last-of-type > .ims-expansion-panel-v2--in-grid-row,
+    ims-grid-row-v2 > .ims-expansion-panel-v2--in-grid-row.ims-expansion-panel-v2--expanded,
+    ims-grid-row-v2:has(+ ims-grid-row-v2 > .ims-expansion-panel-v2--expanded) > .ims-expansion-panel-v2--in-grid-row
 ) {
     margin-block-end: 0;
 }
 
-:where(ims-grid-row:first-of-type > .ims-expansion-panel--in-grid-row) {
-    border-start-start-radius: var(--ims-expansion-panel-radius, 0.75rem);
-    border-start-end-radius: var(--ims-expansion-panel-radius, 0.75rem);
+:where(ims-grid-row-v2:first-of-type > .ims-expansion-panel-v2--in-grid-row) {
+    border-start-start-radius: var(--ims-expansion-panel-v2-radius, 0.75rem);
+    border-start-end-radius: var(--ims-expansion-panel-v2-radius, 0.75rem);
 }
 
-:where(ims-grid-row:last-of-type > .ims-expansion-panel--in-grid-row) {
-    border-end-start-radius: var(--ims-expansion-panel-radius, 0.75rem);
-    border-end-end-radius: var(--ims-expansion-panel-radius, 0.75rem);
+:where(ims-grid-row-v2:last-of-type > .ims-expansion-panel-v2--in-grid-row) {
+    border-end-start-radius: var(--ims-expansion-panel-v2-radius, 0.75rem);
+    border-end-end-radius: var(--ims-expansion-panel-v2-radius, 0.75rem);
 }
 
-:where(ims-grid-row > .ims-expansion-panel--in-grid-row.ims-expansion-panel--expanded) {
-    border-radius: var(--ims-expansion-panel-radius, 0.75rem);
+:where(ims-grid-row-v2 > .ims-expansion-panel-v2--in-grid-row.ims-expansion-panel-v2--expanded) {
+    border-radius: var(--ims-expansion-panel-v2-radius, 0.75rem);
 }
 
 // The space itself, on the rows, where it moves with the body.
-:where(ims-grid-row:has(> .ims-expansion-panel--in-grid-row)) {
+:where(ims-grid-row-v2:has(> .ims-expansion-panel-v2--in-grid-row)) {
     transition: margin 225ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 // Below an open panel, unless nothing follows it.
-:where(ims-grid-row:not(:last-of-type):has(> .ims-expansion-panel--in-grid-row.ims-expansion-panel--expanded)) {
-    margin-block-end: var(--ims-expansion-panel-spacing, 1rem);
+:where(ims-grid-row-v2:not(:last-of-type):has(> .ims-expansion-panel-v2--in-grid-row.ims-expansion-panel-v2--expanded)) {
+    margin-block-end: var(--ims-expansion-panel-v2-spacing, 1rem);
 }
 
 // Above one, held by the row before it.
-:where(ims-grid-row:has(+ ims-grid-row > .ims-expansion-panel--in-grid-row.ims-expansion-panel--expanded)) {
-    margin-block-end: var(--ims-expansion-panel-spacing, 1rem);
+:where(ims-grid-row-v2:has(+ ims-grid-row-v2 > .ims-expansion-panel-v2--in-grid-row.ims-expansion-panel-v2--expanded)) {
+    margin-block-end: var(--ims-expansion-panel-v2-spacing, 1rem);
 }
 
 // In an ims-table the panels stay panels — frame, radius, shadow, the stack's
@@ -556,16 +561,16 @@ ims-grid > :where(ims-accordion) {
 // still starts where the data columns do. A subgrid's margin and border are
 // added only to the items in its edge tracks, which are the rails themselves,
 // so the cells keep their columns. With no rails the frames meet the table's.
-:where(.ims-table-new) :where(.ims-expansion-panel--in-grid-row) {
+:where(.ims-table-new) :where(.ims-expansion-panel-v2--in-grid-row) {
     margin-inline:
-        max(0px, calc(var(--ims-grid-offset-start, 0px) - 1px))
-        max(0px, calc(var(--ims-grid-offset-end, 0px) - 1px));
+        max(0px, calc(var(--ims-grid-v2-offset-start, 0px) - 1px))
+        max(0px, calc(var(--ims-grid-v2-offset-end, 0px) - 1px));
 }
 
 // The row holding the panel is only its slot: the panel paints the band, the
 // frame and the body, so the table's row fill, separator and height step
 // aside. The rows nested in the body keep all three.
-.ims-table-new ims-grid-row[role='row']:has(> .ims-expansion-panel--in-grid-row) {
+.ims-table-new ims-grid-row-v2[role='row']:has(> .ims-expansion-panel-v2--in-grid-row) {
     min-block-size: 0;
     border-block-end: 0;
     background: none;
@@ -575,44 +580,44 @@ ims-grid > :where(ims-accordion) {
 //
 // The first row is the header and stays; every later row is the body. A table
 // row cannot animate its height, so here the body shows and hides at once.
-tbody.ims-expansion-panel:not(.ims-expansion-panel--expanded) > tr:not(:first-child) {
+tbody.ims-expansion-panel-v2:not(.ims-expansion-panel-v2--expanded) > tr:not(:first-child) {
     display: none;
 }
 
 // In an ims-table, the body rows belong to the row above them: no hover or
 // stripe of their own, and a body fills its cell rather than padding inside the
 // cell's padding.
-table.ims-table-new > tbody.ims-expansion-panel > tr:not(:first-child) {
+table.ims-table-new > tbody.ims-expansion-panel-v2 > tr:not(:first-child) {
     --ims-table-row-hover-paint: transparent;
     --ims-table-row-stripe-paint: transparent;
 }
 
-table.ims-table-new > tbody.ims-expansion-panel > tr:not(:first-child) > :is(td, th):has(> ims-expansion-panel-body) {
+table.ims-table-new > tbody.ims-expansion-panel-v2 > tr:not(:first-child) > :is(td, th):has(> ims-expansion-panel-body-v2) {
     padding: 0;
 }
 
 // Zebra by group, as in the grid: each tbody's header row is its first child.
-table.ims-table-new > tbody.ims-expansion-panel:nth-of-type(even) > tr:first-child {
+table.ims-table-new > tbody.ims-expansion-panel-v2:nth-of-type(even) > tr:first-child {
     --ims-table-row-stripe-paint: var(--ims-table-row-stripe);
 }
 
 // The frame draws the bottom edge. While the last group is closed its header row
 // is the one against the frame, and its separator would double the edge.
-table.ims-table-new > tbody.ims-expansion-panel:last-child:not(.ims-expansion-panel--expanded) > tr > :is(td, th),
-table.ims-table-new:has(> tfoot) > tbody.ims-expansion-panel:last-of-type:not(.ims-expansion-panel--expanded) > tr > :is(td, th) {
+table.ims-table-new > tbody.ims-expansion-panel-v2:last-child:not(.ims-expansion-panel-v2--expanded) > tr > :is(td, th),
+table.ims-table-new:has(> tfoot) > tbody.ims-expansion-panel-v2:last-of-type:not(.ims-expansion-panel-v2--expanded) > tr > :is(td, th) {
     border-block-end-color: transparent;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .ims-expansion-panel__region {
+    .ims-expansion-panel-v2__region {
         transition: none;
     }
 
     :where(
-        ims-accordion > ims-expansion-panel,
-        .ims-expansion-panel--grid-row,
-        ims-grid-row > .ims-expansion-panel--in-grid-row,
-        ims-grid-row:has(> .ims-expansion-panel--in-grid-row)
+        ims-accordion-v2 > ims-expansion-panel-v2,
+        .ims-expansion-panel-v2--grid-row,
+        ims-grid-row-v2 > .ims-expansion-panel-v2--in-grid-row,
+        ims-grid-row-v2:has(> .ims-expansion-panel-v2--in-grid-row)
     ) {
         transition: none;
     }

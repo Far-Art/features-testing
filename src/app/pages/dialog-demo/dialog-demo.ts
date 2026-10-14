@@ -16,7 +16,7 @@ import {
   ImsDialogTitle,
   ImsDialogToolbar,
 } from '../../components/ims-dialog';
-import { ImsGrid, ImsGridCell, ImsGridRow } from '../../components/ims-grid';
+import { ImsGridV2, ImsGridCellV2, ImsGridRowV2 } from '../../components/ims-grid-v2';
 import { ImsTableDirective } from '../../components/ims-table';
 
 interface MergeDialogData {
@@ -662,7 +662,7 @@ export class DialogToolbarContent {
 @Component({
   selector: 'app-dialog-grid-content',
   standalone: true,
-  imports: [ImsDialogContent, ImsGrid, ImsGridCell, ImsGridRow, ImsTableDirective],
+  imports: [ImsDialogContent, ImsGridV2, ImsGridCellV2, ImsGridRowV2, ImsTableDirective],
   template: `
     <ims-dialog-content>
       <div class="dialog-grid-demo__intro">
@@ -670,25 +670,25 @@ export class DialogToolbarContent {
         <p>Scroll this dialog body. The column header should remain pinned to its top edge.</p>
       </div>
 
-      <ims-grid ims-table>
-        <ims-grid-header>
-          <ims-grid-cell width="5rem">ID</ims-grid-cell>
-          <ims-grid-cell minWidth="12rem">Policy holder</ims-grid-cell>
-          <ims-grid-cell width="8rem">Status</ims-grid-cell>
-          <ims-grid-cell width="8rem">Premium</ims-grid-cell>
-        </ims-grid-header>
+      <ims-grid-v2 ims-table>
+        <ims-grid-header-v2>
+          <ims-grid-cell-v2 width="5rem">ID</ims-grid-cell-v2>
+          <ims-grid-cell-v2 minWidth="12rem">Policy holder</ims-grid-cell-v2>
+          <ims-grid-cell-v2 width="8rem">Status</ims-grid-cell-v2>
+          <ims-grid-cell-v2 width="8rem">Premium</ims-grid-cell-v2>
+        </ims-grid-header-v2>
 
         @for (row of rows; track row.id) {
-          <ims-grid-row>
-            <ims-grid-cell>{{ row.id }}</ims-grid-cell>
-            <ims-grid-cell>{{ row.holder }}</ims-grid-cell>
-            <ims-grid-cell>
+          <ims-grid-row-v2>
+            <ims-grid-cell-v2>{{ row.id }}</ims-grid-cell-v2>
+            <ims-grid-cell-v2>{{ row.holder }}</ims-grid-cell-v2>
+            <ims-grid-cell-v2>
               <span class="dialog-grid-demo__status">{{ row.status }}</span>
-            </ims-grid-cell>
-            <ims-grid-cell>{{ row.premium }}</ims-grid-cell>
-          </ims-grid-row>
+            </ims-grid-cell-v2>
+            <ims-grid-cell-v2>{{ row.premium }}</ims-grid-cell-v2>
+          </ims-grid-row-v2>
         }
-      </ims-grid>
+      </ims-grid-v2>
     </ims-dialog-content>
   `,
   styles: `

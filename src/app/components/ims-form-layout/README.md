@@ -82,7 +82,7 @@ The field deliberately sets no `inline-size: 100%`. In block flow, and as a
 stretched grid or column flex item, it still fills the available width. As an
 item in a flex row it is only as wide as its label and value, so fields placed
 side by side in a flex row do not each take the full width. Set a width on the
-field or its container when it should grow. Inside an `ims-grid` cell the grid
+field or its container when it should grow. Inside an `ims-grid-v2` cell the grid
 adapter sets `inline-size: 100%` itself.
 
 For a read-only value, mark a non-label element explicitly:
@@ -433,7 +433,7 @@ one line.
 | Field on its own | the field | its label, gap, and value overflow the field |
 | Standalone row | the row, for all of its fields | its fields and gaps overflow the row; then fields that still do not fit wrap |
 | Grid, including its rows | the grid, for all of its fields | responsive: one column still overflows; fixed: the fixed count overflows |
-| Inside an `ims-grid` cell | nobody | never. The table sizes its own columns |
+| Inside an `ims-grid-v2` cell | nobody | never. The table sizes its own columns |
 
 A grid or row stacks all of its fields at once, so labels and controls stay
 aligned with each other. A grid only stacks as a last resort: a responsive grid
@@ -766,7 +766,7 @@ an `.ims-input`, `ims-select`, or `ims-autocomplete` stays at least
 Placement is not a default and keeps its specificity: the columns, rows, and
 spans that put labels and values in their tracks, and the stacked-label layout.
 
-Inside an `ims-grid` cell, `ims-grid-adapters.scss` stretches the value to the
+Inside an `ims-grid-v2` cell, `ims-grid-adapters-v2.scss` stretches the value to the
 cell with a stronger selector, so a class on a control there does not set its
 width.
 

@@ -44,7 +44,7 @@ interface ImsTableVirtualDomain extends ImsTableRowDomain {
 }
 
 @Directive({
-    selector: 'table[ims-table], ims-grid[ims-table]',
+    selector: 'table[ims-table], ims-grid-v2[ims-table]',
     standalone: true,
     exportAs: 'imsTable',
     providers: [
@@ -61,7 +61,7 @@ interface ImsTableVirtualDomain extends ImsTableRowDomain {
     }
 })
 /**
- * Opts a native `table` or an `ims-grid` into the IMS table look, and with
+ * Opts a native `table` or an `ims-grid-v2` into the IMS table look, and with
  * `interactive` into row focus, keyboard navigation and row click outputs.
  *
  * The host gets `.ims-table-new`; all presentation lives in
@@ -73,7 +73,7 @@ interface ImsTableVirtualDomain extends ImsTableRowDomain {
  * Arrow keys, Home/End and PageUp/PageDown move between rows; Enter and Space
  * are handled by the row itself.
  *
- * Inside an `ims-grid`, a `cdk-virtual-scroll-viewport` holding the rows is
+ * Inside an `ims-grid-v2`, a `cdk-virtual-scroll-viewport` holding the rows is
  * supported: the active row is tracked by its data index, and moving past the
  * rendered window scrolls the viewport and focuses the row once it renders.
  * Every item in that viewport must be exactly one `ims-table-row`.
@@ -85,12 +85,12 @@ export class ImsTableDirective implements ImsTableContext {
     readonly zebra = input<boolean, boolean | string | null | undefined>(false, {transform: booleanAttribute});
 
     private readonly hostElement: HTMLElement = inject(ElementRef<HTMLElement>).nativeElement;
-    private readonly isGridHost = this.hostElement.tagName === 'IMS-GRID';
+    private readonly isGridHost = this.hostElement.tagName === 'IMS-GRID-V2';
     /**
      * ARIA role written on the host.
      *
      * Interactive tables are grids. A native table already is a table, so it
-     * keeps its implicit role; an `ims-grid` has none and needs it said.
+     * keeps its implicit role; an `ims-grid-v2` has none and needs it said.
      */
     readonly role = computed(() => {
         if (this.interactive()) {
@@ -412,8 +412,8 @@ export class ImsTableDirective implements ImsTableContext {
      * and how long the list is, since only a window of it exists in the DOM.
      */
     private syncVirtualRowIndexes(viewport: CdkVirtualScrollViewport): void {
-        const headerRows = this.ownedElements('ims-grid-header, thead > tr');
-        const footerRows = this.ownedElements('ims-grid-footer, tfoot > tr');
+        const headerRows = this.ownedElements('ims-grid-header-v2, thead > tr');
+        const footerRows = this.ownedElements('ims-grid-footer-v2, tfoot > tr');
         const itemCount = viewport.getDataLength();
 
         this.hostElement.setAttribute('aria-rowcount', String(headerRows.length + itemCount + footerRows.length));
@@ -505,7 +505,7 @@ function warnMissingRowIndex(): void {
     missingRowIndexWarned = true;
     console.warn(
         'ims-table: rows in a virtual viewport should bind their item index, as in ' +
-        '<ims-grid-row [ims-table-row]="i" *cdkVirtualFor="let item of items; let i = index">. ' +
+        '<ims-grid-row-v2 [ims-table-row]="i" *cdkVirtualFor="let item of items; let i = index">. ' +
         'Without it, keyboard focus can land on the wrong row while the viewport re-renders.'
     );
 }

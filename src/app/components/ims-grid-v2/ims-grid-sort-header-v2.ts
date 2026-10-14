@@ -3,12 +3,12 @@ import {MatSortHeader, SortDirection, SortHeaderArrowPosition} from '@angular/ma
 
 
 @Component({
-    selector: 'ims-grid-sort-header',
+    selector: 'ims-grid-sort-header-v2',
     standalone: true,
     imports: [MatSortHeader],
     template: `
         <div
-            class="ims-grid-sort-header-trigger"
+            class="ims-grid-sort-header-v2-trigger"
             [mat-sort-header]="field()"
             [arrowPosition]="arrowPosition()"
             [start]="start()"
@@ -22,13 +22,13 @@ import {MatSortHeader, SortDirection, SortHeaderArrowPosition} from '@angular/ma
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 /**
- * Convenience wrapper around Angular Material `MatSortHeader` for `ims-grid` headers.
+ * Convenience wrapper around Angular Material `MatSortHeader` for `ims-grid-v2` headers.
  *
  * This keeps the grid API consistent while preserving Material's sort arrow,
  * animation, keyboard handling, and ARIA behavior.
  */
-export class ImsGridSortHeader {
-    /** Sort field id matched against `ImsGridSortDirective` data access. */
+export class ImsGridSortHeaderV2 {
+    /** Sort field id matched against `ImsGridSortDirectiveV2` data access. */
     readonly field = input.required<string>();
     /** Position of the Material sort arrow. */
     readonly arrowPosition = input<SortHeaderArrowPosition>('after');

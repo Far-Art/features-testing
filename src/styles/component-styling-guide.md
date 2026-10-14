@@ -326,14 +326,14 @@ Shared validation colors are:
 
 ## Tables
 
-Put `ims-table` on a native `table` or an `ims-grid` instead of styling either
+Put `ims-table` on a native `table` or an `ims-grid-v2` instead of styling either
 by hand. The directive adds `.ims-table-new` — not `.ims-table`, which belongs
 to an older table style — and `src/styles/ims-table.scss` paints both hosts
 from one set of slots:
 
 ```html
 <table ims-table>…</table>
-<ims-grid ims-table>…</ims-grid>
+<ims-grid-v2 ims-table>…</ims-grid-v2>
 ```
 
 Recolor a row, a cell or the whole table through the slots rather than through

@@ -83,26 +83,26 @@
     margin: 0;
 }
 
-.expansion-panel-demo ims-expansion-panel-body p + p {
+.expansion-panel-demo ims-expansion-panel-body-v2 p + p {
     margin-block-start: 0.5rem;
 }
 
 // The two ways to recolor a panel. This one selects the parts themselves, with
 // nothing but their element names.
-.expansion-panel-demo__direct ims-expansion-panel-header {
+.expansion-panel-demo__direct ims-expansion-panel-header-v2 {
     background: var(--ims-color-warning-200);
     color: var(--ims-color-warning-900);
 }
 
-.expansion-panel-demo__direct ims-expansion-panel-body {
+.expansion-panel-demo__direct ims-expansion-panel-body-v2 {
     background: var(--ims-color-warning-50);
 }
 
 // This one sets the variables once, on the panel, and the parts read them.
 .expansion-panel-demo__variables {
-    --ims-expansion-panel-background: var(--ims-color-success-50);
-    --ims-expansion-panel-header-background: var(--ims-color-success-200);
-    --ims-expansion-panel-border: var(--ims-color-success-300);
+    --ims-expansion-panel-v2-background: var(--ims-color-success-50);
+    --ims-expansion-panel-v2-header-background: var(--ims-color-success-200);
+    --ims-expansion-panel-v2-border: var(--ims-color-success-300);
 }
 
 .expansion-panel-demo__table {

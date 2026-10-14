@@ -39,12 +39,12 @@ column and the actions in another, and wrapping across a row is not available. N
 instead:
 
 ```html
-<ims-grid-row>
-    <ims-grid-cell><input imsInput #note [formControl]="row.note"/></ims-grid-cell>
-    <ims-grid-cell>
+<ims-grid-row-v2>
+    <ims-grid-cell-v2><input imsInput #note [formControl]="row.note"/></ims-grid-cell-v2>
+    <ims-grid-cell-v2>
         <ims-focus-mode [field]="note" [control]="row.note" label="הערה"/>
-    </ims-grid-cell>
-</ims-grid-row>
+    </ims-grid-cell-v2>
+</ims-grid-row-v2>
 ```
 
 Everything else is unchanged: the same element is moved into the dialog, and its stand-in

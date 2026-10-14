@@ -6,7 +6,7 @@ import {
     ImsButtonEdit,
     ImsButtonIcon
 } from '../../components/ims-button';
-import {ImsExpandCollapseButtonDirective} from '../../components/ims-expand-collapse-button';
+import {ImsExpandCollapseButtonDirectiveV2} from '../../components/ims-expand-collapse-button-v2';
 import {ImsIcon} from '../../components/ims-icon';
 import {ImsLongPressDirective} from '../../ims-long-press.directive';
 import {ImsTooltip} from '../../components/ims-tooltip';
@@ -21,7 +21,7 @@ import {ReadonlyDirective} from '../../shared/readonly.directive';
         // the preset it now is.
         ImsButtonDelete,
         ImsButtonEdit,
-        ImsExpandCollapseButtonDirective,
+        ImsExpandCollapseButtonDirectiveV2,
         ImsIcon,
         ImsLongPressDirective,
         // The buttons carry no tooltip of their own — they only contribute

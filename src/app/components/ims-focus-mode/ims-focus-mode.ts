@@ -121,8 +121,8 @@ export class ImsFocusMode {
    *
    * @example
    * ```html
-   * <ims-grid-cell><input imsInput #amount [formControl]="cost"/></ims-grid-cell>
-   * <ims-grid-cell><ims-focus-mode [field]="amount" [control]="cost"/></ims-grid-cell>
+   * <ims-grid-cell-v2><input imsInput #amount [formControl]="cost"/></ims-grid-cell-v2>
+   * <ims-grid-cell-v2><ims-focus-mode [field]="amount" [control]="cost"/></ims-grid-cell-v2>
    * ```
    */
   readonly field = input<ImsTextFieldElement | ElementRef<ImsTextFieldElement> | null>(null);

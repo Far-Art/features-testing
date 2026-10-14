@@ -2,7 +2,7 @@ import {ChangeDetectionStrategy, Component, computed, signal} from '@angular/cor
 import {DatePipe, DecimalPipe} from '@angular/common';
 import {ScrollingModule} from '@angular/cdk/scrolling';
 import {ImsButtonIcon} from '../../components/ims-button';
-import {ImsGrid, ImsGridCell, ImsGridRow, ImsGridSortDirective, ImsGridSortHeader} from '../../components/ims-grid';
+import {ImsGridV2, ImsGridCellV2, ImsGridRowV2, ImsGridSortDirectiveV2, ImsGridSortHeaderV2} from '../../components/ims-grid-v2';
 import {ImsIcon} from '../../components/ims-icon';
 import {ImsTableDirective, ImsTableRowDirective, ImsTableRowTrigger} from '../../components/ims-table';
 
@@ -49,11 +49,11 @@ function createPolicies(count: number): DemoPolicy[] {
         DecimalPipe,
         ScrollingModule,
         ImsButtonIcon,
-        ImsGrid,
-        ImsGridCell,
-        ImsGridRow,
-        ImsGridSortDirective,
-        ImsGridSortHeader,
+        ImsGridV2,
+        ImsGridCellV2,
+        ImsGridRowV2,
+        ImsGridSortDirectiveV2,
+        ImsGridSortHeaderV2,
         ImsIcon,
         ImsTableDirective,
         ImsTableRowDirective

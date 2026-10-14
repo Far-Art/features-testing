@@ -4,7 +4,7 @@
 // own colour sets — `light` is `.ims-button--secondary`, `dark` is
 // `.ims-button--primary`. What is left here is its size and its glyph.
 //
-// --ims-expand-collapse-button-size is read with a fallback rather than
+// --ims-expand-collapse-button-v2-size is read with a fallback rather than
 // declared, so it can be set on any ancestor — a panel, a table — as well as
 // on the button. The default, 20px, sits inside a field's height (26px) with
 // room around it: a toggle beside a row's text, not a control of the row's
@@ -13,13 +13,13 @@
 // A little squarer than an icon button's 0.5rem, which on a button this small
 // reads nearly round. Three classes, so it holds over `.ims-button.ims-button-icon`
 // in any load order; the hover plate inherits it.
-.ims-button.ims-button-icon.ims-expand-collapse-button {
-    border-radius: var(--ims-expand-collapse-button-radius, 6px);
+.ims-button.ims-button-icon.ims-expand-collapse-button-v2 {
+    border-radius: var(--ims-expand-collapse-button-v2-radius, 6px);
 }
 
-.ims-button-icon.ims-expand-collapse-button {
-    inline-size: var(--ims-expand-collapse-button-size, 20px);
-    block-size: var(--ims-expand-collapse-button-size, 20px);
+.ims-button-icon.ims-expand-collapse-button-v2 {
+    inline-size: var(--ims-expand-collapse-button-v2-size, 20px);
+    block-size: var(--ims-expand-collapse-button-v2-size, 20px);
     min-inline-size: 0;
     // An icon button is transparent at rest, which would leave `light` without
     // its plate and `dark` without its fill. Two classes, so this holds over
@@ -30,19 +30,19 @@
 // `hidden` hides it, as it hides any element. `.ims-button` declares a display
 // of its own, which outranks the user agent's `[hidden] { display: none }`, so
 // without this a hidden button still shows.
-.ims-expand-collapse-button[hidden] {
+.ims-expand-collapse-button-v2[hidden] {
     display: none;
 }
 
 // The plus, as two bars drawn in the button's text colour. One pseudo-element
 // with two background layers, since ::before is the hover plate's.
-.ims-expand-collapse-button::after {
+.ims-expand-collapse-button-v2::after {
     content: '';
     position: absolute;
     inset: 0;
     margin: auto;
-    inline-size: calc(var(--ims-expand-collapse-button-size, 20px) * 0.42);
-    block-size: calc(var(--ims-expand-collapse-button-size, 20px) * 0.42);
+    inline-size: calc(var(--ims-expand-collapse-button-v2-size, 20px) * 0.42);
+    block-size: calc(var(--ims-expand-collapse-button-v2-size, 20px) * 0.42);
     background:
         linear-gradient(currentColor, currentColor) center / 100% 2px no-repeat,
         linear-gradient(currentColor, currentColor) center / 2px 100% no-repeat;
@@ -55,7 +55,7 @@
 
 // The minus: the upright bar shrinks into the crossbar while the glyph makes a
 // half turn, so the plus reads as folding into the minus.
-.ims-expand-collapse-button--expanded::after {
+.ims-expand-collapse-button-v2--expanded::after {
     background-size: 100% 2px, 2px 0%;
     transform: rotate(180deg);
 }
@@ -77,41 +77,41 @@
 // than straddling two pixels. The half turn stays on whole pixels as well: it
 // pivots on the centre of an even-sized box.
 @supports (width: round(1.5px, 1px)) {
-    .ims-button-icon.ims-expand-collapse-button {
-        --ims-expand-collapse-button-pixel-size: round(var(--ims-expand-collapse-button-size, 20px), 1px);
+    .ims-button-icon.ims-expand-collapse-button-v2 {
+        --ims-expand-collapse-button-v2-pixel-size: round(var(--ims-expand-collapse-button-v2-size, 20px), 1px);
 
-        inline-size: var(--ims-expand-collapse-button-pixel-size);
-        block-size: var(--ims-expand-collapse-button-pixel-size);
+        inline-size: var(--ims-expand-collapse-button-v2-pixel-size);
+        block-size: var(--ims-expand-collapse-button-v2-pixel-size);
     }
 
-    .ims-expand-collapse-button::after {
-        --ims-expand-collapse-button-glyph-size: round(var(--ims-expand-collapse-button-pixel-size) * 0.42, 2px);
+    .ims-expand-collapse-button-v2::after {
+        --ims-expand-collapse-button-v2-glyph-size: round(var(--ims-expand-collapse-button-v2-pixel-size) * 0.42, 2px);
         // Measured in the padding box, which positions the glyph: the button's
         // 1px border, from .ims-button, makes it 2px smaller than the button.
-        --ims-expand-collapse-button-glyph-offset: round(
+        --ims-expand-collapse-button-v2-glyph-offset: round(
             down,
-            (var(--ims-expand-collapse-button-pixel-size) - 2px - var(--ims-expand-collapse-button-glyph-size)) / 2,
+            (var(--ims-expand-collapse-button-v2-pixel-size) - 2px - var(--ims-expand-collapse-button-v2-glyph-size)) / 2,
             1px
         );
         // Where each 2px bar starts inside the glyph box.
-        --ims-expand-collapse-button-bar-offset: round(down, (var(--ims-expand-collapse-button-glyph-size) - 2px) / 2, 1px);
+        --ims-expand-collapse-button-v2-bar-offset: round(down, (var(--ims-expand-collapse-button-v2-glyph-size) - 2px) / 2, 1px);
 
-        inset-block: var(--ims-expand-collapse-button-glyph-offset) auto;
-        inset-inline: var(--ims-expand-collapse-button-glyph-offset) auto;
+        inset-block: var(--ims-expand-collapse-button-v2-glyph-offset) auto;
+        inset-inline: var(--ims-expand-collapse-button-v2-glyph-offset) auto;
         margin: 0;
-        inline-size: var(--ims-expand-collapse-button-glyph-size);
-        block-size: var(--ims-expand-collapse-button-glyph-size);
+        inline-size: var(--ims-expand-collapse-button-v2-glyph-size);
+        block-size: var(--ims-expand-collapse-button-v2-glyph-size);
         // The crossbar at a whole-pixel row, the upright at a whole-pixel
         // column. The upright keeps 50% vertically, so it shrinks toward the
         // middle as the plus folds into the minus.
         background-position:
-            0 var(--ims-expand-collapse-button-bar-offset),
-            var(--ims-expand-collapse-button-bar-offset) 50%;
+            0 var(--ims-expand-collapse-button-v2-bar-offset),
+            var(--ims-expand-collapse-button-v2-bar-offset) 50%;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .ims-expand-collapse-button::after {
+    .ims-expand-collapse-button-v2::after {
         transition: none;
     }
 }

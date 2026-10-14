@@ -1,17 +1,17 @@
 /*
- * Known component adapters for ims-grid.
+ * Known component adapters for ims-grid-v2.
  *
- * Generic grid rules live in ims-grid.scss. This file contains targeted
+ * Generic grid rules live in ims-grid-v2.scss. This file contains targeted
  * compatibility rules for specific components whose internal DOM needs help to
  * participate in subgrid layout, clipping, or header alignment.
  *
- * To add a new known component, scope the selector under `ims-grid`, target the
- * component host with `:has(ims-grid-cell)` when possible, and keep the rule
+ * To add a new known component, scope the selector under `ims-grid-v2`, target the
+ * component host with `:has(ims-grid-cell-v2)` when possible, and keep the rule
  * limited to the component internals needed for grid integration. Unknown or
- * app-specific wrappers should use `imsGridClip` instead of adding broad rules.
+ * app-specific wrappers should use `imsGridClipV2` instead of adding broad rules.
  */
-ims-grid {
-    cdk-virtual-scroll-viewport:has(ims-grid-row) {
+ims-grid-v2 {
+    cdk-virtual-scroll-viewport:has(ims-grid-row-v2) {
         grid-column: 1 / -1;
         width: 100%;
         min-width: 0;
@@ -19,7 +19,7 @@ ims-grid {
 
         .cdk-virtual-scroll-content-wrapper {
             display: grid;
-            grid-template-columns: var(--ims-grid-template);
+            grid-template-columns: var(--ims-grid-v2-template);
             column-gap: 0;
             width: 100%;
             min-width: 0;
@@ -27,7 +27,7 @@ ims-grid {
         }
     }
 
-    mat-expansion-panel-header:has(ims-grid-cell) {
+    mat-expansion-panel-header:has(ims-grid-cell-v2) {
         position: relative;
         padding-inline: 0 !important;
 
@@ -41,26 +41,26 @@ ims-grid {
         }
     }
 
-    mat-expansion-panel:has(ims-grid-cell) {
+    mat-expansion-panel:has(ims-grid-cell-v2) {
         overflow: hidden;
         min-height: 0;
 
-        :is(.mat-expansion-panel-content-wrapper, .mat-expansion-panel-content):has(ims-grid-cell) {
+        :is(.mat-expansion-panel-content-wrapper, .mat-expansion-panel-content):has(ims-grid-cell-v2) {
             overflow: hidden;
             min-height: 0;
         }
     }
 
-    .mat-expansion-panel-body:has(ims-grid-cell) {
+    .mat-expansion-panel-body:has(ims-grid-cell-v2) {
         padding-inline: 0 !important;
         min-height: 0;
     }
 }
 
-ims-grid ims-grid-cell ims-form-field {
+ims-grid-v2 ims-grid-cell-v2 ims-form-field {
     inline-size: 100%;
     grid-template-columns:
-        var(--ims-grid-form-label-width, max-content)
+        var(--ims-grid-v2-form-label-width, max-content)
         minmax(0, 1fr);
 
     > :not(label):not([imsFormFieldLabel]) {

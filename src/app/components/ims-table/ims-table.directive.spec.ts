@@ -1,7 +1,7 @@
 import {ApplicationRef, ChangeDetectionStrategy, Component, signal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {CdkVirtualScrollViewport, ScrollingModule} from '@angular/cdk/scrolling';
-import {ImsGrid, ImsGridCell, ImsGridRow} from '../ims-grid';
+import {ImsGridV2, ImsGridCellV2, ImsGridRowV2} from '../ims-grid-v2';
 import {ImsTableDirective} from './ims-table.directive';
 import {ImsTableRowDirective} from './ims-table-row.directive';
 
@@ -48,57 +48,57 @@ class NativeTableHost {
 }
 
 @Component({
-    imports: [ImsGrid, ImsGridCell, ImsGridRow, ImsTableDirective, ImsTableRowDirective],
+    imports: [ImsGridV2, ImsGridCellV2, ImsGridRowV2, ImsTableDirective, ImsTableRowDirective],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <ims-grid id="table" ims-table [interactive]="interactive()">
-            <ims-grid-header>
-                <ims-grid-cell>Name</ims-grid-cell>
-                <ims-grid-cell>Value</ims-grid-cell>
-            </ims-grid-header>
+        <ims-grid-v2 id="table" ims-table [interactive]="interactive()">
+            <ims-grid-header-v2>
+                <ims-grid-cell-v2>Name</ims-grid-cell-v2>
+                <ims-grid-cell-v2>Value</ims-grid-cell-v2>
+            </ims-grid-header-v2>
             @for (row of rows; track row) {
-                <ims-grid-row ims-table-row [attr.data-row]="row" (rowClick)="clicks.push(row)">
-                    <ims-grid-cell>{{ row }}</ims-grid-cell>
-                    <ims-grid-cell>
+                <ims-grid-row-v2 ims-table-row [attr.data-row]="row" (rowClick)="clicks.push(row)">
+                    <ims-grid-cell-v2>{{ row }}</ims-grid-cell-v2>
+                    <ims-grid-cell-v2>
                         @if (row === 'a') {
-                            <ims-grid-row data-row="nested">
-                                <ims-grid-cell class="nested-cell">nested</ims-grid-cell>
-                            </ims-grid-row>
+                            <ims-grid-row-v2 data-row="nested">
+                                <ims-grid-cell-v2 class="nested-cell">nested</ims-grid-cell-v2>
+                            </ims-grid-row-v2>
                         }
-                    </ims-grid-cell>
-                </ims-grid-row>
+                    </ims-grid-cell-v2>
+                </ims-grid-row-v2>
             }
-            <ims-grid-footer>
-                <ims-grid-cell>Total</ims-grid-cell>
-                <ims-grid-cell>3</ims-grid-cell>
-            </ims-grid-footer>
-        </ims-grid>
+            <ims-grid-footer-v2>
+                <ims-grid-cell-v2>Total</ims-grid-cell-v2>
+                <ims-grid-cell-v2>3</ims-grid-cell-v2>
+            </ims-grid-footer-v2>
+        </ims-grid-v2>
 
-        <ims-grid id="layout">
-            <ims-grid-row>
-                <ims-grid-cell>Layout</ims-grid-cell>
-            </ims-grid-row>
-        </ims-grid>
+        <ims-grid-v2 id="layout">
+            <ims-grid-row-v2>
+                <ims-grid-cell-v2>Layout</ims-grid-cell-v2>
+            </ims-grid-row-v2>
+        </ims-grid-v2>
 
-        <ims-grid id="gapped" columnGap="8">
-            <ims-grid-row>
-                <ims-grid-cell>Gapped</ims-grid-cell>
-            </ims-grid-row>
-        </ims-grid>
+        <ims-grid-v2 id="gapped" columnGap="8">
+            <ims-grid-row-v2>
+                <ims-grid-cell-v2>Gapped</ims-grid-cell-v2>
+            </ims-grid-row-v2>
+        </ims-grid-v2>
 
-        <ims-grid id="fixed" ims-table>
-            <ims-grid-header>
-                <ims-grid-cell width="5rem">Id</ims-grid-cell>
-                <ims-grid-cell width="8rem">Premium</ims-grid-cell>
-            </ims-grid-header>
-        </ims-grid>
+        <ims-grid-v2 id="fixed" ims-table>
+            <ims-grid-header-v2>
+                <ims-grid-cell-v2 width="5rem">Id</ims-grid-cell-v2>
+                <ims-grid-cell-v2 width="8rem">Premium</ims-grid-cell-v2>
+            </ims-grid-header-v2>
+        </ims-grid-v2>
 
-        <ims-grid id="fixed-layout">
-            <ims-grid-header>
-                <ims-grid-cell width="5rem">Id</ims-grid-cell>
-                <ims-grid-cell width="8rem">Premium</ims-grid-cell>
-            </ims-grid-header>
-        </ims-grid>
+        <ims-grid-v2 id="fixed-layout">
+            <ims-grid-header-v2>
+                <ims-grid-cell-v2 width="5rem">Id</ims-grid-cell-v2>
+                <ims-grid-cell-v2 width="8rem">Premium</ims-grid-cell-v2>
+            </ims-grid-header-v2>
+        </ims-grid-v2>
     `
 })
 class GridTableHost {
@@ -108,22 +108,22 @@ class GridTableHost {
 }
 
 @Component({
-    imports: [ImsGrid, ImsGridCell, ImsGridRow, ImsTableDirective, ImsTableRowDirective, ScrollingModule],
+    imports: [ImsGridV2, ImsGridCellV2, ImsGridRowV2, ImsTableDirective, ImsTableRowDirective, ScrollingModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <ims-grid ims-table interactive>
-            <ims-grid-header>
-                <ims-grid-cell width="5rem">#</ims-grid-cell>
-            </ims-grid-header>
+        <ims-grid-v2 ims-table interactive>
+            <ims-grid-header-v2>
+                <ims-grid-cell-v2 width="5rem">#</ims-grid-cell-v2>
+            </ims-grid-header-v2>
             <cdk-virtual-scroll-viewport itemSize="32" minBufferPx="0" maxBufferPx="0">
-                <ims-grid-row [ims-table-row]="i" *cdkVirtualFor="let item of items; let i = index" [attr.data-row]="item">
-                    <ims-grid-cell>{{ item }}</ims-grid-cell>
-                </ims-grid-row>
+                <ims-grid-row-v2 [ims-table-row]="i" *cdkVirtualFor="let item of items; let i = index" [attr.data-row]="item">
+                    <ims-grid-cell-v2>{{ item }}</ims-grid-cell-v2>
+                </ims-grid-row-v2>
             </cdk-virtual-scroll-viewport>
-            <ims-grid-footer>
-                <ims-grid-cell>Total</ims-grid-cell>
-            </ims-grid-footer>
-        </ims-grid>
+            <ims-grid-footer-v2>
+                <ims-grid-cell-v2>Total</ims-grid-cell-v2>
+            </ims-grid-footer-v2>
+        </ims-grid-v2>
     `
 })
 class VirtualTableHost {
@@ -320,7 +320,7 @@ describe('ImsTableDirective', () => {
         });
     });
 
-    describe('on an ims-grid', () => {
+    describe('on an ims-grid-v2', () => {
         let fixture: ComponentFixture<GridTableHost>;
         let host: GridTableHost;
 
@@ -338,14 +338,14 @@ describe('ImsTableDirective', () => {
             const layout = gridById(fixture, 'layout');
 
             expect(grid.getAttribute('role')).toBe('table');
-            expect(grid.querySelector('ims-grid-header')?.getAttribute('role')).toBe('row');
-            expect(grid.querySelector('ims-grid-header ims-grid-cell')?.getAttribute('role')).toBe('columnheader');
+            expect(grid.querySelector('ims-grid-header-v2')?.getAttribute('role')).toBe('row');
+            expect(grid.querySelector('ims-grid-header-v2 ims-grid-cell-v2')?.getAttribute('role')).toBe('columnheader');
             expect(gridRow(fixture, 'b').getAttribute('role')).toBe('row');
-            expect(gridRow(fixture, 'b').querySelector('ims-grid-cell')?.getAttribute('role')).toBe('cell');
+            expect(gridRow(fixture, 'b').querySelector('ims-grid-cell-v2')?.getAttribute('role')).toBe('cell');
 
             expect(layout.getAttribute('role')).toBeNull();
-            expect(layout.querySelector('ims-grid-row')?.getAttribute('role')).toBeNull();
-            expect(layout.querySelector('ims-grid-cell')?.getAttribute('role')).toBeNull();
+            expect(layout.querySelector('ims-grid-row-v2')?.getAttribute('role')).toBeNull();
+            expect(layout.querySelector('ims-grid-cell-v2')?.getAttribute('role')).toBeNull();
         });
 
         it('switches to grid roles when interactive', async () => {
@@ -353,23 +353,23 @@ describe('ImsTableDirective', () => {
             await settle(fixture);
 
             expect(gridById(fixture, 'table').getAttribute('role')).toBe('grid');
-            expect(gridRow(fixture, 'b').querySelector('ims-grid-cell')?.getAttribute('role')).toBe('gridcell');
+            expect(gridRow(fixture, 'b').querySelector('ims-grid-cell-v2')?.getAttribute('role')).toBe('gridcell');
         });
 
         it('leaves the column gutter to the stylesheet unless columnGap is set', async () => {
             await settle(fixture);
 
-            expect(gridById(fixture, 'layout').style.getPropertyValue('--ims-grid-column-gap')).toBe('');
-            expect(gridById(fixture, 'gapped').style.getPropertyValue('--ims-grid-column-gap')).toBe('8px');
+            expect(gridById(fixture, 'layout').style.getPropertyValue('--ims-grid-v2-column-gap')).toBe('');
+            expect(gridById(fixture, 'gapped').style.getPropertyValue('--ims-grid-v2-column-gap')).toBe('8px');
         });
 
         it('fills leftover width with the end rail only on a table whose columns cannot grow', async () => {
             await settle(fixture);
-            const template = (id: string) => gridById(fixture, id).style.getPropertyValue('--ims-grid-template');
+            const template = (id: string) => gridById(fixture, id).style.getPropertyValue('--ims-grid-v2-template');
 
-            expect(template('fixed')).toMatch(/minmax\(var\(--ims-grid-offset-end\), 1fr\)$/);
-            expect(template('fixed-layout')).toMatch(/ var\(--ims-grid-offset-end\)$/);
-            expect(template('table')).toMatch(/ var\(--ims-grid-offset-end\)$/);
+            expect(template('fixed')).toMatch(/minmax\(var\(--ims-grid-v2-offset-end\), 1fr\)$/);
+            expect(template('fixed-layout')).toMatch(/ var\(--ims-grid-v2-offset-end\)$/);
+            expect(template('table')).toMatch(/ var\(--ims-grid-v2-offset-end\)$/);
         });
 
         it('navigates grid rows with the keyboard', async () => {
@@ -385,10 +385,10 @@ describe('ImsTableDirective', () => {
         it('gives the footer row semantics and keeps it off the keyboard path', async () => {
             host.interactive.set(true);
             await settle(fixture);
-            const footer = gridById(fixture, 'table').querySelector('ims-grid-footer') as HTMLElement;
+            const footer = gridById(fixture, 'table').querySelector('ims-grid-footer-v2') as HTMLElement;
 
             expect(footer.getAttribute('role')).toBe('row');
-            expect(footer.querySelector('ims-grid-cell')?.getAttribute('role')).toBe('gridcell');
+            expect(footer.querySelector('ims-grid-cell-v2')?.getAttribute('role')).toBe('gridcell');
             expect(footer.hasAttribute('tabindex')).toBe(false);
 
             gridRow(fixture, 'a').focus();
@@ -402,7 +402,7 @@ describe('ImsTableDirective', () => {
             await settle(fixture);
 
             (fixture.nativeElement.querySelector('.nested-cell') as HTMLElement).click();
-            (gridRow(fixture, 'b').querySelector('ims-grid-cell') as HTMLElement).click();
+            (gridRow(fixture, 'b').querySelector('ims-grid-cell-v2') as HTMLElement).click();
 
             expect(host.clicks).toEqual(['b']);
         });
@@ -432,18 +432,18 @@ describe('ImsTableDirective', () => {
         });
 
         it('renders a window of the rows and says where each sits in the whole list', () => {
-            const grid = fixture.nativeElement.querySelector('ims-grid') as HTMLElement;
-            const rendered = Array.from(grid.querySelectorAll<HTMLElement>('ims-grid-row'));
+            const grid = fixture.nativeElement.querySelector('ims-grid-v2') as HTMLElement;
+            const rendered = Array.from(grid.querySelectorAll<HTMLElement>('ims-grid-row-v2'));
 
             expect(rendered.map((row) => row.dataset['row'])).toEqual(['0', '1', '2']);
             expect(grid.getAttribute('aria-rowcount')).toBe('102');
             expect(rendered.map((row) => row.getAttribute('aria-rowindex'))).toEqual(['2', '3', '4']);
-            expect(grid.querySelector('ims-grid-footer')?.getAttribute('aria-rowindex')).toBe('102');
+            expect(grid.querySelector('ims-grid-footer-v2')?.getAttribute('aria-rowindex')).toBe('102');
         });
 
         it('marks rows by the parity of their bound item index', () => {
             const rendered = Array.from(
-                (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('ims-grid-row')
+                (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('ims-grid-row-v2')
             );
 
             expect(rendered.map((row) => row.classList.contains('ims-table-new__row--alternate'))).toEqual([false, true, false]);
@@ -470,8 +470,8 @@ describe('ImsTableDirective', () => {
             await settle(fixture);
 
             expect(focusedRow()).toBe('0');
-            const grid = fixture.nativeElement.querySelector('ims-grid') as HTMLElement;
-            expect(grid.querySelectorAll('ims-grid-row[tabindex="0"]').length).toBe(1);
+            const grid = fixture.nativeElement.querySelector('ims-grid-v2') as HTMLElement;
+            expect(grid.querySelectorAll('ims-grid-row-v2[tabindex="0"]').length).toBe(1);
         });
     });
 });
@@ -520,9 +520,9 @@ function actionTabIndexes(fixture: ComponentFixture<unknown>): (string | null)[]
 }
 
 function gridById(fixture: ComponentFixture<unknown>, id: string): HTMLElement {
-    return fixture.nativeElement.querySelector(`ims-grid#${id}`);
+    return fixture.nativeElement.querySelector(`ims-grid-v2#${id}`);
 }
 
 function gridRow(fixture: ComponentFixture<unknown>, name: string): HTMLElement {
-    return fixture.nativeElement.querySelector(`ims-grid-row[data-row="${name}"]`);
+    return fixture.nativeElement.querySelector(`ims-grid-row-v2[data-row="${name}"]`);
 }

@@ -1,23 +1,23 @@
 import {ChangeDetectionStrategy, Component, computed, inject, input} from '@angular/core';
 import {ImsButtonSeverity} from '../ims-button/ims-button';
 import {
-    ImsExpandCollapseButtonDirective,
-    ImsExpandCollapseButtonVariation
-} from '../ims-expand-collapse-button/ims-expand-collapse-button.directive';
-import {IMS_EXPANSION_PANEL} from './ims-expansion-panel.tokens';
+    ImsExpandCollapseButtonDirectiveV2,
+    ImsExpandCollapseButtonVariationV2
+} from '../ims-expand-collapse-button-v2/ims-expand-collapse-button-v2.directive';
+import {IMS_EXPANSION_PANEL_V2} from './ims-expansion-panel-v2.tokens';
 
 /**
- * The button that opens and closes the nearest `ims-expansion-panel`.
+ * The button that opens and closes the nearest `ims-expansion-panel-v2`.
  *
  * It is the only thing that does: the header row around it is not clickable,
  * so the header can hold checkboxes, selects and buttons of its own.
  *
- * `ims-expansion-panel-header` renders one at its start. Place one yourself where
- * the header is not that component — in a cell of the `ims-grid-row` or `tr`
+ * `ims-expansion-panel-header-v2` renders one at its start. Place one yourself where
+ * the header is not that component — in a cell of the `ims-grid-row-v2` or `tr`
  * that heads a panel in a table:
  *
  * ```html
- * <ims-grid-cell><ims-expansion-panel-toggle/></ims-grid-cell>
+ * <ims-grid-cell-v2><ims-expansion-panel-toggle-v2/></ims-grid-cell-v2>
  * ```
  *
  * While the panel's `hideToggle` is set the button is hidden in place: it
@@ -25,14 +25,14 @@ import {IMS_EXPANSION_PANEL} from './ims-expansion-panel.tokens';
  * seen, clicked, focused or found by assistive technology.
  */
 @Component({
-    selector: 'ims-expansion-panel-toggle',
+    selector: 'ims-expansion-panel-toggle-v2',
     standalone: true,
-    imports: [ImsExpandCollapseButtonDirective],
+    imports: [ImsExpandCollapseButtonDirectiveV2],
     template: `
         <button
-            imsExpandCollapseButton
-            class="ims-expansion-panel-toggle__button"
-            [class.ims-expansion-panel-toggle__button--own-severity]="resolvedSeverity() !== undefined"
+            imsExpandCollapseButtonV2
+            class="ims-expansion-panel-toggle-v2__button"
+            [class.ims-expansion-panel-toggle-v2__button--own-severity]="resolvedSeverity() !== undefined"
             [variation]="resolvedVariation()"
             [ims-button-severity]="resolvedSeverity() ?? 'info'"
             [expanded]="panel.isExpanded()"
@@ -45,11 +45,11 @@ import {IMS_EXPANSION_PANEL} from './ims-expansion-panel.tokens';
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
-        class: 'ims-expansion-panel-toggle',
-        '[class.ims-expansion-panel-toggle--hidden]': 'panel.hideToggle()'
+        class: 'ims-expansion-panel-toggle-v2',
+        '[class.ims-expansion-panel-toggle-v2--hidden]': 'panel.hideToggle()'
     }
 })
-export class ImsExpansionPanelToggle {
+export class ImsExpansionPanelToggleV2 {
     /**
      * `light`, a white plate like `ims-button-variation="secondary"`, or
      * `dark`, a solid fill like `primary`.
@@ -59,7 +59,7 @@ export class ImsExpansionPanelToggle {
      *
      * @defaultValue `undefined`
      */
-    readonly variation = input<ImsExpandCollapseButtonVariation | undefined>(undefined);
+    readonly variation = input<ImsExpandCollapseButtonVariationV2 | undefined>(undefined);
     /**
      * The button's own severity, as `ims-button-severity` is on any button.
      * `danger` paints a light toggle's glyph, hover and press red and a dark
@@ -87,12 +87,12 @@ export class ImsExpansionPanelToggle {
      */
     readonly collapseLabel = input('כווץ');
 
-    protected readonly panel = inject(IMS_EXPANSION_PANEL);
+    protected readonly panel = inject(IMS_EXPANSION_PANEL_V2);
     /** The severity the button is painted in: danger while the panel's content is invalid, else its own, if any. */
     protected readonly resolvedSeverity = computed<ImsButtonSeverity | undefined>(() =>
         this.panel.invalid() ? 'danger' : this.severity()
     );
-    protected readonly resolvedVariation = computed<ImsExpandCollapseButtonVariation>(
+    protected readonly resolvedVariation = computed<ImsExpandCollapseButtonVariationV2>(
         () => this.variation() ?? (this.panel.variation() === 'secondary' ? 'dark' : 'light')
     );
 }

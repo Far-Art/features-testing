@@ -1,16 +1,16 @@
 import {Directive, DoCheck, inject, TemplateRef, ViewContainerRef} from '@angular/core';
-import {IMS_EXPANSION_PANEL} from './ims-expansion-panel.tokens';
+import {IMS_EXPANSION_PANEL_V2} from './ims-expansion-panel-v2.tokens';
 
 /**
- * Content of an `ims-expansion-panel` that is rendered the first time the
+ * Content of an `ims-expansion-panel-v2` that is rendered the first time the
  * panel opens, rather than with the panel, as `matExpansionPanelContent` is:
  *
  * ```html
- * <ims-expansion-panel-body>
- *     <ng-template imsExpansionPanelContent>
+ * <ims-expansion-panel-body-v2>
+ *     <ng-template imsExpansionPanelContentV2>
  *         @for (claim of policy.claims; track claim.id) { … }
  *     </ng-template>
- * </ims-expansion-panel-body>
+ * </ims-expansion-panel-body-v2>
  * ```
  *
  * A closed panel's body is laid out and clipped to nothing, so whatever it
@@ -28,11 +28,11 @@ import {IMS_EXPANSION_PANEL} from './ims-expansion-panel.tokens';
  * detection pass that opens the panel.
  */
 @Directive({
-    selector: 'ng-template[imsExpansionPanelContent]',
+    selector: 'ng-template[imsExpansionPanelContentV2]',
     standalone: true
 })
-export class ImsExpansionPanelContent implements DoCheck {
-    private readonly panel = inject(IMS_EXPANSION_PANEL);
+export class ImsExpansionPanelContentV2 implements DoCheck {
+    private readonly panel = inject(IMS_EXPANSION_PANEL_V2);
     private readonly template = inject(TemplateRef);
     private readonly viewContainer = inject(ViewContainerRef);
     private rendered = false;

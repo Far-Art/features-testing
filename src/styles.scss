@@ -14,8 +14,8 @@
 @use './styles/ims-toggle-switch';
 @use './styles/ims-selection';
 @use './styles/ims-virtual-scroll';
-@use './styles/ims-grid';
-@use './styles/ims-grid-adapters';
+@use './styles/ims-grid-v2';
+@use './styles/ims-grid-adapters-v2';
 @use './styles/ims-table';
 @use './styles/ims-select';
 @use './styles/ims-native-select';
@@ -36,8 +36,8 @@
 
 @use './styles/gradient-animate';
 @use './styles/action-required';
-@use './styles/ims-expand-collapse-button';
-@use './styles/ims-expansion-panel';
+@use './styles/ims-expand-collapse-button-v2';
+@use './styles/ims-expansion-panel-v2';
 @use './styles/ims-long-press';
 @use './styles/ims-buttons';
 @use './styles/ims-icon';

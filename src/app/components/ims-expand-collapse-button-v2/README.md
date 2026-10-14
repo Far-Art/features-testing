@@ -1,28 +1,33 @@
 # IMS Expand/Collapse Button
 
-`imsExpandCollapseButton` is a square button that shows and hides something:
+`imsExpandCollapseButtonV2` is a square button that shows and hides something:
 a plus that folds into a minus as it opens. It is an `ims-button` — it extends
 `ImsButtonBase` — so it has that button's focus halo, press ring, hover plate,
 disabled look and severities.
+
+Postfixed with `-v2` / `V2` in every name — selector, classes, CSS variables,
+TypeScript names, files — so it lives beside the application's older
+`imsExpandCollapseButton` without restyling it. The `-v2` names and how to
+rename back are in `../ims-expansion-panel-v2/README.md`.
 
 ## File Map
 
 | File | Purpose |
 | --- | --- |
-| `ims-expand-collapse-button.directive.ts` | `ImsExpandCollapseButtonDirective` on `button[imsExpandCollapseButton]`, and `ImsExpandCollapseButtonVariation`. |
+| `ims-expand-collapse-button-v2.directive.ts` | `ImsExpandCollapseButtonDirectiveV2` on `button[imsExpandCollapseButtonV2]`, and `ImsExpandCollapseButtonVariationV2`. |
 | `index.ts` | Public API barrel. |
-| `src/styles/ims-expand-collapse-button.scss` | Size and glyph. Everything else is `src/styles/ims-buttons.scss`. |
+| `src/styles/ims-expand-collapse-button-v2.scss` | Size and glyph. Everything else is `src/styles/ims-buttons.scss`. |
 | `src/app/pages/buttons-demo/` | Live examples, routed at `/buttons`. |
 
 ## Usage
 
 ```html
-<button imsExpandCollapseButton [(expanded)]="open" aria-controls="policy-details"></button>
+<button imsExpandCollapseButtonV2 [(expanded)]="open" aria-controls="policy-details"></button>
 <section id="policy-details" [hidden]="!open()">…</section>
 ```
 
 ```html
-<button imsExpandCollapseButton variation="dark" ims-button-severity="danger" [(expanded)]="open"></button>
+<button imsExpandCollapseButtonV2 variation="dark" ims-button-severity="danger" [(expanded)]="open"></button>
 ```
 
 The button names itself and reports `aria-expanded`. It does not know what it
@@ -60,7 +65,7 @@ because it swaps the ramp those classes read.
   call site wrote, static or bound.
 - **Hiding.** The standard `hidden` attribute hides it: `[hidden]="!hasDetails"`.
   `.ims-button` declares a `display` of its own, which outranks the user
-  agent's `[hidden]` rule, so `ims-expand-collapse-button.scss` restates
+  agent's `[hidden]` rule, so `ims-expand-collapse-button-v2.scss` restates
   `display: none` for it. `disabled` greys it out instead.
 - **Readonly.** Unlike every other `ims-button`, it ignores an `ims-readonly`
   scope. Readonly protects data, and showing or hiding a section changes none;
@@ -82,20 +87,20 @@ because it swaps the ramp those classes read.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `--ims-expand-collapse-button-size` | `20px` | Width and height, rounded to whole pixels; set it to `var(--field-height)` (26px) for a button as tall as a field. The glyph is about 42% of it, rounded to an even pixel count. Prefer an even size: only an even button centres the plus exactly. Read with a fallback, so it can be set on the button or any ancestor. |
-| `--ims-expand-collapse-button-radius` | `6px` | Corner radius, a little squarer than an icon button's `0.5rem`, which on a 20px button reads nearly round. The hover plate follows it. |
+| `--ims-expand-collapse-button-v2-size` | `20px` | Width and height, rounded to whole pixels; set it to `var(--field-height)` (26px) for a button as tall as a field. The glyph is about 42% of it, rounded to an even pixel count. Prefer an even size: only an even button centres the plus exactly. Read with a fallback, so it can be set on the button or any ancestor. |
+| `--ims-expand-collapse-button-v2-radius` | `6px` | Corner radius, a little squarer than an icon button's `0.5rem`, which on a 20px button reads nearly round. The hover plate follows it. |
 
 The button carries `.ims-button`, `.ims-button-icon` and
-`.ims-expand-collapse-button`, plus `.ims-expand-collapse-button--expanded`
+`.ims-expand-collapse-button-v2`, plus `.ims-expand-collapse-button-v2--expanded`
 while open. `.ims-button-icon` is transparent at rest; the two-class rule in
-`ims-expand-collapse-button.scss` gives the variation's background back.
+`ims-expand-collapse-button-v2.scss` gives the variation's background back.
 
 ## Linting
 
-`eslint.config.js` lists `imsExpandCollapseButton` in the `elements-content`
+`eslint.config.js` lists `imsExpandCollapseButtonV2` in the `elements-content`
 rule's `allowList`. The rule only sees an `aria-label` written in the template,
 and this button writes its own, so without the entry every bare
-`<button imsExpandCollapseButton>` would be reported as empty.
+`<button imsExpandCollapseButtonV2>` would be reported as empty.
 
 ## Angular 18.2
 

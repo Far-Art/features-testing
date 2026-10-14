@@ -3,7 +3,7 @@ import {InjectionToken, Signal} from '@angular/core';
 
 /** A row registered with its table: what the table needs to move focus through it. */
 export interface ImsTableRowRef {
-    /** The row element, a `tr` or an `ims-grid-row`. */
+    /** The row element, a `tr` or an `ims-grid-row-v2`. */
     readonly element: HTMLElement;
     /** The row's item index in a virtual viewport, when the template binds it. */
     readonly index: Signal<number | null>;
@@ -21,7 +21,7 @@ export interface ImsTableRowRef {
     refreshContentTabbable(): void;
 }
 
-/** The table contract injected by `ims-table-row` and by an `ims-grid` that carries `ims-table`. */
+/** The table contract injected by `ims-table-row` and by an `ims-grid-v2` that carries `ims-table`. */
 export interface ImsTableContext {
     /** Whether rows take focus, answer the keyboard, and emit their click outputs. */
     readonly interactive: Signal<boolean>;
@@ -39,5 +39,5 @@ export interface ImsTableContext {
     navigate(row: ImsTableRowRef, event: KeyboardEvent): boolean;
 }
 
-/** Connects rows, and the `ims-grid` the directive sits on, to their nearest `ims-table`. */
+/** Connects rows, and the `ims-grid-v2` the directive sits on, to their nearest `ims-table`. */
 export const IMS_TABLE_CONTEXT = new InjectionToken<ImsTableContext>('IMS_TABLE_CONTEXT');

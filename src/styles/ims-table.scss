@@ -1,4 +1,4 @@
-// The IMS table look, shared by `table[ims-table]` and `ims-grid[ims-table]`.
+// The IMS table look, shared by `table[ims-table]` and `ims-grid-v2[ims-table]`.
 //
 // The directive puts `.ims-table-new` on either host. It is not `.ims-table`:
 // that name belongs to an older table style this one lives beside, and nothing
@@ -6,7 +6,7 @@
 // this one file, so a native table and a grid cannot drift apart.
 //
 // A grid's rows and cells are matched by the ARIA role the grid gives them
-// (`ims-grid-row[role='row']`, `ims-grid-cell[role]`). An `ims-grid` only hands
+// (`ims-grid-row-v2[role='row']`, `ims-grid-cell-v2[role]`). An `ims-grid-v2` only hands
 // out roles when `ims-table` sits on it, and each row and cell takes them from
 // its *nearest* grid — so a bare layout grid nested in a table's cell keeps its
 // rows unpainted, which no descendant selector could promise.
@@ -156,13 +156,13 @@ table.ims-table-new:has(> tfoot) > tbody:last-of-type > tr:last-child > :is(th, 
 //
 // Cells pad themselves instead of the grid putting gutter tracks between them,
 // which is what a native table does too. It also matters inside the cell:
-// `ims-grid-cell` clips its overflow, and padding is what keeps an input's
+// `ims-grid-cell-v2` clips its overflow, and padding is what keeps an input's
 // focus halo inside the clip.
-ims-grid.ims-table-new {
-    --ims-grid-column-gap: 0px;
+ims-grid-v2.ims-table-new {
+    --ims-grid-v2-column-gap: 0px;
 }
 
-ims-grid-header[role='row'] {
+ims-grid-header-v2[role='row'] {
     position: sticky;
     inset-block-start: var(--ims-table-sticky-offset);
     z-index: 1;
@@ -172,18 +172,18 @@ ims-grid-header[role='row'] {
     color: var(--ims-table-header-color);
 }
 
-ims-grid-row[role='row'] {
+ims-grid-row-v2[role='row'] {
     position: relative;
     min-block-size: var(--ims-table-row-height);
     border-block-end: 1px solid var(--ims-table-separator);
 
     &:last-child,
-    &:has(+ ims-grid-footer) {
+    &:has(+ ims-grid-footer-v2) {
         border-block-end-color: transparent;
     }
 }
 
-ims-grid-footer[role='row'] {
+ims-grid-footer-v2[role='row'] {
     position: sticky;
     inset-block-end: var(--ims-table-sticky-offset-end);
     z-index: 1;
@@ -194,29 +194,29 @@ ims-grid-footer[role='row'] {
     font-weight: var(--ims-font-weight-semibold);
 }
 
-ims-grid-cell[role] {
+ims-grid-cell-v2[role] {
     box-sizing: border-box;
     padding-block: var(--ims-table-cell-padding-block);
     padding-inline: var(--ims-table-cell-padding-inline);
 }
 
-ims-grid-cell:is([role='cell'], [role='gridcell']) {
+ims-grid-cell-v2:is([role='cell'], [role='gridcell']) {
     align-self: stretch;
     background-color: var(--ims-table-cell-fill);
 }
 
 // The sort underline spans the cell's text, not its padding.
-ims-grid-cell[role='columnheader']::after {
+ims-grid-cell-v2[role='columnheader']::after {
     inset-inline: var(--ims-table-cell-padding-inline);
 }
 
-ims-grid-cell[role='columnheader']:has(.mat-sort-header-sorted) {
+ims-grid-cell-v2[role='columnheader']:has(.mat-sort-header-sorted) {
     color: var(--ims-color-interactive-strong);
 }
 
 // Rows: one paint rule for both hosts. Every state below only repoints a layer.
 table.ims-table-new > tbody > tr,
-ims-grid-row[role='row'] {
+ims-grid-row-v2[role='row'] {
     background-color: var(--ims-table-row-fill);
     background-image:
         linear-gradient(var(--ims-table-row-hover-paint), var(--ims-table-row-hover-paint)),
@@ -241,12 +241,12 @@ ims-grid-row[role='row'] {
 // viewport's rows are left out: their place among the rendered elements moves
 // as the window scrolls, which would swap the stripes under the pointer.
 table.ims-table-new > tbody > tr:nth-child(even),
-ims-grid-row[role='row']:not(.cdk-virtual-scroll-content-wrapper > *):nth-child(even of ims-grid-row[role='row']) {
+ims-grid-row-v2[role='row']:not(.cdk-virtual-scroll-content-wrapper > *):nth-child(even of ims-grid-row-v2[role='row']) {
     --ims-table-row-stripe-paint: var(--ims-table-row-stripe);
 }
 
 // Virtual rows stripe by the item index bound to `[ims-table-row]`.
-.cdk-virtual-scroll-content-wrapper > ims-grid-row[role='row'].ims-table-new__row--alternate {
+.cdk-virtual-scroll-content-wrapper > ims-grid-row-v2[role='row'].ims-table-new__row--alternate {
     --ims-table-row-stripe-paint: var(--ims-table-row-stripe);
 }
 
@@ -254,7 +254,7 @@ ims-grid-row[role='row']:not(.cdk-virtual-scroll-content-wrapper > *):nth-child(
 // on one line. A row that holds the hovered nested row stays untinted, so only
 // the innermost row lights.
 table.ims-table-new > tbody > tr:hover,
-ims-grid-row[role='row']:hover:not(:has(ims-grid-row[role='row']:hover)) {
+ims-grid-row-v2[role='row']:hover:not(:has(ims-grid-row-v2[role='row']:hover)) {
     --ims-table-row-hover-paint: var(--ims-table-hover-layer);
 }
 
@@ -262,7 +262,7 @@ ims-grid-row[role='row']:hover:not(:has(ims-grid-row[role='row']:hover)) {
 // technology announces cannot disagree. Over white the tint is within a shade
 // of --ims-color-interactive-subtle, the selected-row token.
 table.ims-table-new > tbody > tr[aria-selected='true'],
-ims-grid-row[role='row'][aria-selected='true'] {
+ims-grid-row-v2[role='row'][aria-selected='true'] {
     --ims-table-row-state-paint: color-mix(in srgb, var(--ims-table-row-accent) 10%, transparent);
 }
 
@@ -272,7 +272,7 @@ ims-grid-row[role='row'][aria-selected='true'] {
 // bar says "chosen", and an active row has not been. Declared after selected
 // at the same specificity, so a row that is both takes the stronger tint.
 table.ims-table-new > tbody > tr.ims-table-new__row--active,
-ims-grid-row[role='row'].ims-table-new__row--active {
+ims-grid-row-v2[role='row'].ims-table-new__row--active {
     --ims-table-row-state-paint: color-mix(in srgb, var(--ims-table-row-accent) 20%, transparent);
 }
 
@@ -283,7 +283,7 @@ table.ims-table-new > tbody > tr > :first-child {
 }
 
 table.ims-table-new > tbody > tr[aria-selected='true'] > :first-child::before,
-ims-grid-row[role='row'][aria-selected='true']::before {
+ims-grid-row-v2[role='row'][aria-selected='true']::before {
     content: '';
     position: absolute;
     inset-block: 0;
@@ -341,7 +341,7 @@ ims-grid-row[role='row'][aria-selected='true']::before {
 // its row out reversed, which turns `flex-end` around. `end` is the writing
 // direction's end whichever way the flex row runs.
 table.ims-table-new > :is(thead, tbody, tfoot) > tr > .ims-table-new__cell--numeric,
-ims-grid-cell.ims-table-new__cell--numeric {
+ims-grid-cell-v2.ims-table-new__cell--numeric {
     justify-content: end;
     font-variant-numeric: tabular-nums;
     text-align: end;

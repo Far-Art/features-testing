@@ -1,7 +1,7 @@
 <header class="page-heading">
     <h1>פאנלים נפתחים</h1>
     <p>
-        <code>ims-expansion-panel</code> מבוסס על <code>CdkAccordionItem</code>: כותרת שנשארת וגוף שנפתח ונסגר
+        <code>ims-expansion-panel-v2</code> מבוסס על <code>CdkAccordionItem</code>: כותרת שנשארת וגוף שנפתח ונסגר
         מתחתיה. רק הכפתור בקצה הכותרת פותח וסוגר, ולכן הכותרת יכולה להחזיק פקדים משלה.
     </p>
 </header>
@@ -12,7 +12,7 @@
         <p>
             <code>[(expanded)]</code> קשור לסיגנל בדף, <code>disabled</code> נועל את הכפתור ו-<code>hideToggle</code> מסתיר אותו. לחיצה על תיבת הסימון
             בכותרת אינה פותחת את הפאנל. בפאנל השני הכפתור מוסתר ב-<code>hideToggle</code>, והפאנל נפתח מכפתור חיצוני
-            דרך <code>#panel="imsExpansionPanel"</code>.
+            דרך <code>#panel="imsExpansionPanelV2"</code>.
         </p>
     </div>
 
@@ -30,34 +30,34 @@
     </div>
 
     <div class="expansion-panel-demo__stack">
-        <ims-expansion-panel
+        <ims-expansion-panel-v2
             [(expanded)]="policyExpanded"
             [disabled]="policyDisabled()"
             [hideToggle]="policyToggleHidden()"
             (opened)="lastEvent.set('opened')"
             (closed)="lastEvent.set('closed')"
         >
-            <ims-expansion-panel-header>
+            <ims-expansion-panel-header-v2>
                 <h3 class="expansion-panel-demo__title">פרטי פוליסה</h3>
                 <ims-checkbox [formControl]="includeCancelled">כלול חיובים שבוטלו</ims-checkbox>
-            </ims-expansion-panel-header>
-            <ims-expansion-panel-body>
+            </ims-expansion-panel-header-v2>
+            <ims-expansion-panel-body-v2>
                 <p>מספר פוליסה 41-220-8873, בתוקף עד 31.12.2026.</p>
                 <p>בעל הפוליסה: דנה כהן, תל אביב. סוכן מטפל: מיכאל לוי.</p>
-            </ims-expansion-panel-body>
-        </ims-expansion-panel>
+            </ims-expansion-panel-body-v2>
+        </ims-expansion-panel-v2>
 
-        <ims-expansion-panel #notesPanel="imsExpansionPanel">
-            <ims-expansion-panel-header hideToggle>
+        <ims-expansion-panel-v2 #notesPanel="imsExpansionPanelV2">
+            <ims-expansion-panel-header-v2 hideToggle>
                 <h3 class="expansion-panel-demo__title">הערות לתיק</h3>
                 <button type="button" ims-button ims-button-variation="outline" (click)="notesPanel.toggle()">
                     {{ notesPanel.isExpanded() ? 'הסתר הערות' : 'הצג הערות' }}
                 </button>
-            </ims-expansion-panel-header>
-            <ims-expansion-panel-body>
+            </ims-expansion-panel-header-v2>
+            <ims-expansion-panel-body-v2>
                 <p>הלקוח ביקש שיחזרו אליו אחרי השעה 16:00.</p>
-            </ims-expansion-panel-body>
-        </ims-expansion-panel>
+            </ims-expansion-panel-body-v2>
+        </ims-expansion-panel-v2>
     </div>
 </section>
 
@@ -72,19 +72,19 @@
     </div>
 
     <div class="expansion-panel-demo__pair">
-        <ims-expansion-panel expanded>
-            <ims-expansion-panel-header>
+        <ims-expansion-panel-v2 expanded>
+            <ims-expansion-panel-header-v2>
                 <h3 class="expansion-panel-demo__title">default</h3>
-            </ims-expansion-panel-header>
-            <ims-expansion-panel-body>כותרת בפס כחול, כפתור <code>light</code>.</ims-expansion-panel-body>
-        </ims-expansion-panel>
+            </ims-expansion-panel-header-v2>
+            <ims-expansion-panel-body-v2>כותרת בפס כחול, כפתור <code>light</code>.</ims-expansion-panel-body-v2>
+        </ims-expansion-panel-v2>
 
-        <ims-expansion-panel variation="secondary" expanded>
-            <ims-expansion-panel-header>
+        <ims-expansion-panel-v2 variation="secondary" expanded>
+            <ims-expansion-panel-header-v2>
                 <h3 class="expansion-panel-demo__title">secondary</h3>
-            </ims-expansion-panel-header>
-            <ims-expansion-panel-body>כותרת לבנה, כפתור <code>dark</code>.</ims-expansion-panel-body>
-        </ims-expansion-panel>
+            </ims-expansion-panel-header-v2>
+            <ims-expansion-panel-body-v2>כותרת לבנה, כפתור <code>dark</code>.</ims-expansion-panel-body-v2>
+        </ims-expansion-panel-v2>
     </div>
 </section>
 
@@ -99,12 +99,12 @@
 
     <div class="expansion-panel-demo__pair">
         @for (severity of severities; track severity) {
-            <ims-expansion-panel [severity]="severity">
-                <ims-expansion-panel-header>
+            <ims-expansion-panel-v2 [severity]="severity">
+                <ims-expansion-panel-header-v2>
                     <h3 class="expansion-panel-demo__title">{{ severity }}</h3>
-                </ims-expansion-panel-header>
-                <ims-expansion-panel-body>פאנל בחומרה <code>{{ severity }}</code>.</ims-expansion-panel-body>
-            </ims-expansion-panel>
+                </ims-expansion-panel-header-v2>
+                <ims-expansion-panel-body-v2>פאנל בחומרה <code>{{ severity }}</code>.</ims-expansion-panel-body-v2>
+            </ims-expansion-panel-v2>
         }
     </div>
 
@@ -121,33 +121,33 @@
     </div>
 
     <div class="expansion-panel-demo__pair">
-        <ims-expansion-panel [invalid]="contentInvalid.value">
-            <ims-expansion-panel-header [expandLabel]="contentInvalid.value ? 'הרחב, יש שדות שגויים' : 'הרחב'">
+        <ims-expansion-panel-v2 [invalid]="contentInvalid.value">
+            <ims-expansion-panel-header-v2 [expandLabel]="contentInvalid.value ? 'הרחב, יש שדות שגויים' : 'הרחב'">
                 <h3 class="expansion-panel-demo__title">פרטי מבוטח</h3>
-            </ims-expansion-panel-header>
-            <ims-expansion-panel-body>מספר תעודת הזהות אינו תקין.</ims-expansion-panel-body>
-        </ims-expansion-panel>
+            </ims-expansion-panel-header-v2>
+            <ims-expansion-panel-body-v2>מספר תעודת הזהות אינו תקין.</ims-expansion-panel-body-v2>
+        </ims-expansion-panel-v2>
 
-        <ims-expansion-panel variation="secondary" [invalid]="contentInvalid.value">
-            <ims-expansion-panel-header [expandLabel]="contentInvalid.value ? 'הרחב, יש שדות שגויים' : 'הרחב'">
+        <ims-expansion-panel-v2 variation="secondary" [invalid]="contentInvalid.value">
+            <ims-expansion-panel-header-v2 [expandLabel]="contentInvalid.value ? 'הרחב, יש שדות שגויים' : 'הרחב'">
                 <h3 class="expansion-panel-demo__title">פרטי רכב</h3>
-            </ims-expansion-panel-header>
-            <ims-expansion-panel-body>מספר הרישוי חסר.</ims-expansion-panel-body>
-        </ims-expansion-panel>
+            </ims-expansion-panel-header-v2>
+            <ims-expansion-panel-body-v2>מספר הרישוי חסר.</ims-expansion-panel-body-v2>
+        </ims-expansion-panel-v2>
 
-        <ims-expansion-panel severity="success" [invalid]="contentInvalid.value">
-            <ims-expansion-panel-header [expandLabel]="contentInvalid.value ? 'הרחב, יש שדות שגויים' : 'הרחב'">
+        <ims-expansion-panel-v2 severity="success" [invalid]="contentInvalid.value">
+            <ims-expansion-panel-header-v2 [expandLabel]="contentInvalid.value ? 'הרחב, יש שדות שגויים' : 'הרחב'">
                 <h3 class="expansion-panel-demo__title">אישור תשלום</h3>
-            </ims-expansion-panel-header>
-            <ims-expansion-panel-body>תאריך הערך מוקדם מתאריך התשלום.</ims-expansion-panel-body>
-        </ims-expansion-panel>
+            </ims-expansion-panel-header-v2>
+            <ims-expansion-panel-body-v2>תאריך הערך מוקדם מתאריך התשלום.</ims-expansion-panel-body-v2>
+        </ims-expansion-panel-v2>
 
-        <ims-expansion-panel>
-            <ims-expansion-panel-header toggleSeverity="danger">
+        <ims-expansion-panel-v2>
+            <ims-expansion-panel-header-v2 toggleSeverity="danger">
                 <h3 class="expansion-panel-demo__title"><code dir="ltr">toggleSeverity="danger"</code></h3>
-            </ims-expansion-panel-header>
-            <ims-expansion-panel-body>הכפתור בלבד נצבע, בלי הטקסט בכותרת.</ims-expansion-panel-body>
-        </ims-expansion-panel>
+            </ims-expansion-panel-header-v2>
+            <ims-expansion-panel-body-v2>הכפתור בלבד נצבע, בלי הטקסט בכותרת.</ims-expansion-panel-body-v2>
+        </ims-expansion-panel-v2>
     </div>
 </section>
 
@@ -155,7 +155,7 @@
     <div class="expansion-panel-demo__description">
         <h2>אקורדיון</h2>
         <p>
-            <code>ims-accordion</code> מבוסס על <code>CdkAccordion</code>: פתיחת פאנל סוגרת את האחרים, אלא אם
+            <code>ims-accordion-v2</code> מבוסס על <code>CdkAccordion</code>: פתיחת פאנל סוגרת את האחרים, אלא אם
             <code>multi</code> פעיל. <code>openAll()</code> פועל רק עם <code>multi</code>. הפאנלים צמודים זה
             לזה כמו ערימה אחת, ופאנל פתוח מתרחק מהפאנל שמעליו ומהפאנל שמתחתיו. הראשון נפתח בלי לרדת, כי אין
             מעליו מה לדחוק, ומתחת לאחרון לא נשאר רווח.
@@ -168,24 +168,24 @@
         <button type="button" ims-button ims-button-variation="outline" (click)="accordion.closeAll()">סגור הכל</button>
     </div>
 
-    <ims-accordion #accordion="imsAccordion" [multi]="multi.value">
-        <ims-expansion-panel expanded>
-            <ims-expansion-panel-header>כיסויים</ims-expansion-panel-header>
-            <ims-expansion-panel-body>מקיף, צד ג׳ וגרירה.</ims-expansion-panel-body>
-        </ims-expansion-panel>
-        <ims-expansion-panel>
-            <ims-expansion-panel-header>השתתפות עצמית</ims-expansion-panel-header>
-            <ims-expansion-panel-body>₪ 1,850 לכל אירוע.</ims-expansion-panel-body>
-        </ims-expansion-panel>
-        <ims-expansion-panel disabled>
-            <ims-expansion-panel-header>הנחות (נעול)</ims-expansion-panel-header>
-            <ims-expansion-panel-body>הנחת נהג צעיר אינה חלה.</ims-expansion-panel-body>
-        </ims-expansion-panel>
-        <ims-expansion-panel>
-            <ims-expansion-panel-header>נהגים מורשים</ims-expansion-panel-header>
-            <ims-expansion-panel-body>כל נהג מעל גיל 24 עם ותק של שנתיים לפחות.</ims-expansion-panel-body>
-        </ims-expansion-panel>
-    </ims-accordion>
+    <ims-accordion-v2 #accordion="imsAccordionV2" [multi]="multi.value">
+        <ims-expansion-panel-v2 expanded>
+            <ims-expansion-panel-header-v2>כיסויים</ims-expansion-panel-header-v2>
+            <ims-expansion-panel-body-v2>מקיף, צד ג׳ וגרירה.</ims-expansion-panel-body-v2>
+        </ims-expansion-panel-v2>
+        <ims-expansion-panel-v2>
+            <ims-expansion-panel-header-v2>השתתפות עצמית</ims-expansion-panel-header-v2>
+            <ims-expansion-panel-body-v2>₪ 1,850 לכל אירוע.</ims-expansion-panel-body-v2>
+        </ims-expansion-panel-v2>
+        <ims-expansion-panel-v2 disabled>
+            <ims-expansion-panel-header-v2>הנחות (נעול)</ims-expansion-panel-header-v2>
+            <ims-expansion-panel-body-v2>הנחת נהג צעיר אינה חלה.</ims-expansion-panel-body-v2>
+        </ims-expansion-panel-v2>
+        <ims-expansion-panel-v2>
+            <ims-expansion-panel-header-v2>נהגים מורשים</ims-expansion-panel-header-v2>
+            <ims-expansion-panel-body-v2>כל נהג מעל גיל 24 עם ותק של שנתיים לפחות.</ims-expansion-panel-body-v2>
+        </ims-expansion-panel-v2>
+    </ims-accordion-v2>
 </section>
 
 <section class="expansion-panel-demo">
@@ -193,128 +193,128 @@
         <h2>רקעים</h2>
         <p>
             כל חלק צובע את הרקע של עצמו, והברירות של הרכיב הן ברמת ספציפיות אפס. לכן בחירה ישירה של הרכיב,
-            כמו <code>ims-expansion-panel-header {{ '{' }} background: … {{ '}' }}</code>, גוברת תמיד. אותו דבר אפשר
+            כמו <code>ims-expansion-panel-header-v2 {{ '{' }} background: … {{ '}' }}</code>, גוברת תמיד. אותו דבר אפשר
             לעשות דרך המשתנים, גם מאלמנט שמעל.
         </p>
     </div>
 
     <div class="expansion-panel-demo__pair">
-        <ims-expansion-panel class="expansion-panel-demo__direct" expanded>
-            <ims-expansion-panel-header>בחירה ישירה של הרכיבים</ims-expansion-panel-header>
-            <ims-expansion-panel-body>
-                <code dir="ltr">ims-expansion-panel-header {{ '{' }} background: … {{ '}' }}</code>
+        <ims-expansion-panel-v2 class="expansion-panel-demo__direct" expanded>
+            <ims-expansion-panel-header-v2>בחירה ישירה של הרכיבים</ims-expansion-panel-header-v2>
+            <ims-expansion-panel-body-v2>
+                <code dir="ltr">ims-expansion-panel-header-v2 {{ '{' }} background: … {{ '}' }}</code>
                 <br>
-                <code dir="ltr">ims-expansion-panel-body {{ '{' }} background: … {{ '}' }}</code>
-            </ims-expansion-panel-body>
-        </ims-expansion-panel>
+                <code dir="ltr">ims-expansion-panel-body-v2 {{ '{' }} background: … {{ '}' }}</code>
+            </ims-expansion-panel-body-v2>
+        </ims-expansion-panel-v2>
 
-        <ims-expansion-panel class="expansion-panel-demo__variables" expanded>
-            <ims-expansion-panel-header>דרך המשתנים</ims-expansion-panel-header>
-            <ims-expansion-panel-body>
-                <code dir="ltr">--ims-expansion-panel-header-background</code>
+        <ims-expansion-panel-v2 class="expansion-panel-demo__variables" expanded>
+            <ims-expansion-panel-header-v2>דרך המשתנים</ims-expansion-panel-header-v2>
+            <ims-expansion-panel-body-v2>
+                <code dir="ltr">--ims-expansion-panel-v2-header-background</code>
                 <br>
-                <code dir="ltr">--ims-expansion-panel-background</code>
-            </ims-expansion-panel-body>
-        </ims-expansion-panel>
+                <code dir="ltr">--ims-expansion-panel-v2-background</code>
+            </ims-expansion-panel-body-v2>
+        </ims-expansion-panel-v2>
     </div>
 </section>
 
 <section class="expansion-panel-demo expansion-panel-demo--table">
     <div class="expansion-panel-demo__description">
-        <h2>שורות נפתחות ב-ims-grid</h2>
+        <h2>שורות נפתחות ב-ims-grid-v2</h2>
         <p>
-            <code>ims-grid-row</code> שנכתב ישירות בתוך הפאנל תופס את מקום הכותרת, והפאנל נעשה קבוצת שורות בגריד:
+            <code>ims-grid-row-v2</code> שנכתב ישירות בתוך הפאנל תופס את מקום הכותרת, והפאנל נעשה קבוצת שורות בגריד:
             השורה מתיישרת לעמודות, והגוף נפרש לרוחב כל הגריד מתחתיה. הכפתור הוא
-            <code>ims-expansion-panel-toggle</code> בתא משלו. הגריד הוא גם <code>imsAccordion</code>, כך שנפתחת
+            <code>ims-expansion-panel-toggle-v2</code> בתא משלו. הגריד הוא גם <code>imsAccordionV2</code>, כך שנפתחת
             שורה אחת בכל פעם; Enter על שורה פותח אותה דרך <code>rowDblclick</code>. שורה פתוחה מתרחקת מהשורות
             שמעליה ומתחתיה, כמו פאנל באקורדיון. לשורה האחרונה אין פרטים: <code>hideToggle</code> מסתיר את הכפתור,
             ו-<code>disabled</code> מונע פתיחה גם ב-Enter.
         </p>
     </div>
 
-    <ims-grid ims-table interactive zebra imsAccordion aria-label="תביעות">
-        <ims-grid-header>
-            <ims-grid-cell width="3rem"><span class="expansion-panel-demo__visually-hidden">פרטים</span></ims-grid-cell>
-            <ims-grid-cell width="9rem">מספר תביעה</ims-grid-cell>
-            <ims-grid-cell minWidth="10rem" maxWidth="1fr">שם לקוח</ims-grid-cell>
-            <ims-grid-cell width="9rem">סכום</ims-grid-cell>
-        </ims-grid-header>
+    <ims-grid-v2 ims-table interactive zebra imsAccordionV2 aria-label="תביעות">
+        <ims-grid-header-v2>
+            <ims-grid-cell-v2 width="3rem"><span class="expansion-panel-demo__visually-hidden">פרטים</span></ims-grid-cell-v2>
+            <ims-grid-cell-v2 width="9rem">מספר תביעה</ims-grid-cell-v2>
+            <ims-grid-cell-v2 minWidth="10rem" maxWidth="1fr">שם לקוח</ims-grid-cell-v2>
+            <ims-grid-cell-v2 width="9rem">סכום</ims-grid-cell-v2>
+        </ims-grid-header-v2>
 
         @for (claim of claims; track claim.id) {
-            <ims-expansion-panel #claimPanel="imsExpansionPanel" [hideToggle]="!claim.description" [disabled]="!claim.description">
-                <ims-grid-row ims-table-row (rowDblclick)="claimPanel.toggle()">
-                    <ims-grid-cell><ims-expansion-panel-toggle [expandLabel]="'פרטי תביעה ' + claim.claimNumber" [collapseLabel]="'הסתר פרטי תביעה ' + claim.claimNumber"/></ims-grid-cell>
-                    <ims-grid-cell><span dir="ltr">{{ claim.claimNumber }}</span></ims-grid-cell>
-                    <ims-grid-cell>{{ claim.customerName }}</ims-grid-cell>
-                    <ims-grid-cell>₪ {{ claim.amount | number: '1.2-2' }}</ims-grid-cell>
-                </ims-grid-row>
-                <ims-expansion-panel-body>{{ claim.description }}</ims-expansion-panel-body>
-            </ims-expansion-panel>
+            <ims-expansion-panel-v2 #claimPanel="imsExpansionPanelV2" [hideToggle]="!claim.description" [disabled]="!claim.description">
+                <ims-grid-row-v2 ims-table-row (rowDblclick)="claimPanel.toggle()">
+                    <ims-grid-cell-v2><ims-expansion-panel-toggle-v2 [expandLabel]="'פרטי תביעה ' + claim.claimNumber" [collapseLabel]="'הסתר פרטי תביעה ' + claim.claimNumber"/></ims-grid-cell-v2>
+                    <ims-grid-cell-v2><span dir="ltr">{{ claim.claimNumber }}</span></ims-grid-cell-v2>
+                    <ims-grid-cell-v2>{{ claim.customerName }}</ims-grid-cell-v2>
+                    <ims-grid-cell-v2>₪ {{ claim.amount | number: '1.2-2' }}</ims-grid-cell-v2>
+                </ims-grid-row-v2>
+                <ims-expansion-panel-body-v2>{{ claim.description }}</ims-expansion-panel-body-v2>
+            </ims-expansion-panel-v2>
         }
-    </ims-grid>
+    </ims-grid-v2>
 </section>
 
 <section class="expansion-panel-demo expansion-panel-demo--table">
     <div class="expansion-panel-demo__description">
         <h2>שורות עם שורות מקוננות, בגלילה וירטואלית</h2>
         <p>
-            כל שורה ב-<code>ims-grid</code> מחזיקה <code>ims-expansion-panel</code>: התאים בכותרת שלו והשורות המקוננות
+            כל שורה ב-<code>ims-grid-v2</code> מחזיקה <code>ims-expansion-panel-v2</code>: התאים בכותרת שלו והשורות המקוננות
             בגוף שלו יושבים על העמודות של הגריד, מתחת לכותרות. 400 פוליסות ב-<code>cdk-virtual-scroll-viewport</code>
             עם <code>imsVirtualScrollAutosize</code>, שמודד כל שורה, כך ששורה פתוחה יכולה להיות גבוהה מהאחרות.
             הפוליסה הפתוחה נשמרת בדף, כי הגלילה הורסת פאנל שיוצא מהתצוגה. הפאנלים נראים כמו מחוץ לגריד, עם מסגרת,
             פינות מעוגלות וצל, בתוך המסגרת של הטבלה: <code>offsetStart</code> ו-<code>offsetEnd</code> של הגריד נותנים
-            להם מקום. השורות המקוננות נבנות רק כשהפוליסה נפתחת בפעם הראשונה, דרך <code>imsExpansionPanelContent</code>.
+            להם מקום. השורות המקוננות נבנות רק כשהפוליסה נפתחת בפעם הראשונה, דרך <code>imsExpansionPanelContentV2</code>.
         </p>
     </div>
 
-    <ims-grid ims-table offsetStart="0.5rem" offsetEnd="0.5rem" aria-label="פוליסות ותביעות">
-        <ims-grid-header>
-            <ims-grid-cell width="3rem"><span class="expansion-panel-demo__visually-hidden">פרטים</span></ims-grid-cell>
-            <ims-grid-cell width="9rem">מספר</ims-grid-cell>
-            <ims-grid-cell minWidth="12rem" maxWidth="1fr">לקוח / תיאור</ims-grid-cell>
-            <ims-grid-cell width="9rem">סכום</ims-grid-cell>
-        </ims-grid-header>
+    <ims-grid-v2 ims-table offsetStart="0.5rem" offsetEnd="0.5rem" aria-label="פוליסות ותביעות">
+        <ims-grid-header-v2>
+            <ims-grid-cell-v2 width="3rem"><span class="expansion-panel-demo__visually-hidden">פרטים</span></ims-grid-cell-v2>
+            <ims-grid-cell-v2 width="9rem">מספר</ims-grid-cell-v2>
+            <ims-grid-cell-v2 minWidth="12rem" maxWidth="1fr">לקוח / תיאור</ims-grid-cell-v2>
+            <ims-grid-cell-v2 width="9rem">סכום</ims-grid-cell-v2>
+        </ims-grid-header-v2>
 
-        <ims-accordion>
+        <ims-accordion-v2>
             <cdk-virtual-scroll-viewport imsVirtualScrollAutosize="33" class="expansion-panel-demo__viewport">
-                <ims-grid-row *cdkVirtualFor="let policy of policies; trackBy: trackPolicy; templateCacheSize: 0">
-                    <ims-expansion-panel
+                <ims-grid-row-v2 *cdkVirtualFor="let policy of policies; trackBy: trackPolicy; templateCacheSize: 0">
+                    <ims-expansion-panel-v2
                         [expanded]="openPolicyId() === policy.id"
                         (expandedChange)="onPolicyExpanded(policy.id, $event)"
                     >
-                        <ims-expansion-panel-header>
-                            <ims-grid-cell>
-                                <ims-expansion-panel-toggle
+                        <ims-expansion-panel-header-v2>
+                            <ims-grid-cell-v2>
+                                <ims-expansion-panel-toggle-v2
                                     [expandLabel]="'תביעות בפוליסה ' + policy.number"
                                     [collapseLabel]="'הסתר תביעות בפוליסה ' + policy.number"
                                 />
-                            </ims-grid-cell>
-                            <ims-grid-cell><span dir="ltr">{{ policy.number }}</span></ims-grid-cell>
-                            <ims-grid-cell>{{ policy.customerName }}</ims-grid-cell>
-                            <ims-grid-cell>₪ {{ policy.premium | number: '1.2-2' }}</ims-grid-cell>
-                        </ims-expansion-panel-header>
-                        <ims-expansion-panel-body>
-                            <ng-template imsExpansionPanelContent>
+                            </ims-grid-cell-v2>
+                            <ims-grid-cell-v2><span dir="ltr">{{ policy.number }}</span></ims-grid-cell-v2>
+                            <ims-grid-cell-v2>{{ policy.customerName }}</ims-grid-cell-v2>
+                            <ims-grid-cell-v2>₪ {{ policy.premium | number: '1.2-2' }}</ims-grid-cell-v2>
+                        </ims-expansion-panel-header-v2>
+                        <ims-expansion-panel-body-v2>
+                            <ng-template imsExpansionPanelContentV2>
                                 @for (claim of policy.claims; track claim.id) {
-                                    <ims-grid-row>
-                                        <ims-grid-cell></ims-grid-cell>
-                                        <ims-grid-cell><span dir="ltr">{{ claim.number }}</span></ims-grid-cell>
-                                        <ims-grid-cell>{{ claim.description }}</ims-grid-cell>
-                                        <ims-grid-cell>₪ {{ claim.amount | number: '1.2-2' }}</ims-grid-cell>
-                                    </ims-grid-row>
+                                    <ims-grid-row-v2>
+                                        <ims-grid-cell-v2></ims-grid-cell-v2>
+                                        <ims-grid-cell-v2><span dir="ltr">{{ claim.number }}</span></ims-grid-cell-v2>
+                                        <ims-grid-cell-v2>{{ claim.description }}</ims-grid-cell-v2>
+                                        <ims-grid-cell-v2>₪ {{ claim.amount | number: '1.2-2' }}</ims-grid-cell-v2>
+                                    </ims-grid-row-v2>
                                 }
                             </ng-template>
-                        </ims-expansion-panel-body>
-                    </ims-expansion-panel>
-                </ims-grid-row>
+                        </ims-expansion-panel-body-v2>
+                    </ims-expansion-panel-v2>
+                </ims-grid-row-v2>
             </cdk-virtual-scroll-viewport>
-        </ims-accordion>
-    </ims-grid>
+        </ims-accordion-v2>
+    </ims-grid-v2>
 </section>
 
 <section class="expansion-panel-demo">
     <div class="expansion-panel-demo__description">
-        <h2>אותו מבנה ב-ims-grid בלי ims-table</h2>
+        <h2>אותו מבנה ב-ims-grid-v2 בלי ims-table</h2>
         <p>
             בלי מסגרת של טבלה הפאנלים נראים אותו דבר ונערמים כמו באקורדיון, עד שולי הגריד. התאים בגריד לא מרופדים,
             ולכן <code>offsetStart</code> ו-<code>offsetEnd</code> של הגריד מכניסים את התוכן פנימה, בכותרות ובשורות כאחד.
@@ -322,46 +322,46 @@
         </p>
     </div>
 
-    <ims-grid offsetStart="0.75rem" offsetEnd="0.75rem" columnGap="0.75rem">
-        <ims-grid-header class="expansion-panel-demo__grid-header">
-            <ims-grid-cell width="1.75rem"><span class="expansion-panel-demo__visually-hidden">פרטים</span></ims-grid-cell>
-            <ims-grid-cell width="8rem">מספר</ims-grid-cell>
-            <ims-grid-cell minWidth="10rem" maxWidth="1fr">לקוח / תיאור</ims-grid-cell>
-            <ims-grid-cell width="7rem">סכום</ims-grid-cell>
-        </ims-grid-header>
+    <ims-grid-v2 offsetStart="0.75rem" offsetEnd="0.75rem" columnGap="0.75rem">
+        <ims-grid-header-v2 class="expansion-panel-demo__grid-header">
+            <ims-grid-cell-v2 width="1.75rem"><span class="expansion-panel-demo__visually-hidden">פרטים</span></ims-grid-cell-v2>
+            <ims-grid-cell-v2 width="8rem">מספר</ims-grid-cell-v2>
+            <ims-grid-cell-v2 minWidth="10rem" maxWidth="1fr">לקוח / תיאור</ims-grid-cell-v2>
+            <ims-grid-cell-v2 width="7rem">סכום</ims-grid-cell-v2>
+        </ims-grid-header-v2>
 
-        <ims-accordion>
+        <ims-accordion-v2>
             @for (policy of samplePolicies; track policy.id) {
-                <ims-grid-row>
-                    <ims-expansion-panel [expanded]="policy.id === 2">
-                        <ims-expansion-panel-header>
-                            <ims-grid-cell><ims-expansion-panel-toggle/></ims-grid-cell>
-                            <ims-grid-cell><span dir="ltr">{{ policy.number }}</span></ims-grid-cell>
-                            <ims-grid-cell>{{ policy.customerName }}</ims-grid-cell>
-                            <ims-grid-cell>₪ {{ policy.premium | number: '1.0-0' }}</ims-grid-cell>
-                        </ims-expansion-panel-header>
-                        <ims-expansion-panel-body>
+                <ims-grid-row-v2>
+                    <ims-expansion-panel-v2 [expanded]="policy.id === 2">
+                        <ims-expansion-panel-header-v2>
+                            <ims-grid-cell-v2><ims-expansion-panel-toggle-v2/></ims-grid-cell-v2>
+                            <ims-grid-cell-v2><span dir="ltr">{{ policy.number }}</span></ims-grid-cell-v2>
+                            <ims-grid-cell-v2>{{ policy.customerName }}</ims-grid-cell-v2>
+                            <ims-grid-cell-v2>₪ {{ policy.premium | number: '1.0-0' }}</ims-grid-cell-v2>
+                        </ims-expansion-panel-header-v2>
+                        <ims-expansion-panel-body-v2>
                             @for (claim of policy.claims; track claim.id) {
-                                <ims-grid-row class="expansion-panel-demo__nested-row">
-                                    <ims-grid-cell></ims-grid-cell>
-                                    <ims-grid-cell><span dir="ltr">{{ claim.number }}</span></ims-grid-cell>
-                                    <ims-grid-cell>{{ claim.description }}</ims-grid-cell>
-                                    <ims-grid-cell>₪ {{ claim.amount | number: '1.0-0' }}</ims-grid-cell>
-                                </ims-grid-row>
+                                <ims-grid-row-v2 class="expansion-panel-demo__nested-row">
+                                    <ims-grid-cell-v2></ims-grid-cell-v2>
+                                    <ims-grid-cell-v2><span dir="ltr">{{ claim.number }}</span></ims-grid-cell-v2>
+                                    <ims-grid-cell-v2>{{ claim.description }}</ims-grid-cell-v2>
+                                    <ims-grid-cell-v2>₪ {{ claim.amount | number: '1.0-0' }}</ims-grid-cell-v2>
+                                </ims-grid-row-v2>
                             }
-                        </ims-expansion-panel-body>
-                    </ims-expansion-panel>
-                </ims-grid-row>
+                        </ims-expansion-panel-body-v2>
+                    </ims-expansion-panel-v2>
+                </ims-grid-row-v2>
             }
-        </ims-accordion>
-    </ims-grid>
+        </ims-accordion-v2>
+    </ims-grid-v2>
 </section>
 
 <section class="expansion-panel-demo expansion-panel-demo--table">
     <div class="expansion-panel-demo__description">
         <h2>שורות נפתחות בטבלה רגילה</h2>
         <p>
-            על <code>tbody</code>: <code>&lt;tbody ims-expansion-panel&gt;</code> לכל קבוצה. השורה הראשונה היא
+            על <code>tbody</code>: <code>&lt;tbody ims-expansion-panel-v2&gt;</code> לכל קבוצה. השורה הראשונה היא
             הכותרת, וכל שורה אחריה היא הגוף. שורת טבלה אינה יכולה להנפיש גובה, ולכן כאן הגוף מופיע ונעלם בלי
             אנימציה.
         </p>
@@ -377,15 +377,15 @@
             </tr>
         </thead>
         @for (claim of claims; track claim.id) {
-            <tbody ims-expansion-panel [hideToggle]="!claim.description" [disabled]="!claim.description">
+            <tbody ims-expansion-panel-v2 [hideToggle]="!claim.description" [disabled]="!claim.description">
                 <tr>
-                    <td class="expansion-panel-demo__toggle-cell"><ims-expansion-panel-toggle/></td>
+                    <td class="expansion-panel-demo__toggle-cell"><ims-expansion-panel-toggle-v2/></td>
                     <td><span dir="ltr">{{ claim.claimNumber }}</span></td>
                     <td>{{ claim.customerName }}</td>
                     <td>₪ {{ claim.amount | number: '1.2-2' }}</td>
                 </tr>
                 <tr>
-                    <td colspan="4"><ims-expansion-panel-body>{{ claim.description }}</ims-expansion-panel-body></td>
+                    <td colspan="4"><ims-expansion-panel-body-v2>{{ claim.description }}</ims-expansion-panel-body-v2></td>
                 </tr>
             </tbody>
         }

@@ -80,7 +80,7 @@ function formFieldSpanAttribute(value: number | string): ImsFormFieldSpan {
  * When the label and value cannot sit side by side at their natural widths,
  * the label moves above the value. A field on its own measures this itself.
  * A grid or row measures for every field it lays out, so they stack together,
- * and a field inside an `ims-grid` cell never stacks.
+ * and a field inside an `ims-grid-v2` cell never stacks.
  *
  * With a direct `ims-checkbox`, the checkbox component and main field label
  * share value column 2 and row 1. The form layout only handles placement;
@@ -310,7 +310,7 @@ export class ImsFormField {
      * so an element with `display: contents` in between, such as the host of
      * a component that groups fields, still leaves the field in the grid. A
      * grid or row measures for the fields it lays out, so they flip together.
-     * An `ims-grid` cell sizes its own content, so a field there never stacks.
+     * An `ims-grid-v2` cell sizes its own content, so a field there never stacks.
      */
     private joinLayout(): void {
         const grid = findLayoutGrid(this.hostElement);
@@ -323,7 +323,7 @@ export class ImsFormField {
 
         if (
             layoutParent(this.hostElement)?.matches('ims-form-field-row') ||
-            this.hostElement.closest('ims-grid-cell')
+            this.hostElement.closest('ims-grid-cell-v2')
         ) {
             return;
         }

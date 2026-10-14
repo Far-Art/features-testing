@@ -13,7 +13,7 @@ import {
 } from '../../components/ims-dialog';
 import { ImsOption, ImsSelect, ImsSelectDirective } from '../../components/ims-select';
 import { ReadonlyDirective } from '../../shared/readonly.directive';
-import {ImsGrid, ImsGridCell, ImsGridRow} from '../../components/ims-grid';
+import {ImsGridV2, ImsGridCellV2, ImsGridRowV2} from '../../components/ims-grid-v2';
 
 type ContactMethod = 'Email' | 'Phone' | 'Text message';
 
@@ -208,9 +208,9 @@ class ReadonlyDialogContent {
     ImsOption,
     ImsSelectDirective,
     ImsAutocomplete,
-    ImsGrid,
-    ImsGridCell,
-    ImsGridRow,
+    ImsGridV2,
+    ImsGridCellV2,
+    ImsGridRowV2,
   ],
   templateUrl: './readonly-demo.html',
   changeDetection: ChangeDetectionStrategy.Eager,
