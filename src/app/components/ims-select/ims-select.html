@@ -14,6 +14,7 @@
     [class.ims-select__trigger--empty]="!hasSelection()"
     [class.ims-input--readonly]="interactionDisabled()"
     [disabled]="interactionDisabled() && !readonlyMultipleMode()"
+    [attr.disabled]="interactionDisabled() && !readonlyMultipleMode() ? '' : null"
     [attr.id]="id()"
     [attr.aria-label]="ariaLabel()"
     [attr.aria-labelledby]="ariaLabelledby()"

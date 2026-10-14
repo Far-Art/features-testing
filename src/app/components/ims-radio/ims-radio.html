@@ -20,6 +20,7 @@
         [checked]="nativeChecked()"
         [attr.checked]="nativeChecked() ? '' : null"
         [disabled]="disabled()"
+        [attr.disabled]="disabled() ? '' : null"
         (change)="onNativeChange($event)"
     />
 

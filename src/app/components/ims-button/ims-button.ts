@@ -392,7 +392,7 @@ export abstract class ImsButtonBase implements ImsTooltipDefaultsProvider {
         '[class.ims-button--primary]': 'variation() === "primary"',
         '[class.ims-button--secondary]': 'variation() === "secondary"',
         '[class.ims-button--outline]': 'variation() === "outline"',
-        '[disabled]': 'interactionDisabled()'
+        '[attr.disabled]': 'interactionDisabled() ? "" : null'
     }
 })
 export class ImsButton extends ImsButtonBase {
@@ -421,7 +421,7 @@ export class ImsButton extends ImsButtonBase {
         // removes the classes it names itself, so the static ones above and a
         // call site's own `class` are left alone.
         '[class]': 'presetClass()',
-        '[disabled]': 'interactionDisabled()'
+        '[attr.disabled]': 'interactionDisabled() ? "" : null'
     }
 })
 export class ImsButtonIcon extends ImsButtonBase {

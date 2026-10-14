@@ -16,6 +16,7 @@
         [attr.aria-label]="ariaLabel()"
         [checked]="selected()"
         [disabled]="interactionDisabled()"
+        [attr.disabled]="interactionDisabled() ? '' : null"
         (change)="onNativeChange($event)"
     />
 

@@ -31,6 +31,7 @@
                 snackbarRef.isProgress() && !snackbarRef.progressCloseVisible()
             "
             [disabled]="snackbarRef.isProgress() && !snackbarRef.progressCloseVisible()"
+            [attr.disabled]="snackbarRef.isProgress() && !snackbarRef.progressCloseVisible() ? '' : null"
             [attr.aria-hidden]="
                 snackbarRef.isProgress() && !snackbarRef.progressCloseVisible()
             "

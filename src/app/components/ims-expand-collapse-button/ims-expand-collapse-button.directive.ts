@@ -13,7 +13,7 @@ import {
         '[class.ims-expand-collapse-button]': 'true',
         '[class.ims-expand-collapse-button--expanded]': 'expanded()',
         '[class.ims-expand-collapse-button--disabled]': 'disabled()',
-        '[disabled]': 'disabled()',
+        '[attr.disabled]': 'disabled() ? "" : null',
         '[attr.aria-expanded]': 'expanded() ? "true" : "false"',
         '[attr.aria-label]': 'expanded() ? collapseAriaLabel() : expandAriaLabel()',
         '(click)': 'toggle()'

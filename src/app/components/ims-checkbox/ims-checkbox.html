@@ -18,6 +18,7 @@
         [attr.checked]="nativeChecked() ? '' : null"
         [indeterminate]="intermediate()"
         [disabled]="interactionDisabled()"
+        [attr.disabled]="interactionDisabled() ? '' : null"
         (change)="toggle($event)"
         (blur)="markAsTouched()"
     />

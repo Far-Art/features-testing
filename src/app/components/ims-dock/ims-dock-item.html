@@ -21,6 +21,7 @@
         class="ims-dock-item__button"
         [attr.aria-label]="data.label"
         [disabled]="data.disabled"
+        [attr.disabled]="data.disabled ? '' : null"
         (focus)="onFocus($event)"
         (blur)="blurred.emit()"
         (click)="onActivate($event)"
