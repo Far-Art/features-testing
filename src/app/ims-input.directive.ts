@@ -1,5 +1,5 @@
-import { DestroyRef, Directive, effect, ElementRef, inject, OnInit } from '@angular/core';
-import { NgControl } from '@angular/forms';
+import { computed, DestroyRef, Directive, effect, ElementRef, inject, signal, untracked } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ReadonlyDirective } from './shared/readonly.directive';
 
 type ImsInputElement = HTMLInputElement | HTMLTextAreaElement;
@@ -14,20 +14,35 @@ type ImsInputElement = HTMLInputElement | HTMLTextAreaElement;
     '(paste)': 'onPaste($event)',
   },
 })
-export class ImsInputDirective implements OnInit {
+export class ImsInputDirective {
   private readonly element = inject<ElementRef<ImsInputElement>>(ElementRef).nativeElement;
-  private readonly ngControl = inject(NgControl, { optional: true, self: true });
+  private readonly valueAccessors = inject(NG_VALUE_ACCESSOR, { optional: true, self: true });
   private readonly destroyRef = inject(DestroyRef);
   protected readonly readonlyMode = ReadonlyDirective.injectSignal();
 
-  constructor() {
-    effect(() => {
-      this.element.disabled = this.readonlyMode() || this.ngControl?.disabled === true;
-    });
-  }
+  /**
+   * Disabled state last requested by a bound form control. Written through
+   * `untracked()`: a control can be disabled from inside an effect, and
+   * Angular 18 rejects a tracked signal write there.
+   */
+  private readonly formDisabled = signal(false);
 
-  ngOnInit(): void {
+  /** True while the form control or readonly asks for it. */
+  private readonly shouldDisable = computed(() => this.formDisabled() || this.readonlyMode());
+
+  constructor() {
     this.synchronizeValueAccessorDisabledState();
+
+    // An `ims-readonly` on this same element binds `disabled` too. Sharing
+    // this state makes both bindings agree, whichever of them runs last.
+    ReadonlyDirective.shareHostDisabled(this.shouldDisable);
+
+    effect(() => {
+      const disabled = this.shouldDisable();
+      if (this.element.disabled !== disabled) {
+        this.element.disabled = disabled;
+      }
+    });
   }
 
   protected onPaste(event: Event): void {
@@ -81,23 +96,32 @@ export class ImsInputDirective implements OnInit {
     return text.slice(0, Math.max(0, maximumLength - retainedLength));
   }
 
+  /**
+   * Routes a bound form control's disabled state through this directive,
+   * so enabling the control does not enable a readonly field.
+   *
+   * Wraps the value accessors on this element rather than the form
+   * directive's `valueAccessor`, which newer Angular versions only pick in
+   * the form directive's first `ngOnChanges` — the same call that first sets
+   * the disabled state. The accessors exist by the time this constructor
+   * runs, so the wrapper sees that call whatever order the directives run in.
+   */
   private synchronizeValueAccessorDisabledState(): void {
-    const valueAccessor = this.ngControl?.valueAccessor;
-    const setDisabledState = valueAccessor?.setDisabledState;
+    for (const valueAccessor of this.valueAccessors ?? []) {
+      const setDisabledState = valueAccessor.setDisabledState;
+      if (!setDisabledState) continue;
 
-    if (!valueAccessor || !setDisabledState) {
-      return;
+      const synchronizedSetDisabledState = (isDisabled: boolean): void => {
+        untracked(() => this.formDisabled.set(isDisabled));
+        setDisabledState.call(valueAccessor, untracked(() => this.shouldDisable()));
+      };
+
+      valueAccessor.setDisabledState = synchronizedSetDisabledState;
+      this.destroyRef.onDestroy(() => {
+        if (valueAccessor.setDisabledState === synchronizedSetDisabledState) {
+          valueAccessor.setDisabledState = setDisabledState;
+        }
+      });
     }
-
-    const synchronizedSetDisabledState = (isDisabled: boolean): void => {
-      setDisabledState.call(valueAccessor, isDisabled || this.readonlyMode());
-    };
-
-    valueAccessor.setDisabledState = synchronizedSetDisabledState;
-    this.destroyRef.onDestroy(() => {
-      if (valueAccessor.setDisabledState === synchronizedSetDisabledState) {
-        valueAccessor.setDisabledState = setDisabledState;
-      }
-    });
   }
 }

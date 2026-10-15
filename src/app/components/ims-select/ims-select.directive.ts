@@ -1,7 +1,4 @@
-import {booleanAttribute, DestroyRef, Directive, effect, ElementRef, inject, input, untracked} from '@angular/core';
-// TODO: Angular 22 — uncomment this import in place of the one above (it
-// swaps `effect` for `afterRenderEffect`); see the other two TODOs below.
-// import {afterRenderEffect, booleanAttribute, DestroyRef, Directive, ElementRef, inject, input, untracked} from '@angular/core';
+import {booleanAttribute, computed, DestroyRef, Directive, effect, ElementRef, inject, input, signal, untracked} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
 import {NG_VALUE_ACCESSOR} from '@angular/forms';
 import {ReadonlyDirective} from '../../shared/readonly.directive';
@@ -24,8 +21,7 @@ import {ReadonlyDirective} from '../../shared/readonly.directive';
  * selector leaves it alone; use `<ims-select multiple>` there.
  *
  * Written against Angular 18: signal inputs, `effect()` and `untracked()`, no
- * later API. The `TODO: Angular 22` comments hold the `afterRenderEffect`
- * version to switch to after the upgrade.
+ * later API.
  *
  * ```html
  * <select ims-select [formControl]="status">
@@ -51,11 +47,11 @@ export class ImsSelectDirective {
     private readonly valueAccessors = inject(NG_VALUE_ACCESSOR, {optional: true, self: true});
 
     /**
-     * Disabled state last requested by a bound form control. A plain field
-     * rather than a signal: a control can be disabled from inside an effect,
-     * and Angular 18 rejects signal writes there.
+     * Disabled state last requested by a bound form control. Written through
+     * `untracked()`: a control can be disabled from inside an effect, and
+     * Angular 18 rejects a tracked signal write there.
      */
-    private formDisabled = false;
+    private readonly formDisabled = signal(false);
 
     /** Disabled state set via the `disabled` attribute or property binding. */
     readonly disabledInput = input<boolean, boolean | string | null | undefined>(false, {alias: 'disabled', transform: booleanAttribute});
@@ -63,28 +59,20 @@ export class ImsSelectDirective {
     /** True when inherited from the nearest `ims-readonly` provider. */
     protected readonly readonlyMode = ReadonlyDirective.injectSignal();
 
+    /** True while the `disabled` input, the form control or readonly asks for it. */
+    private readonly shouldDisable = computed(() => this.disabledInput() || this.readonlyMode() || this.formDisabled());
+
     constructor() {
         this.synchronizeValueAccessorDisabledState();
         this.observeSelect(this.renderSelectedContent());
 
+        // An `ims-readonly` on this same select binds `disabled` too. Sharing
+        // this state makes both bindings agree, whichever of them runs last.
+        ReadonlyDirective.shareHostDisabled(this.shouldDisable);
+
         // Follows the `disabled` input and the readonly scope. The form control
         // applies its own changes through the wrapper below.
         effect(() => this.applyDisabledState());
-
-        // TODO: Angular 22 — uncomment this in place of the effect above. It
-        // writes after every host binding, `ims-readonly`'s included, so
-        // observeSelect() no longer has to watch the `disabled` attribute.
-        // afterRenderEffect({write: () => this.applyDisabledState()});
-    }
-
-    /** True while the `disabled` input, the form control or readonly asks for it. */
-    private shouldDisable(): boolean {
-        // Both signals are read on every call, never skipped by `||`: the form
-        // control's state is not a signal, so while it alone decides the result
-        // the effect must still be tracking both.
-        const disabled = this.disabledInput();
-        const readonly = this.readonlyMode();
-        return disabled || readonly || this.formDisabled;
     }
 
     private applyDisabledState(): void {
@@ -110,8 +98,8 @@ export class ImsSelectDirective {
             if (!setDisabledState) continue;
 
             const synchronizedSetDisabledState = (isDisabled: boolean): void => {
-                this.formDisabled = isDisabled;
                 // Untracked: this can run inside a caller's own effect.
+                untracked(() => this.formDisabled.set(isDisabled));
                 setDisabledState.call(valueAccessor, untracked(() => this.shouldDisable()));
             };
 
@@ -149,32 +137,16 @@ export class ImsSelectDirective {
     }
 
     /**
-     * Watches the select for two changes made behind this directive's back.
-     *
-     * An option's content: Chrome copies the selected option into
-     * `selectedcontent` only when the selection changes, and Angular fills in
-     * an option's text after that option can already be selected — an
-     * interpolated label, or options that arrive after the value.
-     *
-     * The select's own `disabled` attribute: `ims-readonly` placed on this
-     * select binds it too. Angular 18 runs the effect above after that binding
-     * and later versions before it, so without this a select that its form
-     * control keeps disabled could come out enabled — on first render, or when
-     * the readonly state is lifted.
+     * Watches the options for content changes made behind this directive's
+     * back. Chrome copies the selected option into `selectedcontent` only when
+     * the selection changes, and Angular fills in an option's text after that
+     * option can already be selected — an interpolated label, or options that
+     * arrive after the value.
      */
     private observeSelect(selectedContent: HTMLElement): void {
         const observer = new MutationObserver((records) => {
-            // TODO: Angular 22 — once the constructor uses afterRenderEffect,
-            // remove this check, the `attributeFilter` line below, and the
-            // `disabled` paragraph of this method's comment.
-            if (records.some((record) => record.target === this.select && record.attributeName === 'disabled')) {
-                this.applyDisabledState();
-            }
-
             // Chrome's copies, and this callback's own, land in `selectedcontent`.
-            const optionChanged = records.some(
-                (record) => record.type !== 'attributes' && !selectedContent.contains(record.target)
-            );
+            const optionChanged = records.some((record) => !selectedContent.contains(record.target));
 
             if (optionChanged) {
                 const option = this.select.selectedOptions[0];
@@ -186,8 +158,7 @@ export class ImsSelectDirective {
         observer.observe(this.select, {
             childList: true,
             characterData: true,
-            subtree: true,
-            attributeFilter: ['disabled']
+            subtree: true
         });
         this.destroyRef.onDestroy(() => observer.disconnect());
     }
