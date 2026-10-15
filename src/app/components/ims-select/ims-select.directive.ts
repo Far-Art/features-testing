@@ -37,7 +37,8 @@ import {ReadonlyDirective} from '../../shared/readonly.directive';
     standalone: true,
     host: {
         class: 'ims-input ims-native-select',
-        '[class.ims-readonly]': 'readonlyMode()'
+        '[class.ims-readonly]': 'readonlyMode()',
+        '(keydown.escape)': 'onEscape($event)'
     }
 })
 export class ImsSelectDirective {
@@ -73,6 +74,27 @@ export class ImsSelectDirective {
         // Follows the `disabled` input and the readonly scope. The form control
         // applies its own changes through the wrapper below.
         effect(() => this.applyDisabledState());
+    }
+
+    /**
+     * Stops an Escape that closes the open picker at the select. A base-select
+     * picker is part of the page, so the key bubbles on to `body`, where CDK
+     * hands it to the topmost overlay: a surrounding dialog, which would close
+     * along with the picker. The browser still closes the picker itself.
+     */
+    protected onEscape(event: Event): void {
+        if (this.pickerOpen()) {
+            event.stopPropagation();
+        }
+    }
+
+    /** `:open` matches while the picker shows. A browser without it throws on the selector. */
+    private pickerOpen(): boolean {
+        try {
+            return this.select.matches(':open');
+        } catch {
+            return false;
+        }
     }
 
     private applyDisabledState(): void {
