@@ -647,8 +647,7 @@ export class ImsSelect<T = unknown>
   onTriggerKeydown(event: KeyboardEvent): void {
     if (this.readonlyMultipleMode()) {
       if (event.key === 'Escape' && this.open()) {
-        event.preventDefault();
-        this.close(true);
+        this.closeOnEscape(event);
       }
       return;
     }
@@ -691,8 +690,7 @@ export class ImsSelect<T = unknown>
         break;
       case 'Escape':
         if (this.open()) {
-          event.preventDefault();
-          this.close(true);
+          this.closeOnEscape(event);
         }
         break;
     }
@@ -701,8 +699,7 @@ export class ImsSelect<T = unknown>
   onPanelKeydown(event: KeyboardEvent): void {
     if (this.readonlyMultipleMode()) {
       if (event.key === 'Escape') {
-        event.preventDefault();
-        this.close(true);
+        this.closeOnEscape(event);
       } else if (event.key === 'Tab') {
         this.closeOnTab();
       }
@@ -745,13 +742,24 @@ export class ImsSelect<T = unknown>
         }
         break;
       case 'Escape':
-        event.preventDefault();
-        this.close(true);
+        this.closeOnEscape(event);
         break;
       case 'Tab':
         this.moveTabWithinPanel(event);
         break;
     }
+  }
+
+  /**
+   * Closes the panel on Escape and stops the key there. CDK hands Escape to the
+   * topmost overlay from a listener on `body`, and unless the app coalesces
+   * events, change detection detaches this panel before the key gets there. The
+   * topmost overlay is then a surrounding dialog, which would close as well.
+   */
+  private closeOnEscape(event: KeyboardEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.close(true);
   }
 
   /**

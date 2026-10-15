@@ -737,9 +737,7 @@ export abstract class ImsAutocompleteBase<T = unknown>
     onKeydown(event: KeyboardEvent): void {
         if (this.readonlyMultipleMode()) {
             if (event.key === 'Escape' && this.open()) {
-                event.preventDefault();
-                this.closePanel(false);
-                this.focusOrigin();
+                this.closeOnEscape(event, false);
             } else if (event.key === 'Tab') {
                 this.closePanel(false);
             }
@@ -785,9 +783,7 @@ export abstract class ImsAutocompleteBase<T = unknown>
                 break;
             case 'Escape':
                 if (this.open()) {
-                    event.preventDefault();
-                    this.closePanel(true);
-                    this.focusOrigin();
+                    this.closeOnEscape(event, true);
                 }
                 break;
             case 'Tab':
@@ -1125,6 +1121,19 @@ export abstract class ImsAutocompleteBase<T = unknown>
         const activeOption = this.activeOption();
         if (!activeOption) return;
         this.selectOption(activeOption);
+    }
+
+    /**
+     * Closes the panel on Escape and stops the key there. CDK hands Escape to the
+     * topmost overlay from a listener on `body`, and unless the app coalesces
+     * events, change detection detaches this panel before the key gets there. The
+     * topmost overlay is then a surrounding dialog, which would close as well.
+     */
+    private closeOnEscape(event: KeyboardEvent, commitText: boolean): void {
+        event.preventDefault();
+        event.stopPropagation();
+        this.closePanel(commitText);
+        this.focusOrigin();
     }
 
     private focusOrigin(): void {
