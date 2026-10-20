@@ -44,17 +44,30 @@ ims-dialog-shell.ims-dialog--danger {
   border-radius: 0.875rem;
 }
 
-// `height: 100%` only resolves when the overlay pane has a fixed `height`. CDK's
-// dialog container inherits the pane's min and max height instead, and the
-// shell and surface continue that chain; without it a `minHeight` config left
-// the surface at content height inside a taller pane, and a `maxHeight` config
-// let it spill past the pane instead of scrolling the content.
+// The container, shell and surface take the pane's height by stretching as flex
+// items, not through `height: 100%`. A percentage height only resolves when the
+// pane has a fixed `height`, so CDK's container inherits the pane's min and max
+// height instead. An inherited percentage resolves again at every level: a
+// `maxHeight: '50%'` config halved the surface once per element, and a
+// `minHeight: '60%'` one left it at content height inside a taller pane. A
+// stretched item takes the pane's used height whatever unit set it, and keeps
+// it definite for the surface's rows, so taller content still scrolls inside
+// the content row. Stretching ignores content height in the cross axis, which
+// is what holds the surface to a `maxHeight` pane.
+.cdk-overlay-pane.ims-dialog-overlay > .cdk-dialog-container {
+  display: flex;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+}
+
+// A flex item does not shrink below its content's min-content width by
+// default, which would push wide content past a fixed-width pane instead of
+// scrolling it inside the content row.
 ims-dialog-shell.ims-dialog {
-  display: block;
+  display: flex;
   width: 100%;
-  height: 100%;
-  min-height: inherit;
-  max-height: inherit;
+  min-width: 0;
   color: var(--ims-color-on-surface);
 }
 
@@ -70,9 +83,6 @@ ims-dialog-shell.ims-dialog {
     'actions actions';
   grid-template-rows: auto auto minmax(0, 1fr) auto;
   width: 100%;
-  height: 100%;
-  min-height: inherit;
-  max-height: inherit;
   overflow: hidden;
   // One accent colour all the way round; the top edge is the same border, just
   // heavier. Declaring the colour once keeps the four severities from drifting.
