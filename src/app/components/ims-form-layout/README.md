@@ -22,13 +22,17 @@ to be rewritten.
   the field, row, and grid.
 - `ims-form-field-group.ts`: stacked or inline compound-control layout, in the
   value column or across the whole field.
+- `ims-form-field-font-weight.ts`: the `ImsFormFieldFontWeight` type taken by the
+  label and value font-weight inputs, and its mapping to the font-weight tokens.
 - `ims-form-field.directives.ts`: the behavior-free `imsFormFieldLabel`,
   `imsFormFieldHint`, and `imsFormFieldInline` markers.
-- `ims-form-field.spec.ts`: focused field projection and label-association tests.
+- `ims-form-field.spec.ts`: focused field projection, label-association, and
+  font-weight tests. The font-weight tests load the real form-layout styles and
+  resolve the cascade themselves, since jsdom substitutes no `var()`.
 - `index.ts`: public exports.
 - `src/styles/ims-form-layout/ims-form-field.scss`: field layout, stacked labels,
-  hints and inline values, label interaction color, and checkbox-placement
-  styles.
+  hints and inline values, label and value font weights, label interaction
+  color, and checkbox-placement styles.
 - `src/styles/ims-form-layout/ims-form-field-grid.scss`: grid host styles.
 - `src/styles/ims-form-layout/ims-form-field-row.scss`: standalone row and
   in-grid subgrid row styles.
@@ -51,6 +55,7 @@ import {
     ImsFormFieldLabel,
     ImsFormFieldRow
 } from './components/ims-form-layout';
+import type {ImsFormFieldFontWeight} from './components/ims-form-layout';
 ```
 
 The global stylesheet must load all form-layout style modules:
@@ -107,6 +112,8 @@ semantics.
 | `span` | `number \| 'row'` | `1` | Number of logical grid columns occupied by the field, or every column remaining after its start. |
 | `labelSpan` | `number \| string \| null` | `null` | Optional logical-column allocation for the main label in a multi-column field. |
 | `valueSpan` | `number \| string \| null` | `null` | Optional logical-column allocation for the main value in a multi-column field. |
+| `labelFontWeight` | `ImsFormFieldFontWeight \| null` | `null` | Font weight of the main label. Over the row's and the grid's. See Font Weights. |
+| `valueFontWeight` | `ImsFormFieldFontWeight \| null` | `null` | Font weight of the main value. Over the row's and the grid's. See Font Weights. |
 
 ### `ims-form-field-grid`
 
@@ -117,6 +124,8 @@ semantics.
 | `minColumnWidth` | `number \| string` | `320` | Column-width estimate used to resolve open-ended `row` capacity. |
 | `columnGap` | `string` | `'1rem'` | Minimum space between complete field pairs. Remaining width is also distributed through these spacer tracks. |
 | `rowGap` | `string` | `'0.4rem'` | Vertical space between generated rows and explicit row wrappers. |
+| `labelFontWeight` | `ImsFormFieldFontWeight \| null` | `null` | Font weight of the main label of every field inside the grid. See Font Weights. |
+| `valueFontWeight` | `ImsFormFieldFontWeight \| null` | `null` | Font weight of the value of every field inside the grid. See Font Weights. |
 
 ### `ims-form-field-group`
 
@@ -132,6 +141,8 @@ semantics.
 | --- | --- | --- | --- |
 | `visible` | `boolean` | `true` | Hides the row while keeping the space it takes. |
 | `fill` | `boolean` | `false` | Stretches the fields of a standalone row across its full width. No effect inside a grid. |
+| `labelFontWeight` | `ImsFormFieldFontWeight \| null` | `null` | Font weight of the main label of every field in the row. Over the grid's. See Font Weights. |
+| `valueFontWeight` | `ImsFormFieldFontWeight \| null` | `null` | Font weight of the value of every field in the row. Over the grid's. See Font Weights. |
 
 `imsFormFieldLabel`, `imsFormFieldHint`, and `imsFormFieldInline` have no
 inputs.
@@ -585,6 +596,8 @@ value column:
   of the field, pairs and controls with their own labels alike. `fill` spreads
   them across that whole width.
 - A main label moves to a line of its own above the group.
+- The texts of a stacked group take the field's label font weight, like the
+  labels around them, rather than its value font weight. See Font Weights.
 - The field's `labelSpan` and `valueSpan` do not divide a wide group.
 - It applies to a group that is a direct child of `ims-form-field`.
 
@@ -726,11 +739,64 @@ read the field label as that option's name. For this structure:
 - Layout is unchanged: the group sits in the value track like any other value
   content.
 
+## Font Weights
+
+A main label is `bold` and a value `regular`. `labelFontWeight` and
+`valueFontWeight` change them on a grid, a row, or one field:
+
+```html
+<ims-form-field-grid columns="2" labelFontWeight="semibold">
+    <ims-form-field-row valueFontWeight="medium">
+        <ims-form-field>
+            <label>Policy number</label>
+            <input>
+        </ims-form-field>
+
+        <ims-form-field labelFontWeight="regular" valueFontWeight="bold">
+            <span imsFormFieldLabel>Status</span>
+            <span>Active</span>
+        </ims-form-field>
+    </ims-form-field-row>
+</ims-form-field-grid>
+```
+
+Both inputs take an `ImsFormFieldFontWeight`, the name of one of the
+`--ims-font-weight-*` tokens: `'regular'`, `'medium'`, `'semibold'`, `'bold'`,
+or `'extrabold'`. `null`, the default, leaves the weight to the level above.
+
+- The nearest setting wins: the field's own, then its row's, then its grid's,
+  then the default. Above, the policy number's label is `semibold`, from the
+  grid, and its value `medium`, from the row. The status label is `regular`
+  and its value `bold`, both from the field.
+- A grid's and a row's settings reach every field inside them, including a
+  field inside a component whose host has `display: contents`.
+- They stop at a nested `ims-form-field-grid`, and at a field's value. A field
+  nested in another field's value, or a grid nested in a grid, starts over
+  from the defaults.
+- The value weight is set on the field and inherited by everything in its
+  value: read-only text, hints, `ims-form-field-group` pair texts, and controls
+  whose styles inherit the font, such as `.ims-input`, `ims-select`, and
+  `ims-datepicker`. A control with a font weight of its own keeps it.
+- The texts of a wide stacked `ims-form-field-group` sit in the label track, so
+  they take the label weight instead. See Wide Groups.
+- The label of a direct `ims-checkbox` is the main label, so it takes the label
+  weight, even though it sits in the value track. A checkbox with projected
+  text is value content and takes the value weight.
+- The weights are defaults at the specificity of the element name, written as
+  for sizes (see Overriding Sizes), so a class on the label, on a value, or on
+  a group pair's text sets its own, such as `font-weight-medium` from the
+  font-weight tokens.
+- A different weight changes the natural width of labels and values, so
+  changing an input at run time measures the layout again, as changing a
+  field's `column` or `span` does: a grid fits its columns again, and a
+  standalone row or field decides again whether its labels stack.
+
 ## Native And Custom Value Content
 
-The form-layout styles do not set control height, padding, typography,
-background, border, outline, or other presentation. Native controls, read-only
-values, custom components, and compound groups retain their own styles.
+Apart from the font weight of the value (see Font Weights), the form-layout
+styles do not set control height, padding, typography, background, border,
+outline, or other presentation. Native controls, read-only values, custom
+components, and compound groups retain their own styles.
 
 Set control sizing directly on the control, with a class such as `field-m`, or
 through the control component's own API.
@@ -819,6 +885,11 @@ The main field custom properties are:
 `--ims-form-grid-column-start`, `--ims-form-grid-column-track-span`,
 `--ims-form-label-grid-column`, and `--ims-form-value-grid-column` are internal
 placement properties and should not be set by consumers.
+
+`--ims-form-label-font-weight` and `--ims-form-value-font-weight`, set by the
+font-weight inputs, and `--ims-form-field-label-font-weight`, a field's resolved
+label weight, are internal too. Use the inputs, or a class on the label or
+value.
 
 ## Caveats And Constraints
 

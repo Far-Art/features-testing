@@ -3,21 +3,25 @@ import {
     Component,
     DestroyRef,
     ElementRef,
+    Injector,
     afterNextRender,
     computed,
+    effect,
     inject,
     input,
     numberAttribute,
-    signal
+    signal,
+    untracked
 } from '@angular/core';
 import {
     STACKED_ATTRIBUTE,
     SUBGRID_ATTRIBUTE,
-    layoutParent,
     observeInlineSize,
     overflowsInline
 } from './ims-form-field-fit';
+import {type ImsFormFieldFontWeight, fontWeightToken} from './ims-form-field-font-weight';
 import {type ImsFormFieldGrid, findLayoutGrid} from './ims-form-field-grid';
+import {type ImsFormFieldRow, findLayoutRow} from './ims-form-field-row';
 
 /** Monotonic id source for controls that need automatic label association. */
 let nextFormControlId = 0;
@@ -51,7 +55,9 @@ function formFieldSpanAttribute(value: number | string): ImsFormFieldSpan {
         '[style.--ims-form-grid-column-start]': 'gridColumn()',
         '[style.--ims-form-grid-column-track-span]': 'gridColumnTrackSpan()',
         '[style.--ims-form-label-grid-column]': 'labelGridColumn()',
-        '[style.--ims-form-value-grid-column]': 'valueGridColumn()'
+        '[style.--ims-form-value-grid-column]': 'valueGridColumn()',
+        '[style.--ims-form-label-font-weight]': 'labelFontWeightToken()',
+        '[style.--ims-form-value-font-weight]': 'valueFontWeightToken()'
     },
     changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -91,9 +97,14 @@ function formFieldSpanAttribute(value: number | string): ImsFormFieldSpan {
  *
  * Every `[imsFormFieldHint]` owned by this field describes the control the
  * main label names: its id is added to that control's `aria-describedby`.
+ *
+ * The main label is `bold` and the value `regular`, unless the field's
+ * `labelFontWeight` and `valueFontWeight`, or those of its row or grid, say
+ * otherwise. The field's own take precedence, then the row's, then the grid's.
  */
 export class ImsFormField {
     private readonly destroyRef = inject(DestroyRef);
+    private readonly injector = inject(Injector);
     private readonly hostElement: HTMLElement = inject(ElementRef).nativeElement;
     /** Watches dynamically added or removed projected labels and controls. */
     private contentObserver: MutationObserver | null = null;
@@ -101,6 +112,8 @@ export class ImsFormField {
     private stopObservingInlineSize: (() => void) | null = null;
     /** Grid that lays this field out, directly or through a row. */
     private layoutGrid: ImsFormFieldGrid | null = null;
+    /** Row outside any grid that lays this field out. */
+    private layoutRow: ImsFormFieldRow | null = null;
     /** Current direct child selected for the main label slot. */
     private mainLabel: HTMLElement | null = null;
     /** `for` value created by this component, used to distinguish it from consumer input. */
@@ -181,6 +194,39 @@ export class ImsFormField {
         transform: (value) => positiveInteger(value, null)
     });
     /**
+     * Font weight of the main label.
+     *
+     * Takes precedence over the `labelFontWeight` of the field's row and grid.
+     * Unset, the field takes the row's weight, then the grid's, and is
+     * otherwise `bold`. It also sets the texts of a direct wide stacked
+     * `ims-form-field-group`, which sit in the label track.
+     *
+     * @example
+     * ```html
+     * <ims-form-field labelFontWeight="regular">...</ims-form-field>
+     * <ims-form-field [labelFontWeight]="labelWeight">...</ims-form-field>
+     * ```
+     */
+    readonly labelFontWeight = input<ImsFormFieldFontWeight | null>(null);
+    /**
+     * Font weight of the main value, which its controls and text inherit.
+     *
+     * Takes precedence over the `valueFontWeight` of the field's row and grid.
+     * Unset, the field takes the row's weight, then the grid's, and is
+     * otherwise `regular`.
+     *
+     * @example
+     * ```html
+     * <ims-form-field valueFontWeight="bold">...</ims-form-field>
+     * <ims-form-field [valueFontWeight]="valueWeight">...</ims-form-field>
+     * ```
+     */
+    readonly valueFontWeight = input<ImsFormFieldFontWeight | null>(null);
+    /** CSS value of `labelFontWeight`, read by the field's styles. */
+    protected readonly labelFontWeightToken = computed(() => fontWeightToken(this.labelFontWeight()));
+    /** CSS value of `valueFontWeight`, read by the field's styles. */
+    protected readonly valueFontWeightToken = computed(() => fontWeightToken(this.valueFontWeight()));
+    /**
      * CSS grid placement for this field.
      *
      * Explicit columns take precedence over automatic placement supplied by
@@ -250,8 +296,8 @@ export class ImsFormField {
     /**
      * Initializes projected-content synchronization and, after rendering,
      * joins the grid that lays the field out, or measures label stacking for a
-     * field on its own. Removes observers and leaves the grid when the
-     * component is destroyed.
+     * field on its own, again whenever its font weights change. Removes
+     * observers and leaves the grid when the component is destroyed.
      */
     constructor() {
         afterNextRender(() => {
@@ -262,6 +308,13 @@ export class ImsFormField {
                 subtree: true
             });
             this.joinLayout();
+        });
+
+        // A grid tracks its fields' font weights itself.
+        effect(() => {
+            this.labelFontWeight();
+            this.valueFontWeight();
+            untracked(() => this.refit());
         });
 
         this.destroyRef.onDestroy(() => {
@@ -302,9 +355,9 @@ export class ImsFormField {
     }
 
     /**
-     * Joins the grid that lays this field out, directly or through a row, or
-     * keeps a field on its own stacked while it is too narrow for its label
-     * and value side by side.
+     * Joins the grid that lays this field out, directly or through a row,
+     * notes the standalone row that lays it out, or keeps a field on its own
+     * stacked while it is too narrow for its label and value side by side.
      *
      * The grid is found through the rendered layout rather than the template,
      * so an element with `display: contents` in between, such as the host of
@@ -321,10 +374,8 @@ export class ImsFormField {
             return;
         }
 
-        if (
-            layoutParent(this.hostElement)?.matches('ims-form-field-row') ||
-            this.hostElement.closest('ims-grid-cell')
-        ) {
+        this.layoutRow = findLayoutRow(this.hostElement);
+        if (this.layoutRow !== null || this.hostElement.closest('ims-grid-cell')) {
             return;
         }
 
@@ -336,6 +387,21 @@ export class ImsFormField {
             this.syncStacking();
         });
         this.syncStacking();
+    }
+
+    /**
+     * Measures label stacking again after a change that alters the field's
+     * natural width without resizing it, such as its font weights.
+     *
+     * A standalone row measures for its fields. A field in a grid is measured
+     * by the grid, and one in an `ims-grid` cell never stacks.
+     */
+    private refit(): void {
+        if (this.layoutRow !== null) {
+            this.layoutRow.refit();
+        } else if (this.stopObservingInlineSize !== null) {
+            afterNextRender(() => this.syncStacking(), {injector: this.injector});
+        }
     }
 
     /**

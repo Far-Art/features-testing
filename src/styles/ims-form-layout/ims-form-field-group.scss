@@ -132,6 +132,14 @@ ims-form-field-group {
         }
     }
 
+    // The texts of a wide stacked group sit in the label track, next to the
+    // labels of the fields around it, so they take the field's label weight
+    // rather than the value's. Low, like the main label's weight, so a class
+    // on a text sets its own.
+    :where(ims-form-field > &[data-wide][data-layout="stacked"] > label) > span {
+        font-weight: var(--ims-form-field-label-font-weight);
+    }
+
     // When the field stacks its label, the pairs stack their texts above their
     // controls, as the fields around them do.
     :is(ims-form-field[data-ims-stacked], ims-form-field-row[data-ims-stacked] > ims-form-field) > &[data-wide][data-layout="stacked"] > label {

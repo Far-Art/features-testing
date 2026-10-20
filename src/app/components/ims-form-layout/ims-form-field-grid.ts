@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import type {ImsFormField} from './ims-form-field';
 import {STACKED_ATTRIBUTE, layoutParent, observeInlineSize, overflowsInline} from './ims-form-field-fit';
+import {type ImsFormFieldFontWeight, fontWeightToken} from './ims-form-field-font-weight';
 
 /**
  * Grids by host element, so a field finds the grid that lays it out from the
@@ -21,7 +22,8 @@ import {STACKED_ATTRIBUTE, layoutParent, observeInlineSize, overflowsInline} fro
 const gridsByHost = new WeakMap<HTMLElement, ImsFormFieldGrid>();
 
 /**
- * Returns the grid that lays out a field, directly or through a row.
+ * Returns the grid that lays out a field, directly or through a row, or that
+ * lays out a row.
  *
  * An element with `display: contents` on the way, such as the host of a
  * component that only groups fields, is passed over, as the layout itself
@@ -55,7 +57,9 @@ function positiveNumber(value: number | string): number {
     host: {
         '[style.grid-template-columns]': 'columnTemplate()',
         '[style.--ims-form-column-gap]': 'columnGap()',
-        '[style.--ims-form-row-gap]': 'rowGap()'
+        '[style.--ims-form-row-gap]': 'rowGap()',
+        '[style.--ims-form-label-font-weight]': 'labelFontWeightToken()',
+        '[style.--ims-form-value-font-weight]': 'valueFontWeightToken()'
     },
     changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -83,6 +87,9 @@ function positiveNumber(value: number | string): number {
  * only the ones in its own template. A row or field inside an element with
  * `display: contents`, such as the host of a component that groups fields, is
  * laid out as if it were a direct child. Each field joins the grid itself.
+ *
+ * `labelFontWeight` and `valueFontWeight` set the font weights of every field
+ * inside the grid. A row's weights, and then a field's own, take precedence.
  */
 export class ImsFormFieldGrid {
     /**
@@ -156,6 +163,39 @@ export class ImsFormFieldGrid {
      */
     readonly rowGap = input('0.4rem');
     /**
+     * Font weight of the main label of every field inside the grid.
+     *
+     * A row's `labelFontWeight`, and then a field's own, take precedence.
+     * Unset, labels are `bold`. A field nested in another field's value, or a
+     * field in a nested grid, does not inherit it.
+     *
+     * @example
+     * ```html
+     * <ims-form-field-grid labelFontWeight="semibold">...</ims-form-field-grid>
+     * <ims-form-field-grid [labelFontWeight]="labelWeight">...</ims-form-field-grid>
+     * ```
+     */
+    readonly labelFontWeight = input<ImsFormFieldFontWeight | null>(null);
+    /**
+     * Font weight of the value of every field inside the grid, which its
+     * controls and text inherit.
+     *
+     * A row's `valueFontWeight`, and then a field's own, take precedence.
+     * Unset, values are `regular`. A field nested in another field's value, or
+     * a field in a nested grid, does not inherit it.
+     *
+     * @example
+     * ```html
+     * <ims-form-field-grid valueFontWeight="medium">...</ims-form-field-grid>
+     * <ims-form-field-grid [valueFontWeight]="valueWeight">...</ims-form-field-grid>
+     * ```
+     */
+    readonly valueFontWeight = input<ImsFormFieldFontWeight | null>(null);
+    /** CSS value of `labelFontWeight`, inherited by the fields inside the grid. */
+    protected readonly labelFontWeightToken = computed(() => fontWeightToken(this.labelFontWeight()));
+    /** CSS value of `valueFontWeight`, inherited by the fields inside the grid. */
+    protected readonly valueFontWeightToken = computed(() => fontWeightToken(this.valueFontWeight()));
+    /**
      * CSS track list applied to the host.
      *
      * Both modes use shared label/value pairs so the grid's fields and compound
@@ -215,15 +255,21 @@ export class ImsFormFieldGrid {
             this.scheduleLayout(true);
         });
 
+        // Font weights change the natural widths of labels and values, so they
+        // restart fitting like placement does.
         effect(() => {
             this.maximumAutomaticColumns();
             this.columns();
             this.columnDistribution();
+            this.labelFontWeight();
+            this.valueFontWeight();
             for (const field of this.fields()) {
                 field.column();
                 field.span();
                 field.labelSpan();
                 field.valueSpan();
+                field.labelFontWeight();
+                field.valueFontWeight();
             }
             this.scheduleLayout(true);
         }, {allowSignalWrites: true});
@@ -247,6 +293,14 @@ export class ImsFormFieldGrid {
     /** Removes a field that no longer takes part in this grid's layout. */
     removeField(field: ImsFormField): void {
         this.fields.update((fields) => fields.filter((current) => current !== field));
+    }
+
+    /**
+     * Fits the layout again after a change the grid does not track itself,
+     * such as the font weights of one of its rows.
+     */
+    requestLayout(): void {
+        this.scheduleLayout(true);
     }
 
     /** Coalesces responsive fitting and field placement. */

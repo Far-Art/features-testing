@@ -373,6 +373,63 @@
     </div>
 
     <div class="form-layout-demo__example">
+        <h2>משקל גופן של תווית וערך</h2>
+        <p class="form-layout-demo__hint">
+            כברירת מחדל התווית מודגשת והערך רגיל. labelFontWeight ו־valueFontWeight על ims-form-field-grid
+            חלים על כל השדות שבתוכו, על ims-form-field-row הם גוברים על הקבוצה, ועל ims-form-field בודד
+            הם גוברים על שניהם. כאן הקבוצה קובעת את משקל התוויות לפי הבחירה למטה, השורה השנייה מדגישה את
+            הערכים שלה, והשדה „סטטוס” קובע לעצמו תווית מודגשת וערך רגיל.
+        </p>
+
+        <ims-form-field>
+            <span imsFormFieldLabel>labelFontWeight של הקבוצה</span>
+            <ims-select class="field-s" ariaLabel="labelFontWeight של הקבוצה" [(ngModel)]="gridLabelFontWeight">
+                <ims-option value="regular" selectionText="regular">regular</ims-option>
+                <ims-option value="medium" selectionText="medium">medium</ims-option>
+                <ims-option value="semibold" selectionText="semibold">semibold</ims-option>
+                <ims-option value="bold" selectionText="bold">bold</ims-option>
+                <ims-option value="extrabold" selectionText="extrabold">extrabold</ims-option>
+            </ims-select>
+        </ims-form-field>
+
+        <ims-form-field-grid columns="3" [labelFontWeight]="gridLabelFontWeight">
+            <ims-form-field-row>
+                <ims-form-field column="1">
+                    <span imsFormFieldLabel>מספר פוליסה</span>
+                    <span dir="ltr">POL-2026-118</span>
+                </ims-form-field>
+
+                <ims-form-field column="2">
+                    <span imsFormFieldLabel>סוג ביטוח</span>
+                    <span>רכב מקיף</span>
+                </ims-form-field>
+
+                <ims-form-field column="3">
+                    <label for="demo-weight-note">הערה</label>
+                    <input imsInput id="demo-weight-note" value="ללא">
+                </ims-form-field>
+            </ims-form-field-row>
+
+            <ims-form-field-row valueFontWeight="bold">
+                <ims-form-field column="1">
+                    <span imsFormFieldLabel>פרמיה שנתית</span>
+                    <span>3,240 ₪</span>
+                </ims-form-field>
+
+                <ims-form-field column="2">
+                    <label for="demo-weight-vehicle">מספר רכב</label>
+                    <input imsInput id="demo-weight-vehicle" value="12-345-67" dir="ltr">
+                </ims-form-field>
+
+                <ims-form-field column="3" labelFontWeight="bold" valueFontWeight="regular">
+                    <span imsFormFieldLabel>סטטוס</span>
+                    <span>פעיל</span>
+                </ims-form-field>
+            </ims-form-field-row>
+        </ims-form-field-grid>
+    </div>
+
+    <div class="form-layout-demo__example">
         <h2>תווית לצד שדה גבוה</h2>
         <p class="form-layout-demo__hint">
             התווית ממורכזת בגובה של שדה רגיל, 26 פיקסלים. לצד שדה גבוה היא נשארת בראש השדה,

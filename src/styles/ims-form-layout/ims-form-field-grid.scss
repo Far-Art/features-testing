@@ -6,6 +6,10 @@ ims-form-field-grid {
     align-items: start;
     justify-content: stretch;
     min-width: 0;
+    // A nested grid is independent, so the font weights of a grid or row
+    // around it stop here. The grid's own inputs set them inline, which wins.
+    --ims-form-label-font-weight: initial;
+    --ims-form-value-font-weight: initial;
 
     > hr {
         grid-column: 1 / -1;

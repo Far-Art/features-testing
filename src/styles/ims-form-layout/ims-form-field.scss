@@ -1,12 +1,22 @@
 ims-form-field {
     --ims-form-field-gap: 0.3rem;
     --ims-form-field-stacked-gap: 0.25rem;
+    // A grid, row, or field passes its labelFontWeight and valueFontWeight
+    // down to the fields inside it, so the nearest one wins: the field's own,
+    // then its row's, then its grid's. The label weight is resolved here, on
+    // the field, so the texts of a wide stacked group in its value can still
+    // read it after the value stops the inherited weights (see below).
+    --ims-form-field-label-font-weight: var(--ims-form-label-font-weight, var(--ims-font-weight-bold));
 
     display: grid;
     grid-template-columns: max-content minmax(0, 1fr);
     column-gap: var(--ims-form-field-gap);
     align-items: start;
     min-width: 0;
+    // The value's weight, which its controls and text inherit. The label sets
+    // its own. At the specificity of the element name, so a class on the
+    // field, or on a value, sets its own.
+    font-weight: var(--ims-form-value-font-weight, var(--ims-font-weight-regular));
 
     // Only a grid, and a row inside one, share their tracks with the field. A
     // standalone row gives each field an automatic column of its own. A field
@@ -51,6 +61,11 @@ ims-form-field {
 
     > :not(label):not([imsFormFieldLabel]) {
         grid-column: var(--ims-form-value-grid-column, 2);
+        // A field nested in the value is not one of the fields the weights
+        // were set for, so it starts over from the defaults. Its own inputs
+        // set the weights inline on its host, which wins.
+        --ims-form-label-font-weight: initial;
+        --ims-form-value-font-weight: initial;
     }
 
     // A wide group takes the whole field. This follows the rule above, at the
@@ -80,6 +95,7 @@ ims-form-field {
     > :where(label, [imsFormFieldLabel]) {
         justify-self: start;
         letter-spacing: -0.2px;
+        font-weight: var(--ims-form-field-label-font-weight);
     }
 
     > :where(:not(label):not([imsFormFieldLabel])) {

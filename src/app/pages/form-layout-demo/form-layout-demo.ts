@@ -13,7 +13,8 @@ import {
     ImsFormFieldHint,
     ImsFormFieldInline,
     ImsFormFieldLabel,
-    ImsFormFieldRow
+    ImsFormFieldRow,
+    type ImsFormFieldFontWeight
 } from '../../components/ims-form-layout';
 import {
     ImsGrid,
@@ -104,6 +105,7 @@ export class FormLayoutDemo {
     termsAccepted = false;
     policyConfirmed = false;
     agentConsent = 'no';
+    gridLabelFontWeight: ImsFormFieldFontWeight = 'regular';
 
     get allChannelsSelected(): boolean {
         return Object.values(this.channels).every(Boolean);
