@@ -82,12 +82,14 @@ const output: IBaseOutput = {
   ],
 };
 
-dialog.info(output).title('Request result').open();
+dialog.danger(output).title('Request result').open();
 ```
 
 Result styling is derived from `resultCode`: `0` is informational and values
-below `0` are dangerous. A negative result also overrides the complete dialog
-chrome to the danger theme, regardless of which severity method opened it.
+below `0` are dangerous. That styling stays inside the result section. The
+dialog chrome, title, and icon always follow the severity method that opened
+it, so a negative result opened through `warning()` keeps the warning theme;
+call `danger()` when the result should read as an error.
 The code itself is always laid out left to right, so a negative code reads
 `-12` inside an RTL dialog as well.
 Message rows are copied and sorted by `level` in descending order before

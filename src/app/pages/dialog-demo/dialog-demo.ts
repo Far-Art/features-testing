@@ -1011,8 +1011,7 @@ export class DialogDemo {
         { level: 2, message: 'Review the effective date before trying again.' },
       ],
     };
-    const ref = this.dialog
-      .info(output)
+    const ref = (resultCode === 0 ? this.dialog.info(output) : this.dialog.danger(output))
       .title(resultCode === 0 ? 'Successful result output' : 'Failed result output')
       .withIcon(resultCode === 0 ? 'task_alt' : 'error')
       .config({ direction: 'ltr', width: 'min(38rem, calc(100vw - 2rem))' })

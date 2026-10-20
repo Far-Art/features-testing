@@ -15,7 +15,7 @@
   <button
     ims-button-icon
     class="ims-dialog__close"
-    [ims-button-severity]="effectiveSeverity"
+    [ims-button-severity]="config.severity"
     aria-label="Close dialog"
     (click)="close()"
   >
@@ -92,7 +92,7 @@
         <button
           ims-button
           ims-button-variation="secondary"
-          [ims-button-severity]="effectiveSeverity"
+          [ims-button-severity]="config.severity"
           (click)="reject()"
         >
           {{ config.confirmationLabels?.no }}
@@ -100,7 +100,7 @@
         <button
           ims-button
           ims-button-variation="primary"
-          [ims-button-severity]="effectiveSeverity"
+          [ims-button-severity]="config.severity"
           (click)="confirm()"
         >
           {{ config.confirmationLabels?.yes }}
@@ -109,7 +109,7 @@
         <button
           ims-button
           ims-button-variation="primary"
-          [ims-button-severity]="effectiveSeverity"
+          [ims-button-severity]="config.severity"
           (click)="close()"
         >
           {{ config.closeButtonLabel }}

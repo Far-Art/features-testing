@@ -94,8 +94,6 @@ export class ImsDialogShell {
     const content = this.config.content;
     return isBaseOutput(content) ? content : null;
   })();
-  readonly effectiveSeverity =
-    (this.baseOutput?.resultCode ?? 0) < 0 ? 'danger' : this.config.severity;
   // A row's level never changes, so its style and icon are resolved here once.
   // Resolving them per binding cost five calls per row on every check of this
   // view, and this view is checked whenever anything inside the dialog emits.
@@ -126,7 +124,7 @@ export class ImsDialogShell {
   readonly details = this.config.details;
 
   constructor() {
-    this.hostElement.nativeElement.classList.add(`ims-dialog--${this.effectiveSeverity}`);
+    this.hostElement.nativeElement.classList.add(`ims-dialog--${this.config.severity}`);
   }
 
   confirm(): void {
