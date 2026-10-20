@@ -153,7 +153,7 @@ export class ImsDialogService implements ImsDialogBuilderHost {
     // sideways inside it.
     const fitsContent = callerConfig.width === undefined;
     const maxWidth = insideSize
-      ? `${insideSize.width}px`
+      ? capToBoundary(callerConfig.maxWidth, insideSize.width)
       : coerceCssPixelValue(callerConfig.maxWidth ?? DEFAULT_MAX_WIDTH);
 
     const config: DialogConfig<unknown, DialogRef<unknown, ImsDialogShell>> = {
@@ -169,7 +169,7 @@ export class ImsDialogService implements ImsDialogBuilderHost {
           ? `min(${TEXT_MAX_WIDTH}, ${maxWidth})`
           : maxWidth,
       maxHeight: insideSize
-        ? `${insideSize.height}px`
+        ? capToBoundary(callerConfig.maxHeight, insideSize.height)
         : (callerConfig.maxHeight ?? 'calc(100vh - 2rem)'),
       positionStrategy: insideBoundary
         ? this.overlay
@@ -310,6 +310,22 @@ function keepCenteredOnBoundary(dialogRef: DialogRef<unknown, ImsDialogShell>): 
 
   observer.observe(pane);
   dialogRef.closed.subscribe(() => observer.disconnect());
+}
+
+/**
+ * Maximum size of an inside dialog along one axis: the room the boundary has,
+ * or the caller's maximum when that is smaller.
+ *
+ * Replacing the caller's value with the boundary would let a dialog meant to
+ * stop at, say, 20rem stretch to the full boundary whenever its `width` or
+ * `height` is a percentage.
+ */
+function capToBoundary(callerMax: number | string | undefined, boundary: number): string {
+  const boundaryMax = `${boundary}px`;
+
+  return callerMax === undefined
+    ? boundaryMax
+    : `min(${coerceCssPixelValue(callerMax)}, ${boundaryMax})`;
 }
 
 /**

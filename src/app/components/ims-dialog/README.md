@@ -291,7 +291,9 @@ An inside-boundary dialog:
 
 - Opens at the center of the matching element instead of the viewport.
 - Uses that element as its drag boundary.
-- Is capped to the boundary dimensions with a 1rem inset.
+- Is capped to the boundary dimensions with a 1rem inset. A `maxWidth` or
+  `maxHeight` from `config()` is capped by the boundary rather than replaced by
+  it, so a smaller caller maximum still holds.
 - Opens without a backdrop.
 - Repositions with the boundary when the page scrolls.
 - Re-centers on the boundary when its own size changes, such as when content
@@ -728,6 +730,12 @@ A `width` from `config()` fixes the width and drops the 30rem minimum. A
 `maxWidth` replaces the maximum, including the 42rem text limit, and a
 `minWidth` replaces the minimum. The default minimum never exceeds the maximum,
 so a smaller `maxWidth` or `inside()` boundary still holds.
+
+An `inside()` boundary replaces the viewport maximums with the boundary's
+dimensions. A `maxWidth` or `maxHeight` from `config()` is combined with them
+through `min()` rather than discarded, so `width: '100%'` with
+`maxWidth: '20rem'` opens 20rem wide inside a wider boundary and no wider than
+the boundary inside a narrower one.
 
 The no-op scroll strategy is intentional: CDK's default blocking strategy
 fixes the document root and can visibly shift page geometry, particularly in
