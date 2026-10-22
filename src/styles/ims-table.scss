@@ -162,6 +162,20 @@ ims-grid.ims-table-new {
     --ims-grid-column-gap: 0px;
 }
 
+// A cell holding a control keeps the control's minimum width (see
+// ims-grid-adapters.scss), and the frame clips, so the columns of a table
+// narrower than those minimums would be cut off at the frame, out of reach of
+// any scroll. A table with a control in it is never narrower than its columns'
+// minimums: it overflows its container instead, and a scrolling ancestor
+// scrolls it. Its text columns then stop at their longest word, as a native
+// table's do.
+ims-grid.ims-table-new:has(
+    ims-grid-cell > :is(.ims-input, .ims-input-host, .ims-autocomplete-host),
+    ims-grid-cell > ims-form-field > :is(.ims-input, .ims-input-host, .ims-autocomplete-host)
+) {
+    min-inline-size: min-content;
+}
+
 ims-grid-header[role='row'] {
     position: sticky;
     inset-block-start: var(--ims-table-sticky-offset);

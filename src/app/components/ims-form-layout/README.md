@@ -88,7 +88,8 @@ stretched grid or column flex item, it still fills the available width. As an
 item in a flex row it is only as wide as its label and value, so fields placed
 side by side in a flex row do not each take the full width. Set a width on the
 field or its container when it should grow. Inside an `ims-grid` cell the grid
-adapter sets `inline-size: 100%` itself.
+adapter sets `inline-size: 100%` itself, and a field holding a control keeps the
+control's minimum width, so the column cannot squeeze it out of sight.
 
 For a read-only value, mark a non-label element explicitly:
 

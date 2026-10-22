@@ -280,6 +280,13 @@ padding. When none of its columns can grow — all fixed widths, or
 header band and the separators still reach the frame. `.ims-table-new__cell--numeric` lines digits up with `tabular-nums`
 on the end edge, in a header cell too, sort header included.
 
+A control in an `ims-grid` cell fills its column unless it has a width of its
+own, and its column never gets narrower than the control's minimum width. A
+table holding one is never narrower than its columns' minimums either: it
+overflows its container, which should scroll it, rather than cutting columns off
+at its frame. Its text columns then stop at their longest word, as a native
+table's do.
+
 The header and footer are sticky. The table clips with `overflow: clip`, not
 `hidden`, so they pin to whatever scrolls around the table — the page
 included, where a footer sits at the window's bottom edge while the table's

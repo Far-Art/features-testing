@@ -62,9 +62,12 @@ appears once `options().length >= filterAutoMinOptions()` (default `15`), and
 the multi-select toolbar once `options().length >= toolbarAutoMinOptions()`
 (default `10`).
 
-The host sets no width of its own. A grid cell stretches it; in a block or flex
-container it sizes to its content, and a multiple select compacts its labels to
-that size. Give it a width with a sizing class, as any field takes one:
+The host sets no width of its own. A grid cell or a form field stretches it.
+Where nothing gives it a width — an automatic `ims-grid` column, a flex row, a
+line of text — it is as wide as a `field-m` field, whatever its value: the
+trigger never sizes from its content, so a multiple select compacting its labels
+cannot change the width it compacts them to. A narrower container still shrinks
+it, down to 3rem. Give it a width with a sizing class, as any field takes one:
 
 ```html
 <ims-select class="field-m" [formControl]="status">...</ims-select>
@@ -215,6 +218,8 @@ Import `ImsSelectDirective` next to `ReactiveFormsModule` or `FormsModule`;
   above it when less than 144px is left below. Hover, focus, invalid
   (`ng-invalid` lands on the select itself), disabled and readonly states come
   from the shared input styles. Size the field with the `field-*` classes.
+  Where nothing sizes or stretches it, the field is as wide as a `field-m`
+  field, as `ims-select` is, rather than as wide as the selected option.
 - **Placeholder.** A native select has no placeholder. Add an option the user
   cannot pick — `disabled`, `hidden`, or both — for the value that means
   "none"; while it is selected, the field shows it in the placeholder tone.

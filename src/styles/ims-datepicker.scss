@@ -18,6 +18,11 @@
 
   .ims-datepicker__input {
     flex: 1 1 auto;
+    // A percentage leaves the input's default width as the field's natural
+    // width, but takes it out of the field's minimum, which an input otherwise
+    // never goes below. A stretched datepicker can then be squeezed to the
+    // host's 10.5ch floor, as an automatic grid track needs it to be.
+    inline-size: 100%;
     min-inline-size: 0;
     padding-block: 0;
     // Padding only where the text sits. The input is ltr (below), so its

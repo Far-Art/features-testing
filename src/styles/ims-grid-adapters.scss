@@ -65,6 +65,48 @@ ims-grid ims-grid-cell ims-form-field {
 
     > :not(label):not([imsFormFieldLabel]) {
         inline-size: 100%;
+    }
+
+    // A control with an adjacent action, such as the datepicker, caps its own
+    // field so that the action fits beside it. A 100% cap would let the field
+    // take the whole track and push the action out of the cell's clip.
+    > :not(label):not([imsFormFieldLabel]):not(.ims-input-action) {
         max-inline-size: 100%;
     }
+}
+
+// A field's control keeps its minimum width, as a control placed straight in a
+// cell does (below): the value track stops at it instead of at nothing.
+ims-grid ims-grid-cell ims-form-field:has(> :is(.ims-input, .ims-input-host, .ims-autocomplete-host)) {
+    grid-template-columns:
+        var(--ims-grid-form-label-width, max-content)
+        minmax(min-content, 1fr);
+}
+
+// A control placed straight in a cell fills its column, as it does as the value
+// of an ims-form-field, unless it has a width of its own: a `field-*` class, or
+// one its component sets, such as the datepicker's. `:where()` keeps the rule at
+// zero specificity, so any of those wins. `.ims-autocomplete-host` is named for
+// ims-autocomplete-async, whose host is not an `.ims-input-host`.
+:where(ims-grid ims-grid-cell) > :where(.ims-input, .ims-input-host, .ims-autocomplete-host) {
+    inline-size: 100%;
+}
+
+// A cell lets its column shrink to nothing so that text can truncate, but a
+// control cut off by the cell's clip cannot be used. A cell holding one keeps
+// the control's minimum width instead, so a grid too narrow for its controls
+// overflows its container, and a scrolling ancestor scrolls it, rather than
+// hiding them.
+//
+// The clip stops at the cell's edges, which is where a control that fills the
+// cell draws its 3px focus halo. `clip` takes a margin, which lets the halo
+// through; a bare grid's 3px gutter is the room it takes. An ims-table pads its
+// cells instead, so there the halo is inside the clip anyway.
+ims-grid ims-grid-cell:has(
+    > :is(.ims-input, .ims-input-host, .ims-autocomplete-host),
+    > ims-form-field > :is(.ims-input, .ims-input-host, .ims-autocomplete-host)
+) {
+    min-width: min-content;
+    overflow: clip;
+    overflow-clip-margin: 3px;
 }

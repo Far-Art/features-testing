@@ -35,6 +35,14 @@
     // chevron keeps its overhang inside the content box as a margin, and the
     // end padding gives up the same amount, so it sits where ims-select's does.
     padding-inline-end: calc(0.65rem - var(--ims-native-select-chevron-overhang));
+    // Where nothing gives it a width, a medium field, border and padding
+    // included, as ims-select takes there. Left to its content, the field
+    // would follow the selected option: a stub while the placeholder shows,
+    // and a grid column that resizes with every pick.
+    contain: inline-size;
+    contain-intrinsic-inline-size: calc(
+      var(--field-width-m) - 1.3rem + var(--ims-native-select-chevron-overhang) - 2px
+    );
     align-items: center;
     gap: 0.5rem;
     cursor: pointer;

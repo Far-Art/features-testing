@@ -78,10 +78,18 @@
 }
 
 // Each trigger sizes itself from its field, never from its content, so it can
-// answer container queries about the room its own row has.
+// answer container queries about the room its own row has, and so fitting a
+// multiple value's labels to the trigger cannot widen the trigger it measured.
+//
+// The containment drops the content from the trigger's intrinsic width too, so
+// where nothing gives the field a width — an automatic ims-grid column, a flex
+// row, a line of text — it fell to its 3rem floor and showed only an ellipsis.
+// It takes a medium field's width there instead, border and padding included,
+// whatever the value. A narrower container still shrinks it to that floor.
 .ims-select__trigger,
 .ims-autocomplete__trigger {
     container-type: inline-size;
+    contain-intrinsic-inline-size: calc(var(--field-width-m) - 1.3rem - 2px);
 }
 
 // A trigger this narrow cannot show the mode icon, an overflow badge and a

@@ -2,6 +2,14 @@
 // summary, panel, filter, option rows, toolbar, readonly panel and the invalid
 // and readonly states — lives in ims-selection.scss.
 
+// A grid like ims-select's host. The zero track minimum lets a narrow container
+// shrink the field to its floor: the multi trigger's contained width would
+// otherwise make a medium field the least it can take.
+.ims-autocomplete-host {
+    display: inline-grid;
+    grid-template-columns: minmax(0, 1fr);
+}
+
 .ims-autocomplete {
     position: relative;
     inline-size: 100%;

@@ -370,6 +370,10 @@ provider (`ReadonlyDirective`).
 
 ## Multi-Select Display
 
+The multi trigger never sizes from its labels. Where nothing gives the field a
+width, it is as wide as a `field-m` field, as `ims-select` is; the single input
+keeps the browser's input width.
+
 Selected labels are compacted to fit the trigger: as many labels as fit are
 shown, followed by a `+N` badge. Widths are measured with hidden measuring
 elements and remeasured on resize (`ResizeObserver`) and on selection changes.
