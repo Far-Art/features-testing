@@ -6,6 +6,7 @@ import {
   ImsDialogMode,
   ImsDialogOpenOptions,
   ImsDialogSeverity,
+  ImsDialogTitleAlign,
 } from './ims-dialog.types';
 
 export interface ImsDialogBuilderHost {
@@ -28,6 +29,15 @@ export interface ImsDialogErrorBuilder {
    * @returns This builder for continued chaining.
    */
   title(text: string): ImsDialogErrorBuilder;
+
+  /**
+   * Aligns the generated title.
+   *
+   * @param align `'center'` centers the title text on the dialog width,
+   * with the icon kept at the inline start; `'start'` is the default.
+   * @returns This builder for continued chaining.
+   */
+  titleAlign(align: ImsDialogTitleAlign): ImsDialogErrorBuilder;
 
   /**
    * Adds an icon to the generated title.
@@ -84,6 +94,7 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
   private hasCustomData = false;
   private dialogConfig: ImsDialogConfig<unknown> = {};
   private dialogTitle = '';
+  private dialogTitleAlign: ImsDialogTitleAlign = 'start';
   private hasIcon = false;
   private materialIconName: string | null = null;
   private readonly detailLines: string[] = [];
@@ -144,6 +155,21 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
    */
   title(text: string): ImsDialogBuilder<C, Confirmation> {
     this.dialogTitle = text;
+    return this;
+  }
+
+  /**
+   * Aligns the generated title.
+   *
+   * The value is ignored when the supplied component renders its own
+   * `ims-dialog-title`; that title takes its `align` input instead.
+   *
+   * @param align `'center'` centers the title text on the dialog width,
+   * with the icon kept at the inline start; `'start'` is the default.
+   * @returns This builder for continued chaining.
+   */
+  titleAlign(align: ImsDialogTitleAlign): ImsDialogBuilder<C, Confirmation> {
+    this.dialogTitleAlign = align;
     return this;
   }
 
@@ -244,6 +270,7 @@ export class ImsDialogBuilder<C = unknown, Confirmation extends boolean = false>
       content: this.content,
       details: [...this.detailLines],
       title: this.dialogTitle,
+      titleAlign: this.dialogTitleAlign,
       iconRequested: this.hasIcon,
       iconName: this.materialIconName ?? this.defaultIconName,
       mode: this.dialogMode,

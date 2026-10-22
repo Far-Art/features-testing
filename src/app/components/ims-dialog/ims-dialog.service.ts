@@ -134,6 +134,7 @@ export class ImsDialogService implements ImsDialogBuilderHost {
       icon: options.iconRequested
         ? options.iconName
         : resolveDefaultIcon(options.severity, options.title, options.iconName),
+      titleAlign: options.titleAlign,
       confirmationLabels: options.confirmationLabels
         ? resolveConfirmationLabels(options.confirmationLabels)
         : null,

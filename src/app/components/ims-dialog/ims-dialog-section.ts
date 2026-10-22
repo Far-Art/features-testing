@@ -17,7 +17,11 @@ import {
   ImsReadonlyStateProvider,
 } from '../../shared/readonly.directive';
 import { ImsDialogSection, ImsDialogSectionRegistry } from './ims-dialog-section-registry';
-import { IMS_DIALOG_CONFIG, ImsDialogRuntimeConfig } from './ims-dialog.types';
+import {
+  IMS_DIALOG_CONFIG,
+  ImsDialogRuntimeConfig,
+  ImsDialogTitleAlign,
+} from './ims-dialog.types';
 
 @Directive()
 abstract class ImsDialogSectionBase implements OnInit, OnDestroy {
@@ -78,6 +82,7 @@ abstract class ImsDialogSectionBase implements OnInit, OnDestroy {
     class: 'ims-dialog-title',
     role: 'heading',
     '[attr.aria-level]': '2',
+    '[class.ims-dialog-title--center]': 'align() === "center"',
   },
 })
 export class ImsDialogTitle extends ImsDialogSectionBase {
@@ -87,6 +92,15 @@ export class ImsDialogTitle extends ImsDialogSectionBase {
    * @defaultValue `null`
    */
   readonly icon = input<string | null>(null);
+
+  /**
+   * Places the title text at the inline start of the row, or centers it on
+   * the full dialog width rather than on the room left beside the close X.
+   * The icon stays at the inline start either way.
+   *
+   * @defaultValue `'start'`
+   */
+  readonly align = input<ImsDialogTitleAlign>('start');
   protected readonly section = 'title' as const;
 }
 

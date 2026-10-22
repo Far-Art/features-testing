@@ -4,6 +4,8 @@ import { InjectionToken, Signal } from '@angular/core';
 
 export type ImsDialogSeverity = 'info' | 'success' | 'warning' | 'danger';
 export type ImsDialogMode = 'standard' | 'confirmation' | 'readonly' | 'confirmation-readonly';
+/** Inline placement of the title text and icon within the title row. */
+export type ImsDialogTitleAlign = 'start' | 'center';
 /** Structured, component, message, or text content accepted by dialog severity methods. */
 export type ImsDialogContentType<C = unknown> =
   | ComponentType<C>
@@ -52,6 +54,8 @@ export interface ImsDialogRuntimeConfig<D = unknown> {
   readonly content: ImsDialogContentType | null;
   readonly title: string;
   readonly icon: string | null;
+  /** Alignment of the generated title. */
+  readonly titleAlign: ImsDialogTitleAlign;
   readonly confirmationLabels: ImsDialogResolvedConfirmationLabels | null;
   /** Text of the generated Close action. */
   readonly closeButtonLabel: string;
@@ -67,6 +71,7 @@ export interface ImsDialogOpenOptions {
   readonly content: ImsDialogContentType | null;
   readonly details: readonly string[];
   readonly title: string;
+  readonly titleAlign: ImsDialogTitleAlign;
   readonly iconRequested: boolean;
   /** Icon shown in the generated title: the `withIcon()` name or the entrypoint default. */
   readonly iconName: string;

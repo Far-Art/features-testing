@@ -189,6 +189,23 @@
       </div>
       <button type="button" (click)="openDismissResult()">Write a note</button>
     </article>
+
+    <article class="dialog-demo-card dialog-demo-card--success">
+      <div class="dialog-demo-card__index">13</div>
+      <div class="dialog-demo-card__body">
+        <span class="dialog-demo-card__tag">Title alignment</span>
+        <h2>Centered title</h2>
+        <p>
+          The X overlays the title row, so a centered title centers on the dialog while its icon
+          stays at the start. Generated through the builder or projected.
+        </p>
+        <code>.titleAlign('center') · align="center"</code>
+      </div>
+      <div class="dialog-demo-card__actions">
+        <button type="button" (click)="openCenteredTitle('generated')">Generated</button>
+        <button type="button" (click)="openCenteredTitle('projected')">Projected</button>
+      </div>
+    </article>
   </section>
 
   <app-dialog-inside-playground (dialogClosed)="lastEvent.set($event)" />

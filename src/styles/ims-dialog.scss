@@ -71,16 +71,25 @@ ims-dialog-shell.ims-dialog {
   color: var(--ims-color-on-surface);
 }
 
+// The close X shares the title area instead of owning a column beside it. A
+// column of its own left the title a cell narrower than the surface, so a
+// centered title was centered on that cell and sat off the dialog's middle.
+// Sharing the area gives the title the full width; the title keeps the X's
+// footprint clear with padding instead. The reserve is the X, its margin and
+// the gap before it — the room the old column and the title's end padding took
+// together, so a start-aligned title sits where it always did.
 .ims-dialog__surface {
+  --ims-dialog-close-reserve: calc(var(--field-height) + 1rem + 0.75rem);
+
   position: relative;
   display: grid;
   box-sizing: border-box;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
-    'title close'
-    'toolbar toolbar'
-    'content content'
-    'actions actions';
+    'title'
+    'toolbar'
+    'content'
+    'actions';
   grid-template-rows: auto auto minmax(0, 1fr) auto;
   width: 100%;
   overflow: hidden;
@@ -104,18 +113,45 @@ ims-dialog-shell.ims-dialog {
 }
 
 .ims-dialog-title__inner {
+  --ims-dialog-title-inset: 1.25rem;
+
   display: flex;
   align-items: center;
   gap: 0.625rem;
   min-height: 2rem;
   padding-block: 0.75rem 0.625rem;
-  padding-inline: 1.25rem 0.75rem;
+  padding-inline: var(--ims-dialog-title-inset) var(--ims-dialog-close-reserve);
   cursor: grab;
   user-select: none;
 }
 
 .ims-dialog-title__inner:active {
   cursor: grabbing;
+}
+
+// A centered title centers its text on the surface while the icon keeps its
+// place at the inline start. The outer tracks share the leftover width equally,
+// which centers the middle one, and each has a floor — the icon at the start,
+// the X's reserve at the end — so a title too long to center gives way on the
+// side that needs the room and truncates before reaching either. The inset and
+// the row gap are the same on both sides so they do not shift the center; the
+// end track's floor takes them out of the reserve. The gap stays a gap rather
+// than a margin on the icon: the icon font sets `direction: ltr`, so its
+// logical margins would land on the wrong side in an RTL dialog.
+.ims-dialog-title--center .ims-dialog-title__inner {
+  display: grid;
+  grid-template-columns:
+    1fr
+    minmax(0, max-content)
+    minmax(
+      calc(var(--ims-dialog-close-reserve) - var(--ims-dialog-title-inset) - 0.625rem),
+      1fr
+    );
+  padding-inline: var(--ims-dialog-title-inset);
+}
+
+.ims-dialog-title--center .ims-dialog-title__text {
+  grid-column: 2;
 }
 
 .ims-dialog-title__icon {
@@ -160,10 +196,11 @@ ims-dialog-shell.ims-dialog {
 
 // Appearance and interaction come from `.ims-button` / `.ims-button-icon`
 // via the ims-button-icon directive; only grid placement and sizing that
-// are specific to the dialog layout stay here.
+// are specific to the dialog layout stay here. It overlays the inline end of
+// the title area, above the title's drag handle.
 .ims-dialog__close {
   z-index: 1;
-  grid-area: close;
+  grid-area: title;
   align-self: center;
   justify-self: end;
   margin-inline-end: 1rem;
@@ -392,7 +429,7 @@ ims-dialog-shell.ims-dialog {
 
 @media (max-width: 36rem) {
   .ims-dialog-title__inner {
-    padding-inline-start: 1rem;
+    --ims-dialog-title-inset: 1rem;
   }
 
   .ims-dialog-content {

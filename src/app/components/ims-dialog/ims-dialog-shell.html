@@ -5,7 +5,7 @@
   [cdkDragBoundary]="config.dragBoundary"
 >
   @if (!sections.hasTitle() && (config.title || config.icon)) {
-    <ims-dialog-title [generated]="true" [icon]="config.icon">
+    <ims-dialog-title [generated]="true" [icon]="config.icon" [align]="config.titleAlign">
       {{ config.title }}
     </ims-dialog-title>
   } @else if (!sections.hasTitle()) {

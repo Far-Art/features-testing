@@ -503,6 +503,24 @@ export class DialogNoteContent implements ImsDialogOnDismiss<NoteDialogResult> {
 }
 
 @Component({
+  selector: 'app-dialog-centered-title-content',
+  standalone: true,
+  imports: [ImsDialogContent, ImsDialogTitle],
+  template: `
+    <ims-dialog-title align="center" icon="verified">Policy renewed</ims-dialog-title>
+
+    <ims-dialog-content>
+      <p>
+        This title is projected by the component with <code>align="center"</code>. It centers on
+        the dialog width, not on the space left beside the X.
+      </p>
+    </ims-dialog-content>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class DialogCenteredTitleContent {}
+
+@Component({
   selector: 'app-dialog-toolbar-content',
   standalone: true,
   imports: [ImsDialogContent, ImsDialogTitle, ImsDialogToolbar],
@@ -921,6 +939,23 @@ export class DialogDemo {
           ? `Note dialog returned ${result.status}: "${result.note}".`
           : 'Note dialog closed without a result.',
       );
+    });
+  }
+
+  openCenteredTitle(source: 'generated' | 'projected'): void {
+    const config = { direction: 'ltr', width: 'min(30rem, calc(100vw - 2rem))' } as const;
+    const ref =
+      source === 'generated'
+        ? this.dialog
+            .success('The renewal was saved and the customer was notified.')
+            .title('Policy renewed')
+            .titleAlign('center')
+            .config(config)
+            .open()
+        : this.dialog.success(DialogCenteredTitleContent).config(config).open();
+
+    ref.closed.subscribe(() => {
+      this.lastEvent.set(`Centered ${source} title dialog closed.`);
     });
   }
 

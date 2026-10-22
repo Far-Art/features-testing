@@ -152,6 +152,7 @@ a result, so `error()` returns the reduced `ImsDialogErrorBuilder` surface:
 dialog
   .error(value)
   .title(text)
+  .titleAlign(align)
   .withIcon(name?)
   .withDetails(...lines)
   .inside(className)
@@ -220,6 +221,30 @@ call still has a title row:
 
 `title('')` removes the default. Without a title, and without `withIcon()`, the
 shell renders only its small drag strip above the content.
+
+### `titleAlign(align)`
+
+Aligns the generated title. `'start'` is the default; `'center'` centers the
+title text on the full dialog width. The icon stays at the inline start in both
+cases.
+
+```ts
+dialog.danger().title('Delete item?').titleAlign('center').asConfirmation('yes_no').open();
+```
+
+The X close control overlays the inline end of the title row rather than taking
+a column of its own, and the title keeps the X's width clear at its end. A
+centered title is centered on the dialog, not on the space left beside the X
+or after the icon. When it is too long to center without reaching the icon or
+the X, it moves off center as far as it needs to, then truncates before
+either.
+
+The value only applies to the generated title. A component-provided
+`ims-dialog-title` takes its own `align` input:
+
+```html
+<ims-dialog-title align="center" icon="manage_accounts">Edit profile</ims-dialog-title>
+```
 
 ### `withIcon(materialSymbolName?)`
 
@@ -438,6 +463,9 @@ The package exports four standalone projection components:
 <ims-dialog-actions>Footer actions</ims-dialog-actions>
 ```
 
+`ims-dialog-title` takes an optional `icon` and an `align` of `'start'` (the
+default) or `'center'`; see [`titleAlign(align)`](#titlealignalign).
+
 Import the components used by the supplied standalone component.
 
 ```ts
@@ -484,13 +512,15 @@ and composes the final layout without recreating that component.
 2. If `ims-dialog-content` is supplied, the neutral shell wrapper is flattened
    with `display: contents`; the caller's content component is the only
    `ims-dialog-content` in the rendered structure.
-3. A custom title suppresses the builder-generated title and icon.
+3. A custom title suppresses the builder-generated title, icon, and title
+   alignment.
 4. A custom actions section suppresses the generated actions section. Without
    one, the shell always generates `ims-dialog-actions`; confirmation and
    read-only modes populate it with their default controls.
 5. Toolbars are caller-projected only and occupy a full-width row beneath the
    title. The shell keeps its X close control at the inline end of the title
-   row.
+   row, overlaying the title area; the title reserves the X's width with
+   padding.
 6. Multiple custom sections of the same type are allowed, although normal
    usage should provide at most one title, content section, and action section.
 
@@ -690,7 +720,9 @@ The stylesheet provides:
 - Info, success, warning, and danger accent tokens.
 - Responsive width and viewport-height constraints.
 - Logical properties for LTR and RTL layouts.
-- Title, toolbar, content, and action grid areas.
+- Title, toolbar, content, and action grid areas. The X close control shares
+  the title area; `--ims-dialog-close-reserve` on `.ims-dialog__surface` is the
+  space the title keeps clear for it.
 - Focus-visible states and reduced-motion behavior.
 - Overlay elevation and entry animation.
 

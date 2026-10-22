@@ -27,4 +27,5 @@ export type {
   ImsDialogResolvedConfirmationLabels,
   ImsDialogRuntimeConfig,
   ImsDialogSeverity,
+  ImsDialogTitleAlign,
 } from './ims-dialog.types';
