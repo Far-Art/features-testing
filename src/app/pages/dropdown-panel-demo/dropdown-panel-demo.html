@@ -1,0 +1,156 @@
+<header class="dropdown-panel-demo-heading">
+    <h1>חלוניות נפתחות</h1>
+    <p>
+        <code>imsDropdownPanel</code> פותח חלונית מתחת לכפתור בלחיצה, כמו תפריט נפתח, ומרנדר
+        בתוכה תבנית או רכיב שמעבירים לו. החלונית נסגרת בלחיצה על הכפתור, בלחיצה בחוץ, ב־<kbd>Esc</kbd>,
+        ביציאה ממנה ב־<kbd>Tab</kbd>, או כשהתוכן סוגר אותה בעצמו עם תוצאה.
+    </p>
+</header>
+
+<section class="dropdown-panel-demo">
+    <div class="dropdown-panel-demo__description">
+        <h2>חלונית עם תבנית</h2>
+        <p>
+            התבנית מקבלת את החלונית הפתוחה כהקשר — <code>let-panel</code> — ו־<code>panel.close(result)</code>
+            סוגר אותה ומחזיר את התוצאה דרך <code>imsDropdownPanelClosed</code>. סגירה בלי תוצאה מחזירה
+            <code>undefined</code>.
+        </p>
+    </div>
+
+    <div class="dropdown-panel-demo__row">
+        <button
+            ims-button
+            [imsDropdownPanel]="actionsMenu"
+            (imsDropdownPanelClosed)="onActionClosed($event)"
+        >
+            פעולות
+            <ims-icon class="ims-button__symbol">expand_more</ims-icon>
+        </button>
+
+        <span class="dropdown-panel-demo__result">
+            פעולה אחרונה: {{ lastAction() ?? 'עדיין לא נבחרה' }}
+        </span>
+    </div>
+
+    <ng-template #actionsMenu let-panel>
+        <div class="dropdown-panel-demo__menu">
+            <button class="dropdown-panel-demo__menu-item" type="button" (click)="panel.close('שכפול')">
+                <ims-icon>content_copy</ims-icon>
+                שכפול פוליסה
+            </button>
+            <button class="dropdown-panel-demo__menu-item" type="button" (click)="panel.close('העברה')">
+                <ims-icon>drive_file_move</ims-icon>
+                העברה לסוכן אחר
+            </button>
+            <button class="dropdown-panel-demo__menu-item" type="button" (click)="panel.close('ארכוב')">
+                <ims-icon>archive</ims-icon>
+                העברה לארכיון
+            </button>
+        </div>
+    </ng-template>
+</section>
+
+<section class="dropdown-panel-demo">
+    <div class="dropdown-panel-demo__description">
+        <h2>חלונית עם רכיב</h2>
+        <p>
+            אותה הנחיה מקבלת גם טיפוס של רכיב, עם <code>imsDropdownPanelInputs</code> לקלטים שלו. הרכיב
+            מזריק <code>ImsDropdownPanelRef</code> וסוגר דרכו את החלונית עם הסינון שנבחר. הבחירה בתוך
+            החלונית נפתחת מעליה, ולחיצה על אפשרות בה אינה נחשבת לחיצה בחוץ.
+        </p>
+    </div>
+
+    <div class="dropdown-panel-demo__row">
+        <button
+            ims-button
+            ims-button-variation="outline"
+            imsDropdownPanelAriaLabel="סינון חיובים"
+            [imsDropdownPanel]="filterPanel"
+            [imsDropdownPanelInputs]="{year: filter().year, includeCancelled: filter().includeCancelled}"
+            (imsDropdownPanelClosed)="onFilterClosed($event)"
+        >
+            <ims-icon class="ims-button__symbol">filter_alt</ims-icon>
+            סינון
+        </button>
+
+        <span class="dropdown-panel-demo__result">
+            שנת {{ filter().year }}{{ filter().includeCancelled ? ', כולל חיובים שבוטלו' : '' }}
+        </span>
+    </div>
+</section>
+
+<section class="dropdown-panel-demo">
+    <div class="dropdown-panel-demo__description">
+        <h2>מיקום ויישור</h2>
+        <p>
+            <code>imsDropdownPanelPosition</code> בוחר צד — <code>below</code>, <code>above</code>,
+            <code>before</code> או <code>after</code> — ו־<code>imsDropdownPanelAlign</code> את הקצה של
+            הכפתור שהחלונית מתיישרת אליו. בלי מקום בצד שנבחר החלונית עוברת לצד הנגדי, ובלי מקום לאורכו היא
+            מחליקה עד שהיא נכנסת.
+        </p>
+    </div>
+
+    <div class="dropdown-panel-demo__row">
+        @for (placement of placements; track placement.label) {
+            <button
+                ims-button
+                [imsDropdownPanel]="placementInfo"
+                [imsDropdownPanelPosition]="placement.position"
+                [imsDropdownPanelAlign]="placement.align"
+            >
+                {{ placement.label }}
+            </button>
+
+            <ng-template #placementInfo>
+                <p class="dropdown-panel-demo__panel-text">
+                    <code>{{ placement.position }}</code> · <code>{{ placement.align }}</code>
+                </p>
+            </ng-template>
+        }
+    </div>
+
+    <div class="dropdown-panel-demo__row">
+        <button
+            ims-button
+            class="dropdown-panel-demo__wide-trigger"
+            imsDropdownPanelMatchWidth
+            [imsDropdownPanel]="matchWidthInfo"
+        >
+            החלונית רחבה לפחות כמו הכפתור
+        </button>
+
+        <ng-template #matchWidthInfo>
+            <p class="dropdown-panel-demo__panel-text">
+                <code>imsDropdownPanelMatchWidth</code>
+            </p>
+        </ng-template>
+    </div>
+</section>
+
+<section class="dropdown-panel-demo">
+    <div class="dropdown-panel-demo__description">
+        <h2>עיצוב משלכם</h2>
+        <p>
+            לחלונית קו דק, מילוי אחיד וצל עדין. <code>imsDropdownPanelClass</code> מוסיף מחלקה
+            למשטח, ודרכה הדף מגדיר את משתני העיצוב של החלונית — גם את הצל, או
+            <code>none</code> כדי להסיר אותו.
+        </p>
+    </div>
+
+    <div class="dropdown-panel-demo__row">
+        <button
+            ims-button
+            imsDropdownPanelClass="dropdown-panel-demo-raised"
+            [imsDropdownPanel]="raisedInfo"
+        >
+            חלונית מוגבהת
+        </button>
+
+        <ng-template #raisedInfo let-panel>
+            <p class="dropdown-panel-demo__panel-text">
+                פינות מעוגלות יותר, מסגרת בגוון מידע וצל עמוק יותר שהדף הגדיר.
+            </p>
+            <button ims-button ims-button-variation="primary" (click)="panel.close()">הבנתי</button>
+        </ng-template>
+    </div>
+</section>

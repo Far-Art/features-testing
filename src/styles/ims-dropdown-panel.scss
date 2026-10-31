@@ -1,0 +1,93 @@
+// The panel surface, painted by ImsDropdownPanelSurface.
+//
+// Global for the same reason ims-popover.scss is: this renders in the CDK
+// overlay container, outside every component's host.
+//
+// A hairline border, a solid fill, and one subtle shadow that lifts the panel off
+// the page it covers. The shadow is a single small layer and there is no
+// backdrop blur, because the target machines render on the CPU. The custom
+// properties below are the whole styling API; set them on a class passed in
+// `imsDropdownPanelClass` to restyle a panel without restating its rules, and
+// `--ims-dropdown-panel-shadow: none` to make it flat.
+.ims-dropdown-panel {
+    --ims-dropdown-panel-fill: var(--ims-background-panel);
+    --ims-dropdown-panel-border: var(--ims-color-border-subtle);
+    --ims-dropdown-panel-color: var(--ims-color-on-surface);
+    --ims-dropdown-panel-radius: 0.5rem;
+    --ims-dropdown-panel-padding: 0.5rem;
+    --ims-dropdown-panel-shadow: 0 0.25rem 0.75rem
+        color-mix(in srgb, var(--ims-color-primary-950) 10%, transparent);
+
+    display: block;
+    // The CDK pane is a flex row, and imsDropdownPanelMatchWidth sets its
+    // min-width. Growing is what lets the surface reach that width instead of
+    // stopping at its content's.
+    flex-grow: 1;
+    box-sizing: border-box;
+    max-inline-size: calc(100vw - 16px);
+    // The panel scrolls rather than leaving the viewport. 16px is the overlay's
+    // 8px viewport margin on each side.
+    max-block-size: calc(100vh - 16px);
+    overflow: auto;
+    padding: var(--ims-dropdown-panel-padding);
+    border: 1px solid var(--ims-dropdown-panel-border);
+    border-radius: var(--ims-dropdown-panel-radius);
+    background: var(--ims-dropdown-panel-fill);
+    color: var(--ims-dropdown-panel-color);
+    box-shadow: var(--ims-dropdown-panel-shadow);
+    // Same curve as the popover, for the reason given in ims-tooltip/README.md:
+    // it arrives with velocity instead of crawling into its final frame.
+    animation: ims-dropdown-panel-enter 160ms cubic-bezier(0.1, 0.5, 0.5, 0.9);
+}
+
+// Focus lands on the panel itself only when its content holds nothing to tab
+// to. It is not a control, so it shows no ring.
+.ims-dropdown-panel:focus {
+    outline: none;
+}
+
+// Duration must match LEAVE_DURATION_MS in ims-dropdown-panel.directive.ts.
+// `pointer-events` goes off for the fade: a panel on its way out must not
+// swallow the click that is already heading for whatever is behind it.
+.ims-dropdown-panel--leaving {
+    pointer-events: none;
+    animation: ims-dropdown-panel-leave 120ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+// The CDK writes a transform-origin matching the side the panel landed on, so
+// the scale grows out of the trigger's edge. Declaring one here would break it.
+@keyframes ims-dropdown-panel-enter {
+    from {
+        opacity: 0;
+        transform: scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes ims-dropdown-panel-leave {
+    from {
+        opacity: 1;
+        transform: none;
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.985);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ims-dropdown-panel {
+        animation: none;
+    }
+
+    // Shortened rather than removed: the detach is on a timer either way, and
+    // without a leave the panel would sit at full opacity until it fires.
+    .ims-dropdown-panel--leaving {
+        animation-duration: 1ms;
+    }
+}

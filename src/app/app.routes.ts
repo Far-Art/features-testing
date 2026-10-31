@@ -117,6 +117,13 @@ export const routes: Routes = [
             import('./pages/panel-demo/panel-demo').then((module) => module.PanelDemo)
     },
     {
+        path: 'dropdown-panel',
+        loadComponent: () =>
+            import('./pages/dropdown-panel-demo/dropdown-panel-demo').then(
+                (module) => module.DropdownPanelDemo
+            )
+    },
+    {
         path: 'tooltip',
         loadComponent: () =>
             import('./pages/tooltip-demo/tooltip-demo').then((module) => module.TooltipDemo)
