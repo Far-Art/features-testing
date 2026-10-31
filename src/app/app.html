@@ -3,78 +3,36 @@
         <a class="demo-shell__brand" routerLink="/forms">IMS Components</a>
 
         <nav class="demo-shell__nav" aria-label="ניווט בין דפי הדגמה">
-            <a routerLink="/forms" routerLinkActive="demo-shell__link--active">
-                טפסים וטבלה
-            </a>
-            <a routerLink="/selection" routerLinkActive="demo-shell__link--active">
-                בחירה והשלמה
-            </a>
-            <a routerLink="/radio" routerLinkActive="demo-shell__link--active">
-                כפתורי בחירה
-            </a>
-            <a routerLink="/toggle-switch" routerLinkActive="demo-shell__link--active">
-                מתגי בחירה
-            </a>
-            <a routerLink="/checkbox" routerLinkActive="demo-shell__link--active">
-                תיבות סימון
-            </a>
-            <a routerLink="/buttons" routerLinkActive="demo-shell__link--active">
-                כפתורים
-            </a>
-            <a routerLink="/scroll-container" routerLinkActive="demo-shell__link--active">
-                גלילה
-            </a>
-            <a routerLink="/datepicker" routerLinkActive="demo-shell__link--active">
-                תאריכים
-            </a>
-            <a routerLink="/error-popover" routerLinkActive="demo-shell__link--active">
-                שגיאות
-            </a>
-            <a routerLink="/snackbar" routerLinkActive="demo-shell__link--active">
-                הודעות
-            </a>
-            <a routerLink="/dialog" routerLinkActive="demo-shell__link--active">
-                דיאלוגים
-            </a>
-            <a routerLink="/dock" routerLinkActive="demo-shell__link--active">
-                סרגל הפעלה
-            </a>
-            <a routerLink="/process-toolbar" routerLinkActive="demo-shell__link--active">
-                סרגל תהליך
-            </a>
-            <a routerLink="/table" routerLinkActive="demo-shell__link--active">
-                טבלאות
-            </a>
-            <a routerLink="/panel" routerLinkActive="demo-shell__link--active">
-                פאנלים
-            </a>
-            <a routerLink="/dropdown-panel" routerLinkActive="demo-shell__link--active">
-                חלוניות נפתחות
-            </a>
-            <a routerLink="/tooltip" routerLinkActive="demo-shell__link--active">
-                הסברים וחלוניות
-            </a>
-            <a routerLink="/icons" routerLinkActive="demo-shell__link--active">
-                אייקונים
-            </a>
-            <a routerLink="/pattern" routerLinkActive="demo-shell__link--active">
-                תבניות קלט
-            </a>
-            <a routerLink="/format" routerLinkActive="demo-shell__link--active">
-                פורמט מספרים
-            </a>
-            <a routerLink="/text-truncate" routerLinkActive="demo-shell__link--active">
-                קיצור טקסט
-            </a>
-            <a routerLink="/readonly" routerLinkActive="demo-shell__link--active">
-                Readonly
-            </a>
-            <a routerLink="/focus-mode" routerLinkActive="demo-shell__link--active">
-                מצב מיקוד
-            </a>
-            <a routerLink="/component-states" routerLinkActive="demo-shell__link--active">
-                מצבי רכיבים
-            </a>
+            <div class="demo-shell__menu-bar" cdkMenuBar>
+                @for (category of categories; track category.label) {
+                    <button
+                        type="button"
+                        class="demo-shell__category"
+                        [class.demo-shell__category--active]="category.active()"
+                        cdkMenuItem
+                        [cdkMenuTriggerFor]="categoryMenu"
+                    >
+                        {{ category.label }}
+                        <ims-icon class="demo-shell__category-chevron" [size]="18">expand_more</ims-icon>
+                    </button>
+
+                    <ng-template #categoryMenu>
+                        <div class="demo-shell__menu" cdkMenu>
+                            @for (link of category.links; track link.path) {
+                                <a
+                                    class="demo-shell__menu-link"
+                                    cdkMenuItem
+                                    [routerLink]="link.path"
+                                    routerLinkActive="demo-shell__menu-link--active"
+                                    ariaCurrentWhenActive="page"
+                                >
+                                    {{ link.label }}
+                                </a>
+                            }
+                        </div>
+                    </ng-template>
+                }
+            </div>
         </nav>
     </header>
 

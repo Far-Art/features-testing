@@ -29,36 +29,94 @@
     white-space: nowrap;
 }
 
-.demo-shell__nav {
+.demo-shell__menu-bar {
     display: flex;
     flex-wrap: wrap;
     gap: 0.35rem;
 }
 
-.demo-shell__nav a {
-    padding: 0.55rem 0.85rem;
+.demo-shell__category {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    padding-block: 0.55rem;
+    padding-inline: 0.85rem 0.6rem;
     color: #52627d;
-    border-radius: 999px;
+    font: inherit;
     font-weight: var(--ims-font-weight-semibold);
-    text-decoration: none;
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
     transition:
         color 140ms ease,
         background-color 140ms ease,
         box-shadow 140ms ease;
 }
 
-.demo-shell__nav a:hover {
+.demo-shell__category:hover,
+.demo-shell__category[aria-expanded='true'] {
     color: #174f8a;
     background: #edf6ff;
 }
 
-.demo-shell__nav a.demo-shell__link--active {
+.demo-shell__category.demo-shell__category--active {
     color: #fff;
     background: #1769aa;
     box-shadow: 0 6px 16px rgba(23, 105, 170, 0.22);
 }
 
-.demo-shell__nav a:focus-visible,
+.demo-shell__category.demo-shell__category--active:hover,
+.demo-shell__category.demo-shell__category--active[aria-expanded='true'] {
+    background: #135d98;
+}
+
+.demo-shell__category-chevron {
+    transition: transform 140ms ease;
+}
+
+.demo-shell__category[aria-expanded='true'] .demo-shell__category-chevron {
+    transform: rotate(180deg);
+}
+
+.demo-shell__menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 12rem;
+    margin-block-start: 0.4rem;
+    padding: 0.35rem;
+    background: #fff;
+    border: 1px solid #d7dce4;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(32, 51, 84, 0.14);
+}
+
+.demo-shell__menu-link {
+    padding: 0.55rem 0.75rem;
+    color: #52627d;
+    border-radius: 8px;
+    font-weight: var(--ims-font-weight-semibold);
+    text-decoration: none;
+    outline: none;
+}
+
+.demo-shell__menu-link:hover,
+.demo-shell__menu-link:focus-visible {
+    color: #174f8a;
+    background: #edf6ff;
+}
+
+.demo-shell__menu-link.demo-shell__menu-link--active {
+    color: #fff;
+    background: #1769aa;
+}
+
+.demo-shell__menu-link:focus-visible {
+    box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.25);
+}
+
+.demo-shell__category:focus-visible,
 .demo-shell__brand:focus-visible {
     outline: 3px solid rgba(23, 105, 170, 0.25);
     outline-offset: 2px;
@@ -81,8 +139,8 @@
         width: 100%;
     }
 
-    .demo-shell__nav a {
+    .demo-shell__category {
         flex: 1 1 auto;
-        text-align: center;
+        justify-content: center;
     }
 }
