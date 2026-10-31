@@ -1,0 +1,152 @@
+// Unencapsulated, so every selector carries the page's prefix — see the
+// component for why.
+
+.dropdown-panel-demo-heading {
+    margin-block-end: 1.5rem;
+}
+
+.dropdown-panel-demo-heading h1,
+.dropdown-panel-demo-heading p {
+    margin: 0;
+}
+
+.dropdown-panel-demo-heading p {
+    max-inline-size: 46rem;
+    margin-block-start: 0.5rem;
+    color: var(--ims-color-on-surface-muted);
+}
+
+.dropdown-panel-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-block: 1.5rem;
+    border-block-end: 1px solid var(--ims-color-border-subtle);
+}
+
+.dropdown-panel-demo:last-of-type {
+    border-block-end: none;
+}
+
+.dropdown-panel-demo__description h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+    font-weight: var(--ims-font-weight-semibold);
+    color: var(--ims-color-on-surface);
+}
+
+.dropdown-panel-demo__description p {
+    margin: 0;
+    max-inline-size: 46rem;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--ims-color-on-surface-muted);
+}
+
+.dropdown-panel-demo code,
+.dropdown-panel-demo-heading code,
+.dropdown-panel-demo__panel-text code {
+    direction: ltr;
+    unicode-bidi: isolate;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.85em;
+}
+
+.dropdown-panel-demo__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.dropdown-panel-demo__result {
+    font-size: 0.875rem;
+    color: var(--ims-color-on-surface-muted);
+}
+
+.dropdown-panel-demo__wide-trigger {
+    min-inline-size: 22rem;
+}
+
+// Inside the panel.
+
+.dropdown-panel-demo__panel-text {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.dropdown-panel-demo__panel-text + .ims-button {
+    margin-block-start: 0.75rem;
+}
+
+.dropdown-panel-demo__menu {
+    display: grid;
+    min-inline-size: 13rem;
+    // The panel's own padding, taken back so the rows reach its edges.
+    margin: calc(var(--ims-dropdown-panel-padding) * -0.5);
+}
+
+.dropdown-panel-demo__menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.625rem;
+    border: none;
+    border-radius: 0.375rem;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 0.875rem;
+    text-align: start;
+    cursor: pointer;
+}
+
+.dropdown-panel-demo__menu-item:hover {
+    background: var(--ims-color-interactive-alt-subtle);
+}
+
+.dropdown-panel-demo__menu-item:focus-visible {
+    outline: 2px solid var(--ims-color-focus-ring);
+    outline-offset: -2px;
+}
+
+.dropdown-panel-demo__menu-item .ims-icon {
+    --ims-icon-size: 1.125rem;
+
+    color: var(--ims-color-on-surface-muted);
+}
+
+.dropdown-panel-demo__filter {
+    display: grid;
+    gap: 0.75rem;
+    min-inline-size: 16rem;
+    padding: 0.25rem;
+}
+
+.dropdown-panel-demo__filter-title {
+    font-size: 0.9375rem;
+    font-weight: var(--ims-font-weight-semibold);
+}
+
+.dropdown-panel-demo__filter-select {
+    inline-size: 100%;
+}
+
+.dropdown-panel-demo__filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+// The class handed to the surface through imsDropdownPanelClass. It restyles the
+// panel through its custom properties, the deeper shadow included.
+.dropdown-panel-demo-raised {
+    --ims-dropdown-panel-radius: 1rem;
+    --ims-dropdown-panel-border: var(--ims-color-status-info-border);
+    --ims-dropdown-panel-padding: 1rem;
+    --ims-dropdown-panel-shadow: 0 0.75rem 2rem
+        color-mix(in srgb, var(--ims-color-primary-950) 14%, transparent);
+
+    max-inline-size: min(20rem, calc(100vw - 16px));
+}
