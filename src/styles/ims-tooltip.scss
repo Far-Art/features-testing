@@ -57,7 +57,7 @@
     // 1, so the tail is close to a straight line — and arrives instead of
     // creeping. Lowering the end point further shortens the tail again at the
     // cost of stopping more abruptly.
-    animation: ims-tooltip-enter 150ms cubic-bezier(0.1, 0.5, 0.5, 0.9);
+    animation: ims-tooltip-enter 150ms cubic-bezier(0, 0, 0.2, 1) forwards;
 }
 
 // Duration must match LEAVE_DURATION_MS in ims-tooltip.service.ts; the panel is
@@ -65,7 +65,7 @@
 // `forwards` holds the last frame so the bubble does not flash back to full
 // opacity in the gap between the animation ending and the detach landing.
 .ims-tooltip--leaving {
-    animation: ims-tooltip-leave 90ms cubic-bezier(0.4, 0, 1, 1) forwards;
+    animation: ims-tooltip-leave 75ms cubic-bezier(0.4, 0, 1, 1) forwards;
 }
 
 .ims-tooltip--info {
@@ -84,33 +84,27 @@
     --ims-tooltip-fill: var(--ims-color-status-danger);
 }
 
-// 0.94 rather than the 0.88 this started at. The drift that makes the settle
-// visible is proportional to the scale delta — at 0.88 a 96px bubble moved each
-// edge about 6px, at 0.94 it is under 3px — and the smaller the delta, the less
-// the text is resampled on the way.
 @keyframes ims-tooltip-enter {
     from {
         opacity: 0;
-        transform: scale(0.94);
+        transform: scale(0.8);
     }
 
     to {
         opacity: 1;
-        transform: none;
+        transform: scale(1);
     }
 }
 
-// The leave can scale freely: it ends at zero opacity and is detached straight
-// after, so there is no final crisp frame for the eye to catch.
 @keyframes ims-tooltip-leave {
     from {
         opacity: 1;
-        transform: none;
+        transform: scale(1);
     }
 
     to {
         opacity: 0;
-        transform: scale(0.97);
+        transform: scale(0.8);
     }
 }
 
