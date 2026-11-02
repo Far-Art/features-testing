@@ -2,6 +2,7 @@ import {
   Directive,
   InjectionToken,
   Signal,
+  booleanAttribute,
   computed,
   forwardRef,
   inject,
@@ -73,8 +74,16 @@ export class ReadonlyDirective implements ImsReadonlyStateProvider {
   /** Local readonly state. `null` and `undefined` inherit the parent state. */
   readonly readonly = model<boolean | null | undefined>(null, { alias: 'ims-readonly' });
 
-  /** Allows this provider to explicitly replace an inherited readonly state. */
-  readonly overrideParent = model<boolean | ''>(false, { alias: 'ims-readonly-override-parent' });
+  /**
+   * Allows this provider to explicitly replace an inherited readonly state.
+   *
+   * A model so callers can also set it programmatically; a model takes no
+   * transform, so the value is coerced with `booleanAttribute` where it is read
+   * and a bare attribute (an empty string) enables it.
+   */
+  readonly overrideParent = model<boolean | string | null | undefined>(false, {
+    alias: 'ims-readonly-override-parent',
+  });
 
   /** An inherited state supplied by another provider on this host, if any. */
   private readonly hostParentReadonly = inject(IMS_READONLY_HOST_PARENT, {
@@ -98,7 +107,7 @@ export class ReadonlyDirective implements ImsReadonlyStateProvider {
       return parentReadonly;
     }
 
-    if (localReadonly || !parentReadonly || this.overrideParent() === true) {
+    if (localReadonly || !parentReadonly || booleanAttribute(this.overrideParent())) {
       return localReadonly;
     }
 

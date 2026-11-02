@@ -23,7 +23,7 @@ export class CustomerPage {}
 | Attribute | Type | Default | Meaning |
 | --- | --- | --- | --- |
 | `ims-readonly` | `boolean \| null \| undefined` | `null` | The local requested readonly state. `null` and `undefined` inherit the closest parent provider's state. |
-| `ims-readonly-override-parent` | `boolean \| ''` | `false` | Allows a child provider to explicitly replace an inherited `true` value. Bind a boolean value when enabling it. |
+| `ims-readonly-override-parent` | `boolean \| string \| null \| undefined` (model, coerced with `booleanAttribute`) | `false` | Allows a child provider to explicitly replace an inherited `true` value. A bare attribute enables it. |
 
 The directive's effective value is exposed as `readonlySignal: Signal<boolean>`.
 

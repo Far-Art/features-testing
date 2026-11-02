@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  booleanAttribute,
   Component,
   computed,
   Directive,
@@ -162,8 +163,9 @@ export class ImsDialogContent extends ImsDialogSectionBase implements ImsReadonl
   readonly localReadonly = input<boolean | null | undefined>(null, { alias: 'ims-readonly' });
 
   /** Allows the local state to replace an inherited readonly dialog state. */
-  readonly overrideDialogReadonly = input<boolean | ''>(false, {
+  readonly overrideDialogReadonly = input<boolean, boolean | string | null | undefined>(false, {
     alias: 'ims-readonly-override-parent',
+    transform: booleanAttribute,
   });
 
   readonly readonlySignal = computed(() => {
@@ -174,7 +176,7 @@ export class ImsDialogContent extends ImsDialogSectionBase implements ImsReadonl
       return dialogReadonly;
     }
 
-    if (localReadonly || !dialogReadonly || this.overrideDialogReadonly() === true) {
+    if (localReadonly || !dialogReadonly || this.overrideDialogReadonly()) {
       return localReadonly;
     }
 
