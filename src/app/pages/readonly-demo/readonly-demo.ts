@@ -221,6 +221,7 @@ export class ReadonlyDemo {
 
   readonly pageReadonly = signal(true);
   readonly allowChildOverride = signal(false);
+  readonly processCanceled = signal(false);
   readonly contactMethods: readonly ContactMethod[] = ['Email', 'Phone', 'Text message'];
   readonly contactMethodOptions: readonly ImsAutocompleteOption<ContactMethod>[] = this.contactMethods.map(
     (method) => ({ value: method, label: method })
@@ -240,7 +241,14 @@ export class ReadonlyDemo {
     this.allowChildOverride.update((override) => !override);
   }
 
+  toggleProcessCanceled(): void {
+    this.processCanceled.update((canceled) => !canceled);
+  }
+
   openReadonlyDialog(): void {
-    this.dialog.info(ReadonlyDialogContent).asReadonly().open();
+    this.dialog
+      .info(ReadonlyDialogContent)
+      .asReadonly({ locked: this.processCanceled() })
+      .open();
   }
 }

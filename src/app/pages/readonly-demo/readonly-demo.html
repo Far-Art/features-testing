@@ -19,7 +19,7 @@
     </ims-grid>
     <div>
       <span class="readonly-demo__control-label">Page provider</span>
-      <strong>{{ pageReadonly() ? 'Locked' : 'Editable' }}</strong>
+      <strong>{{ pageReadonly() ? 'Readonly' : 'Editable' }}</strong>
     </div>
     <button type="button" (click)="togglePageReadonly()">
       {{ pageReadonly() ? 'Make page editable' : 'Make page readonly' }}
@@ -32,9 +32,21 @@
     <button type="button" class="readonly-demo__secondary" (click)="toggleChildOverride()">
       {{ allowChildOverride() ? 'Protect child again' : 'Allow child override' }}
     </button>
+
+    <div>
+      <span class="readonly-demo__control-label">Process · ims-readonly-locked</span>
+      <strong>{{ processCanceled() ? 'Canceled, locked' : 'Active' }}</strong>
+    </div>
+    <button type="button" class="readonly-demo__secondary" (click)="toggleProcessCanceled()">
+      {{ processCanceled() ? 'Reopen process' : 'Cancel process' }}
+    </button>
   </section>
 
-  <section class="readonly-demo__scope" [ims-readonly]="pageReadonly()">
+  <section
+    class="readonly-demo__scope"
+    [ims-readonly]="pageReadonly()"
+    [ims-readonly-locked]="processCanceled()"
+  >
     <div class="readonly-demo__scope-header">
       <div>
         <span class="readonly-demo__scope-kicker">ims-readonly-provider</span>
@@ -109,8 +121,9 @@
         <app-readonly-state />
       </div>
       <p>
-        This provider requests <code>false</code>. While the page is locked, that request is ignored
-        until <code>ims-readonly-override-parent</code> is enabled above.
+        This provider requests <code>false</code>. While the page is readonly, that request is
+        ignored until <code>ims-readonly-override-parent</code> is enabled above. While the process
+        is canceled, the page is locked and the override has no effect.
       </p>
       <div class="readonly-demo__child-control">
         <label>
@@ -128,7 +141,8 @@
       <h2 id="readonly-dialog-demo-title">Readonly dialog</h2>
       <p>
         The dialog opens in readonly mode through <code>asReadonly()</code>. Its review note and
-        select are readonly while the title, toolbar, and Close action stay interactive.
+        select are readonly while the title, toolbar, and Close action stay interactive. While the
+        process is canceled, it opens with <code>asReadonly(&#123; locked: true &#125;)</code>.
       </p>
     </div>
     <button type="button" (click)="openReadonlyDialog()">Open readonly dialog</button>
