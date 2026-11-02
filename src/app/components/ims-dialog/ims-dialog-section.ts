@@ -151,7 +151,8 @@ export class ImsDialogToolbar {}
     class: 'ims-dialog-content',
     '[class.ims-readonly]': 'readonlySignal()',
     '[attr.disabled]': 'readonlySignal() ? "" : null',
-    '[attr.ims-readonly-provider]': 'readonlySignal()',
+    '[attr.ims-readonly-provider]': 'inherited() ? null : readonlySignal()',
+    '[attr.ims-readonly-inherited]': 'inherited() ? readonlySignal() : null',
   },
 })
 export class ImsDialogContent extends ImsDialogSectionBase implements ImsReadonlyStateProvider {
@@ -168,20 +169,25 @@ export class ImsDialogContent extends ImsDialogSectionBase implements ImsReadonl
     transform: booleanAttribute,
   });
 
-  readonly readonlySignal = computed(() => {
-    const dialogReadonly = this.config?.readonlySignal() ?? false;
+  private readonly dialogReadonly = computed(() => this.config?.readonlySignal() ?? false);
+
+  /**
+   * Whether the effective state is the dialog's: no local value is set, or the
+   * local `false` sits under a readonly dialog it may not override.
+   */
+  protected readonly inherited = computed(() => {
     const localReadonly = this.localReadonly();
 
     if (localReadonly === null || localReadonly === undefined) {
-      return dialogReadonly;
+      return true;
     }
 
-    if (localReadonly || !dialogReadonly || this.overrideDialogReadonly()) {
-      return localReadonly;
-    }
-
-    return true;
+    return !localReadonly && this.dialogReadonly() && !this.overrideDialogReadonly();
   });
+
+  readonly readonlySignal = computed(() =>
+    this.inherited() ? this.dialogReadonly() : this.localReadonly() === true,
+  );
 }
 
 /**

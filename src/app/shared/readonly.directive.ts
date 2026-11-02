@@ -44,7 +44,8 @@ export const IMS_READONLY_HOST_PARENT = new InjectionToken<Signal<boolean>>(
   host: {
     '[class.ims-readonly]': 'readonlySignal()',
     '[attr.disabled]': 'disabledAttribute()',
-    '[attr.ims-readonly-provider]': 'readonlySignal()',
+    '[attr.ims-readonly-provider]': 'inherited() ? null : readonlySignal()',
+    '[attr.ims-readonly-inherited]': 'inherited() ? readonlySignal() : null',
   },
 })
 export class ReadonlyDirective implements ImsReadonlyStateProvider {
@@ -97,22 +98,29 @@ export class ReadonlyDirective implements ImsReadonlyStateProvider {
     skipSelf: true,
   });
 
-  /** Effective readonly state consumed by descendants. */
-  readonly readonlySignal: Signal<boolean> = computed(() => {
-    const parentReadonly =
-      this.hostParentReadonly?.() ?? this.parentReadonlyProvider?.readonlySignal() ?? false;
+  /** The inherited state, `false` when no parent provider exists. */
+  private readonly parentReadonly = computed(
+    () => this.hostParentReadonly?.() ?? this.parentReadonlyProvider?.readonlySignal() ?? false,
+  );
+
+  /**
+   * Whether the effective state is the inherited one: this provider sets no
+   * value, or asks for `false` under a readonly parent it may not override.
+   */
+  protected readonly inherited = computed(() => {
     const localReadonly = this.readonly();
 
     if (localReadonly === null || localReadonly === undefined) {
-      return parentReadonly;
+      return true;
     }
 
-    if (localReadonly || !parentReadonly || booleanAttribute(this.overrideParent())) {
-      return localReadonly;
-    }
-
-    return true;
+    return !localReadonly && this.parentReadonly() && !booleanAttribute(this.overrideParent());
   });
+
+  /** Effective readonly state consumed by descendants. */
+  readonly readonlySignal: Signal<boolean> = computed(() =>
+    this.inherited() ? this.parentReadonly() : this.readonly() === true,
+  );
 
   /** Disabled state of a control on this same host, once it shares one. */
   private readonly hostDisabled = signal<Signal<boolean> | null>(null);

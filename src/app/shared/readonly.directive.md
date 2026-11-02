@@ -95,7 +95,13 @@ Every provider host exposes its effective state in the DOM:
 
 - The `ims-readonly` class is present only while the effective state is `true`; use it for readonly-specific styling.
 - The standard `disabled` attribute is present only while the effective state is `true`. On native form controls such as `input`, `textarea`, `select`, and `button`, this disables interaction.
-- `ims-readonly-provider` is always present and has the current effective value, `"true"` or `"false"`. It is a state marker for inspection and styling; it is not a native HTML boolean attribute.
+- Exactly one of `ims-readonly-provider` and `ims-readonly-inherited` is present, and it has the current effective value, `"true"` or `"false"`. `ims-readonly-inherited` marks a host whose effective state is its parent's: `ims-readonly` is `null` or `undefined`, or it is `false` under a readonly parent without `ims-readonly-override-parent`. Otherwise the host carries `ims-readonly-provider`. Both are state markers for inspection and styling; neither is a native HTML boolean attribute.
+
+```html
+<section ims-readonly-provider="true">
+    <input ims-readonly-inherited="true" disabled class="ims-readonly" />
+</section>
+```
 
 For custom controls, use `ReadonlyDirective.injectSignal()` to update their disabled or readonly
 behavior instead of relying on the native `disabled` attribute.
